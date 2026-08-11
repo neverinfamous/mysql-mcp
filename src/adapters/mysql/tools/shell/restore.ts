@@ -211,6 +211,14 @@ export function createShellLoadDumpTool(
                     { suggestion: "Use ignoreExistingObjects: true to skip existing objects" }
                   );
                 }
+                if (errorMessage.includes("No such file or directory") || errorMessage.includes("Cannot open file")) {
+                  throw new MySQLMcpError(
+                    errorMessage,
+                    "VALIDATION_ERROR",
+                    ErrorCategory.VALIDATION,
+                    { suggestion: "Check that the dump directory contains valid dump files." }
+                  );
+                }
                 throw new MySQLMcpError(
                   errorMessage,
                   "QUERY_ERROR",
@@ -268,6 +276,16 @@ export function createShellLoadDumpTool(
               "CONFLICT_ERROR",
               ErrorCategory.QUERY,
               { suggestion: "Use ignoreExistingObjects: true to skip existing objects" }
+            )
+          );
+        }
+        if (errorMessage.includes("No such file or directory") || errorMessage.includes("Cannot open file")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "Check that the dump directory contains valid dump files." }
             )
           );
         }
