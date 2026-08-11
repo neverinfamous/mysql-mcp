@@ -235,6 +235,13 @@ export const ProxySQLBaseInputSchema = z.preprocess(
     delete result["rule_id"];
     delete result["match_digest"];
     delete result["digest"];
+    delete result["SessionID"];
+    delete result["cli_host"];
+    delete result["cli_port"];
+    delete result["srv_host"];
+    delete result["srv_port"];
+    delete result["time_ms"];
+    delete result["info"];
     
     return result;
   },
@@ -483,6 +490,13 @@ export const ProxySQLLimitInputSchema = z.preprocess(
     delete result["connection_id"];
     delete result["client_addr"];
     delete result["proxy_addr"];
+    delete result["SessionID"];
+    delete result["cli_host"];
+    delete result["cli_port"];
+    delete result["srv_host"];
+    delete result["srv_port"];
+    delete result["time_ms"];
+    delete result["info"];
 
     const limit = result["limit"];
     if (limit !== undefined) {
