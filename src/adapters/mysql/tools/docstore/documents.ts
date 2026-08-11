@@ -192,6 +192,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               if (!JSON_PATH_RE.test(formattedPath)) {
                 throw new ValidationError(`Invalid field path: "${rawPath}". Paths must be valid JSON paths.`);
               }
+              if (formattedPath === "$") {
+                throw new ValidationError(`The path expression '$' is not allowed. You cannot overwrite the root document.`);
+              }
               updates.push(`doc = JSON_SET(doc, ?, CAST(CONVERT(? USING utf8mb4) AS JSON))`);
               updateParams.push(formattedPath, JSON.stringify(value));
             }
@@ -205,6 +208,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               if (!JSON_PATH_RE.test(formattedPath)) {
                 throw new ValidationError(`Invalid field path: "${rawPath}". Paths must be valid JSON paths.`);
               }
+              if (formattedPath === "$") {
+                throw new ValidationError(`The path expression '$' is not allowed. You cannot unset the root document.`);
+              }
               updates.push(`doc = JSON_REMOVE(doc, ?)`);
               updateParams.push(formattedPath);
             }
@@ -217,6 +223,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               }
               if (!JSON_PATH_RE.test(formattedPath)) {
                 throw new ValidationError(`Invalid field path: "${rawPath}". Paths must be valid JSON paths.`);
+              }
+              if (formattedPath === "$") {
+                throw new ValidationError(`The path expression '$' is not allowed. You cannot append to the root document.`);
               }
               updates.push(`doc = JSON_ARRAY_APPEND(doc, ?, CAST(CONVERT(? USING utf8mb4) AS JSON))`);
               updateParams.push(formattedPath, JSON.stringify(value));
