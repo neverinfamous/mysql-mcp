@@ -80,14 +80,14 @@ const UserPrivilegesSchemaBase = z.object({
   username: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for user"),
   name: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for user"),
   host: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Host pattern"),
-  includeRoles: z.union([z.boolean(), z.string()]).optional().describe("Include role grants"),
+  includeRoles: z.union([z.boolean(), z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Include role grants"),
   summary: z
-    .union([z.boolean(), z.string()])
+    .union([z.boolean(), z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())])
     .optional()
     .describe(
       "Return condensed summary (privilege counts) instead of raw GRANT strings",
     ),
-  format: z.union([z.string(), z.boolean()]).optional().describe("Alias for summary: 'summary' or 'full'"),
+  format: z.union([z.string(), z.boolean(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for summary: 'summary' or 'full'"),
 });
 
 const UserPrivilegesSchema = z.preprocess(
@@ -137,11 +137,11 @@ const SensitiveTablesSchemaBase = z.object({
   table: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
   tableName: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
   patterns: z
-    .union([z.array(z.string()), z.string()])
+    .union([z.array(z.string()), z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())])
     .optional()
     .describe("Column name patterns to consider sensitive"),
   limit: z
-    .union([z.number(), z.string()])
+    .union([z.number(), z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())])
     .optional()
     .describe(
       "Maximum number of tables to return (default: 20). Set higher for full scan.",
