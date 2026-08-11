@@ -56,23 +56,17 @@ export function isValidWKT(wkt: string): boolean {
 }
 
 export const SpatialColumnSchemaBase = z.object({
-  table: z.unknown().optional().describe("Table name"),
-  tableName: z.unknown().optional(),
-  name: z.unknown().optional(),
-  spatialColumn: z.unknown().optional().describe("Spatial column name"),
-  geometryColumn: z.unknown().optional(),
-  column: z.unknown().optional().describe("Column name"),
-  columnName: z.unknown().optional(),
-  col: z.unknown().optional(),
-  type: z.unknown().optional().describe("Geometry type (default: GEOMETRY)"),
-  srid: z
-    .unknown()
-    .optional()
-    .describe("Spatial Reference System ID (4326 = WGS84)"),
-  nullable: z
-    .unknown()
-    .optional()
-    .describe("Allow NULL values (default: false for spatial compatibility)"),
+  table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional(),
+  name: z.string().optional(),
+  spatialColumn: z.string().optional().describe("Spatial column name"),
+  geometryColumn: z.string().optional(),
+  column: z.string().optional().describe("Column name"),
+  columnName: z.string().optional(),
+  col: z.string().optional(),
+  type: z.string().optional().describe("Geometry type (default: GEOMETRY)"),
+  srid: z.number().optional().describe("Spatial Reference System ID (4326 = WGS84)"),
+  nullable: z.boolean().optional().describe("Allow NULL values (default: false for spatial compatibility)"),
 });
 
 export const SpatialColumnSchema = z.preprocess(
@@ -105,20 +99,17 @@ export const SpatialColumnSchema = z.preprocess(
   });
 
 export const SpatialIndexSchemaBase = z.object({
-  table: z.unknown().optional().describe("Table name"),
-  tableName: z.unknown().optional(),
-  name: z.unknown().optional(),
-  spatialColumn: z.unknown().optional().describe("Spatial column name"),
-  geometryColumn: z.unknown().optional(),
-  column: z.unknown().optional().describe("Spatial column name"),
-  columnName: z.unknown().optional(),
-  col: z.unknown().optional(),
-  columns: z.unknown().optional(),
-  indexName: z
-    .unknown()
-    .optional()
-    .describe("Index name (auto-generated if not provided)"),
-  index_name: z.unknown().optional(),
+  table: z.string().optional().describe("Table name"),
+  tableName: z.string().optional(),
+  name: z.string().optional(),
+  spatialColumn: z.string().optional().describe("Spatial column name"),
+  geometryColumn: z.string().optional(),
+  column: z.string().optional().describe("Spatial column name"),
+  columnName: z.string().optional(),
+  col: z.string().optional(),
+  columns: z.string().optional(),
+  indexName: z.string().optional().describe("Index name (auto-generated if not provided)"),
+  index_name: z.string().optional(),
 });
 
 export const SpatialIndexSchema = z.preprocess(

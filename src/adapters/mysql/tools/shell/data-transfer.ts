@@ -642,15 +642,16 @@ export function createShellImportJSONTool(
         }
 
         if (
-          errorMessage.includes("contains invalid bytes (5b)") ||
-          errorMessage.includes("Document is missing a required field")
+          errorMessage.includes("contains invalid bytes") ||
+          errorMessage.includes("Document is missing a required field") ||
+          errorMessage.includes("Premature end of input stream")
         ) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
-              "JSON import failed: The input file appears to be a JSON array or is missing required fields. util.importJson() requires NDJSON (one JSON object per line). It does not support JSON arrays.",
+              "JSON import failed: The input file is not valid NDJSON (e.g., it is a JSON array, plain text, or malformed JSON). util.importJson() requires NDJSON (one valid JSON object per line).",
               "VALIDATION_ERROR",
               ErrorCategory.VALIDATION,
-              { suggestion: "Convert the JSON array to NDJSON (JSON Lines) format where each object is on a new line. Ensure all required document fields are present." }
+              { suggestion: "Convert the file to NDJSON (JSON Lines) format where each valid JSON object is on a new line, and ensure there are no arrays or unclosed objects." }
             )
           );
         }
