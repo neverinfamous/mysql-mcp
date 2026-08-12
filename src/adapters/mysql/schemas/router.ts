@@ -147,9 +147,7 @@ export const RouteNameInputSchema = z.preprocess(
                     obj["metadataName"] ?? obj["poolName"] ?? obj["id"];
     
     if (finalName !== undefined) {
-      if (typeof finalName === "object" && finalName !== null) {
-        finalName = JSON.stringify(finalName);
-      } else if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
+      if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
         finalName = String(finalName);
       }
     }
@@ -161,7 +159,7 @@ export const RouteNameInputSchema = z.preprocess(
   },
   RouteNameInputSchemaBase
 ).refine((data) => data.routeName !== undefined && typeof data.routeName === "string" && data.routeName.trim() !== "", {
-  message: "routeName must not be empty",
+  message: "routeName must be a non-empty string",
   path: ["routeName"]
 }).transform((data) => ({
   routeName: (data.routeName ?? "") as string,
@@ -177,9 +175,7 @@ export const RouteNameWithLimitInputSchema = z.preprocess(
                     obj["metadataName"] ?? obj["poolName"] ?? obj["id"];
     
     if (finalName !== undefined) {
-      if (typeof finalName === "object" && finalName !== null) {
-        finalName = JSON.stringify(finalName);
-      } else if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
+      if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
         finalName = String(finalName);
       }
     }
@@ -198,7 +194,7 @@ export const RouteNameWithLimitInputSchema = z.preprocess(
   },
   RouteNameWithLimitInputSchemaBase
 ).refine((data) => data.routeName !== undefined && typeof data.routeName === "string" && data.routeName.trim() !== "", {
-  message: "routeName must not be empty",
+  message: "routeName must be a non-empty string",
   path: ["routeName"]
 }).transform((data) => ({
   routeName: (data.routeName ?? "") as string,
