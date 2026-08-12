@@ -1130,6 +1130,9 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   delete result["query"];
   delete result["sql"];
   delete result["where"];
+  delete result["documentId"];
+  delete result["search"];
+  delete result["patch"];
 
   return result;
 }
@@ -1194,6 +1197,14 @@ export function preprocessDocIndexParams(val: unknown): unknown {
       return fieldObj;
     });
   }
+
+  delete result["collectionName"];
+  delete result["table"];
+  delete result["tableName"];
+  delete result["tbl"];
+  delete result["database"];
+  delete result["indexName"];
+  delete result["index"];
 
   return result;
 }

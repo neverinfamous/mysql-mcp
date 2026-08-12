@@ -55,7 +55,8 @@ export const CreateCollectionSchemaStrict = z.object({
     })
     .optional()
     .describe("Validation config"),
-});
+  collection: z.unknown().optional(),
+}).strict();
 
 export const CreateCollectionSchema = z.preprocess(
   preprocessDocCollectionParams,
@@ -76,9 +77,10 @@ export const DropCollectionSchemaBase = z.object({
 
 export const DropCollectionSchemaStrict = z.object({
   name: z.string(),
+  collection: z.unknown().optional(),
   schema: z.string().optional(),
   ifExists: z.boolean().default(true),
-});
+}).strict();
 
 export const DropCollectionSchema = z.preprocess(
   preprocessDocCollectionParams,
@@ -114,6 +116,7 @@ export const FindSchemaBase = z.object({
 
 export const FindSchemaStrict = z.object({
   collection: z.string().describe("Collection name. Hint: Use 'collection' instead of 'table' or 'tableName'."),
+  name: z.unknown().optional(),
   schema: z.string().optional(),
   filter: z
     .string()
@@ -124,7 +127,7 @@ export const FindSchemaStrict = z.object({
   fields: z.array(z.string()).optional(),
   limit: z.number().int().nonnegative().default(100),
   offset: z.number().int().nonnegative().default(0),
-});
+}).strict();
 
 export const FindSchema = z.preprocess(
   preprocessDocFilterParams,
@@ -156,7 +159,8 @@ export const AddDocSchemaStrict = z.object({
     .array(z.record(z.string(), z.unknown()))
     .min(1)
     .describe("Documents to add. Hint: Use 'documents' instead of 'document'."),
-});
+  name: z.unknown().optional(),
+}).strict();
 
 export const AddDocSchema = z.preprocess(
   preprocessDocCollectionParams,
@@ -204,7 +208,8 @@ export const ModifyDocSchemaStrict = z.object({
   set: z.record(z.string(), z.unknown()).optional().describe("Fields to set. Hint: Use 'set' instead of 'patch' or 'update'."),
   unset: z.array(z.string()).optional(),
   arrayAppend: z.record(z.string(), z.unknown()).optional().describe("Values to append to array fields."),
-});
+  name: z.unknown().optional(),
+}).strict();
 
 export const ModifyDocSchema = z.preprocess(
   preprocessDocFilterParams,
@@ -244,7 +249,8 @@ export const RemoveDocSchemaStrict = z.object({
     .describe(
       "Filter: JSON path for existence ($.name) OR _id value for specific document. Hint: Use 'filter' instead of 'query' or 'sql'.",
     ),
-});
+  name: z.unknown().optional(),
+}).strict();
 
 export const RemoveDocSchema = z.preprocess(
   preprocessDocFilterParams,
@@ -298,7 +304,7 @@ export const CreateDocIndexSchemaStrict = z.object({
     }),
   ).min(1),
   unique: z.boolean().default(false),
-});
+}).strict();
 
 export const CreateDocIndexSchema = z.preprocess(
   preprocessDocIndexParams,
@@ -319,7 +325,8 @@ export const CollectionInfoSchemaBase = z.object({
 export const CollectionInfoSchemaStrict = z.object({
   collection: z.string().describe("Collection name. Hint: Use 'collection' instead of 'table' or 'tableName'."),
   schema: z.string().optional(),
-});
+  name: z.unknown().optional(),
+}).strict();
 
 export const CollectionInfoSchema = z.preprocess(
   preprocessDocCollectionParams,
