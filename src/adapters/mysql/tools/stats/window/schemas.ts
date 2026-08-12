@@ -289,6 +289,9 @@ export const StatsRunningTotalSchemaBase = z.object({
     .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Number of rows to skip (default: 0)"),
+  asColumn: z.string().optional().describe("Alias for the output column"),
+  as_column: z.string().optional().describe("Alias for asColumn"),
+  alias: z.string().optional().describe("Alias for asColumn"),
 });
 
 export const StatsRunningTotalSchema = z.preprocess(
@@ -311,6 +314,7 @@ export const StatsRunningTotalSchema = z.preprocess(
       orderBy: ob,
       partitionBy: pb,
       selectColumns: sc,
+      asColumn: v["asColumn"] ?? v["as_column"] ?? v["alias"],
     };
   },
   z.object({
@@ -320,6 +324,7 @@ export const StatsRunningTotalSchema = z.preprocess(
     orderBy: z.string().min(1, "orderBy is required").refine(val => !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the order condition." }).refine(val => !val.includes(";"), { message: "Invalid characters in orderBy" }),
     partitionBy: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the partition condition." }).refine(val => !val?.includes(";"), { message: "Invalid characters in partitionBy" }),
     selectColumns: z.array(z.string().refine(val => !val.includes(";"), { message: "Invalid characters in selectColumns" })).optional(),
+    asColumn: z.string().min(1, "asColumn cannot be empty").refine(val => !val.includes(";") && !val.includes("`"), { message: "Invalid characters in asColumn" }).default("running_total"),
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }).refine(val => !val?.includes(";"), { message: "Invalid characters in where clause" }),
     limit: z.coerce.number().min(1).max(1000).default(10),
     offset: z.coerce.number().min(0).default(0),
@@ -371,6 +376,9 @@ export const StatsMovingAvgSchemaBase = z.object({
     .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Number of rows to skip (default: 0)"),
+  asColumn: z.string().optional().describe("Alias for the output column"),
+  as_column: z.string().optional().describe("Alias for asColumn"),
+  alias: z.string().optional().describe("Alias for asColumn"),
 });
 
 export const StatsMovingAvgSchema = z.preprocess(
@@ -394,6 +402,7 @@ export const StatsMovingAvgSchema = z.preprocess(
       partitionBy: pb,
       selectColumns: sc,
       windowSize: v["windowSize"] ?? v["window_size"] ?? v["size"] ?? v["period"],
+      asColumn: v["asColumn"] ?? v["as_column"] ?? v["alias"],
     };
   },
   z.object({
@@ -404,6 +413,7 @@ export const StatsMovingAvgSchema = z.preprocess(
     windowSize: z.coerce.number().int("windowSize must be an integer").min(1).default(3),
     partitionBy: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the partition condition." }).refine(val => !val?.includes(";"), { message: "Invalid characters in partitionBy" }),
     selectColumns: z.array(z.string().refine(val => !val.includes(";"), { message: "Invalid characters in selectColumns" })).optional(),
+    asColumn: z.string().min(1, "asColumn cannot be empty").refine(val => !val.includes(";") && !val.includes("`"), { message: "Invalid characters in asColumn" }).default("moving_avg"),
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }).refine(val => !val?.includes(";"), { message: "Invalid characters in where clause" }),
     limit: z.coerce.number().int().min(1).max(1000).default(10),
     offset: z.coerce.number().int().min(0).default(0),

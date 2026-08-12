@@ -72,7 +72,7 @@ export function createStatsMovingAvgTool(
         const windowExpr = `AVG(${escapedColumn}) OVER(${partition} ORDER BY ${parsed.orderBy} ROWS BETWEEN ${String(preceding)} PRECEDING AND CURRENT ROW)`;
 
         const sql = `
-          SELECT ${selectList(parsed.selectColumns, windowExpr, "moving_avg")}
+          SELECT ${selectList(parsed.selectColumns, windowExpr, parsed.asColumn)}
           FROM ${fullTableName}
           ${whereClause(parsed.where)}
           ORDER BY ${parsed.orderBy}

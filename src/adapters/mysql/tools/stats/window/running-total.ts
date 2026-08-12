@@ -69,7 +69,7 @@ export function createStatsRunningTotalTool(
         const windowExpr = `SUM(${escapedColumn}) OVER(${partition} ORDER BY ${parsed.orderBy} ROWS UNBOUNDED PRECEDING)`;
 
         const sql = `
-          SELECT ${selectList(parsed.selectColumns, windowExpr, "running_total")}
+          SELECT ${selectList(parsed.selectColumns, windowExpr, parsed.asColumn)}
           FROM ${fullTableName}
           ${whereClause(parsed.where)}
           ORDER BY ${parsed.orderBy}
