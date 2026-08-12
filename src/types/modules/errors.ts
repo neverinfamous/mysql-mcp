@@ -254,10 +254,10 @@ export class ConflictError extends MySQLMcpError {
   constructor(
     message: string,
     details?: Record<string, unknown>,
-    options?: { cause?: Error },
+    options?: { cause?: Error; suggestion?: string },
   ) {
     super(message, "CONFLICT_ERROR", ErrorCategory.QUERY, {
-      suggestion: "The resource was modified by another request. Fetch the latest version and try again.",
+      suggestion: options?.suggestion ?? "The resource was modified by another request. Fetch the latest version and try again.",
       details,
       recoverable: true,
       cause: options?.cause,

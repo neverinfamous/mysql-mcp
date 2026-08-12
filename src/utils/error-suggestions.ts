@@ -135,7 +135,7 @@ const ERROR_SUGGESTIONS: {
     code: "VALIDATION_ERROR",
   },
   {
-    pattern: /invalid (view|index|schema|database) name/i,
+    pattern: /invalid (view|index|schema|database|collection) name/i,
     suggestion:
       "Names must follow MySQL identifier rules: 1-64 characters, alphanumeric or underscores.",
     category: ErrorCategory.VALIDATION,

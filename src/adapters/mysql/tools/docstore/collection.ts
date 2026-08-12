@@ -238,7 +238,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
           if (message.toLowerCase().includes("already exists")) {
             return formatHandlerErrorResponse(
-              new ConflictError(`Collection '${name ?? "unknown"}' already exists`)
+              new ConflictError(`Collection '${name ?? "unknown"}' already exists`, undefined, {
+                suggestion: "Collection already exists. Use ifNotExists: true to skip creation or choose a different name.",
+              })
             );
           }
           return formatHandlerErrorResponse(error);
