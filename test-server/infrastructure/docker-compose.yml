@@ -247,7 +247,7 @@ services:
       retries: 30
 
   proxysql:
-    image: proxysql/proxysql:3.0.9
+    image: proxysql/proxysql:3.0.10
     container_name: proxysql
     restart: unless-stopped
     depends_on:
@@ -368,7 +368,7 @@ services:
       com.datadoghq.ad.logs: '[{"source":"mysql_mcp","service":"mysql_mcp"}]'
 
   mysql-router-telemetry:
-    image: oven/bun:1.1.27-alpine
+    image: oven/bun:1.2.0-alpine
     container_name: mysql-router-telemetry
     restart: unless-stopped
     depends_on:
@@ -403,7 +403,7 @@ services:
       com.datadoghq.ad.logs: '[{"source":"bun","service":"mysql-router-telemetry"}]'
 
   dozzle:
-    image: amir20/dozzle:v10.6
+    image: amir20/dozzle:v10.7.1
     container_name: dozzle
     restart: unless-stopped
     ports:
@@ -467,7 +467,7 @@ services:
       retries: 3
 
   grafana:
-    image: grafana/grafana:13.1.1
+    image: grafana/grafana:13.1.3
     container_name: grafana
     restart: unless-stopped
     ports:
@@ -490,7 +490,7 @@ services:
       start_period: 120s
 
   loki:
-    image: grafana/loki:3.7.4
+    image: grafana/loki:3.7.6
     container_name: loki
     restart: unless-stopped
     ports:
@@ -510,7 +510,7 @@ services:
       disable: true
 
   alloy:
-    image: grafana/alloy:v1.18.0
+    image: grafana/alloy:v1.18.1
     container_name: alloy
     restart: unless-stopped
     ports:
@@ -538,7 +538,7 @@ services:
       start_period: 10s
 
   datadog-unified:
-    image: gcr.io/datadoghq/agent:7.81.3
+    image: gcr.io/datadoghq/agent:7.82.1
     container_name: datadog-unified
     restart: unless-stopped
     pid: host
