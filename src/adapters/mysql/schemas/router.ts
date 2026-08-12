@@ -147,7 +147,9 @@ export const RouteNameInputSchema = z.preprocess(
                     obj["metadataName"] ?? obj["poolName"] ?? obj["id"];
     
     if (finalName !== undefined) {
-      if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
+      if (typeof finalName === "object" && finalName !== null) {
+        finalName = JSON.stringify(finalName);
+      } else if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
         finalName = String(finalName);
       }
     }
@@ -175,7 +177,9 @@ export const RouteNameWithLimitInputSchema = z.preprocess(
                     obj["metadataName"] ?? obj["poolName"] ?? obj["id"];
     
     if (finalName !== undefined) {
-      if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
+      if (typeof finalName === "object" && finalName !== null) {
+        finalName = JSON.stringify(finalName);
+      } else if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
         finalName = String(finalName);
       }
     }
