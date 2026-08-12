@@ -98,6 +98,13 @@ const UserPrivilegesSchema = z.preprocess(
     
     if (Array.isArray(user) && user.length > 0) user = String(user[0]);
     else if (typeof user === "object" && user !== null) user = JSON.stringify(user);
+    else if (typeof user === "string" && user.includes("@")) {
+      const parts = user.split("@");
+      user = parts[0];
+      if (obj["host"] === undefined) {
+        obj["host"] = parts.slice(1).join("@");
+      }
+    }
     
     let summary = obj["summary"];
     if (summary === undefined && "format" in obj) {
