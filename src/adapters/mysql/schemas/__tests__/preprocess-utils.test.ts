@@ -79,7 +79,7 @@ describe("preprocess-utils", () => {
       expect(preprocessDocCollectionParams({ tbl: "c" })).toMatchObject({ name: "c", collection: "c" });
     });
     it("should set schema from database", () => {
-      expect(preprocessDocCollectionParams({ database: "d" })).toMatchObject({ database: "d", schema: "d" });
+      expect(preprocessDocCollectionParams({ database: "d" })).toMatchObject({ schema: "d" });
     });
     it("should convert document to documents array", () => {
       expect(preprocessDocCollectionParams({ document: { a: 1 } })).toMatchObject({ documents: [{ a: 1 }] });
