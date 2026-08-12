@@ -227,7 +227,37 @@ export function createDisableVersioningTool(
         const safeOldTrigger = schemaName ? `\`${schemaName?.replace(/`/g, "")}\`.\`${oldTriggerName}\`` : `\`${oldTriggerName}\``;
         const safeTrigger = schemaName ? `\`${schemaName?.replace(/`/g, "")}\`.\`${triggerName}\`` : `\`${triggerName}\``;
 
-        const describeInfo = await adapter.describeTable(table);
+        let describeInfo;
+        try {
+          describeInfo = await adapter.describeTable(table);
+        } catch (error: unknown) {
+          let isNotFoundError = false;
+          if (error !== null && typeof error === "object") {
+             if ("code" in error) {
+               const code = error.code;
+               if (code === "TABLE_NOT_FOUND" || code === "ER_NO_SUCH_TABLE") {
+                 isNotFoundError = true;
+               }
+             }
+             if ("message" in error) {
+               const msg = error.message;
+               if (typeof msg === "string" && msg.includes("does not exist")) {
+                 isNotFoundError = true;
+               }
+             }
+          }
+
+          if (ifExists && isNotFoundError) {
+            return withTokenEstimate({
+              success: true,
+              data: {
+                message: `Table '${table}' does not exist (no changes made).`,
+              },
+            });
+          }
+          throw error;
+        }
+
         if (describeInfo.type === "view") {
           return formatHandlerErrorResponse(
             new MySQLMcpError(`Cannot disable versioning on view '${table}'`, "INVALID_STATE", ErrorCategory.VALIDATION)
