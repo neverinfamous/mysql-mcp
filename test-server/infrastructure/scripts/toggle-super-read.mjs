@@ -30,7 +30,7 @@ function main() {
         } else if (arg === 'ON') {
             execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', container, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = 1'], { encoding: 'utf-8' });
         } else if (arg === 'OFF') {
-            execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', container, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = 0'], { encoding: 'utf-8' });
+            execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', container, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = 0, read_only = 0'], { encoding: 'utf-8' });
         } else {
             // Toggle (default behavior)
             execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', container, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = NOT @@global.super_read_only'], { encoding: 'utf-8' });
