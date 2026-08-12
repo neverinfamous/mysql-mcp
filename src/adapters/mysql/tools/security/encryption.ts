@@ -34,7 +34,7 @@ const PasswordValidateSchemaBase = z.object({
   password: z.union([z.string(), z.number()]).optional().describe("Password to validate"),
   pass: z.union([z.string(), z.number()]).optional().describe("Alias for password"),
   pwd: z.union([z.string(), z.number()]).optional().describe("Alias for password"),
-}).loose();
+}).strict();
 
 const PasswordValidateSchema = z.object({
   password: z.union([z.string(), z.number()]).describe("Password to validate").optional(),
@@ -66,7 +66,7 @@ export function createSecuritySSLStatusTool(
     title: "MySQL SSL Status",
     description: "Get SSL/TLS connection and certificate status.",
     group: "security",
-    inputSchema: z.object({}).loose().describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: SecuritySslStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -150,7 +150,7 @@ export function createSecurityEncryptionStatusTool(
     title: "MySQL Encryption Status",
     description: "Get Transparent Data Encryption (TDE) and keyring status.",
     group: "security",
-    inputSchema: z.object({}).loose().describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: SecurityEncryptionStatusOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
