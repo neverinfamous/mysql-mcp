@@ -150,6 +150,15 @@ export function preprocessDocCollectionParams(input: unknown): unknown {
     result["ifExists"] = result["ifExists"].toLowerCase() === "true";
   }
 
+  delete result["collectionName"];
+  delete result["table"];
+  delete result["tableName"];
+  delete result["tbl"];
+  delete result["database"];
+  delete result["document"];
+  delete result["data"];
+  delete result["items"];
+
   return result;
 }
 
