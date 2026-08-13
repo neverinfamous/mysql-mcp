@@ -32,7 +32,7 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 // Moved to schemas/cluster.ts
-const EmptyArgsSchema = z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected.");
+const EmptyArgsSchema = z.object({}).describe("Takes no arguments.");
 
 // =============================================================================
 // Tool Creation Functions
