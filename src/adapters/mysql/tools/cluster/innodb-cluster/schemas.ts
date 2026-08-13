@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const SummarySchemaBase = z.object({
   summary: z.union([z.boolean(), z.string()]).optional().describe("If true, return condensed output without configuration blobs"),
-}).loose();
+}).strict();
 
 export const SummarySchema = z.preprocess((val) => {
   if (typeof val === "boolean") {
@@ -29,7 +29,7 @@ export const LimitSchemaBase = z.object({
     .positive("Expected positive integer")
     .optional()
     .default(100),
-}).loose();
+}).strict();
 
 export const LimitSchema = z.preprocess((val) => {
   if (typeof val === "number") {
