@@ -57,6 +57,25 @@ if (!existsSync(seedFile)) {
     process.exit(1);
 }
 
+function disableSuperReadOnly() {
+    console.log(`  [HEAL] Detected super_read_only mode — disabling automatically...`);
+    try {
+        execFileSync(dockerCmd, [
+            ...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName,
+            'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = 0, read_only = 0'
+        ], { encoding: 'utf-8', stdio: 'pipe' });
+        console.log(`  [HEAL] super_read_only disabled successfully.`);
+        return true;
+    } catch (healErr) {
+        console.error(`  [HEAL] Failed to disable super_read_only: ${healErr.message}`);
+        return false;
+    }
+}
+
+function isSuperReadOnlyError(e) {
+    return e.message.includes('1290') || e.message.includes('--super-read-only');
+}
+
 function invokeMySql(query, noDatabase = false) {
     const db = noDatabase ? '' : mysqlDatabase;
     const args = db 
@@ -67,9 +86,18 @@ function invokeMySql(query, noDatabase = false) {
         const result = execFileSync(dockerCmd, args, { encoding: 'utf-8', stdio: 'pipe' });
         return result;
     } catch (e) {
-        if (e.message.includes('1290') || e.message.includes('--super-read-only')) {
-            console.error(`Docker exec failed: ${e.message}\n\n[!] The primary node is stuck in super-read-only mode. Run 'node scripts/heal-primary.mjs' to fix this cluster state.`);
-            process.exit(1);
+        if (isSuperReadOnlyError(e)) {
+            if (!disableSuperReadOnly()) {
+                console.error(`Docker exec failed: ${e.message}`);
+                process.exit(1);
+            }
+            // Retry the original query after healing
+            try {
+                return execFileSync(dockerCmd, args, { encoding: 'utf-8', stdio: 'pipe' });
+            } catch (retryErr) {
+                console.error(`Docker exec failed after heal retry: ${retryErr.message}`);
+                process.exit(1);
+            }
         }
         console.error(`Docker exec failed: ${e.message}`);
         process.exit(1);
@@ -78,21 +106,34 @@ function invokeMySql(query, noDatabase = false) {
 
 function invokeMySqlFile(filePath) {
     console.log(`\n[1/3] Executing seed script...`);
+    // Read as UTF-8 string and normalize CRLF→LF so Linux MySQL CLI
+    // inside the container doesn't receive stray \r characters.
+    const fileContent = readFileSync(filePath, 'utf-8').replace(/\r\n/g, '\n');
+    const seedArgs = [...dockerBaseArgs, 'exec', '-i', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '--binary-mode', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase];
+
     try {
         invokeMySql(`CREATE DATABASE IF NOT EXISTS ${mysqlDatabase};`, true);
-        // Read as UTF-8 string and normalize CRLF→LF so Linux MySQL CLI
-        // inside the container doesn't receive stray \r characters.
-        const fileContent = readFileSync(filePath, 'utf-8').replace(/\r\n/g, '\n');
         // --binary-mode: prevents MySQL CLI from interpreting \n, \G, \q etc.
         // as interactive commands when receiving piped SQL input.
-        execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-i', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '--binary-mode', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase], { input: fileContent, stdio: 'pipe' });
+        execFileSync(dockerCmd, seedArgs, { input: fileContent, stdio: 'pipe' });
     } catch (e) {
-        if (e.message.includes('1290') || e.message.includes('--super-read-only')) {
-            console.error(`Failed to execute seed file: ${e.message}\n\n[!] The primary node is stuck in super-read-only mode. Run 'node scripts/heal-primary.mjs' to fix this cluster state.`);
+        if (isSuperReadOnlyError(e)) {
+            if (!disableSuperReadOnly()) {
+                console.error(`Failed to execute seed file: ${e.message}`);
+                process.exit(1);
+            }
+            // Retry the full seed sequence after healing
+            try {
+                invokeMySql(`CREATE DATABASE IF NOT EXISTS ${mysqlDatabase};`, true);
+                execFileSync(dockerCmd, seedArgs, { input: fileContent, stdio: 'pipe' });
+            } catch (retryErr) {
+                console.error(`Failed to execute seed file after heal retry: ${retryErr.message}`);
+                process.exit(1);
+            }
+        } else {
+            console.error(`Failed to execute seed file: ${e.message}`);
             process.exit(1);
         }
-        console.error(`Failed to execute seed file: ${e.message}`);
-        process.exit(1);
     }
 }
 
