@@ -13,7 +13,7 @@
 
 ## Complete Setup Prerequisites
 
-**Step 1:** Read the server help content in `src/constants/instructions/markdown/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
+**Step 1:** Read the server help content in `src/constants/instructions/markdown/gotchas.md` AND `src/constants/instructions/markdown/${config.groupName}.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
 **Step 2:** Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
 

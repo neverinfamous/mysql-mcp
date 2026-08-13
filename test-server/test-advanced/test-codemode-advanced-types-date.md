@@ -13,7 +13,7 @@
 
 ## Complete Setup Prerequisites
 
-**Step 1:** Read the server help content in `src/constants/instructions/markdown/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
+**Step 1:** Read the server help content in `src/constants/instructions/markdown/gotchas.md` AND `src/constants/instructions/markdown/${config.groupName}.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
 **Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 

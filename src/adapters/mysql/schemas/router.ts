@@ -251,7 +251,7 @@ export const MetadataNameInputSchema = z.preprocess(
 }));
 
 export const ConnectionPoolNameInputSchemaBase = z.object({
-  poolName: z.unknown().optional().describe("Name of the connection pool. Anti-Hallucination Hint: Pass poolName, not pool."),
+  poolName: z.unknown().optional().describe("Name of the connection pool (the default pool is typically named 'main'). Anti-Hallucination Hint: Pass poolName, not pool."),
   name: z.unknown().optional().describe("Alias for poolName"),
   pool: z.unknown().optional().describe("Alias for poolName"),
   pool_name: z.unknown().optional().describe("Alias for poolName"),
