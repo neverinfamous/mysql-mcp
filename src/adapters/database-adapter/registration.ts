@@ -1,6 +1,7 @@
 import type { McpServer, CallToolResult } from "@modelcontextprotocol/server";
 import { logger } from "../../utils/logger.js";
 import { z } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
 import type {
   ToolDefinition,
   ResourceDefinition,
@@ -9,6 +10,46 @@ import type {
 import type { DatabaseAdapter } from "./database-adapter.js";
 import { metrics } from "../../observability/metrics.js";
 
+/**
+ * Wraps a Zod schema to enforce JSON Schema 2020-12 dialect via the ~standard interface,
+ * while patching additionalProperties to allow MCP SDK meta-injections during validation.
+ */
+function with2020_12JSONSchema<T extends z.ZodType>(schema: T): T {
+  // @ts-expect-error Zod version typing mismatch between local zod and zod-to-json-schema
+  const jsonSchema = zodToJsonSchema(schema, { target: "jsonSchema2020-12" });
+  
+  function patchAdditionalProperties(obj: unknown): void {
+    if (typeof obj !== 'object' || obj === null) return;
+    const schemaObj = obj as Record<string, unknown>;
+    
+    if (schemaObj["type"] === 'object' && schemaObj["additionalProperties"] === false) {
+      delete schemaObj["additionalProperties"];
+    }
+    
+    for (const key of Object.keys(schemaObj)) {
+      patchAdditionalProperties(schemaObj[key]);
+    }
+  }
+  
+  patchAdditionalProperties(jsonSchema);
+
+  return new Proxy(schema, {
+    get(target, prop, receiver): unknown {
+      if (prop === "~standard") {
+        const existing = Reflect.get(target, prop, receiver);
+        const standard = existing ?? { vendor: "zod", version: 1 };
+        return {
+          ...(standard as object),
+          jsonSchema: {
+            input: () => jsonSchema,
+            output: () => jsonSchema
+          }
+        };
+      }
+      return Reflect.get(target, prop, receiver);
+    }
+  });
+}
 
 /**
  * Register all enabled tools with the MCP server
@@ -50,11 +91,14 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
   }
 
   if (tool.inputSchema !== undefined) {
-    toolOptions["inputSchema"] = tool.inputSchema;
+    const schema = tool.inputSchema instanceof z.ZodType 
+      ? tool.inputSchema 
+      : z.object(tool.inputSchema);
+    toolOptions["inputSchema"] = with2020_12JSONSchema(schema);
   }
 
   if (tool.outputSchema !== undefined) {
-    toolOptions["outputSchema"] = tool.outputSchema;
+    toolOptions["outputSchema"] = with2020_12JSONSchema(tool.outputSchema);
   }
 
   const hasOutputSchema = Boolean(tool.outputSchema);
