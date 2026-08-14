@@ -15,6 +15,7 @@ import type { ToolAnnotations } from "../types/index.js";
 export const READ_ONLY: ToolAnnotations = {
   readOnlyHint: true,
   destructiveHint: false,
+  idempotentHint: true,
   openWorldHint: false,
   sensitiveHint: false,
 };

@@ -52,6 +52,7 @@ export function createShellDumpInstanceTool(
       openWorldHint: true,
       destructiveHint: false,
       sensitiveHint: false,
+      idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -215,6 +216,7 @@ export function createShellDumpSchemasTool(
       openWorldHint: true,
       destructiveHint: false,
       sensitiveHint: false,
+      idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -390,6 +392,7 @@ export function createShellDumpTablesTool(
       openWorldHint: true,
       destructiveHint: false,
       sensitiveHint: false,
+      idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {

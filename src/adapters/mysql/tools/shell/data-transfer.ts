@@ -61,6 +61,7 @@ export function createShellExportTableTool(
       openWorldHint: true,
       destructiveHint: false,
       sensitiveHint: false,
+      idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
