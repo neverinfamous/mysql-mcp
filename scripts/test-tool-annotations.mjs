@@ -31,7 +31,7 @@ import { spawn } from "child_process";
 const projectDir = "C:\\Users\\chris\\Desktop\\mysql-mcp";
 
 /** Expected total tool count */
-const EXPECTED_TOOL_COUNT = 241;
+const EXPECTED_TOOL_COUNT = 242;
 
 /**
  * Tools registered directly via SDK's registerTool() cannot carry sensitiveHint
@@ -406,15 +406,15 @@ if (!cleanEnv.MYSQL_HOST) cleanEnv.MYSQL_HOST = "127.0.0.1";
 if (!cleanEnv.MYSQL_USER) cleanEnv.MYSQL_USER = "root";
 if (!cleanEnv.MYSQL_PASSWORD) cleanEnv.MYSQL_PASSWORD = "root";
 if (!cleanEnv.MYSQL_DATABASE) cleanEnv.MYSQL_DATABASE = "testdb";
+cleanEnv.AGENT_BYPASS = "1";
 
 const proc = spawn(
-  "node",
+  process.execPath,
   [
     "dist/cli.js",
     "--log-level",
     "error",
-    "--tool-filter",
-    "-nonexistent",
+    "--tool-filter=-nonexistent",
   ],
   {
     cwd: projectDir,
@@ -427,16 +427,19 @@ let buffer = "";
 let finished = false;
 
 proc.stdout.on("data", (chunk) => {
+  // console.log("STDOUT:", chunk.toString()); // Uncomment to debug raw stdout
   buffer += chunk.toString();
 
   const lines = buffer.split("\n");
+  buffer = lines.pop(); // Keep the incomplete last line in the buffer!
+  
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
     try {
       const msg = JSON.parse(trimmed);
       if (msg.id === 1) {
-        // Initialize response â€” skip
+        // Initialize response — skip
       } else if (msg.id === 2) {
         // tools/list response
         const tools = msg.result?.tools || [];
@@ -452,7 +455,9 @@ proc.stdout.on("data", (chunk) => {
   }
 });
 
-proc.stderr.on("data", () => {});
+proc.stderr.on("data", (chunk) => {
+  console.error("STDERR:", chunk.toString());
+});
 
 // Send initialize
 proc.stdin.write(
