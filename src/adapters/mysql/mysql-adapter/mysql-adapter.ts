@@ -201,6 +201,7 @@ export class MySQLAdapter extends DatabaseAdapter {
     await this.pool.shutdown();
     this.pool = null;
     this.connected = false;
+    this.config = null;
     logger.info("MySQL adapter disconnected");
   }
 
