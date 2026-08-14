@@ -1,5 +1,6 @@
 import https from "node:https";
 import http from "node:http";
+import { execSync } from "node:child_process";
 import type { RouterConfig, ErrorResponse } from "../../../../types/index.js";
 import { MySQLMcpError } from "../../../../types/modules/errors.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
@@ -29,108 +30,141 @@ export async function routerFetch(
   const password = cfg.password ?? "";
   const insecure = cfg.insecure ?? false;
 
-  const fullUrl = `${baseUrl}${apiVersion}${path}`;
-  const parsedUrl = new URL(fullUrl);
+  const attemptUrls = [baseUrl];
 
-  return new Promise((resolve, reject) => {
-    const headers: Record<string, string> = {
-      Accept: "application/json",
-    };
-
-    if (username && password) {
-      const auth = Buffer.from(`${username}:${password}`).toString("base64");
-      headers["Authorization"] = `Basic ${auth}`;
-    }
-
-    const requestOptions: https.RequestOptions = {
-      hostname: parsedUrl.hostname,
-      port: parsedUrl.port || 8443,
-      path: parsedUrl.pathname,
-      method: "GET",
-      headers,
-      timeout: 10000,
-    };
-
-    if (parsedUrl.protocol === "https:") {
-      requestOptions.rejectUnauthorized = !insecure;
-    }
-
-    const client = parsedUrl.protocol === "https:" ? https : http;
-    const req = client.request(requestOptions, (res) => {
-      let data = "";
-
-      res.on("data", (chunk) => {
-        data += chunk;
-      });
-
-      res.on("end", () => {
-        const statusCode = res.statusCode ?? 0;
-        if (statusCode >= 200 && statusCode < 300) {
-          try {
-            resolve(JSON.parse(data));
-          } catch {
-            reject(new Error(`Invalid JSON response: ${data}`));
-          }
-        } else {
-          let errorDetail = "";
-          let parsedData: unknown;
-          try {
-            if (data) {
-              parsedData = JSON.parse(data);
-              errorDetail = JSON.stringify(parsedData);
-            }
-          } catch {
-            errorDetail = data.substring(0, 100);
-          }
-          const err = new Error(
-            `Router API error: ${statusCode} ${res.statusMessage ?? "Unknown"}${errorDetail ? ` - ${errorDetail}` : ""}`,
-          );
-          Object.assign(err, { statusCode });
-          if (parsedData !== undefined) {
-            Object.assign(err, { responseData: parsedData });
-          }
-          reject(err);
+  // Windows native WSL fallback: If host is localhost/127.0.0.1 and we are on Windows,
+  // we may encounter ECONNREFUSED due to WSL2 port forwarding issues.
+  if (process.platform === "win32") {
+    try {
+      const parsedUrl = new URL(baseUrl);
+      if (parsedUrl.hostname === "127.0.0.1" || parsedUrl.hostname === "localhost") {
+        const output = execSync("wsl hostname -I", { encoding: "utf8" });
+        const ip = output.trim().split(/\s+/)[0];
+        if (ip && /^\d+\.\d+\.\d+\.\d+$/.test(ip)) {
+          parsedUrl.hostname = ip;
+          attemptUrls.push(parsedUrl.toString().replace(/\/$/, ""));
         }
-      });
-    });
-
-    req.on("error", (error) => {
-      const errorCode =
-        error instanceof Error && "code" in error && typeof error.code === "string"
-          ? error.code
-          : undefined;
-      let message = error instanceof Error ? error.message : String(error);
-      if (errorCode === "ECONNREFUSED" || message.includes("ECONNREFUSED")) {
-        message = `Connection refused - MySQL Router REST API is not reachable at ${baseUrl}`;
-      } else if (errorCode === "ETIMEDOUT" || errorCode === "ESOCKETTIMEDOUT" || message.includes("ETIMEDOUT")) {
-        message = `Connection timed out - MySQL Router REST API at ${baseUrl} is not responding`;
-      } else if (errorCode === "ENOTFOUND" || message.includes("ENOTFOUND")) {
-        message = `Host not found - cannot resolve ${parsedUrl.hostname}`;
-      } else if (errorCode === "ECONNRESET" || message.includes("ECONNRESET")) {
-        message = `Connection reset - MySQL Router REST API at ${baseUrl} forcefully closed the connection`;
-      } else if (
-        errorCode === "UNABLE_TO_VERIFY_LEAF_SIGNATURE" ||
-        errorCode === "CERT_HAS_EXPIRED" ||
-        errorCode === "DEPTH_ZERO_SELF_SIGNED_CERT" ||
-        message.includes("self-signed") ||
-        message.includes("certificate")
-      ) {
-        message = `TLS certificate error: ${message}. Set MYSQL_ROUTER_INSECURE=true for self-signed certificates`;
       }
-      reject(new Error(`Router API request failed: ${message}`));
-    });
+    } catch {
+      // Ignore error if wsl is not available
+    }
+  }
 
-    req.on("timeout", () => {
-      req.destroy();
-      reject(
-        new Error(
-          `Router API request timed out after 10 seconds - MySQL Router at ${baseUrl} is not responding`,
-        ),
-      );
-    });
+  let lastError: unknown;
 
-    req.end();
-  });
+  for (const url of attemptUrls) {
+    try {
+      const fullUrl = `${url}${apiVersion}${path}`;
+      const parsedUrl = new URL(fullUrl);
+
+      const result = await new Promise((resolve, reject) => {
+        const headers: Record<string, string> = {
+          Accept: "application/json",
+        };
+
+        if (username && password) {
+          const auth = Buffer.from(`${username}:${password}`).toString("base64");
+          headers["Authorization"] = `Basic ${auth}`;
+        }
+
+        const requestOptions: https.RequestOptions = {
+          hostname: parsedUrl.hostname,
+          port: parsedUrl.port || 8443,
+          path: parsedUrl.pathname,
+          method: "GET",
+          headers,
+          timeout: 10000,
+        };
+
+        if (parsedUrl.protocol === "https:") {
+          requestOptions.rejectUnauthorized = !insecure;
+        }
+
+        const client = parsedUrl.protocol === "https:" ? https : http;
+        const req = client.request(requestOptions, (res) => {
+          let data = "";
+
+          res.on("data", (chunk) => {
+            data += chunk;
+          });
+
+          res.on("end", () => {
+            const statusCode = res.statusCode ?? 0;
+            if (statusCode >= 200 && statusCode < 300) {
+              try {
+                resolve(JSON.parse(data));
+              } catch {
+                reject(new Error(`Invalid JSON response: ${data}`));
+              }
+            } else {
+              let errorDetail = "";
+              let parsedData: unknown;
+              try {
+                if (data) {
+                  parsedData = JSON.parse(data);
+                  errorDetail = JSON.stringify(parsedData);
+                }
+              } catch {
+                errorDetail = data.substring(0, 100);
+              }
+              const err = new Error(
+                `Router API error: ${statusCode} ${res.statusMessage ?? "Unknown"}${errorDetail ? ` - ${errorDetail}` : ""}`,
+              );
+              Object.assign(err, { statusCode });
+              if (parsedData !== undefined) {
+                Object.assign(err, { responseData: parsedData });
+              }
+              reject(err);
+            }
+          });
+        });
+
+        req.on("error", (error) => {
+          const errorCode =
+            error instanceof Error && "code" in error && typeof error.code === "string"
+              ? error.code
+              : undefined;
+          let message = error instanceof Error ? error.message : String(error);
+          if (errorCode === "ECONNREFUSED" || message.includes("ECONNREFUSED")) {
+            message = `Connection refused - MySQL Router REST API is not reachable at ${url}`;
+          } else if (errorCode === "ETIMEDOUT" || errorCode === "ESOCKETTIMEDOUT" || message.includes("ETIMEDOUT")) {
+            message = `Connection timed out - MySQL Router REST API at ${url} is not responding`;
+          } else if (errorCode === "ENOTFOUND" || message.includes("ENOTFOUND")) {
+            message = `Host not found - cannot resolve ${parsedUrl.hostname}`;
+          } else if (errorCode === "ECONNRESET" || message.includes("ECONNRESET")) {
+            message = `Connection reset - MySQL Router REST API at ${url} forcefully closed the connection`;
+          } else if (
+            errorCode === "UNABLE_TO_VERIFY_LEAF_SIGNATURE" ||
+            errorCode === "CERT_HAS_EXPIRED" ||
+            errorCode === "DEPTH_ZERO_SELF_SIGNED_CERT" ||
+            message.includes("self-signed") ||
+            message.includes("certificate")
+          ) {
+            message = `TLS certificate error: ${message}. Set MYSQL_ROUTER_INSECURE=true for self-signed certificates`;
+          }
+          reject(new Error(`Router API request failed: ${message}`));
+        });
+
+        req.on("timeout", () => {
+          req.destroy();
+          reject(
+            new Error(
+              `Router API request timed out after 10 seconds - MySQL Router at ${url} is not responding`,
+            ),
+          );
+        });
+
+        req.end();
+      });
+
+      return result;
+    } catch (error) {
+      lastError = error;
+      // Continue to the next URL
+    }
+  }
+
+  throw lastError;
 }
 
 export async function safeRouterFetch(path: string): Promise<SafeRouterResult<unknown>> {
