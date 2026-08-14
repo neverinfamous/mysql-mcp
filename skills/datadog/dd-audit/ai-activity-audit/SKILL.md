@@ -11,7 +11,7 @@ metadata:
 
 # Audit Trail: AI Activity Audit
 
-Every Datadog MCP tool call is recorded in Audit Trail under the `Bits AI SRE` category. This skill surfaces what the AI assistant has done in your org — which users invoked it, which tools were called, and which resources were affected.
+Every Datadog MCP tool call is recorded in Audit Trail under the `MCP Server` category. This skill surfaces what the AI assistant has done in your org — which users invoked it, which tools were called, and which resources were affected.
 
 ## Prerequisites
 
@@ -148,10 +148,8 @@ This skill is most useful for:
 - **Compliance audits:** Demonstrating AI activity is logged and attributable to specific users
 - **Governance reports:** Understanding adoption and risk surface of the AI assistant across the org
 
-No other observability vendor audits their AI assistant's actions at this level of detail.
-
 ## References
 
 - [Bits AI SRE documentation](https://docs.datadoghq.com/bits_ai/)
-- [Audit Trail events — Bits AI SRE category](https://docs.datadoghq.com/account_management/audit_trail/events/)
+- [Audit Trail events — MCP Server category](https://docs.datadoghq.com/account_management/audit_trail/events/)
 - [MCP Server setup](https://docs.datadoghq.com/bits_ai/mcp_server/)

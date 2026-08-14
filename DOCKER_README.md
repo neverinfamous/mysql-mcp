@@ -1,7 +1,7 @@
 # MySQL MCP Server (mysql-mcp)
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-Protected-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg)
 
 > **Note:** Docker Hub limits descriptions to 25k characters. Some documentation may be truncated. View the **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** or the [GitHub README](https://github.com/neverinfamous/mysql-mcp) for complete details.
 
@@ -13,24 +13,9 @@ Accelerate your AI agents with production-ready MySQL integration. Deploy MCP v2
 
 ## 🎯 Leverage Core Benefits
 
-| Feature                               | Description                                                                                                                                                                                                                                                                            |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Specialized Tools**                 | Access specialized tools for core CRUD, JSON, spatial data, document stores, and clusters. |
-| **Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
-| **AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
-| **Code Mode**                         | Reduce LLM token consumption by consolidating operations inside a secure, sandboxed V8 isolate. |
-| **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
-| **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
-| **Smart Tool Filtering**              | Use tool groups and shortcuts to stay within IDE tool limits. |
-| **Streamable & Stateless HTTP**               | Support MCP v2 streamable HTTP and stateless HTTP deployments via NodeStreamableHTTPServerTransport. |
-| **Connection Pooling**                | Leverage built-in connection pooling for efficient, highly concurrent database access. |
-| **Ecosystem Integrations**            | Manage MySQL Router, ProxySQL, and MySQL Shell utilities directly from your agent. |
-| **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
-| **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
-| **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Observability**                     | Export Prometheus metrics and track logs with Dozzle. |
-| **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. |
-| **MCP v2 Compliant**                | Fully support the MCP v2 specification. This includes stateless routing, caching, safety hints, and notifications. |
+mysql-mcp provides specialized tools for CRUD, JSON, spatial data, and clusters. It features AI-powered prompts, Code Mode for token optimization, OAuth 2.1 security, strict tool filtering, built-in connection pooling, and advanced observability via Prometheus and Grafana. 
+
+> **📖 View the complete feature list and architecture details in the [Wiki](https://github.com/neverinfamous/mysql-mcp/wiki).**
 
 ## 🤖 Automate Tasks with Guided Workflows
 
@@ -44,31 +29,9 @@ Accelerate your AI agents with production-ready MySQL integration. Deploy MCP v2
 
 ## 📊 Improve Observability with Resources
 
-| Resource | Category | Description |
-| --- | --- | --- |
-| `mysql://schema` | Core | Full database schema |
-| `mysql://tables` | Core | Table listing with metadata |
-| `mysql://variables` | Core | Server configuration variables |
-| `mysql://status` | Core | Server status metrics |
-| `mysql://processlist` | Core | Active connections and queries |
-| `mysql://pool` | Core | Connection pool statistics |
-| `mysql://capabilities` | Extended | Server version, features, and tool categories |
-| `mysql://health` | Extended | Comprehensive database health status |
-| `mysql://performance` | Extended | Query performance metrics |
-| `mysql://indexes` | Extended | Index usage and statistics |
-| `mysql://replication` | Extended | Replication status and lag |
-| `mysql://innodb` | Extended | InnoDB buffer pool and engine metrics |
-| `mysql://events` | Domain | Event Scheduler status and scheduled events |
-| `mysql://sysschema` | Domain | sys schema diagnostics summary |
-| `mysql://locks` | Domain | InnoDB lock contention detection |
-| `mysql://cluster` | Domain | Group Replication / InnoDB Cluster status |
-| `mysql://spatial` | Domain | Spatial columns and indexes |
-| `mysql://docstore` | Domain | Document Store collections |
-| `mysql://insights` | Analytics | Business insights memo from mysql_append_insight |
-| `mysql://metrics` | Observability | In-memory token usage, latency, and request metrics |
-| `mysql://audit` | Observability | Forensic trail and snapshot of system errors |
-| `mysql://help` | Documentation | Critical gotchas and high-level API reference |
-| `mysql://help/{group}` | Documentation | Dynamic group-specific tool reference (e.g., `core`, `codemode`) |
+Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. Available resources include `mysql://schema`, `mysql://performance`, `mysql://health`, `mysql://metrics`, `mysql://audit`, and more.
+
+> **📖 Discover all available resources in the [Resources Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Resources).**
 
 ---
 
@@ -96,11 +59,10 @@ docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
 
 #### Observability via Docker Compose
 
-Launch the minimal root-level observability stack using the included `docker-compose.yml` file. This spins up the MCP server, MySQL database, and a Redis container. It includes a pre-configured Prometheus and Grafana observability stack. Note that this configuration overrides `MCP_RATE_LIMIT_MAX` to `10000`.
-
-> **Linux Users:** For `host.docker.internal` on Linux, add `extra_hosts: - "host.docker.internal:host-gateway"` to your `docker-compose.yml` services.
+Launch the full observability stack (Datadog + OpenTelemetry + Prometheus + Grafana) using the included template. This spins up the MCP server, MySQL database, Redis, and observability sidecars:
 
 ```bash
+cd examples/full-observability-ecosystem
 cp .env.example .env
 docker compose up -d
 ```
@@ -297,64 +259,9 @@ Use predefined tool bundles to stay within IDE tool limits. Example: `--tool-fil
 
 ### Configure CLI Options
 
-> **Note:** Items marked with `—` in the CLI flag column are configured exclusively via environment variables.
+mysql-mcp supports extensive configuration via CLI flags and environment variables, including transport settings, database credentials, connection pool sizing, OAuth integration, Code Mode sandboxing limits, and observability configurations.
 
-| Option | Environment Variable | Description |
-| --- | --- | --- |
-| `--config`, `-c`          | —                       | Configuration file path (.yaml or .json)            |
-| `--dump-config`           | —                       | Dump current configuration to stdout and exit       |
-| `--version`, `-v`         | —                       | Show version number                                 |
-| `--help`, `-h`            | —                       | Show help                                           |
-| `--json`                  | —                       | Output in JSON format                               |
-| `--transport`, `-t`       | —                       | Transport type: stdio, http (default: stdio) |
-| `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http transport                   |
-| `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
-| `--mysql`, `-m`           | —                       | MySQL connection string                             |
-| `--mysql-host`            | `MYSQL_HOST`            | MySQL host                                          |
-| `--mysql-port`            | `MYSQL_PORT`            | MySQL port                                          |
-| `--mysql-user`            | `MYSQL_USER`            | MySQL username                                      |
-| `--mysql-password`        | `MYSQL_PASSWORD`        | MySQL password                                      |
-| `--mysql-database`        | `MYSQL_DATABASE`        | MySQL database name                                 |
-| `--pool-size`             | `MYSQL_POOL_SIZE`       | Connection pool size (default: 10)                  |
-| `--pool-timeout`          | —                       | Connection acquire timeout in ms (default: 30000)   |
-| `--pool-queue-limit`      | —                       | Queue limit for waiting requests (default: 0)       |
-| `--tool-filter`, `-f`     | `TOOL_FILTER`           | Tool filter string                                  |
-| `--name`                  | —                       | Server name                                         |
-| `--auth-token`            | `MCP_AUTH_TOKEN`        | Simple bearer token for HTTP authentication         |
-| `--stateless`             | —                       | Enable stateless HTTP mode via NodeStreamableHTTPServerTransport    |
-| `--trust-proxy`           | `TRUST_PROXY`           | Trust X-Forwarded-For for client IP                 |
-| `--enable-hsts`           | `MCP_ENABLE_HSTS`       | Enable HTTP Strict Transport Security               |
-| `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
-| `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
-| `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for all file I/O operations |
-| `--audit-log`             | `AUDIT_LOG_PATH`        | Path to the audit log file                          |
-| `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
-| `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
-| `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |
-| `--audit-log-max-size`    | —                       | Max file size before rotation (bytes)               |
-| `--audit-backup-data`     | —                       | Include sample data in pre-mutation snapshots       |
-| `--audit-backup-max-size` | —                       | Max table size in bytes for data capture            |
-| `--oauth-enabled`, `-o`   | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
-| `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL                            |
-| `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |
-| `--oauth-jwks-uri`        | `OAUTH_JWKS_URI`        | JWKS URI (auto-discovered)                          |
-| `--oauth-clock-tolerance` | `OAUTH_CLOCK_TOLERANCE` | Clock tolerance in seconds                          |
-| —                         | `MYSQL_ROUTER_URL`      | MySQL Router URL                                    |
-| —                         | `MYSQL_ROUTER_USER`     | MySQL Router user                                   |
-| —                         | `MYSQL_ROUTER_PASSWORD` | MySQL Router password                               |
-| —                         | `MYSQL_ROUTER_INSECURE` | Bypass Router TLS verification                      |
-| —                         | `PROXYSQL_HOST`         | ProxySQL host                                       |
-| —                         | `PROXYSQL_PORT`         | ProxySQL port                                       |
-| —                         | `PROXYSQL_USER`         | ProxySQL user                                       |
-| —                         | `PROXYSQL_PASSWORD`     | ProxySQL password                                   |
-| —                         | `MYSQLSH_PATH`          | Path to MySQL Shell executable                      |
-| —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
-| —                         | `CODEMODE_ISOLATION`    | Code Mode isolation level                           |
-| —                         | `CODEMODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
-| —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
-| —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
-| —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 100) |
-| —                         | `CODEMODE_RATE_LIMIT_MAX`| Max Code Mode executions per minute (default 60)    |
+> **📖 View the complete list of CLI options and environment variables in the [Configuration Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Configuration).**
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
 

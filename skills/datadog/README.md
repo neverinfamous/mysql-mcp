@@ -1,5 +1,8 @@
 # Datadog Skills for AI Agents
 
+> [!IMPORTANT]
+> **Value Proposition:** These skills allow AI agents (Claude, Cursor, Windsurf, etc.) to natively interact with Datadog. Agents can read monitors, query logs/traces, automate CI/CD failure triaging, perform audit trail investigations, and directly author and run AI evaluation experiments.
+
 Datadog skills for Claude Code, Codex CLI, Gemini CLI, Cursor, Windsurf, OpenCode, and other AI agents.
 
 ## Skills
@@ -92,7 +95,7 @@ The `agent-observability` directory contains six skills for working with Agent O
 | `agent-observability-experiment-py-bootstrap` | Generate self-contained Python experiment code using the `ddtrace.llmobs` SDK |
 | `agent-observability-trace-rca` | Root-cause production failures using eval judge signal or runtime errors |
 | `agent-observability-eval-bootstrap` | Generate evaluator code from traces, optionally seeded by RCA output. Also emits a dataset from traces in `--emit-dataset` mode. |
-| `agent-observability-eval-pipeline` | Eight-phase pipeline: classify → RCA → bootstrap evaluators → create dataset → publish → generate experiment → run → analyze. Stop early with `--stop-after`. |
+| `agent-observability-eval-pipeline` | Six-phase pipeline: classify → RCA → eval bootstrap → dataset → experiment → analyze. Stop early with `--stop-after`. |
 | `agent-observability-session-classify` | Classify whether user intent was satisfied in a session (trace + RUM signals) |
 
 **Eval pipeline flow:**
@@ -136,7 +139,7 @@ All six skills require the LLMO toolset:
 claude mcp add --scope user --transport http "datadog-llmo-mcp" 'https://mcp.datadoghq.com/api/unstable/mcp-server/mcp?toolsets=llmobs'
 ```
 
-`experiment-analyzer` uses the core toolset for notebook export (optional). `eval-session-classify`
+`experiment-analyzer` uses the core toolset for notebook export (optional). `agent-observability-session-classify`
 requires it for RUM behavioral analysis and efficient batched fetches of trace session spans:
 
 ```bash
@@ -158,9 +161,9 @@ Analyze eval failures for <eval_name> over the last week
 Look at the errors on <ml_app> over the last 24h
 
 # Generate evaluator code from production traces
-/eval-bootstrap <ml_app>                                    # cold start
-/eval-bootstrap <ml_app> [paste eval-trace-rca output here] # seeded from RCA
-/eval-bootstrap <ml_app> --data-only                        # emit JSON spec instead of Python SDK code
+/agent-observability-eval-bootstrap <ml_app>                                    # cold start
+/agent-observability-eval-bootstrap <ml_app> [paste eval-trace-rca output here] # seeded from RCA
+/agent-observability-eval-bootstrap <ml_app> --data-only                        # emit JSON spec instead of Python SDK code
 
 # Generate a Python experiment client using the ddtrace.llmobs SDK
 /agent-observability-experiment-py-bootstrap                                                  # 3-record inline sample
@@ -169,66 +172,11 @@ Look at the errors on <ml_app> over the last 24h
 /agent-observability-experiment-py-bootstrap --evaluator-style remote                         # server-side RemoteEvaluator stubs
 
 # Classify a session
-/eval-session-classify <session_id>
+/agent-observability-session-classify <session_id>
 
 # Guided end-to-end pipeline (6 narrated phases — classify → RCA → eval bootstrap → dataset → experiment → analyze)
 /agent-observability-eval-pipeline <ml_app>
 /agent-observability-eval-pipeline <ml_app> --timeframe now-30d --trace-limit 25 --format ipynb
-```
-
-### Software Delivery (dd-software-delivery)
-
-The `dd-software-delivery` directory contains workflow skills for CI/CD visibility and test reliability:
-
-| Skill | Purpose |
-|-------|---------|
-| `unblock-pr` | Investigate a failing PR CI pipeline — classify each failure as flaky, infra, or regression; fetch code coverage and PR quality/security insights; propose targeted actions |
-| `triage-flaky-test` | Deep-dive on a specific flaky test — get history, blast radius, root cause category, and recommend a code fix or quarantine |
-
-**Workflow:**
-
-```
-unblock-pr → (if flaky failure) → triage-flaky-test → quarantine or fix
-```
-
-#### Backend
-
-- **pup mode**: uses the `pup` CLI. PR quality/security data is not available; GitHub Actions retry falls back to `gh run rerun`.
-
-
-
-#### Prerequisites
-
-Requires `pup` CLI for pup mode (and as a fallback). See [Setup Pup](#setup-pup).
-
-#### Install
-
-```bash
-# Claude Code — copy any or all skills
-cp -r dd-software-delivery/unblock-pr ~/.claude/skills
-cp -r dd-software-delivery/triage-flaky-test ~/.claude/skills
-```
-
-Or via `npx`:
-
-```bash
-npx skills add datadog-labs/agent-skills \
-  --skill dd-software-delivery/unblock-pr \
-  --skill dd-software-delivery/triage-flaky-test \
-  --full-depth -y
-```
-
-#### Usage
-
-```
-# Investigate a failing PR
-unblock-pr                                     # auto-detects branch and repo from git
-unblock-pr my-feature-branch                   # explicit branch
-unblock-pr my-feature-branch github.com/org/repo
-
-# Triage a specific flaky test
-triage-flaky-test TestMyFunc
-triage-flaky-test com.example.MyTest github.com/org/repo
 ```
 
 ### Audit Trail (dd-audit)

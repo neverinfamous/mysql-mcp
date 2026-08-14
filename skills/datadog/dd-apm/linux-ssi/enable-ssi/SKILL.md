@@ -91,6 +91,7 @@ ERROR: musl — SSI requires glibc. No workaround; must use a glibc-based OS.
 | `SSH_KEY` | Path to SSH private key |
 | `SSH_USER` | SSH username |
 | `SSH_HOST` | Hostname or IP of the target host |
+| `SOURCE_DIR` | Ask the user — path to the application source code |
 
 ---
 
