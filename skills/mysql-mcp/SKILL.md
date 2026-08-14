@@ -87,7 +87,7 @@ The `mysql-mcp` server operates within a broader skill ecosystem. **Do not guess
 
 - **MySQL Version Awareness**: **\[WHEN\]** using vector tools (`mysql_vector_*`) -> **\[ALWAYS\]** verify the target database is MySQL 9.0+ (9.1+ required for HNSW indexes). **\[WHEN\]** writing SQL that uses `VECTOR` data type or `VECTOR_DISTANCE()` -> **\[ALWAYS\]** load the **`mysql`** skill for MySQL 9.0+ syntax rules.
 
-- **Server Instructions Architecture**: The server uses a two-tier on-demand instruction system. A slim ~700-token base payload is auto-injected at init. Group-specific help (~400-1,500 tokens each) is served lazily via `mysql://help/{group}` resources. There are numerous group help resources plus `mysql://help` (gotchas). The server instructions own tool-level mechanics (parameter aliases, pagination defaults, error codes). This skill owns orchestration and cross-cutting concerns.
+- **Server Instructions Architecture**: The server uses a two-tier on-demand instruction system. A lightweight base payload is auto-injected at init. Group-specific help payloads are served lazily via `mysql://help/{group}` resources. There are numerous group help resources plus `mysql://help` (gotchas). The server instructions own tool-level mechanics (parameter aliases, pagination defaults, error codes). This skill owns orchestration and cross-cutting concerns.
 
 ## 5. Telemetry & Observability
 

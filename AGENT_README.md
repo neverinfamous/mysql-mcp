@@ -32,7 +32,7 @@ When committing changes to `mysql-mcp`, you **MUST** adhere to the following rul
 ## 🐚 MySQL Shell Integration (mysqlsh)
 
 The `mysql-mcp` server natively exposes MySQL Shell functionality to agents.
-- **Environment Variable**: Configure the shell port using `MYSQLSH_PORT: "3307"` (or your custom port).
+- **Environment Variable**: Configure the shell port using `MYSQL_XPORT: "33060"` (or your custom port).
 - **Available Tools**: A robust suite of `mysqlsh` tools is available, including `mysqlsh_dump_instance`, `mysqlsh_dump_schemas`, `mysqlsh_export_table`, `mysqlsh_import_table`, and `mysqlsh_run_script`.
 
 ---
