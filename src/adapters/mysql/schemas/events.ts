@@ -170,7 +170,7 @@ export const EventStatusSchemaBase = z.object({
     .describe("Schema name (defaults to current database)"),
   schemaName: z.string().optional().describe("Alias for schema"),
   database: z.string().optional().describe("Alias for schema"),
-}).strict();
+});
 
 export const EventStatusSchema = z.object({
   name: z.string().optional(),
@@ -185,7 +185,7 @@ export const EventStatusSchema = z.object({
 })).refine(data => data.name !== "", { message: "name (or eventName alias) is required" });
 
 
-export const SchedulerStatusSchemaBase = z.object({}).strict();
+export const SchedulerStatusSchemaBase = z.object({});
 
 export const SchedulerStatusSchema = z.object({}).transform(() => ({}));
 
