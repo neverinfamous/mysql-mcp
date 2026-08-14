@@ -11,6 +11,7 @@ export class QueryExecutor {
     params?: unknown[],
     transactionId?: string,
   ): Promise<QueryResult> {
+    await this.adapter.ensureConnection();
     if (!this.adapter.pool) {
       throw new ConnectionError("Not connected to database");
     }
@@ -83,6 +84,7 @@ export class QueryExecutor {
   }
 
   async rawQuery(sql: string): Promise<QueryResult> {
+    await this.adapter.ensureConnection();
     if (!this.adapter.pool) {
       throw new ConnectionError("Not connected");
     }
