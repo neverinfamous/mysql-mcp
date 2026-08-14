@@ -124,7 +124,7 @@ docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
 
 #### Enable Observability via Docker Compose
 
-Launch the full observability stack (Datadog + OpenTelemetry + Prometheus + Grafana) using the included template. This spins up the MCP server, MySQL database, Redis, and observability sidecars:
+Launch the full observability stack using the included template. This includes Datadog, OpenTelemetry, Prometheus, and Grafana. This spins up the MCP server, MySQL database, Redis, and observability sidecars:
 
 ```bash
 cd examples/full-observability-ecosystem

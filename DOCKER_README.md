@@ -13,7 +13,7 @@ Accelerate your AI agents with production-ready MySQL integration. Deploy MCP v2
 
 ## 🎯 Leverage Core Benefits
 
-mysql-mcp provides specialized tools for CRUD, JSON, spatial data, and clusters. It features AI-powered prompts, Code Mode for token optimization, OAuth 2.1 security, strict tool filtering, built-in connection pooling, and advanced observability via Prometheus and Grafana. 
+mysql-mcp provides specialized tools for CRUD, JSON, spatial data, and clusters. It features AI-powered prompts and Code Mode for token optimization. Enjoy OAuth 2.1 security, strict tool filtering, built-in connection pooling, and advanced observability. 
 
 > **📖 View the complete feature list and architecture details in the [Wiki](https://github.com/neverinfamous/mysql-mcp/wiki).**
 

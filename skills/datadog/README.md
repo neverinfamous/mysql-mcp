@@ -1,11 +1,11 @@
 # Datadog Skills for AI Agents
 
 > [!IMPORTANT]
-> **Value Proposition:** These skills allow AI agents (Claude, Cursor, Windsurf, etc.) to natively interact with Datadog. Agents can read monitors, query logs/traces, automate CI/CD failure triaging, perform audit trail investigations, and directly author and run AI evaluation experiments.
+> **Value Proposition:** These skills allow AI agents to natively interact with Datadog. Agents can read monitors and query logs or traces. They automate CI/CD failure triaging and perform audit trail investigations. They also author and run AI experiments.
 
 Datadog skills for Claude Code, Codex CLI, Gemini CLI, Cursor, Windsurf, OpenCode, and other AI agents.
 
-## Skills
+## Accelerate with Skills
 
 | Skill | Description |
 |-------|-------------|
@@ -20,7 +20,7 @@ Datadog skills for Claude Code, Codex CLI, Gemini CLI, Cursor, Windsurf, OpenCod
 | **dd-software-delivery** | CI/CD workflow skills — unblock PR pipelines, triage flaky tests |
 | **dd-apps** | Build Datadog Apps — scaffold, run locally, upload, publish, CI/CD, DDSQL data access |
 
-## Install
+## Simplify Installation
 
 ### Setup Pup
 
@@ -87,7 +87,7 @@ npx skills add datadog-labs/agent-skills \
 
 ### Agent Observability (LLMO)
 
-The `agent-observability` directory contains six skills for working with Agent Observability data:
+The `agent-observability` directory contains skills for working with Agent Observability data:
 
 | Skill | Purpose |
 |-------|---------|
@@ -181,7 +181,7 @@ Look at the errors on <ml_app> over the last 24h
 
 ### Audit Trail (dd-audit)
 
-The `dd-audit` directory contains five skills for investigating Datadog Audit Trail data:
+The `dd-audit` directory contains skills for investigating Datadog Audit Trail data:
 
 | Skill | Purpose |
 |-------|---------|
@@ -359,7 +359,7 @@ Trigger a Workflow Automation workflow from a backend function
 
 More commands for `pup` are found in the [official pup docs](https://github.com/datadog-labs/pup/blob/main/docs/COMMANDS.md).
 
-## Auth
+## Secure Authentication
 
 ```bash
 # Check auth first (includes token time remaining)

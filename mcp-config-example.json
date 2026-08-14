@@ -45,6 +45,8 @@
         "_comment_TRUST_PROXY": "false",
         "_comment_MCP_ENABLE_HSTS": "false",
         "_comment_MYSQLMCP_PORT": "3000",
+        "_comment_PROMETHEUS_PORT": "9090",
+        "_comment_GRAFANA_PORT": "3001",
         "_comment_MCP_METRICS_EXPORT": "prometheus",
         "_comment_OAUTH_ENABLED": "false",
         "_comment_OAUTH_ISSUER": "https://auth.example.com",

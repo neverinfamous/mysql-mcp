@@ -2,12 +2,12 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2024-11-05/server.schema.json",
   "name": "io.github.neverinfamous.mysql-mcp",
   "title": "MySQL MCP Server",
-  "description": "Enterprise-grade MySQL MCP Server with OAuth 2.1 authentication, connection pooling & tool filtering. Increase token efficiency with Code Mode.",
+  "description": "Streamline database operations with our Enterprise-grade MySQL MCP Server. Securely connect using OAuth 2.1. Boost token efficiency via Code Mode.",
   "version": "4.0.0",
   "packages": [
     {
       "registryType": "oci",
-      "identifier": "docker.io/writenotenow/mysql-mcp:latest",
+      "identifier": "docker.io/neverinfamous/mysql-mcp:latest",
       "args": [
         "--transport",
         "stdio"
