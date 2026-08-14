@@ -167,8 +167,10 @@ mcp.stdout.on("data", (data) => {
 });
 
 mcp.stderr.on("data", (data) => {
-  if (data.toString().includes("Error:")) {
-    console.error(`\n❌ ERROR: ${data}`);
+  const output = data.toString();
+  // Filter out expected background connection errors since we're using a dummy placeholder DB
+  if (output.includes("Error:") && !output.includes("ConnectionError") && !output.includes("ECONNREFUSED")) {
+    console.error(`\n❌ ERROR: ${output}`);
   }
 });
 
