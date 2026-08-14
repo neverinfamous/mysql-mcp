@@ -112,11 +112,11 @@ export class ConnectionPool {
         connectionLimit: poolConfig.connectionLimit ?? 10,
       });
     } catch (error) {
-      let msg = "";
-      if (error instanceof Error && error.name === "AggregateError" && Array.isArray((error as any).errors)) {
-        msg = (error as any).errors.map((e: any) => e.message || String(e)).join(", ");
+      let msg: string;
+      if (error instanceof Error && error.name === "AggregateError" && "errors" in error && Array.isArray((error as { errors?: unknown[] }).errors)) {
+        msg = ((error as { errors?: unknown[] }).errors ?? []).map(e => e instanceof Error ? e.message : String(e)).join(", ");
       } else {
-        msg = (error as any)?.message || String(error);
+        msg = error instanceof Error ? error.message : String(error);
       }
       throw new ConnectionError(
         `Failed to initialize connection pool: ${msg}`,

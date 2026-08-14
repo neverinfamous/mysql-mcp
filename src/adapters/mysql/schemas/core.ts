@@ -540,6 +540,8 @@ export const EnableVersioningSchemaBase = z.object({
     },
     z.string()
   ).optional().describe("Alias for table"),
+  tbl: z.any().optional().describe("Alias for table"),
+  table_name: z.any().optional().describe("Alias for table"),
 });
 
 export const EnableVersioningSchema = z
@@ -589,6 +591,8 @@ export const DisableVersioningSchemaBase = z.object({
     },
     z.string()
   ).optional().describe("Alias for table"),
+  tbl: z.any().optional().describe("Alias for table"),
+  table_name: z.any().optional().describe("Alias for table"),
   ifExists: z.union([z.boolean(), z.string()]).optional().default(false).describe("If true, do not error if table does not exist"),
 });
 
@@ -639,6 +643,8 @@ export const CheckVersionSchemaBase = z.object({
     },
     z.string()
   ).optional().describe("Alias for table"),
+  tbl: z.any().optional().describe("Alias for table"),
+  table_name: z.any().optional().describe("Alias for table"),
   idColumn: z.string().optional().describe("Primary key column name. Defaults to 'id' if not provided."),
   rowId: z.union([z.string(), z.number()]).optional().describe("Primary key value of the row"),
   id: z.union([z.string(), z.number()]).optional().describe("Alias for rowId"),
@@ -708,6 +714,8 @@ export const ConditionalUpdateSchemaBase = z.object({
     },
     z.string()
   ).optional().describe("Alias for table"),
+  tbl: z.any().optional().describe("Alias for table"),
+  table_name: z.any().optional().describe("Alias for table"),
   data: z.record(z.string(), z.unknown()).optional().describe("Column-value pairs to update"),
   updates: z.record(z.string(), z.unknown()).optional().describe("Alias for data"),
   conditions: z.union([
