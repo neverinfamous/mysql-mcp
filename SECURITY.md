@@ -111,7 +111,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 - ✅ **Built-in Rate Limiting** — Configurable rate limiting per IP. Configure limits via `MCP_RATE_LIMIT_MAX`. Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Health Endpoint Bypass** — `/health` bypasses limits to ensure reliable load balancer checks
 - ✅ **Returns 429 Too Many Requests** with proper `Retry-After` headers when limits are exceeded
-- ✅ **Slowloris DoS Protection** — configurable read timeouts via `MCP_REQUEST_TIMEOUT` and `MCP_HEADERS_TIMEOUT`
+- ✅ **Slowloris DoS Protection** — strictly enforced timeouts at the transport layer (120s request timeout, 65s headers timeout, 66s keep-alive timeout) prevent connection exhaustion
 
 > **Reverse Proxy Note:** The server uses `req.socket.remoteAddress` for rate limiting. All requests may share the same IP behind reverse proxies. You must ensure your proxy forwards distinct client IPs. Pass `--trust-proxy` or set `TRUST_PROXY=true`. This trusts the `X-Forwarded-For` header. Alternatively, you can apply rate limiting at the proxy layer instead.
 
@@ -234,7 +234,7 @@ docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/a
 - [x] HTTP bounds limits
 - [x] Configurable CORS with origin whitelist
 - [x] Rate limiting (configurable via `MCP_RATE_LIMIT_MAX`, Redis-backed with in-memory fallback)
-- [x] Slowloris DoS timeouts (`MCP_REQUEST_TIMEOUT`, `MCP_HEADERS_TIMEOUT`)
+- [x] Slowloris DoS timeouts (strictly enforced at transport layer)
 - [x] DNS rebinding protection via Host header validation
 - [x] Security headers (CSP, X-Content-Type-Options, X-Frame-Options, Cache-Control, Referrer-Policy, Permissions-Policy)
 - [x] HSTS (opt-in)

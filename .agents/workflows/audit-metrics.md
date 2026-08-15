@@ -62,7 +62,7 @@ Dispatch a **single `research` subagent** to audit the live mysql-mcp metrics ec
 - Verify no stale scrape targets for removed services.
 
 ### Grafana Alloy / Loki Pipeline
-- Alloy config must strictly route ONLY `mcp-audit.jsonl` to Loki. Do NOT use wildcards (like `*-audit.jsonl`) and do NOT route `exporter-audit.jsonl` to Loki, as this is intentionally excluded to prevent log contamination.
+- Alloy config must strictly route ONLY `mcp-audit.jsonl` and `agent-issues.jsonl` to Loki. You MUST use explicit brace expansion (e.g. `{mcp-audit,agent-issues}.jsonl`) or list them explicitly. Do NOT use wildcards (like `*-audit.jsonl` or `*.jsonl`) and do NOT route `exporter-audit.jsonl` to Loki, as this is intentionally excluded to prevent log contamination.
 - Alloy volume mount must be `../../logs:/var/log/mysql-mcp:ro` (read-only).
 - Verify Loki labels match Grafana dashboard queries.
 

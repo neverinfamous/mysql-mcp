@@ -9,7 +9,7 @@
 
 ## 💎 Value Proposition
 
-Accelerate your AI agents with production-ready MySQL integration. Deploy MCP v2 stateless architecture using NodeStreamableHTTPServerTransport. Maximize token efficiency via Code Mode. Secure your database with OAuth 2.1 enterprise authentication.
+Accelerate your AI agents with production-ready MySQL integration. Deploy MCP v2 stateless architecture via NodeStreamableHTTPServerTransport. Maximize token efficiency via Code Mode. Secure your database with OAuth 2.1.
 
 ## 🎯 Leverage Core Benefits
 
@@ -199,7 +199,6 @@ Add a configuration to your IDE's MCP settings file.
         "-e", "MYSQL_USER",
         "-e", "MYSQL_PASSWORD",
         "-e", "MYSQL_DATABASE",
-        "-e", "MCP_REQUEST_TIMEOUT",
         "writenotenow/mysql-mcp:latest",
         "--transport",
         "stdio"
@@ -210,8 +209,7 @@ Add a configuration to your IDE's MCP settings file.
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "mcp_user",
         "MYSQL_PASSWORD": "secure_password",
-        "MYSQL_DATABASE": "testdb",
-        "MCP_REQUEST_TIMEOUT": "600000"
+        "MYSQL_DATABASE": "testdb"
       },
       "timeout": 600
     }

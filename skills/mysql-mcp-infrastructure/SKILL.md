@@ -13,7 +13,7 @@ The `mysql-mcp` repository contains complex, multi-node database ecosystems for 
 
 ## 1. Core Test Ecosystem (`test-server`)
 
-The core test ecosystem is derived from the master `adamic` unified database ecosystem. It includes a 3-node InnoDB cluster, MySQL Router, ProxySQL, and a full observability stack (Datadog, OpenTelemetry Collector, Prometheus, Grafana, Dozzle).
+The core test ecosystem is derived from the master `adamic` unified database ecosystem. It includes a 3-node InnoDB cluster, MySQL Router, ProxySQL, and a full observability stack (Datadog, Prometheus, Grafana, Dozzle).
 
 **To Recreate the Ecosystem:**
 If the test infrastructure breaks, has port conflicts, or needs to be completely wiped and re-created:
@@ -22,7 +22,7 @@ If the test infrastructure breaks, has port conflicts, or needs to be completely
 
 ```bash
 # Natively on Windows (via PowerShell or cmd)
-node test-server/infrastructure/scripts/recreate-ecosystem.mjs
+node test-server/infrastructure/scripts/recreate-test-ecosystem.mjs
 ```
 > **Note:** This will completely tear down the containers, initialize the InnoDB cluster, join secondary nodes, and run the `reset-database.mjs` seed script.
 
@@ -65,8 +65,7 @@ When generating, modifying, or troubleshooting Docker Compose files or orchestra
 - **Logging**: Enforce the `json-file` driver with rotation (`max-size`, `max-file`).
 - **WSL Context**: 
   - Scripts executed within WSL MUST use dynamic discovery (e.g., `docker compose config --services`) and MUST use `docker exec` (no host binary coupling).
-  - Datadog Agent containers running in WSL MUST rely on Docker daemon configuration (`"default-cgroupns-mode": "host"` in `daemon.json`) for accurate `docker.cpu.usage` metrics rather than invalid Compose properties like `cgroupns_mode: host`, and specify `extra_performance_metrics: false` to prevent WSL-specific metric collection errors.
-  - **Datadog Autodiscovery**: NEVER combine Docker Autodiscovery labels with static `conf.yaml` files for the same container.
+  - Datadog Agent containers running in WSL MUST include `cgroup: host` (or `cgroupns_mode: host`) for accurate `docker.cpu.usage` metrics.
   - All `reported_hostname` values for Datadog should use the `adamic-wsl2` convention.
 - **Strict Tags**: All images must use explicit version tags. Never use `latest`.
 - **Exit Codes**: Orchestration scripts must explicitly `process.exit(1)` on failure to break CI/CD pipelines immediately.

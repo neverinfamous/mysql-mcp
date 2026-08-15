@@ -86,9 +86,9 @@ Dashboard IDs: AI Efficiency → `q48-mq9-3i7`, Audit Log → `qwe-2un-us8`
 
 ### Audit Log Pipeline (Alloy → Loki → Grafana)
 
-1. `mysql-mcp` maintains a dual audit log architecture, writing to `mcp-audit.jsonl` and `exporter-audit.jsonl`.
-2. `mysql-mcp-exporter` reads exclusively from `exporter-audit.jsonl` (via `AUDIT_LOG_PATH`) and exposes derived metrics on port `3000`. You can verify exporter health via: `wget --spider -q http://127.0.0.1:3000/metrics`.
-3. Grafana Alloy (replaces EOL Promtail) strictly routes `mcp-audit.jsonl` to Loki at `http://localhost:3100`.
+1. `mysql-mcp` writes JSONL audit logs to the path specified by `--audit-log <path>`
+2. `mysql-mcp-exporter` reads the same file (via `AUDIT_LOG_PATH`) and exposes derived metrics on port `3000`
+3. Grafana Alloy (replaces EOL Promtail) scrapes the JSONL file and pushes to Loki at `http://localhost:3100`
 4. Verify in Grafana: Data Sources → Loki → Explore → run query:
 
 ```logql

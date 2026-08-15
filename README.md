@@ -9,7 +9,7 @@
 
 ## 💎 Value Proposition
 
-Accelerate your AI agents with production-ready MySQL integration. Deploy MCP v2 stateless architecture using NodeStreamableHTTPServerTransport. Maximize token efficiency via Code Mode. Secure your database with OAuth 2.1 enterprise authentication.
+Accelerate your AI agents with production-ready MySQL integration. Deploy MCP v2 stateless architecture via NodeStreamableHTTPServerTransport. Maximize token efficiency via Code Mode. Secure your database with OAuth 2.1.
 
 ## 🎯 Leverage Core Benefits
 
@@ -384,8 +384,7 @@ Add a configuration to your IDE's MCP settings file:
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "mcp_user",
         "MYSQL_PASSWORD": "secure_password",
-        "MYSQL_DATABASE": "testdb",
-        "MCP_REQUEST_TIMEOUT": "600000"
+        "MYSQL_DATABASE": "testdb"
       },
       "timeout": 600
     }
@@ -421,8 +420,7 @@ Add a configuration to your IDE's MCP settings file:
         "MYSQL_PORT": "3307",
         "MYSQL_USER": "cluster_admin",
         "MYSQL_PASSWORD": "cluster_password",
-        "MYSQL_DATABASE": "mysql",
-        "MCP_REQUEST_TIMEOUT": "600000"
+        "MYSQL_DATABASE": "mysql"
       },
       "timeout": 600
     }
@@ -468,8 +466,7 @@ Add a configuration to your IDE's MCP settings file:
         "PROXYSQL_PORT": "6032",
         "PROXYSQL_USER": "radmin",
         "PROXYSQL_PASSWORD": "radmin",
-        "MYSQLSH_PATH": "mysqlsh",
-        "MCP_REQUEST_TIMEOUT": "600000"
+        "MYSQLSH_PATH": "mysqlsh"
       },
       "timeout": 600
     }
@@ -713,8 +710,6 @@ The server handles millions of ops/sec across core execution paths. This ensures
 | `--transport`, `-t`       | —                       | Transport type: stdio, http, sse (default: stdio) |
 | `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http transport                   |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
-| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms                        |
-| —                         | `MCP_HEADERS_TIMEOUT`   | HTTP headers timeout in ms                          |
 | `--mysql`, `-m`           | —                       | MySQL connection string                             |
 | `--mysql-host`            | `MYSQL_HOST`            | MySQL host                                          |
 | `--mysql-port`            | `MYSQL_PORT`            | MySQL port                                          |

@@ -44,6 +44,8 @@ services:
       retries: 30
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node1"}]'
+      - 'com.datadoghq.ad.instances=[{"options": {"extra_performance_metrics":
+        false}}]'
 
   mysql-node2:
     image: mysql:9.7.1
@@ -85,6 +87,8 @@ services:
       retries: 30
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node2"}]'
+      - 'com.datadoghq.ad.instances=[{"options": {"extra_performance_metrics":
+        false}}]'
 
   mysql-node3:
     image: mysql:9.7.1
@@ -126,6 +130,8 @@ services:
       retries: 30
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node3"}]'
+      - 'com.datadoghq.ad.instances=[{"options": {"extra_performance_metrics":
+        false}}]'
 
   mysql-async-replica:
     image: mysql:9.7.1
@@ -167,6 +173,8 @@ services:
       retries: 30
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-async-replica"}]'
+      - 'com.datadoghq.ad.instances=[{"options": {"extra_performance_metrics":
+        false}}]'
 
   cluster-healer:
     image: mysql:9.7.1
@@ -361,9 +369,9 @@ services:
       com.datadoghq.ad.check_names: '["openmetrics"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"reported_hostname": "adamic-wsl2",
-        "openmetrics_endpoint": "http://%%host%%:3000/metrics",
-        "namespace": "mysql_mcp", "metrics": [".*"], "max_returned_metrics":
-        10000, "send_monotonic_counter": true, "timeout": 10,
+        "openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace":
+        "mysql_mcp", "metrics": [".*"], "max_returned_metrics": 10000,
+        "send_monotonic_counter": true, "timeout": 10,
         "min_collection_interval": 15, "tags": ["service:mysql_mcp",
         "env:development"]}]'
       com.datadoghq.ad.logs: '[{"source":"mysql_mcp","service":"mysql_mcp"}]'
@@ -595,6 +603,7 @@ services:
       - /etc/passwd:/host/etc/passwd:ro
       - /etc/os-release:/host/etc/os-release:ro
       - /sys/kernel/debug:/sys/kernel/debug
+      - ./config/datadog-integration-configs:/etc/datadog-agent/conf.d:ro
       - ../../logs:/var/log/mysql-mcp:ro
     networks:
       - default
