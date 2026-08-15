@@ -771,7 +771,7 @@ See [Enforce OAuth Scopes](#enforce-oauth-scopes).
 See **[Build From Source](#build-from-source)** above for setup. After cloning:
 
 ```bash
-pnpm run lint && pnpm run typecheck && pnpm test  # Run individually to avoid timeouts
+pnpm run lint && pnpm run typecheck && pnpm test && pnpm run test:e2e  # Run individually to avoid timeouts
 ```
 
 ### Debug with MCP Inspector
