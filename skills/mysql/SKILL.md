@@ -25,7 +25,7 @@ description: |
 
 # MySQL / MariaDB Production Standards
 
-MySQL and MariaDB are powerful relationship-driven databases, but AI agents MUST adhere to these strict behavioral boundaries when executing queries, utilizing the `mysql-mcp` server, or generating application code.
+MySQL and MariaDB are relationship-driven databases, but AI agents MUST adhere to these strict behavioral boundaries when executing queries, utilizing the `mysql-mcp` server, or generating application code.
 
 > [!NOTE]
 > Actively target **8.4 LTS** or **9.0+** for production environments. Both MySQL 9.0+ and MariaDB now feature native `VECTOR` data types and search capabilities.

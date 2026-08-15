@@ -156,7 +156,7 @@ ProxySQL natively supports InnoDB Cluster / Group Replication topology:
 
 - Auto-detects Single-Primary / Multi-Primary topologies by monitoring `performance_schema`.
 - Automatically shuns lagging nodes and reroutes traffic using `mysql_group_replication_hostgroups`.
-- Provides auto-discovery of replicas and seamless failover.
+- Provides auto-discovery of replicas and failover.
 
 ### 3.9 ProxySQL Cluster
 
