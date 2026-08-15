@@ -9,7 +9,7 @@
 
 ## 💎 Value Proposition
 
-Integrate your AI agents with a production-ready MySQL environment. Deploy MCP v2 stateless architecture via NodeStreamableHTTPServerTransport. Optimize token efficiency via Code Mode. Secure your database with OAuth 2.1.
+Integrate your AI agents with a production-ready MySQL environment. Deploy MCP v2 stateless architecture via HTTP transport. Optimize token efficiency via Code Mode. Secure your database with OAuth 2.1.
 
 ## 🎯 Leverage Core Benefits
 
@@ -22,7 +22,7 @@ Integrate your AI agents with a production-ready MySQL environment. Deploy MCP v
 | **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
 | **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
 | **Smart Tool Filtering**              | Use tool groups and shortcuts to stay within IDE tool limits. |
-| **Streamable & Stateless HTTP**               | Support MCP v2 streamable HTTP and stateless HTTP deployments via NodeStreamableHTTPServerTransport. |
+| **Streamable & Stateless HTTP**               | Support MCP v2 streamable HTTP and stateless HTTP deployments. |
 | **Connection Pooling**                | Leverage built-in connection pooling for efficient, highly concurrent database access. |
 | **Ecosystem Integrations**            | Manage MySQL Router, ProxySQL, and MySQL Shell utilities directly from your agent. |
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
@@ -152,8 +152,11 @@ docker compose up -d
 - **Processing & Logging**: Utilize batch processors and ensure logs are formatted as JSON logs.
 
 **Audit Architecture & Exporter Healthcheck:**
-- Primary MCP server writes to mcp-audit.jsonl. Grafana Alloy ingests mcp-audit.jsonl and routes to Loki. Exporter reads from mcp-audit.jsonl via AUDIT_LOG_PATH to compute metrics. Exporter isolates its own writes by setting `--audit-log` to exporter-audit.jsonl. Note: The metrics server and exporter share a single process. Both operate on port `3000`. This prevents port contention.
-- **Exporter Healthcheck**: `wget --spider -q http://127.0.0.1:3000/metrics`
+- The primary MCP server writes execution traces to `mcp-audit.jsonl` via the `--audit-log` flag.
+- The metrics exporter runs as an independent sidecar process. It reads from `mcp-audit.jsonl` using the `AUDIT_LOG_PATH` environment variable to compute metrics.
+- The exporter isolates its own internal logs by setting its `--audit-log` flag to `exporter-audit.jsonl`.
+- The MCP server operates on port `3000`, while the independent metrics exporter operates on port `3001`. This completely isolates observability overhead from the core request path.
+- **Exporter Healthcheck**: `wget --spider -q http://127.0.0.1:3001/metrics`
 
 #### Build From Source
 
@@ -186,7 +189,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 
 ### Enforce Engine-Level Restrictions
 
-- ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
+- ✅ **Strict V8 Isolate Boundary** — Code executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
 - ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
 - ✅ **API Bindings via Reference** — Injects MySQL methods securely using `ivm.Reference` wrappers.
 
@@ -279,7 +282,7 @@ Use stateless deployments where sessions are not needed:
 node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /path/to/data --stateless --mysql "mysql://mcp_user:secure_password@..."
 ```
 
-In stateless mode: `GET /mcp` returns 405. `DELETE /mcp` returns 204. Each `POST /mcp` instantiates a stateless transport via NodeStreamableHTTPServerTransport.
+In stateless mode: `GET /mcp` returns 405. `DELETE /mcp` returns 204. Each `POST /mcp` instantiates a stateless HTTP transport.
 
 
 ### Access Utility Endpoints
@@ -683,10 +686,19 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 
 The server handles millions of ops/sec across core execution paths. This ensures minimal latency and maximum throughput. Every component is tuned for enterprise-scale workloads. Enjoy sub-millisecond sandbox cold starts and optimized reverse lookups.
 
-| Variable                    | Default  | Description                                                         |
-| --------------------------- | -------- | ------------------------------------------------------------------- |
-| `METADATA_CACHE_TTL_MS`     | `30000`  | Cache TTL for schema metadata (milliseconds)                        |
-| `LOG_LEVEL`                 | `info`   | Log verbosity: `debug`, `info`, `warn`, `error`                     |
+**Benchmark Baselines:**
+- parseToolFilter: ~32,000-62,000 ops/sec
+- CodeModeSandbox.create cold start: ~2.78M ops/sec
+- Sandbox dispose: ~2.37M ops/sec
+- SandboxPool init: ~109k ops/sec
+- Set.has tool check: ~4.4M ops/sec
+- Map.get reverse lookup: ~4.5M ops/sec
+- Map.get URI match: ~5.1M ops/sec
+- validateCode safe short: ~173k ops/sec
+- validateCode blocked: ~298k ops/sec
+- checkRateLimit: ~205k ops/sec
+- sanitizeResult small payload: ~1.49M ops/sec
+- prompt schema parse: ~1.3M ops/sec
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`). Increase it for production with stable schemas (e.g., `300000` = 5 min).
 
@@ -722,13 +734,14 @@ The server handles millions of ops/sec across core execution paths. This ensures
 | `--tool-filter`, `-f`     | `TOOL_FILTER`           | Tool filter string                                  |
 | `--name`                  | —                       | Server name                                         |
 | `--auth-token`            | `MCP_AUTH_TOKEN`        | Simple bearer token for HTTP authentication         |
-| `--stateless`             | —                       | Enable stateless HTTP mode via NodeStreamableHTTPServerTransport    |
+| `--stateless`             | —                       | Enable stateless HTTP mode    |
 | `--trust-proxy`           | `TRUST_PROXY`           | Trust X-Forwarded-For for client IP                 |
 | `--enable-hsts`           | `MCP_ENABLE_HSTS`       | Enable HTTP Strict Transport Security               |
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for all file I/O operations |
-| `--audit-log`             | `AUDIT_LOG_PATH`        | Primary MCP server writes to mcp-audit.jsonl. Exporter reads via AUDIT_LOG_PATH. Exporter isolates its own writes via exporter-audit.jsonl. |
+| `--audit-log`             | `MCP_AUDIT_LOG`         | File path for writing audit logs (write-path)       |
+| —                         | `AUDIT_LOG_PATH`        | File path for the exporter to read audit logs (read-path) |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
 | `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |

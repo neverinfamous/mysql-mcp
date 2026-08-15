@@ -23,7 +23,7 @@
         "ALLOWED_IO_ROOTS": "C:/temp/mcp-sandbox,/tmp/mcp-sandbox",
         "METADATA_CACHE_TTL_MS": "30000",
         "CODEMODE_MAX_RESULT_SIZE": "102400",
-        "_comment_AUDIT_LOG_PATH": "This enables metrics ingestion. --audit-log <path> or config file is required to enable the interceptor log write path.",
+        "_comment_AUDIT_LOG_PATH": "This configures the metrics exporter's read-path. --audit-log <path> or config file is required to enable the server's write-path.",
         "AUDIT_LOG_PATH": "C:/temp/mcp-sandbox/mcp-audit.jsonl",
         "_comment_rate_limiting": "If Redis is omitted, rate limiting safely falls back to in-memory mode. Note: MCP_RATE_LIMIT_MAX is intentionally elevated for example purposes (default is 100).",
         "MCP_RATE_LIMIT_MAX": "10000",

@@ -92,7 +92,7 @@ The `agent-observability` directory contains several skills for working with Age
 | `agent-observability-experiment-py-bootstrap` | Generate self-contained Python experiment code using the `ddtrace.llmobs` SDK |
 | `agent-observability-trace-rca` | Root-cause production failures using eval judge signal or runtime errors |
 | `agent-observability-eval-bootstrap` | Generate evaluator code from traces, optionally seeded by RCA output. Also emits a dataset from traces in `--emit-dataset` mode. |
-| `agent-observability-eval-pipeline` | Eight-phase pipeline: classify → RCA → bootstrap evaluators → create dataset → publish → generate experiment → run → analyze. Stop early with `--stop-after`. |
+| `agent-observability-eval-pipeline` | Six-phase pipeline: classify → RCA → eval bootstrap → dataset → experiment → analyze. Stop early with `--stop-after`. |
 | `agent-observability-session-classify` | Classify whether user intent was satisfied in a session (trace + RUM signals) |
 
 **Eval pipeline flow:**
@@ -307,7 +307,7 @@ export DD_API_KEY="<YOUR_API_KEY>"
 export DD_APP_KEY="<YOUR_APPLICATION_KEY>"
 ```
 
-Node.js 20.19+ or 22.12+ is required. Use Volta, nvm, or fnm to manage versions.
+Node.js >= 18 is required. Use Volta, nvm, or fnm to manage versions.
 
 #### Install
 

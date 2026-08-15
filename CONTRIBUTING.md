@@ -211,8 +211,8 @@ Use the centralized logger with structured payloads. Include: `module`, `operati
 
 - **Datadog Constraints** — Use `pup` CLI for authentication. Avoid duplicate autodiscovery configurations. Add standard tracking labels (`tags.datadoghq.com/env`, `tags.datadoghq.com/service`, `tags.datadoghq.com/version`) to your containers. Enforce `stop_grace_period: 30s`, `mem_limit: 1536m`, and OpenMetrics timeouts of `10s`. Use `DD_HOSTNAME` and native `/etc/docker/daemon.json` cgroup configurations (`"default-cgroupns-mode": "host"`). Disable `DD_EXTRA_PERFORMANCE_METRICS`.
 - **OpenTelemetry Standards** — Telemetry implementations must adhere to the official OTel `gen_ai.*` semantic conventions. Use auto-instrumentation when possible. Ensure `traceparent` and `tracestate` propagation. Utilize batch processors and ensure logs are formatted as JSON logs.
-- **Dual Audit Log Architecture** — Primary MCP server writes to mcp-audit.jsonl. Grafana Alloy ingests mcp-audit.jsonl and routes to Loki. Exporter reads from mcp-audit.jsonl via AUDIT_LOG_PATH to compute metrics. Exporter isolates its own writes by setting `--audit-log` to exporter-audit.jsonl. The metrics server and exporter share a single process. Both operate on port 3000. This prevents port contention.
-- **Exporter Healthcheck**: `wget --spider -q http://127.0.0.1:3000/metrics`
+- **Dual Audit Log Architecture** — The primary MCP server writes execution traces to `mcp-audit.jsonl` via the `--audit-log` flag. The metrics exporter runs as an independent sidecar process. It reads from `mcp-audit.jsonl` using the `AUDIT_LOG_PATH` environment variable to compute metrics. The exporter isolates its own internal logs by setting its `--audit-log` flag to `exporter-audit.jsonl`. The MCP server operates on port `3000`, while the independent metrics exporter operates on port `3001`. This completely isolates observability overhead from the core request path.
+- **Exporter Healthcheck**: `wget --spider -q http://127.0.0.1:3001/metrics`
 
 ### Consider Docker Optimization
 

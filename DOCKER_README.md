@@ -9,7 +9,7 @@
 
 ## 💎 Value Proposition
 
-Accelerate your AI agents with production-ready MySQL integration. Deploy MCP v2 stateless architecture via NodeStreamableHTTPServerTransport. Maximize token efficiency via Code Mode. Secure your database with OAuth 2.1.
+Accelerate your AI agents with production-ready MySQL integration. Deploy MCP v2 stateless architecture via HTTP transport. Maximize token efficiency via Code Mode. Secure your database with OAuth 2.1.
 
 ## 🎯 Leverage Core Benefits
 
@@ -74,8 +74,8 @@ docker compose up -d
 **Observability Constraints**:
 - **Datadog**: Use `pup` CLI for authentication. Avoid duplicate autodiscovery configurations. Add standard tracking labels (`tags.datadoghq.com/env`, `tags.datadoghq.com/service`, `tags.datadoghq.com/version`) to your containers. Enforce `stop_grace_period: 30s`, `mem_limit: 1536m`, and OpenMetrics timeouts of `10s`. Use `DD_HOSTNAME` and native `/etc/docker/daemon.json` cgroup configurations (`"default-cgroupns-mode": "host"`). Disable `DD_EXTRA_PERFORMANCE_METRICS`.
 - **OpenTelemetry**: Telemetry implementations must adhere to the official OTel `gen_ai.*` semantic conventions. Use auto-instrumentation when possible. Ensure `traceparent` and `tracestate` propagation. Utilize batch processors and ensure logs are formatted as JSON logs.
-- **Audit Architecture**: Primary MCP server writes to mcp-audit.jsonl. Grafana Alloy ingests mcp-audit.jsonl and routes to Loki. Exporter reads from mcp-audit.jsonl via AUDIT_LOG_PATH to compute metrics. Exporter isolates its own writes by setting `--audit-log` to exporter-audit.jsonl. The metrics server and exporter share a single process. Both operate on port 3000. This prevents port contention.
-- **Exporter Healthcheck**: `wget --spider -q http://127.0.0.1:3000/metrics`
+- **Audit Architecture**: The primary MCP server writes execution traces to `mcp-audit.jsonl` via the `--audit-log` flag. The metrics exporter runs as an independent sidecar process. It reads from `mcp-audit.jsonl` using the `AUDIT_LOG_PATH` environment variable to compute metrics. The exporter isolates its own internal logs by setting its `--audit-log` flag to `exporter-audit.jsonl`. The MCP server operates on port `3000`, while the independent metrics exporter operates on port `3001`. This completely isolates observability overhead from the core request path.
+- **Exporter Healthcheck**: `wget --spider -q http://127.0.0.1:3001/metrics`
 
 ---
 
@@ -87,7 +87,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 
 ### Enforce Engine-Level Restrictions
 
-- ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
+- ✅ **Strict V8 Isolate Boundary** — Code executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
 - ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
 - ✅ **API Bindings via Reference** — Injects MySQL methods securely using `ivm.Reference` wrappers.
 
@@ -111,6 +111,20 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 ### Review Performance Benchmarks
 
 The server handles millions of ops/sec across core execution paths. This ensures minimal latency and maximum throughput. Every component is tuned for enterprise-scale workloads. Enjoy sub-millisecond sandbox cold starts and optimized reverse lookups.
+
+**Benchmark Baselines:**
+- parseToolFilter: ~32,000-62,000 ops/sec
+- CodeModeSandbox.create cold start: ~2.78M ops/sec
+- Sandbox dispose: ~2.37M ops/sec
+- SandboxPool init: ~109k ops/sec
+- Set.has tool check: ~4.4M ops/sec
+- Map.get reverse lookup: ~4.5M ops/sec
+- Map.get URI match: ~5.1M ops/sec
+- validateCode safe short: ~173k ops/sec
+- validateCode blocked: ~298k ops/sec
+- checkRateLimit: ~205k ops/sec
+- sanitizeResult small payload: ~1.49M ops/sec
+- prompt schema parse: ~1.3M ops/sec
 
 ### ⚡ Run Only Code Mode
 
