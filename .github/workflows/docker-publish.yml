@@ -166,7 +166,7 @@ jobs:
             -e AUDIT_LOG_PATH=/tmp/mcp-audit.jsonl \
             -e OTEL_TRACES_EXPORTER=none -e OTEL_METRICS_EXPORTER=none -e OTEL_LOGS_EXPORTER=none \
             -e TOOL_FILTER=router smoke-test:latest \
-            --transport http --tool-filter router
+            --transport http
           
           timeout 15s bash -c 'until [ "$(docker inspect -f {{.State.Health.Status}} smoke-http)" == "healthy" ]; do sleep 1; done' || {
             echo "❌ HTTP smoke test failed — container not healthy"

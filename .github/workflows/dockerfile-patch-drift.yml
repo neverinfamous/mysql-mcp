@@ -1,6 +1,6 @@
 name: Dockerfile Patch Drift Check
 
-# Detects when manually patched transitive dependencies in the Dockerfile,
+# Detects when manually patched transitive dependencies in the Dockerfile OR
 # package.json overrides have been updated in the
 # upstream registry or Node.js base image's bundled npm, making the
 # patches redundant. Runs daily and on Dockerfile/package/lock changes.

@@ -4,7 +4,7 @@ MySQL MCP implements security controls for database connections. It supports std
 
 ## 🛡️ Defend Your Database Infrastructure
 
-### Eradicate SQL Injection Vulnerabilities
+### Prevent SQL Injection Vulnerabilities
 
 **Identifier Sanitization** (`src/adapters/mysql/schemas/`)
 
@@ -110,7 +110,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 - ✅ **Built-in Rate Limiting** — Configurable rate limiting per IP. Configure limits via `MCP_RATE_LIMIT_MAX`. Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Health Endpoint Bypass** — `/health` bypasses limits to ensure reliable load balancer checks
 - ✅ **Returns 429 Too Many Requests** with proper `Retry-After` headers when limits are exceeded
-- ✅ **Slowloris DoS Protection** — strictly enforced timeouts at the transport layer (120s request timeout, 65s headers timeout, 66s keep-alive timeout) prevent connection exhaustion
+- ✅ **Slowloris DoS Protection** — strictly enforced timeouts at the transport layer prevent connection exhaustion (120s request, 65s headers, 66s keep-alive)
 
 > **Reverse Proxy Note:** The server uses `req.socket.remoteAddress` for rate limiting. All requests may share the same IP behind reverse proxies. You must ensure your proxy forwards distinct client IPs. Pass `--trust-proxy` or set `TRUST_PROXY=true`. This trusts the `X-Forwarded-For` header. Alternatively, you can apply rate limiting at the proxy layer instead.
 

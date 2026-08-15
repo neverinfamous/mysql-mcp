@@ -111,7 +111,7 @@ The `mysql-mcp` server operates within a broader skill ecosystem. **Do not guess
 | Loki | `http://localhost:3100` | Log aggregation |
 | Grafana Alloy | `http://localhost:12345` | Log collector (replaces Promtail) |
 | Dozzle | `http://localhost:8080` | Container log viewer |
-| Adminer | http://localhost:8081 | Database web UI |
+| Adminer | `http://localhost:8081` | Database web UI |
 
 ### Dashboard Management
 

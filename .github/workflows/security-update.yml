@@ -43,45 +43,44 @@ jobs:
         with:
           context: .
           file: Dockerfile
-          tags: security-test:v1
+          tags: security-test:latest
           load: true
           platforms: linux/amd64
           cache-from: type=gha,scope=security-test
           cache-to: type=gha,scope=security-test,mode=max
 
       # Run SARIF scan first (non-blocking) to always generate the file
-      - name: Run Trivy scanner for SARIF output
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with:
-          image-ref: security-test:v1
-          format: "sarif"
-          output: "trivy-results.sarif"
-          exit-code: "0"
-          ignore-unfixed: true
-          severity: "CRITICAL,HIGH,MEDIUM"
-          trivyignores: ".trivyignore"
-          skip-dirs: /usr/local/lib/node_modules/npm
-          timeout: 10m
-
-      - name: Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
-        if: always() && hashFiles('trivy-results.sarif') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
-        with:
-          sarif_file: "trivy-results.sarif"
-          category: trivy-docker-scan
-
-      # Run table scan (blocking) after SARIF is uploaded
-      - name: Run Trivy vulnerability scanner
+      - name: Run Trivy vulnerability scanner (Table Output)
         id: trivy-scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          image-ref: security-test:v1
+          image-ref: security-test:latest
           format: "table"
-          exit-code: "1"
+          severity: "CRITICAL,HIGH"
           ignore-unfixed: true
-          severity: "CRITICAL,HIGH,MEDIUM"
+          vuln-type: "os,library"
           trivyignores: ".trivyignore"
-          skip-dirs: /usr/local/lib/node_modules/npm
+          exit-code: "1" # Fail the build if critical vulnerabilities are found
+
+      - name: Run Trivy vulnerability scanner (JSON/SARIF)
+        if: always()
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: security-test:latest
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          trivyignores: ".trivyignore"
+          exit-code: "0" # Don't fail the build here, we want to upload SARIF and then fail on the table output
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('trivy-results.sarif') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        with:
+          sarif_file: "trivy-results.sarif"
+          category: trivy-docker-scanules/npm
           timeout: 10m
 
       - name: Check scan result
