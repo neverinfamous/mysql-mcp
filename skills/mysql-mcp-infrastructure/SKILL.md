@@ -22,7 +22,7 @@ If the test infrastructure breaks, has port conflicts, or needs to be completely
 
 ```bash
 # Natively on Windows (via PowerShell or cmd)
-node test-server/infrastructure/scripts/recreate-test-ecosystem.mjs
+node test-server/infrastructure/scripts/recreate-ecosystem.mjs
 ```
 > **Note:** This will completely tear down the containers, initialize the InnoDB cluster, join secondary nodes, and run the `reset-database.mjs` seed script.
 
@@ -55,6 +55,14 @@ docker compose up -d
 bash init-cluster.sh
 ```
 
+### Full Observability Ecosystem Example
+Located in `examples/full-observability-ecosystem`. This is an enterprise stack demonstrating complete metrics, tracing, and logging integration.
+```bash
+cd examples/full-observability-ecosystem
+cp .env.example .env
+docker compose up -d
+```
+
 ## 3. Infrastructure Audit Rules
 
 When generating, modifying, or troubleshooting Docker Compose files or orchestration scripts, adhere to these rigorous standards (derived from the `adamic` global infrastructure audits):
@@ -65,7 +73,7 @@ When generating, modifying, or troubleshooting Docker Compose files or orchestra
 - **Logging**: Enforce the `json-file` driver with rotation (`max-size`, `max-file`).
 - **WSL Context**: 
   - Scripts executed within WSL MUST use dynamic discovery (e.g., `docker compose config --services`) and MUST use `docker exec` (no host binary coupling).
-  - Datadog Agent containers running in WSL MUST include `cgroup: host` (or `cgroupns_mode: host`) for accurate `docker.cpu.usage` metrics.
+  - Datadog Agent containers running in WSL MUST include `cgroup: host` for accurate `docker.cpu.usage` metrics. (Note: Do NOT use `cgroupns_mode: host` in Compose as v5+ rejects it; set it via daemon.json instead).
   - All `reported_hostname` values for Datadog should use the `adamic-wsl2` convention.
 - **Strict Tags**: All images must use explicit version tags. Never use `latest`.
 - **Exit Codes**: Orchestration scripts must explicitly `process.exit(1)` on failure to break CI/CD pipelines immediately.

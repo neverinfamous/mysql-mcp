@@ -138,10 +138,10 @@ Many observability images have moved to distroless or slim bases that break `CMD
 | Image | Issue | Fix |
 |-------|-------|-----|
 | `grafana/loki:3.6+` | **Distroless** — no `/bin/sh`, `wget`, `grep` | `healthcheck: { disable: true }` (validate via external script) |
-| `grafana/promtail:3.6+` | Has `/bin/sh` but no `wget`/`curl` | `grep -q ':PORT_HEX' /proc/net/tcp /proc/net/tcp6 || exit 1` |
+| `grafana/alloy:latest` | Has `/bin/sh` but no `wget`/`curl` | `grep -q ':PORT_HEX' /proc/net/tcp /proc/net/tcp6 || exit 1` |
 
 > [!WARNING]
-> Go services (Loki, Promtail, Prometheus) often bind on **IPv6 dual-stack**. Always check **both** `/proc/net/tcp` and `/proc/net/tcp6` in healthchecks, or the port won't be found.
+> Go services (Loki, Alloy, Prometheus) often bind on **IPv6 dual-stack**. Always check **both** `/proc/net/tcp` and `/proc/net/tcp6` in healthchecks, or the port won't be found.
 
 ### WSL2/Windows Inotify Log Tailing Bug (CRITICAL)
 

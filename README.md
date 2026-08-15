@@ -3,7 +3,7 @@
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) ![Coverage](https://img.shields.io/badge/Coverage-84.38%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -136,7 +136,7 @@ docker compose up -d
 - **Prometheus:** Available at `http://localhost:9090`.
 - **MCP Server:** Available at `http://localhost:3000`.
 
-#### Datadog & OpenTelemetry Observability Rules
+#### Follow Datadog & OpenTelemetry Observability Rules
 
 **Datadog Constraints:**
 - **Authentication**: Use `pup` CLI for authentication.
@@ -345,7 +345,7 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 - ✅ **RFC 8414** Authorization Server Discovery with caching
 - ✅ **RFC 7591** OAuth 2.1 Dynamic Client Registration
 - ✅ **JWT validation** with JWKS support (TTL: 1 hour)
-- ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
+- ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `table:{db}:{table}`
 - ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading
 
 > **Note for Keycloak users:** Add an **Audience mapper** to your client. This includes the correct `aud` claim. (Client → Client scopes → dedicated scope → Add mapper → Audience)
