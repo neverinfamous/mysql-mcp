@@ -62,7 +62,7 @@
     {
       "definition": {
         "check": "proxysql.can_connect",
-        "group": "proxysql_port:6032,proxysql_server:localhost,host:adamic-wsl2",
+        "group": "proxysql_port:6032,proxysql_server:localhost",
         "group_by": [
           "proxysql_server",
           "proxysql_port"

@@ -233,7 +233,8 @@ services:
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"name": "mysql_router_rest_api", "url":
         "https://%%host%%:8443/api/20190715/router/status", "username":
-        "rest_api", "password": "router_api", "skip_cert_verify": true}]'
+        "rest_api", "password": "router_api", "skip_cert_verify": true, "tags":
+        ["component:rest_api"]}]'
       com.datadoghq.ad.logs: '[{"source":"mysqlrouter","service":"mysql-router"}]'
     healthcheck:
       test:
@@ -594,8 +595,7 @@ services:
       - /etc/passwd:/host/etc/passwd:ro
       - /etc/os-release:/host/etc/os-release:ro
       - /sys/kernel/debug:/sys/kernel/debug
-      - ./config/datadog-integration-configs/mysql.d:/etc/datadog-agent/conf.d/mysql.d:ro
-      - ./config/datadog-integration-configs/mysql_mcp_logs.d:/etc/datadog-agent/conf.d/mysql_mcp_logs.d:ro
+      - ./config/datadog-integration-configs:/etc/datadog-agent/conf.d:ro
       - ../../logs:/var/log/mysql-mcp:ro
     networks:
       - default
