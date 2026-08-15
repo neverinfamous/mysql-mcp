@@ -54,7 +54,7 @@ MySQL and MariaDB are powerful relationship-driven databases, but AI agents MUST
 ## 4. Ecosystem & Performance Tuning
 
 - **Hardware Awareness**: Align thread pool sizes closely with CPU core counts on modern chiplet architectures.
-- **Error Handling**: When intercepting connection drops or authentication failures (e.g., ER_ACCESS_DENIED_ERROR), instruct the user to verify their `.env` configurations (`MYSQL_URL`, `MYSQL_HOST`, etc.). Do not hallucinate database names.
+- **Error Handling**: When intercepting connection drops or authentication failures (e.g., ER_ACCESS_DENIED_ERROR), instruct the user to verify their `.env` configurations (`MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`). Do not hallucinate database names.
 - **Using MCP**: If the `mysql-mcp` server is attached, prefer utilizing its formal structured tools over executing raw Bash CLI scripts (`mysql -h ...`) to guarantee payload optimizations and schema intelligence.
 - **MySQL Shell (AdminAPI)**: ALWAYS prefer using MySQL Shell (`mysqlsh`) for InnoDB Cluster management and topology changes rather than raw SQL replication commands.
 - **Router vs ProxySQL**: Use MySQL Router for out-of-the-box HA routing with InnoDB Cluster. Use ProxySQL when advanced connection multiplexing or query rewriting is required.

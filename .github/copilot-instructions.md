@@ -72,7 +72,7 @@ All tool handlers return structured error responses — never raw exceptions:
 ```
 scripts/                        # Instruction and infrastructure scripts
 src/
-├── cli.ts                      # CLI entry point (Commander)
+├── cli.ts                      # CLI entry point (util.parseArgs)
 ├── index.ts                    # Library entry point
 ├── version.ts                  # Version export
 ├── __tests__/                  # Unit and E2E tests

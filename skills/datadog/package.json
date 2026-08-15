@@ -1,61 +1,31 @@
 {
-    "name": "neverinfamous-agent-skills",
-    "version": "1.2.3",
-    "description": "Foundational AI agent metacognitive skills and workflows for the Adamic ecosystem.",
+    "name": "@adamic/datadog-skills",
+    "version": "1.0.0",
+    "description": "Datadog agent skills for the Adamic ecosystem.",
     "type": "module",
     "main": "README.md",
-    "bin": {
-        "agent-skills": "bin/sync.js"
-    },
     "files": [
-        "bin/",
         "README.md",
-        "adversarial-skill-builder/",
-        "auth-identity/",
-        "bun/",
-        "chrome-devtools/",
-        "cli-development/",
-        "cloudflare/",
-        "docker/",
-        "drizzle-orm/",
-        "github-ecosystem/",
-        "github-repo-setup/",
-        "hono/",
-        "mcp-builder/",
-        "mysql/",
-        "nextjs/",
-        "nodejs/",
-        "opentelemetry/",
-        "pattern-matching/",
-        "postgres/",
-        "powershell/",
-        "python/",
-        "redis/",
-        "shadcn-ui/",
-        "sqlite/",
-        "tailwind-css/",
-        "testing-standards/",
-        "typescript/",
-        "wsl/",
-        "zod/"
+        "SKILL.md",
+        "dd-apm/",
+        "dd-apps/",
+        "dd-audit/",
+        "dd-browser-sdk/",
+        "dd-docs/",
+        "agent-observability/",
+        "dd-logs/",
+        "dd-monitors/",
+        "dd-pup/",
+        "dd-security/",
+        "dd-software-delivery/",
+        "src/"
     ],
-    "scripts": {
-        "sync": "node bin/sync.js"
-    },
     "keywords": [
         "agent",
         "skills",
-        "mcp",
-        "llm",
-        "github-commander"
+        "datadog",
+        "observability"
     ],
     "author": "Adamic.tech",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/neverinfamous/memory-journal-mcp.git"
-    },
-    "publishConfig": {
-        "access": "public"
-    }
+    "license": "MIT"
 }

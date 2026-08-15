@@ -50,8 +50,8 @@ The `mysql-mcp` server operates within a broader skill ecosystem. **Do not guess
 **\[WHEN\]** you need test ecosystem topology, port mappings, or WSL troubleshooting -> **\[ALWAYS\]** read the Infrastructure README:
 - `test-server/infrastructure/AGENT_README.md`
 
-**\[WHEN\]** you need to update or modify the core server instructions -> **\[ALWAYS\]** edit the source markdown files in `test-server/src/constants/instructions/markdown/` and run the generation script:
-- `test-server/scripts/generate-server-instructions.ts`
+**\[WHEN\]** you need to update or modify the core server instructions -> **\[ALWAYS\]** edit the source markdown files in `src/constants/instructions/markdown/` and run the generation script:
+- `scripts/generate-server-instructions.ts`
 
 **\[WHEN\]** you need pre-configured Docker stacks for database setup -> **\[ALWAYS\]** check the examples directory:
 - `examples`
