@@ -39,22 +39,22 @@ The `mysql-mcp` server operates within a broader skill ecosystem. **Do not guess
 ## 2. Context & Architecture Recovery
 
 **\[WHEN\]** you need to understand the server architecture, available tool categories, configuration, or Code Mode mechanics -> **\[ALWAYS\]** read the Code Map:
-- `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md`
+- `test-server/code-map.md`
 
 **\[WHEN\]** you need specific tool schemas, argument requirements, or usage examples -> **\[ALWAYS\]** read the Tool Reference:
-- `C:\Users\chris\Desktop\mysql-mcp\test-server\tool-reference.md`
+- `test-server/tool-reference.md`
 
 **\[WHEN\]** you need project-level overview, build commands, or quality gates -> **\[ALWAYS\]** read the Project README:
-- `C:\Users\chris\Desktop\mysql-mcp\AGENT_README.md`
+- `AGENT_README.md`
 
 **\[WHEN\]** you need test ecosystem topology, port mappings, or WSL troubleshooting -> **\[ALWAYS\]** read the Infrastructure README:
-- `C:\Users\chris\Desktop\mysql-mcp\test-server\infrastructure\AGENT_README.md`
+- `test-server/infrastructure/AGENT_README.md`
 
 **\[WHEN\]** you need to update or modify the core server instructions -> **\[ALWAYS\]** edit the source markdown files in `src/constants/instructions/markdown/` and run the generation script:
-- `C:\Users\chris\Desktop\mysql-mcp\scripts\generate-server-instructions.ts`
+- `scripts/generate-server-instructions.ts`
 
 **\[WHEN\]** you need pre-configured Docker stacks for database setup -> **\[ALWAYS\]** check the examples directory:
-- `C:\Users\chris\Desktop\mysql-mcp\examples`
+- `examples`
 
 ## 3. Infrastructure Selection & Setup
 

@@ -222,11 +222,83 @@ Add a configuration to your IDE's MCP settings file.
 }
 ```
 
-#### Option 2: Cluster & Ecosystem
+#### Option 2: Cluster (Tools for InnoDB Cluster Monitoring)
 
-**Best for:** Monitoring InnoDB Cluster, Group Replication, and Ecosystem integrations.
+**Best for:** Monitoring InnoDB Cluster, Group Replication status, and cluster topology.
 
-> **📖 See the [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup)** for detailed configurations for Option 2.
+> **⚠️ Prerequisites:**
+>
+> - **InnoDB Cluster** must be configured and running with Group Replication enabled
+> - Connect to a cluster node directly (e.g., `localhost:3307`) — NOT a standalone MySQL instance
+> - Use `cluster_admin` or `root` user with appropriate privileges
+> - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for cluster setup instructions
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp-cluster": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "neverinfamous/mysql-mcp:latest"
+      ],
+      "env": {
+        "TOOL_FILTER": "cluster",
+        "MYSQL_HOST": "host.docker.internal",
+        "MYSQL_PORT": "3307",
+        "MYSQL_USER": "cluster_admin",
+        "MYSQL_PASSWORD": "cluster_password",
+        "MYSQL_DATABASE": "mysql"
+      },
+      "timeout": 600
+    }
+  }
+}
+```
+
+#### Option 3: Ecosystem (Tools for InnoDB Cluster Deployments)
+
+**Best for:** MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
+
+> **⚠️ Prerequisites:**
+>
+> - **InnoDB Cluster** requires a running cluster. This enables Router REST API authentication.
+> - Router REST API uses self-signed HTTPS certificates. Set `MYSQL_ROUTER_INSECURE=true` to bypass verification.
+> - **X Protocol:** InnoDB Cluster includes the MySQL X Plugin by default. Set `MYSQL_XPORT` to the Router's X Protocol port (e.g., `6448`). This enables `mysqlsh_import_json` and `docstore` tools
+> - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for detailed instructions
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp-ecosystem": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "neverinfamous/mysql-mcp:latest"
+      ],
+      "env": {
+        "TOOL_FILTER": "ecosystem",
+        "MYSQL_HOST": "host.docker.internal",
+        "MYSQL_PORT": "6446",
+        "MYSQL_USER": "app_user",
+        "MYSQL_PASSWORD": "app_password",
+        "MYSQL_DATABASE": "testdb",
+        "MYSQL_ROUTER_HOST": "host.docker.internal",
+        "MYSQL_ROUTER_PORT": "8443",
+        "MYSQL_ROUTER_USER": "cluster_admin",
+        "MYSQL_ROUTER_PASSWORD": "cluster_password",
+        "MYSQL_ROUTER_INSECURE": "true",
+        "MYSQL_XPORT": "6448"
+      },
+      "timeout": 600
+    }
+  }
+}
+```
 
 ## 🔗 Integrate Any MySQL Environment
 
