@@ -51,7 +51,7 @@ Monitor schema, performance metrics, process lists, replication status, and Inno
 > **Linux Users:** Add `--add-host host.docker.internal:host-gateway`. This enables `host.docker.internal` resolution.
 
 ```bash
-docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
+docker run -i --rm -v ./data:/app/data -v ./logs:/var/log/mysql-mcp writenotenow/mysql-mcp:latest \
   --transport stdio \
   --allowed-io-roots /app/data \
   --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
@@ -140,6 +140,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 ```bash
 docker run --rm -p 3000:3000 \
   -v ./data:/app/data \
+  -v ./logs:/var/log/mysql-mcp \
   -e MCP_AUTH_TOKEN=my-secret-token \
   writenotenow/mysql-mcp:latest \
   --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"

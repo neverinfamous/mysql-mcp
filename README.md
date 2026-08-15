@@ -116,7 +116,7 @@ npx @neverinfamous/mysql-mcp --transport stdio --mysql "mysql://mcp_user:secure_
 > **Linux Users:** For `host.docker.internal` on Linux, run the container with `--add-host host.docker.internal:host-gateway`.
 
 ```bash
-docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
+docker run -i --rm -v ./data:/app/data -v ./logs:/var/log/mysql-mcp writenotenow/mysql-mcp:latest \
   --transport stdio \
   --allowed-io-roots /app/data \
   --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
@@ -249,6 +249,7 @@ npx -y @neverinfamous/mysql-mcp \
 ```bash
 docker run --rm -p 3000:3000 \
   -v ./data:/app/data \
+  -v ./logs:/var/log/mysql-mcp \
   -e MCP_AUTH_TOKEN=my-secret-token \
   writenotenow/mysql-mcp:latest \
   --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
