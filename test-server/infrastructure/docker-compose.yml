@@ -44,8 +44,6 @@ services:
       retries: 30
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node1"}]'
-      - 'com.datadoghq.ad.instances=[{"options": {"extra_performance_metrics":
-        false}}]'
 
   mysql-node2:
     image: mysql:9.7.1
@@ -87,8 +85,6 @@ services:
       retries: 30
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node2"}]'
-      - 'com.datadoghq.ad.instances=[{"options": {"extra_performance_metrics":
-        false}}]'
 
   mysql-node3:
     image: mysql:9.7.1
@@ -130,8 +126,6 @@ services:
       retries: 30
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node3"}]'
-      - 'com.datadoghq.ad.instances=[{"options": {"extra_performance_metrics":
-        false}}]'
 
   mysql-async-replica:
     image: mysql:9.7.1
@@ -173,8 +167,6 @@ services:
       retries: 30
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-async-replica"}]'
-      - 'com.datadoghq.ad.instances=[{"options": {"extra_performance_metrics":
-        false}}]'
 
   cluster-healer:
     image: mysql:9.7.1

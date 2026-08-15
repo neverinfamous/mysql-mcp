@@ -1,5 +1,8 @@
 # Datadog Skills for AI Agents
 
+> **Value Proposition**
+> **Equip AI agents with complete visibility into Datadog telemetry, APM traces, and log data. Streamline root cause analysis, troubleshoot application performance seamlessly within the LLM context window, and continuously monitor agent interactions with full audit capabilities.**
+
 Datadog skills for Claude Code, Codex CLI, Gemini CLI, Cursor, Windsurf, OpenCode, and other AI agents.
 
 ## Skills
