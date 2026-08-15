@@ -59,7 +59,7 @@ docker run -i --rm -v ./data:/app/data -v ./logs:/var/log/mysql-mcp writenotenow
 
 #### Enable Observability via Docker Compose
 
-Launch the full observability stack (Datadog + OpenTelemetry + Prometheus + Grafana) using the included template. This spins up the MCP server, MySQL database, Redis, and observability sidecars:
+Launch the full observability stack (Datadog + OpenTelemetry + Prometheus + Grafana) using the included template. This spins up the MCP server, MySQL database, Redis, and observability sidecars. See the **[Observability Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Observability)** for deep-dive metrics configuration:
 
 ```bash
 cd examples/full-observability-ecosystem
@@ -194,6 +194,12 @@ See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for 
 ---
 
 ## ⚡ Simplify AI Integration with Client Configs
+
+### Install Agent Skills
+
+For optimal AI performance, `mysql-mcp` includes specialized agent instructions in the [`skills/`](https://github.com/neverinfamous/mysql-mcp/tree/main/skills) directory. These skills teach AI coding assistants (like Cline, Antigravity, or Copilot) how to effectively use the server's capabilities, tool filters, and Code Mode.
+
+To install: Copy the `.md` files from the `skills/` directory into your AI assistant's designated skills or custom instructions folder (e.g., `.cursor/rules/`, `.agents/skills/`, etc.). This enables your agent to autonomously navigate the `mysql-mcp` ecosystem without hallucinating usage patterns.
 
 ### Configure IDE Settings
 

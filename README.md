@@ -176,6 +176,7 @@ We provide production-ready Docker Compose templates in the [`examples/`](exampl
 
 - **[Basic Template](examples/basic-mysql-datadog):** A lightweight, single-node MySQL setup. Perfect for quick starts.
 - **[Enterprise HA Template](examples/enterprise-ha-mysql):** A highly-available InnoDB Cluster with MySQL Router and ProxySQL. Perfect for staging or production replicas.
+- **[Full Observability Ecosystem](examples/full-observability-ecosystem):** A complete enterprise monitoring stack with Datadog, Prometheus, Grafana, Loki, and Alloy. See the **[Observability Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Observability)** for deep-dive metrics configuration.
 
 See the README in each directory for quick start instructions.
 
@@ -361,6 +362,12 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 > **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](SECURITY.md) for details.
 
 ## ⚡ Simplify AI Integration with Client Configs
+
+### Install Agent Skills
+
+For optimal AI performance, `mysql-mcp` includes specialized agent instructions in the [`skills/`](skills) directory. These skills teach AI coding assistants (like Cline, Antigravity, or Copilot) how to effectively use the server's capabilities, tool filters, and Code Mode.
+
+To install: Copy the `.md` files from the `skills/` directory into your AI assistant's designated skills or custom instructions folder (e.g., `.cursor/rules/`, `.agents/skills/`, etc.). This enables your agent to autonomously navigate the `mysql-mcp` ecosystem without hallucinating usage patterns.
 
 ### Configure IDE Settings
 
