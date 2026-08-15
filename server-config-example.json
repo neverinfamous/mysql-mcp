@@ -25,7 +25,7 @@
   ],
   "auditConfig": {
     "enabled": true,
-    "logPath": "/tmp/mcp-sandbox/audit.jsonl",
+    "logPath": "/var/log/mysql-mcp/mcp-audit.jsonl",
     "redact": true,
     "auditReads": false,
     "maxSizeBytes": 10485760,

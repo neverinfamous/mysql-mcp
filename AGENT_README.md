@@ -28,7 +28,7 @@ When committing changes to `mysql-mcp`, you **MUST** adhere to the following rul
 2. **Never Bypass Checks**: Do not use `@ts-ignore`, `eslint-disable`, or `test.skip()`. Hard-fail on security gates. Fix the root cause.
 3. **Structured Errors Only**: Handlers must **never** throw raw exceptions (or leak MCP protocol errors). Always wrap failures in the `ErrorResponse` interface using `formatHandlerErrorResponse()` (e.g., returning `{ success: false, error: "...", code: "NOT_FOUND", category: "query", suggestion: "...", recoverable: true }`).
 4. **Decentralized Zod Schemas**: Input schemas live in `src/adapters/mysql/schemas/`. Do not clutter handler logic with inline schemas. Use the dual-schema pattern (`Base` vs `Preprocess`) to handle parameter aliasing cleanly.
-5. **Exporter Audit Log Configuration**: The Prometheus exporter relies on `AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl` to aggregate telemetry, separating it from the write path `--audit-log /var/log/mysql-mcp/exporter-audit.jsonl`.
+5. **Exporter Audit Log Configuration**: The Prometheus exporter reads from `exporter-audit.jsonl`, `AUDIT_LOG_PATH` is set to `mcp-audit.jsonl`, and Grafana Alloy strictly routes `mcp-audit.jsonl` to Loki.
 
 ## 🐚 MySQL Shell Integration (mysqlsh)
 

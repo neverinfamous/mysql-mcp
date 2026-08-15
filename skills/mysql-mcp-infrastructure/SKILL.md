@@ -65,7 +65,7 @@ When generating, modifying, or troubleshooting Docker Compose files or orchestra
 - **Logging**: Enforce the `json-file` driver with rotation (`max-size`, `max-file`).
 - **WSL Context**: 
   - Scripts executed within WSL MUST use dynamic discovery (e.g., `docker compose config --services`) and MUST use `docker exec` (no host binary coupling).
-  - Datadog Agent containers running in WSL MUST include `cgroup: host` (or `cgroupns_mode: host`) for accurate `docker.cpu.usage` metrics.
+  - Datadog Agent containers running in WSL MUST include `cgroup: host` (or `cgroupns_mode: host`) for accurate `docker.cpu.usage` metrics, and specify `extra_performance_metrics: false` to prevent WSL-specific metric collection errors.
   - All `reported_hostname` values for Datadog should use the `adamic-wsl2` convention.
 - **Strict Tags**: All images must use explicit version tags. Never use `latest`.
 - **Exit Codes**: Orchestration scripts must explicitly `process.exit(1)` on failure to break CI/CD pipelines immediately.

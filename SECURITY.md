@@ -178,6 +178,7 @@ docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/a
 
 ### Enable Audit Subsystem
 
+- ✅ **Dual Audit Log Architecture** — `mcp-audit.jsonl` is routed to Loki (via Alloy) for log aggregation, while `exporter-audit.jsonl` is exclusively used by the Prometheus exporter for metrics generation.
 - ✅ **Full JSONL Audit Trails** — comprehensive logging array capturing mutations, Code Mode executions, and system events
 - ✅ **Session Token Estimates** — robust burn-rate tracking appended to log entries
 - ✅ **Pre-Mutation Snapshots (Backup)** — interceptor captures table states before destructive administration operations

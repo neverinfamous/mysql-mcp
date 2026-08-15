@@ -203,6 +203,12 @@ Error logic should leverage the `MySQLMcpError` hierarchy. Our Auto-refinement s
 
 Use the centralized logger with structured payloads. Include: `module`, `operation`, `entityId`, `context`, and `stack` (for errors). Severity levels: `error`, `warn`, `info`, `debug`.
 
+### Follow Observability and Infrastructure Standards
+
+- **Datadog WSL2 Constraints** — Datadog Agent containers must specify `mem_limit: 1536m` and `stop_grace_period: 30s` for stable local execution.
+- **OpenTelemetry Standards** — Telemetry implementations must adhere to the official OTel `gen_ai.*` semantic conventions.
+- **Dual Audit Log Architecture** — The server maintains two distinct audit files: `mcp-audit.jsonl` is routed to Loki (via Alloy) for persistent log aggregation, and `exporter-audit.jsonl` is consumed exclusively by the Prometheus exporter for metrics.
+
 ### Consider Docker Optimization
 
 - **Multi-stage builds** — Keep images lean

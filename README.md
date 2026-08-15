@@ -136,6 +136,25 @@ docker compose up -d
 - **Prometheus:** Available at `http://localhost:9090`.
 - **MCP Server:** Available at `http://localhost:3000`.
 
+#### Datadog & OpenTelemetry Observability Rules
+
+**Datadog Constraints:**
+- **Authentication**: Use `pup` CLI for authentication.
+- **Autodiscovery**: Avoid duplicate autodiscovery configurations.
+- **WSL2 Hardening Limits**: Enforce `stop_grace_period: 30s`, `mem_limit: 1536m`, and OpenMetrics timeouts of `10s`.
+- **Host Configuration**: Use `reported_hostname: adamic-wsl2`, `cgroup: host`, and disable `extra_performance_metrics`.
+- **Windows File Tailing**: Be warned that Windows `inotify` tailing issues may occur with Docker/WSL2 log mapping.
+
+**OpenTelemetry Rules:**
+- **Semantic Conventions**: Enforce `gen_ai.*` semantics.
+- **Instrumentation**: Use auto-instrumentation when possible.
+- **Context Propagation**: Ensure `traceparent` and `tracestate` propagation.
+- **Processing & Logging**: Utilize batch processors and ensure logs are formatted as JSON logs.
+
+**Audit Architecture & Exporter Healthcheck:**
+- The `--audit-log` flag sets the exporter read path (`exporter-audit.jsonl`), distinct from `AUDIT_LOG_PATH` (`mcp-audit.jsonl`).
+- **Exporter Healthcheck**: `wget --spider -q http://127.0.0.1:3000/metrics`
+
 #### Build From Source
 
 ```bash
@@ -714,7 +733,7 @@ The server handles millions of ops/sec across core execution paths. This ensures
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for all file I/O operations |
-| `--audit-log`             | `AUDIT_LOG_PATH`        | Write path for audit logs (flag), read path (env)   |
+| `--audit-log`             | `AUDIT_LOG_PATH`        | Exporter read path (`exporter-audit.jsonl`), distinct from `AUDIT_LOG_PATH` (`mcp-audit.jsonl`) |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
 | `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |
