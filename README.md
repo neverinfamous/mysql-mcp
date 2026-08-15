@@ -155,8 +155,8 @@ docker compose up -d
 - The primary MCP server writes execution traces to `mcp-audit.jsonl` via the `--audit-log` flag.
 - The metrics exporter runs as an independent sidecar process. It reads from `mcp-audit.jsonl` using the `AUDIT_LOG_PATH` environment variable to compute metrics.
 - The exporter isolates its own internal logs by setting its `--audit-log` flag to `exporter-audit.jsonl`.
-- The MCP server operates on port `3000`, while the independent metrics exporter operates on port `3001`. This completely isolates observability overhead from the core request path.
-- **Exporter Healthcheck**: `wget --spider -q http://127.0.0.1:3001/metrics`
+- The metrics server and exporter share a single process. Both operate on port `3000`. This prevents port contention.
+- **Exporter Healthcheck**: `wget --spider -q http://127.0.0.1:3000/metrics`
 
 #### Build From Source
 
