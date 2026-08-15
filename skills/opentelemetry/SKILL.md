@@ -4,7 +4,7 @@ version: 1.0.0
 tags:
   - "agent-skill"
 description: |
-  Observability standards using OpenTelemetry. Use when instrumenting applications for distributed tracing, metrics, and structured logging. NOT for performance optimization - use adversarial-performance or web-perf. SECURITY: Ensure sensitive PII/secrets are scrubbed before logging.
+  Observability standards using OpenTelemetry. Use when instrumenting applications for distributed tracing, metrics, and structured logging. SECURITY: Ensure sensitive PII/secrets are scrubbed before logging.
   Triggers on: "OpenTelemetry", "OTel", "distributed tracing", "metrics", "structured logging", "OTLP", "telemetry".
 ---
 

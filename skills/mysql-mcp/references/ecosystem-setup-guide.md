@@ -96,6 +96,7 @@ Same structure — file location: `C:\Users\chris\.gemini\antigravity\mcp_config
 | Grafana Alloy | 12345 | Log collector (replaces Promtail) |
 | Dozzle | 8080 | Container log viewer |
 | Adminer | 8081 | Database web UI |
+| MySQL Shell | 33060 | X Protocol / AdminAPI |
 
 ## Credential Reference
 
