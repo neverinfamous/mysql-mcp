@@ -82,9 +82,10 @@ When generating, modifying, or troubleshooting Docker Compose files or orchestra
 - **Observability Constraints**:
   - Enforce the `AUDIT_LOG_PATH` environment variable for audit-metrics standards.
   - Database-tier proxies (`mysql-router`, `proxysql`) that handle active connections MUST use `stop_grace_period: 30s` to prevent in-flight query failures during restarts.
+  - Datadog integration MUST include `DD_EXTRA_PERFORMANCE_METRICS: false`.
 - **WSL Context**: 
   - Scripts executed within WSL MUST use dynamic discovery (e.g., `docker compose config --services`) and MUST use `docker exec` (no host binary coupling).
   - Datadog Agent containers running in WSL MUST include `cgroup: host` for accurate `docker.cpu.usage` metrics.
-  - All `reported_hostname` values for Datadog should use the standard project convention (e.g., `project-wsl2`).
+  - All `reported_hostname` values for Datadog should use the standard project convention (e.g., `adamic-wsl2` or `project-wsl2`).
 - **Strict Tags**: All images must use explicit version tags. Never use `latest`.
 - **Exit Codes**: Orchestration scripts must explicitly `process.exit(1)` on failure to break CI/CD pipelines immediately.

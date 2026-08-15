@@ -129,6 +129,7 @@ When running the Datadog agent in a WSL2 Docker container with full observabilit
 | `mem_limit` | `1536m` | Full-stack agent (APM + Processes + eBPF + Logs + 5+ integrations) can approach 1GB during metric spikes |
 | `pid: host` | Required | Accurate process collection in WSL2 |
 | `cgroupns_mode: host` | Recommended | **NOT a valid Compose property** — Docker Compose v5+ rejects it. Set `"default-cgroupns-mode": "host"` in `/etc/docker/daemon.json` instead |
+| `DD_EXTRA_PERFORMANCE_METRICS` | `false` | Disable to prevent high metric ingestion costs and spam from unneeded system profiling |
 
 Database-tier proxies (`mysql-router`, `proxysql`) that handle active connections should also use `stop_grace_period: 30s` to prevent in-flight query failures during restarts.
 

@@ -32,10 +32,10 @@ Expected: Prometheus text format. Key metrics:
 
 | Metric | Description |
 |---|---|
-| `mcp_tool_invocations_total` | Counter per tool name |
-| `mcp_tool_duration_seconds` | Histogram of tool execution time |
-| `mcp_tool_errors_total` | Counter of failed tool calls |
-| `mcp_tokens_estimated_total` | Estimated token consumption |
+| `mysql_mcp_tool_calls_total` | Counter per tool name |
+| `mysql_mcp_tool_latency_ms_*` | Latency percentiles (p50, p95, p99) of tool execution time |
+| `mysql_mcp_tool_errors_total` | Counter of failed tool calls |
+| `mysql_mcp_tool_tokens_total` | Estimated token consumption |
 
 ### Prometheus Scrape Health
 
@@ -80,7 +80,7 @@ Key sections to verify:
 | System Probe | eBPF active |
 | Process Agent | Running |
 
-Custom queries: InnoDB Cluster replication lag is monitored via `performance_schema.replication_group_member_stats` (configured in `mysql.d/conf.yaml`).
+Custom queries: InnoDB Cluster replication lag is monitored via `performance_schema.replication_group_member_stats` (configured via Docker Autodiscovery labels `com.datadoghq.ad.instances`).
 
 Dashboard IDs: AI Efficiency → `q48-mq9-3i7`, Audit Log → `qwe-2un-us8`
 

@@ -50,7 +50,7 @@ Add to `claude_desktop_config.json`:
   "mcpServers": {
     "mysql": {
       "command": "npx",
-      "args": ["-y", "mysql-mcp", "--tool-filter", "starter", "--audit-log"],
+      "args": ["-y", "mysql-mcp", "--tool-filter", "starter", "--audit-log", "--audit-reads"],
       "env": {
         "MYSQL_HOST": "127.0.0.1",
         "MYSQL_PORT": "3307",
