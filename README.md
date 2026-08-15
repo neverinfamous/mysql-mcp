@@ -152,7 +152,7 @@ docker compose up -d
 - **Processing & Logging**: Utilize batch processors and ensure logs are formatted as JSON logs.
 
 **Audit Architecture & Exporter Healthcheck:**
-- The `--audit-log` flag sets the primary write path for a process (`mcp-audit.jsonl`), while `AUDIT_LOG_PATH` sets the read path for the metrics exporter (`exporter-audit.jsonl`).
+- Primary MCP server writes to mcp-audit.jsonl. Grafana Alloy ingests mcp-audit.jsonl and routes to Loki. Exporter reads from mcp-audit.jsonl via AUDIT_LOG_PATH to compute metrics. Exporter isolates its own writes by setting `--audit-log` to exporter-audit.jsonl.
 - **Exporter Healthcheck**: `wget --spider -q http://127.0.0.1:3000/metrics`
 
 #### Build From Source
@@ -710,7 +710,7 @@ The server handles millions of ops/sec across core execution paths. This ensures
 | `--version`, `-v`         | —                       | Show version number                                 |
 | `--help`, `-h`            | —                       | Show help                                           |
 | `--json`                  | —                       | Output in JSON format                               |
-| `--transport`, `-t`       | —                       | Transport type: stdio, http (default: stdio) |
+| `--transport`, `-t`       | —                       | Transport type: stdio, http, sse (default: stdio) |
 | `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http transport                   |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
 | —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms                        |
@@ -733,7 +733,7 @@ The server handles millions of ops/sec across core execution paths. This ensures
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for all file I/O operations |
-| `--audit-log`             | `AUDIT_LOG_PATH`        | Sets the primary write path for a process, while `AUDIT_LOG_PATH` sets the read path for the metrics exporter |
+| `--audit-log`             | `AUDIT_LOG_PATH`        | Primary MCP server writes to mcp-audit.jsonl. Exporter reads via AUDIT_LOG_PATH. |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
 | `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |

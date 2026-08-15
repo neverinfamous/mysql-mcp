@@ -28,17 +28,17 @@ docker compose up -d
 | **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9.7.1` |
 | **MySQL Async Replica (R/O)** | `mysql-async-replica` | `3310` | `mysql:9.7.1` |
 | **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `6448` (XRO), `8443` | `container-registry.oracle.com/mysql/community-router:9.7.1` |
-| **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:3.0.9` |
+| **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:3.0.10` |
 
 | **Redis** | `redis-server` | `6379` | `redis:8.10.0` |
-| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle` |
+| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.7.1` |
 | **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:5.5.0` |
 | **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v3.13.2` |
 | **MySQL MCP Exporter** | `mysql-mcp-exporter` | `3000` | `local build (../../../mysql-mcp)` |
-| **Loki** | `loki` | `3100` | `grafana/loki:3.7.4` |
-| **Grafana Alloy** | `alloy` | `12345` (internal HTTP) | `grafana/alloy:v1.18.0` |
-| **Grafana** | `grafana` | `3001` | `grafana/grafana:13.1.1` |
-| **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7.81.3` |
+| **Loki** | `loki` | `3100` | `grafana/loki:3.7.6` |
+| **Grafana Alloy** | `alloy` | `12345` (internal HTTP) | `grafana/alloy:v1.18.1` |
+| **Grafana** | `grafana` | `3001` | `grafana/grafana:13.1.3` |
+| **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7.82.1` |
 
 > **Version Pinning:** All images use explicit version tags defined in [`docker-compose.yml`](docker-compose.yml). See that file for current versions.
 > **Resilience:** All containers are configured with `restart: unless-stopped` to gracefully survive host laptop reboots without manual intervention.

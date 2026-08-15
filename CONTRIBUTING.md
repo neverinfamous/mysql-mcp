@@ -207,7 +207,7 @@ Use the centralized logger with structured payloads. Include: `module`, `operati
 
 - **Datadog WSL2 Constraints** — Datadog Agent containers must specify `mem_limit: 1536m` and `stop_grace_period: 30s` for stable local execution.
 - **OpenTelemetry Standards** — Telemetry implementations must adhere to the official OTel `gen_ai.*` semantic conventions.
-- **Dual Audit Log Architecture** — The server maintains two distinct audit files: `mcp-audit.jsonl` is routed to Loki (via Alloy) for persistent log aggregation, and `exporter-audit.jsonl` is consumed exclusively by the Prometheus exporter for metrics.
+- **Dual Audit Log Architecture** — Primary MCP server writes to mcp-audit.jsonl. Grafana Alloy ingests mcp-audit.jsonl and routes to Loki. Exporter reads from mcp-audit.jsonl via AUDIT_LOG_PATH to compute metrics. Exporter isolates its own writes by setting `--audit-log` to exporter-audit.jsonl.
 
 ### Consider Docker Optimization
 

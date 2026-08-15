@@ -22,7 +22,7 @@ If the test infrastructure breaks, has port conflicts, or needs to be completely
 
 ```bash
 # Natively on Windows (via PowerShell or cmd)
-node test-server/infrastructure/scripts/recreate-test-ecosystem.mjs
+node test-server/infrastructure/scripts/recreate-ecosystem.mjs
 ```
 > **Note:** This will completely tear down the containers, initialize the InnoDB cluster, join secondary nodes, and run the `reset-database.mjs` seed script.
 

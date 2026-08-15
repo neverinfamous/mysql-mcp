@@ -28,13 +28,13 @@ When committing changes to `mysql-mcp`, you **MUST** adhere to the following rul
 2. **Never Bypass Checks**: Do not use `@ts-ignore`, `eslint-disable`, or `test.skip()`. Hard-fail on security gates. Fix the root cause.
 3. **Structured Errors Only**: Handlers must **never** throw raw exceptions (or leak MCP protocol errors). Always wrap failures in the `ErrorResponse` interface using `formatHandlerErrorResponse()` (e.g., returning `{ success: false, error: "...", code: "NOT_FOUND", category: "query", suggestion: "...", recoverable: true }`).
 4. **Decentralized Zod Schemas**: Input schemas live in `src/adapters/mysql/schemas/`. Do not clutter handler logic with inline schemas. Use the dual-schema pattern (`Base` vs `Preprocess`) to handle parameter aliasing cleanly.
-5. **Exporter Audit Log Configuration**: The Prometheus exporter reads from `exporter-audit.jsonl`, `AUDIT_LOG_PATH` is set to `mcp-audit.jsonl`, and Grafana Alloy strictly routes `mcp-audit.jsonl` to Loki.
+5. **Exporter Audit Log Configuration**: Primary MCP server writes to mcp-audit.jsonl. Grafana Alloy ingests mcp-audit.jsonl and routes to Loki. Exporter reads from mcp-audit.jsonl via AUDIT_LOG_PATH to compute metrics. Exporter isolates its own writes by setting `--audit-log` to exporter-audit.jsonl.
 
 ## 🐚 MySQL Shell Integration (mysqlsh)
 
 The `mysql-mcp` server natively exposes MySQL Shell functionality to agents.
 - **Environment Variable**: Configure the shell port using `MYSQL_XPORT: "33060"` (or your custom port).
-- **Available Tools**: A robust suite of `mysqlsh` tools is available, including `mysqlsh_dump_instance`, `mysqlsh_dump_schemas`, `mysqlsh_export_table`, `mysqlsh_import_table`, and `mysqlsh_run_script`.
+- **Available Tools**: Available mysqlsh tools include `mysqlsh_dump_instance`, `mysqlsh_dump_schemas`, `mysqlsh_export_table`, `mysqlsh_import_table`, and `mysqlsh_run_script`.
 
 ---
 
@@ -68,3 +68,9 @@ If available in your workspace customization roots, load these skills (via slash
 - **`/mysql`**: Master schema and configuration guidelines for strict MySQL querying.
 - **`/mysql-mcp`**: Architectural guidelines for interacting with this specific server and its Code Mode API.
 - **`/mcp-builder`**: Best practices for writing Model Context Protocol servers, transport implementations, and resources.
+- **`/mysql-router`**: Guidelines for MySQL Router.
+- **`/mysqlsh`**: Guidelines for MySQL Shell.
+- **`/proxysql`**: Guidelines for ProxySQL.
+- **`/mysql-mcp-infrastructure`**: Guidelines for infrastructure.
+- **`/datadog`**: Guidelines for Datadog observability.
+- **`/opentelemetry`**: Guidelines for OpenTelemetry.

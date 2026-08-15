@@ -3,23 +3,16 @@
 
 MySQL MCP implements security controls for database connections. It supports stdio and HTTP transports. It utilizes MCP v2 stateless architecture.
 
-## 🛡️ **Defend Your Database Infrastructure**
+## 🛡️ Defend Your Database Infrastructure
 
 ### Eradicate SQL Injection Vulnerabilities
 
-**Identifier Sanitization** (`src/utils/identifiers.ts`)
+**Identifier Sanitization** (`src/adapters/mysql/schemas/`)
 
-- ✅ **Comprehensive coverage** — validates and quotes all table, column, schema, and index names across all tool groups.
+- ✅ **Zod schemas** — Validates and quotes all table, column, schema, and index names across all tool groups.
 - ✅ **MySQL identifier rules enforced** — start with letter/underscore, contain only alphanumerics, underscores, or $ signs
 - ✅ **64-character limit** enforced (MySQL maximum)
 - ✅ **Invalid identifiers** throw `InvalidIdentifierError`
-
-Key functions:
-
-- `sanitizeIdentifier(name)` — Validates and double-quotes an identifier
-- `sanitizeTableName(table, schema?)` — Handles schema-qualified table references
-- `sanitizeColumnRef(column, table?)` — Handles column references with optional table qualifier
-- `sanitizeIdentifiers(names[])` — Batch sanitization for column lists
 
 **Parameterized Queries**
 
@@ -43,7 +36,7 @@ Every tool returns structured error responses — never raw exceptions or intern
 
 Error logic leverages the `MySQLMcpError` hierarchy (multiple distinct categories). It returns enriched payloads via `formatHandlerErrorResponse()`. Error codes are module-prefixed. The server logs internal stack traces but never exposes them to clients.
 
-## 🔐 **Ensure Integrity with Input Validation**
+## 🔐 Ensure Integrity with Input Validation
 
 - ✅ **Zod schemas** — Validate all tool inputs at tool boundaries before database operations
 - ✅ **Parameterized queries** — Use parameterized queries throughout — never string interpolation
@@ -51,7 +44,7 @@ Error logic leverages the `MySQLMcpError` hierarchy (multiple distinct categorie
 - ✅ **Data masking aliases** — Validate aliases strictly at the MCP boundary to prevent evasion
 - ✅ **Identifier sanitization** — Validate table, column, schema, and index names against injection
 
-## 📁 **Sandbox Operations with Filesystem Boundaries**
+## 📁 Sandbox Operations with Filesystem Boundaries
 
 A dedicated security sandbox strictly confines all file I/O operations exposed by the server. This includes MySQL Shell operations and Audit Subsystem snapshots.
 
@@ -61,7 +54,7 @@ A dedicated security sandbox strictly confines all file I/O operations exposed b
 - ✅ **Hidden Files Protection** — rejects dotfiles and hidden directories unless explicitly authorized.
 - ✅ **Drive Letter Validation** — cross-platform compatible with strict Windows drive letter and UNC path checking.
 
-## 🧪 **Isolate Threats in Code Mode Sandbox**
+## 🧪 Isolate Threats in Code Mode Sandbox
 
 Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#optimize-token-usage-with-code-mode).**
 
@@ -88,7 +81,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
 - ✅ **Full API access** — Exposes all tool groups via the `mysql.*` namespace.
 
-## 🌐 **Fortify Remote HTTP Transports**
+## 🌐 Fortify Remote HTTP Transports
 
 When running in HTTP mode (`--transport http`), the following security measures apply:
 
@@ -126,7 +119,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 
 - ✅ **Memory Exhaustion Protection** — Strict request bounds prevent memory exhaustion DoS
 
-## 🔑 **Control Access via OAuth 2.1 & Bearer Tokens**
+## 🔑 Control Access via OAuth 2.1 & Bearer Tokens
 
 The server supports full OAuth 2.1 for production multi-tenant deployments. **These enterprise security features are detailed prominently in the [README.md](README.md#protect-your-data-with-authentication).**
 
@@ -140,7 +133,7 @@ The server supports full OAuth 2.1 for production multi-tenant deployments. **Th
 
 > **⚠️ HTTP without Authentication:** Exposing HTTP transport without authentication grants unrestricted access to all clients.
 
-## 🐳 **Deploy Secure Docker Containers**
+## 🐳 Deploy Secure Docker Containers
 
 ### Run as Non-Root User
 
@@ -174,11 +167,11 @@ docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest --transport
 docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/app/data writenotenow/mysql-mcp:latest --transport stdio --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
-## 🔐 **Maintain Compliance with Secure Logs**
+## 🔐 Maintain Compliance with Secure Logs
 
 ### Enable Audit Subsystem
 
-- ✅ **Dual Audit Log Architecture** — `mcp-audit.jsonl` is routed to Loki (via Alloy) for log aggregation, while `exporter-audit.jsonl` is exclusively used by the Prometheus exporter for metrics generation.
+- ✅ **Dual Audit Log Architecture** — Primary MCP server writes to mcp-audit.jsonl. Grafana Alloy ingests mcp-audit.jsonl and routes to Loki. Exporter reads from mcp-audit.jsonl via AUDIT_LOG_PATH to compute metrics. Exporter isolates its own writes by setting `--audit-log` to exporter-audit.jsonl.
 - ✅ **Full JSONL Audit Trails** — comprehensive logging array capturing mutations, Code Mode executions, and system events
 - ✅ **Session Token Estimates** — robust burn-rate tracking appended to log entries
 - ✅ **Pre-Mutation Snapshots (Backup)** — interceptor captures table states before destructive administration operations
@@ -193,7 +186,7 @@ docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/a
 - ✅ **Control character sanitization** (ASCII 0x00-0x1F except tab/newline, 0x7F, C1 characters)
 - ✅ **Prevents log forging** and escape sequence attacks
 
-## 🔄 **Automate Security in CI/CD Pipelines**
+## 🔄 Automate Security in CI/CD Pipelines
 
 - ✅ **CodeQL analysis** — automated static analysis on push/PR
 - ✅ **pnpm audit** — dependency vulnerability checking (audit-level: moderate)
@@ -201,7 +194,7 @@ docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/a
 - ✅ **Secrets scanning** — dedicated workflow for leaked credential detection
 - ✅ **E2E transport parity** — Playwright suite validates streamable and stateless HTTP behavior
 
-## 🚨 **Implement Operational Security Best Practices**
+## 🚨 Implement Operational Security Best Practices
 
 ### Follow Best Practices for Users
 
@@ -224,7 +217,7 @@ docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/a
 5. **Regular updates** — keep Node.js and pnpm dependencies updated
 6. **Security scanning** — regularly scan Docker images for vulnerabilities
 
-## 📋 **Verify with the Security Checklist**
+## 📋 Verify with the Security Checklist
 
 - [x] Parameterized SQL queries throughout
 - [x] Identifier sanitization (table, column, schema, index names)
@@ -257,7 +250,7 @@ docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/a
 - [x] Structured error responses (no internal details leaked)
 - [x] Comprehensive security documentation
 
-## 🚨 **Disclose Vulnerabilities Responsibly**
+## 🚨 Disclose Vulnerabilities Responsibly
 
 | Version | Supported |
 | ------- | --------- |
@@ -279,7 +272,7 @@ If you discover a security vulnerability:
 
 We appreciate responsible disclosure. We will acknowledge your contribution in our release notes.
 
-## 🔄 **Maintain Protection with Security Updates**
+## 🔄 Maintain Protection with Security Updates
 
 - **Container updates**: Rebuild Docker images when base images are updated
 - **Dependency updates**: Keep npm packages updated via `pnpm audit` and Dependabot

@@ -118,8 +118,8 @@ The `mysql-mcp` server operates within a broader skill ecosystem. **Do not guess
 ### Dashboard Management
 
 Pre-configured Datadog dashboard JSONs are available in `examples/dashboards/`:
-- `datadog-dashboard.json` — Token & Tool Metrics
-- `datadog-ai-dashboard.json` — AI Efficiency
+- `datadog-tool-performance.json` — Token & Tool Metrics
+- `datadog-ai-efficiency.json` — AI Efficiency
 - `datadog-mysql.json` — MySQL Cluster Telemetry
 - `datadog-redis.json` — Redis Telemetry
 

@@ -134,7 +134,8 @@ async function collectMetrics() {
       resource: {
         attributes: [
           { key: "service.name", value: { stringValue: "mysql-router" } },
-          { key: "env", value: { stringValue: "development" } }
+          { key: "service.version", value: { stringValue: "9.7.1" } },
+          { key: "deployment.environment.name", value: { stringValue: "development" } }
         ]
       },
       scopeMetrics: [{

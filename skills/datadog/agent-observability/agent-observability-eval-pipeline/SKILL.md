@@ -420,7 +420,7 @@ python <skill-dir>/scripts/publish_dataset.py \
   [--env-file <path>]   # repeatable; takes precedence over auto-discovery
 ```
 
-`<skill-dir>` resolves to wherever the skill is installed (e.g., `~/.claude/skills/agent-observability-eval-pipeline/`). The script prints either:
+`<skill-dir>` resolves to wherever the skill is installed (e.g., `~/skills/datadog/agent-observability-eval-pipeline/`). The script prints either:
 
 - `Loaded credentials from: <file paths>` (if any `.env` files contributed values), then
 - `OK dataset_name=<name> record_count=<N> url=<url>` (on success), or

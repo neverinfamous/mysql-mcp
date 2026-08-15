@@ -71,7 +71,7 @@ docker compose up -d
 - **Prometheus:** Available at `http://localhost:9090`.
 - **MCP Server:** Available at `http://localhost:3000`.
 
-**Observability Constraints**: Must enforce Datadog WSL hardening limits (`stop_grace_period: 30s`, `mem_limit: 1536m`, `cgroup: host`), OpenMetrics `10s` timeouts, and strict OTel conventions (`gen_ai.*` semantics, batch processors, JSON logs).
+**Observability Constraints**: Must enforce Datadog WSL hardening limits (`stop_grace_period: 30s`, `mem_limit: 1536m`, set via `/etc/docker/daemon.json` (`"default-cgroupns-mode": "host"`)), OpenMetrics `10s` timeouts, and strict OTel conventions (`gen_ai.*` semantics, batch processors, JSON logs).
 
 ---
 
