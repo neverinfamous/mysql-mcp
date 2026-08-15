@@ -84,7 +84,13 @@ export const GRMembersOutputSchema = BaseOutputSchema.extend({
 
 export const GRPrimaryOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    primary: z.record(z.string(), z.unknown()).nullable().optional(),
+    primary: z.object({
+      memberId: z.string(),
+      host: z.string(),
+      port: z.number(),
+      state: z.string(),
+      version: z.string(),
+    }).nullable().optional(),
     hasPrimary: z.boolean(),
     isLocalPrimary: z.boolean(),
   }).loose().optional(),
