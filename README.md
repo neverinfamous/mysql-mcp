@@ -84,7 +84,7 @@ This server exposes **a comprehensive set of resources** for database observabil
 
 ### Meet Prerequisites
 
-- Recent Node.js (LTS recommended)
+- Node.js >= 24.0.0
 - Bun (for executing repository automation scripts)
 - MySQL server
 - pnpm
@@ -335,8 +335,7 @@ Enforce access control using OAuth scopes:
 | `admin`                  | Full administrative access          |
 | `full`                   | Grants all access                   |
 | `db:{name}`              | Access to specific database         |
-| `schema:{name}`          | Access to specific schema           |
-| `table:{schema}:{table}` | Access to specific table            |
+| `table:{db}:{table}`     | Access to specific table            |
 
 ### Ensure RFC Compliance
 

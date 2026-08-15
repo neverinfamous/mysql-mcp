@@ -171,8 +171,7 @@ See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for 
 | `admin` | Full administrative access |
 | `full` | Grants all access |
 | `db:{name}` | Access to specific database |
-| `schema:{name}` | Access to specific schema |
-| `table:{schema}:{table}` | Access to specific table |
+| `table:{db}:{table}` | Access to specific table |
 
 > **Note:**
 > **Per-tool scope enforcement:** The server enforces scopes at the tool level. Each tool group requires a specific scope. When OAuth is enabled, every tool invocation checks the calling token's scopes before execution. The server skips scope checks entirely when OAuth is not configured.
@@ -242,7 +241,7 @@ Add a configuration to your IDE's MCP settings file.
         "run",
         "-i",
         "--rm",
-        "neverinfamous/mysql-mcp:latest"
+        "writenotenow/mysql-mcp:latest"
       ],
       "env": {
         "TOOL_FILTER": "cluster",
@@ -278,7 +277,7 @@ Add a configuration to your IDE's MCP settings file.
         "run",
         "-i",
         "--rm",
-        "neverinfamous/mysql-mcp:latest"
+        "writenotenow/mysql-mcp:latest"
       ],
       "env": {
         "TOOL_FILTER": "ecosystem",

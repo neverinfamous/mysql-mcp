@@ -2,10 +2,10 @@
 
 ## Environment Prerequisites
 
-- **Node.js 20+** — required runtime for `mysql-mcp`
+- **Node.js >= 24.0.0** — required runtime for `mysql-mcp`
 - **pnpm** — package manager (`npm i -g pnpm`)
 - **Docker** — native `docker-ce` on WSL2 Ubuntu or Docker Desktop
-- **mysql-mcp** — install via `npx mysql-mcp` or clone the repo locally
+- **mysql-mcp** — install via `npx -y @neverinfamous/mysql-mcp` or clone the repo locally
 
 > [!IMPORTANT]
 > The current dev environment runs native `docker-ce` inside WSL2 Ubuntu 24.04 — Docker Desktop is NOT installed. All `docker compose` commands execute within the WSL2 distro.

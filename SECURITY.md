@@ -126,7 +126,7 @@ The server supports full OAuth 2.1 for production multi-tenant deployments. **Th
 - ✅ **RFC 8414** Authorization Server Discovery with caching
 - ✅ **RFC 7591** OAuth 2.1 Dynamic Client Registration
 - ✅ **JWT validation** with JWKS support (TTL: 1 hour)
-- ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
+- ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `table:{db}:{table}`
 - ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading
 - ✅ **Bearer Token Auth**: Use `MCP_AUTH_TOKEN` for straightforward token authentication to avoid OAuth overhead.
 
@@ -239,7 +239,7 @@ docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/a
 - [x] Security headers (CSP, X-Content-Type-Options, X-Frame-Options, Cache-Control, Referrer-Policy, Permissions-Policy)
 - [x] HSTS (opt-in)
 - [x] OAuth 2.1 with JWT/JWKS validation (RFC 9728, RFC 8414)
-- [x] MySQL-specific scope enforcement (`read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`)
+- [x] MySQL-specific scope enforcement (`read`, `write`, `admin`, `full`, `db:{name}`, `table:{db}:{table}`)
 - [x] Per-tool scope enforcement via `AsyncLocalStorage`
 - [x] Credential redaction in logs
 - [x] Log injection prevention

@@ -8,7 +8,7 @@ description: |
   or auth via the pup CLI.
   Triggers on: "Datadog", "DD_API_KEY", "pup", "monitors", "APM", "RUM", "SLO", "downtime".
   Do NOT trigger for generic observability/tracing without Datadog explicitly mentioned (use opentelemetry instead).
-dependencies: "node>=18"
+dependencies: "node>=24.0.0"
 references:
   - dd-monitors
   - dd-logs
