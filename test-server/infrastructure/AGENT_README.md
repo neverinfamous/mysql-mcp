@@ -44,7 +44,7 @@ This ecosystem includes all necessary components to validate the entire Adamic u
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    Docker Network: infrastructure_default                     │
+│                Docker Network: unified-database-ecosystem-net                 │
 │                                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                       │
 │  │ mysql-node1  │  │ mysql-node2  │  │ mysql-node3  │                       │
@@ -72,10 +72,10 @@ This ecosystem includes all necessary components to validate the entire Adamic u
 │            │   Port: 3100     │           │  Alloy       │                   │
 │            └──────────────────┘           └──────────────┘                   │
 │                                                                              │
-│            ┌──────────────────┐                                              │
-│            │mysql-mcp-exporter│                                              │
-│            │   Port: 3000     │                                              │
-│            └──────────────────┘                                              │
+│            ┌──────────────────┐           ┌────────────────────────┐         │
+│            │mysql-mcp-exporter│           │ mysql-router-telemetry │         │
+│            │   Port: 3000     │           │                        │         │
+│            └──────────────────┘           └────────────────────────┘         │
 │                                                                              │
 │       ┌──────────────┐                                                       │
 │       │ Redis Server │                                                       │
@@ -137,6 +137,7 @@ All containers are configured with `restart: unless-stopped`. This ensures that 
 |---|---|
 | Prometheus | `http://localhost:9090` |
 | mysql-mcp-exporter | `http://localhost:3000` |
+| mysql-router-telemetry | (Background scraper) |
 | Loki | `http://localhost:3100` |
 | Grafana Alloy | `http://localhost:12345` (internal HTTP status) |
 | Grafana | `http://localhost:3001` (admin/admin) |
