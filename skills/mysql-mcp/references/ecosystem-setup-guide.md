@@ -66,7 +66,7 @@ Add to `claude_desktop_config.json`:
 
 ### Antigravity
 
-Same structure — file location: `C:\Users\chris\.gemini\antigravity\mcp_config.json`
+Same structure — file location: `%USERPROFILE%\.gemini\antigravity\mcp_config.json`
 
 > [!TIP]
 > **Which port to use in `MYSQL_PORT`:**

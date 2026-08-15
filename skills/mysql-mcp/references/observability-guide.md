@@ -101,16 +101,16 @@ Pre-configured Datadog dashboard JSONs in `examples/dashboards/`:
 
 | File | Dashboard |
 |---|---|
-| `datadog-dashboard.json` | Token & Tool Metrics |
-| `datadog-ai-dashboard.json` | AI Efficiency |
+| `datadog-tool-performance.json` | Token & Tool Metrics |
+| `datadog-ai-efficiency.json` | AI Efficiency |
 | `datadog-mysql.json` | MySQL Cluster Telemetry |
 | `datadog-redis.json` | Redis Telemetry |
 
 **Import**: Load `datadog` skill → use `pup` CLI for import/export.
 
 **Backup** (environment-agnostic):
-```bash
-pup dashboards backup --json | jq 'del(.id)'
+```powershell
+pup dashboards get <id> -o json --jq "{title, description, widgets, template_variables, layout_type, notify_list, pause_auto_refresh, reflow_type}" | Out-File "dashboard.json" -Encoding utf8NoBOM
 ```
 
 **Audit log queries in Datadog**: `source:mysql_mcp log_type:mcp_audit`

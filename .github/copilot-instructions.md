@@ -98,6 +98,7 @@ src/
 | File                            | Purpose                             |
 | ------------------------------- | ----------------------------------- |
 | `README.md`                     | Primary project documentation       |
+| `AGENT_README.md`               | Root AI agent specific instructions |
 | `skills/AGENT_README.md`        | AI agent specific instructions      |
 | `test-server/code-map.md`       | File → tool/handler mapping         |
 | `test-server/tool-reference.md` | Categorized tool inventory          |

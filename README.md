@@ -255,7 +255,7 @@ docker run --rm -p 3000:3000 \
   --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
-The server supports **two MCP transport protocols simultaneously**. Both modern and legacy clients can connect:
+The server supports **Streamable HTTP and Stateless HTTP deployments**. Both stateful and stateless clients can connect:
 
 ### Use Streamable HTTP (Recommended)
 
