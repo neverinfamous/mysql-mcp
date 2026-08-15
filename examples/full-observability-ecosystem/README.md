@@ -1,10 +1,13 @@
 # Full Observability Ecosystem Template
 
-This is a comprehensive, out-of-the-box infrastructure template providing a full Enterprise HA MySQL database cluster (3 nodes) with MySQL Router and ProxySQL, alongside a complete open-source telemetry stack and Datadog integrations.
+> **Value Proposition**
+> Deploy a complete telemetry stack instantly. Gain total visibility into your HA MySQL cluster.
 
-## Architecture
+This template provides a full Enterprise HA MySQL cluster (3 nodes). It includes MySQL Router, ProxySQL, an open-source telemetry stack, and Datadog integrations.
 
-- **3x MySQL 9.1 Nodes:** Configured for Group Replication (InnoDB Cluster).
+## Comprehensive Architecture
+
+- **3x MySQL 9.x Nodes:** Configured for Group Replication (InnoDB Cluster).
 - **1x MySQL Router:** Automatically tracks cluster topology and routes traffic to the primary node.
 - **1x ProxySQL:** Connection pooling and query routing/caching on top of the router.
 - **1x Redis:** Used for rate-limiting.
@@ -12,9 +15,9 @@ This is a comprehensive, out-of-the-box infrastructure template providing a full
 - **Prometheus & Grafana:** For metrics collection and visualization.
 - **Loki & Grafana Alloy:** For scraping and aggregating the MCP Audit Log.
 - **Dozzle & Adminer:** For easy log viewing and database administration.
-- **1x Datadog Agent:** Pre-configured with Autodiscovery to automatically parse metrics from the cluster and the exporter.
+- **1x Datadog Agent:** Pre-configured with Autodiscovery to automatically parse metrics.
 
-## Quick Start
+## Launch in Seconds
 
 1. **Configure Environment:**
    Copy the example environment file and insert your Datadog API key (if using Datadog).
@@ -32,9 +35,9 @@ This is a comprehensive, out-of-the-box infrastructure template providing a full
    Once `mysql-node1` is healthy, run the initialization script to bootstrap the Group Replication cluster across all 3 nodes.
    *(Note: The internal `cluster-healer` service in this compose file will attempt to bootstrap automatically if you don't do it manually.)*
 
-## Accessing Observability Tools
+## Access Observability Tools
 
-Once running, you can access the included tools via your browser:
+Once running, access the tools via your browser:
 
 - **Grafana**: [http://localhost:3001](http://localhost:3001) (Login: `admin` / `admin`)
   - Pre-loaded with dashboards for `Token & Tool Metrics`, `AI Efficiency`, and `MySQL Cluster Telemetry`.
@@ -45,9 +48,9 @@ Once running, you can access the included tools via your browser:
   - User: `root`
   - Password: `root`
 
-## Connecting with `mysql-mcp`
+## Connect to the Stack
 
-You can connect to this stack using ProxySQL on port `6033`. Ensure you point the MCP server's audit log at the correct path so the exporter and Alloy can scrape it.
+Connect to this stack using ProxySQL on port `6033`. Point the MCP audit log at the correct path for scraping.
 
 ```json
 {

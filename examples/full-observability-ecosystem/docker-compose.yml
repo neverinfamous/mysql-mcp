@@ -217,7 +217,7 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["http_check"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"reported_hostname":"adamic-wsl2", "name": "mysql_router_rest_api", "url":
+      com.datadoghq.ad.instances: '[{"reported_hostname":"<your_hostname>", "name": "mysql_router_rest_api", "url":
         "https://%%host%%:8443/api/20190715/router/status", "username":
         "rest_api", "password": "router_api", "skip_cert_verify": true}]'
       com.datadoghq.ad.logs: '[{"source":"mysqlrouter","service":"mysql-router"}]'
@@ -249,7 +249,7 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["proxysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"reported_hostname":"adamic-wsl2", "host":"%%host%%", "port":6032,
+      com.datadoghq.ad.instances: '[{"reported_hostname":"<your_hostname>", "host":"%%host%%", "port":6032,
         "username":"radmin", "password":"radmin", "additional_metrics":
         ["connection_pool_metrics", "backends_metrics", "users_metrics",
         "query_rules_metrics", "memory_metrics", "command_counters_metrics"]}]'
@@ -261,7 +261,7 @@ services:
       retries: 10
 
   redis-server:
-    image: redis:8.10.0
+    image: redis:8.x
     container_name: redis-server
     restart: unless-stopped
     ports:
@@ -279,7 +279,7 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["redisdb"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"reported_hostname":"adamic-wsl2", "host":"%%host%%", "port":6379, "command_stats":
+      com.datadoghq.ad.instances: '[{"reported_hostname":"<your_hostname>", "host":"%%host%%", "port":6379, "command_stats":
         true, "slowlog-max-len": 128}]'
       com.datadoghq.ad.logs: '[{"source":"redis","service":"redis-server"}]'
     healthcheck:
@@ -308,7 +308,7 @@ services:
       --audit-reads --mysql mysql://root:${MYSQL_ROOT_PASSWORD:-root}@mysql-router:6446/testdb
     environment:
       - ALLOWED_IO_ROOTS=/var/log/mysql-mcp
-      - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY:-adamic123}
+      - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY:-<your_secure_encryption_key>}
       - AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl
       - LOG_LEVEL=warning
     ports:
@@ -330,7 +330,7 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["openmetrics"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"reported_hostname": "adamic-wsl2", "openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": [".*"], "max_returned_metrics": 10000, "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "tags": ["service:mysql_mcp", "env:development"]}]'
+      com.datadoghq.ad.instances: '[{"reported_hostname": "<your_hostname>", "openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": [".*"], "max_returned_metrics": 10000, "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "tags": ["service:mysql_mcp", "env:development"]}]'
       com.datadoghq.ad.logs: '[{"source":"mysql_mcp","service":"mysql_mcp"}]'
 
   mysql-router-telemetry:
@@ -523,7 +523,7 @@ services:
       - .env
     environment:
       - DD_SITE=datadoghq.com
-      - DD_HOSTNAME=adamic-wsl2
+      - DD_HOSTNAME=<your_hostname>
       - DD_ENV=development
       - DD_VERSION=1.0.0
       - DD_TAGS=source:wsl2

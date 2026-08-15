@@ -181,7 +181,7 @@ npx tsx test-server/infrastructure/scripts/redis-setup.ts
 
 ### `generate-server-instructions.ts`
 
-Builds `src/constants/server-instructions.ts` module. Reads and compiles markdown files from `src/constants/instructions/markdown/*.md`. Provides MCP server with `mysql://help` resource content.
+Compiles markdown files from `src/constants/instructions/markdown/*.md` into multiple distinct `src/constants/instructions/*.ts` constants, rather than a single module. Provides MCP server with `mysql://help` resource content.
 
 ```bash
 pnpm run generate:instructions

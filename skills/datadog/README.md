@@ -1,8 +1,5 @@
 # Datadog Skills for AI Agents
 
-> **Value Proposition**
-> **Equip AI agents with complete visibility into Datadog telemetry, APM traces, and log data. Streamline root cause analysis, troubleshoot application performance seamlessly within the LLM context window, and continuously monitor agent interactions with full audit capabilities.**
-
 Datadog skills for Claude Code, Codex CLI, Gemini CLI, Cursor, Windsurf, OpenCode, and other AI agents.
 
 ## Skills
@@ -87,7 +84,7 @@ npx skills add datadog-labs/agent-skills \
 
 ### Agent Observability (LLMO)
 
-The `agent-observability` directory contains six skills for working with Agent Observability data:
+The `agent-observability` directory contains several skills for working with Agent Observability data:
 
 | Skill | Purpose |
 |-------|---------|
@@ -133,7 +130,7 @@ cp -r agent-observability/agent-observability-session-classify ~/.claude/skills
 
 #### MCP Requirements
 
-All six skills require the LLMO toolset:
+All skills require the LLMO toolset:
 
 ```bash
 claude mcp add --scope user --transport http "datadog-llmo-mcp" 'https://mcp.datadoghq.com/api/unstable/mcp-server/mcp?toolsets=llmobs'
@@ -236,7 +233,7 @@ triage-flaky-test com.example.MyTest github.com/org/repo
 
 ### Audit Trail (dd-audit)
 
-The `dd-audit` directory contains five skills for investigating Datadog Audit Trail data:
+The `dd-audit` directory contains several skills for investigating Datadog Audit Trail data:
 
 | Skill | Purpose |
 |-------|---------|

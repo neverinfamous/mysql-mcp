@@ -728,7 +728,7 @@ The server handles millions of ops/sec across core execution paths. This ensures
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for all file I/O operations |
-| `--audit-log`             | `AUDIT_LOG_PATH`        | Primary MCP server writes to mcp-audit.jsonl. Exporter reads via AUDIT_LOG_PATH. |
+| `--audit-log`             | `AUDIT_LOG_PATH`        | Primary MCP server writes to mcp-audit.jsonl. Exporter reads via AUDIT_LOG_PATH. Exporter isolates its own writes via exporter-audit.jsonl. |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
 | `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |

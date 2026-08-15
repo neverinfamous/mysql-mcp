@@ -20,7 +20,7 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["mysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "reported_hostname":"adamic-wsl2", "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"replication": false, "extra_status_metrics": true, "extra_innodb_metrics": true, "extra_performance_metrics": false}}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "reported_hostname":"<your_hostname>", "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"replication": false, "extra_status_metrics": true, "extra_innodb_metrics": true, "extra_performance_metrics": false}}]'
       com.datadoghq.ad.logs: '[{"source":"mysql","service":"mysql"}]'
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
@@ -47,7 +47,7 @@ services:
     environment:
       - DD_API_KEY=${DD_API_KEY}
       - DD_SITE=${DD_SITE:-datadoghq.com}
-      - DD_HOSTNAME=adamic-wsl2
+      - DD_HOSTNAME=<your_hostname>
       - DD_LOGS_ENABLED=true
       - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
       - DD_APM_ENABLED=true
@@ -104,7 +104,7 @@ services:
     stdin_open: true
     environment:
       - ALLOWED_IO_ROOTS=/var/log/mysql-mcp
-      - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY:-adamic123}
+      - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY:-<your_secure_encryption_key>}
       - AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl
       - LOG_LEVEL=warning
     ports:
@@ -126,7 +126,7 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["openmetrics"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"reported_hostname": "adamic-wsl2", "openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": [".*"], "max_returned_metrics": 10000, "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "tags": ["service:mysql_mcp", "env:development"]}]'
+      com.datadoghq.ad.instances: '[{"reported_hostname": "<your_hostname>", "openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": [".*"], "max_returned_metrics": 10000, "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "tags": ["service:mysql_mcp", "env:development"]}]'
       com.datadoghq.ad.logs: '[{"source":"mysql_mcp","service":"mysql_mcp"}]'
 
 volumes:

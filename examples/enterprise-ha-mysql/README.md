@@ -1,14 +1,17 @@
 # Enterprise HA MySQL + Datadog Template
 
-This is a clean, sanitized template for deploying an enterprise-grade High-Availability (HA) MySQL architecture, fully monitored by Datadog.
+> **Value Proposition**
+> Deploy a resilient, enterprise-grade MySQL cluster. Get HA routing, pooling, and observability instantly.
 
-## Architecture
-- **3x MySQL 9.7.1 Nodes:** Configured for Group Replication (InnoDB Cluster).
+This template deploys an enterprise-grade High-Availability (HA) MySQL architecture. It is fully monitored by Datadog.
+
+## Resilient Architecture
+- **3x MySQL 9.x Nodes:** Configured for Group Replication (InnoDB Cluster).
 - **1x MySQL Router:** Automatically tracks cluster topology and routes traffic to the primary node.
 - **1x ProxySQL:** Connection pooling and query routing/caching on top of the router.
 - **1x Datadog Agent:** Pre-configured with Autodiscovery to automatically parse metrics from MySQL and ProxySQL.
 
-## Quick Start
+## Launch in Seconds
 
 1. **Configure Environment:**
    Copy the example environment file and insert your Datadog API key.
@@ -29,9 +32,9 @@ This is a clean, sanitized template for deploying an enterprise-grade High-Avail
    ```
    *(Note: The MySQL Router will automatically configure itself and start routing once it detects the cluster is ready.)*
 
-## Connecting with `mysql-mcp`
+## Connect to the Cluster
 
-The most resilient way to connect to this ecosystem is through ProxySQL (Port 6043). Add the following to your Claude Desktop or Cursor MCP configuration:
+The most resilient connection is through ProxySQL (Port 6043). Add the following to your MCP configuration. Note: ProxySQL is bypassed for the X protocol connection.
 
 ```json
 {

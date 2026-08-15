@@ -1,12 +1,15 @@
 # Basic MySQL + Datadog Template
 
-This is a lightweight, out-of-the-box infrastructure template for users who want to run a simple MySQL 9.x database with full Datadog observability (Metrics, Logs, APM, and System Probes) to use with the `mysql-mcp` server.
+> **Value Proposition**
+> Deploy MySQL and Datadog instantly. Get full observability out of the box with zero configuration.
 
-## Features
-- **Zero-config Telemetry:** The Datadog Agent is pre-configured to automatically discover the MySQL container and parse its logs and metrics.
+This is a lightweight infrastructure template for running a simple MySQL 9.x database. It includes full Datadog observability (Metrics, Logs, APM, System Probes) for the `mysql-mcp` server.
+
+## Automate Your Telemetry
+- **Zero-config Telemetry:** The Datadog Agent automatically discovers MySQL, parsing logs and metrics.
 - **Lightweight:** Runs only the database and the Datadog Agent.
 
-## Quick Start
+## Launch in Seconds
 
 1. **Configure Environment:**
    Copy the example environment file and insert your Datadog API key.
@@ -53,7 +56,7 @@ Once the database is running, you can connect the `mysql-mcp` server to it by ad
 
 Once data is flowing, you can monitor your database using the pre-configured custom dashboards included in this repository.
 
-See the [Dashboards Documentation](../dashboards/README.md) to import the custom **MySQL Cluster Telemetry** and **Token & Tool Metrics** dashboards into your Datadog account.
+See the [Dashboards Documentation](../dashboards/README.md) to import the custom **MySQL Cluster Telemetry**, **Token & Tool Metrics**, and **AI Efficiency** dashboards into your Datadog account.
 
 You can also use the native Datadog integrations:
 - [MySQL Integration Overview](https://app.datadoghq.com/dash/integration/12/mysql---overview)
