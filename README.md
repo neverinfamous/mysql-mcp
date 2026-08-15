@@ -152,7 +152,7 @@ docker compose up -d
 - **Processing & Logging**: Utilize batch processors and ensure logs are formatted as JSON logs.
 
 **Audit Architecture & Exporter Healthcheck:**
-- Primary MCP server writes to mcp-audit.jsonl. Grafana Alloy ingests mcp-audit.jsonl and routes to Loki. Exporter reads from mcp-audit.jsonl via AUDIT_LOG_PATH to compute metrics. Exporter isolates its own writes by setting `--audit-log` to exporter-audit.jsonl. Note: The metrics server and exporter are the exact same process operating on port `3000`, preventing any port contention.
+- Primary MCP server writes to mcp-audit.jsonl. Grafana Alloy ingests mcp-audit.jsonl and routes to Loki. Exporter reads from mcp-audit.jsonl via AUDIT_LOG_PATH to compute metrics. Exporter isolates its own writes by setting `--audit-log` to exporter-audit.jsonl. Note: The metrics server and exporter share a single process. Both operate on port `3000`. This prevents port contention.
 - **Exporter Healthcheck**: `wget --spider -q http://127.0.0.1:3000/metrics`
 
 #### Build From Source

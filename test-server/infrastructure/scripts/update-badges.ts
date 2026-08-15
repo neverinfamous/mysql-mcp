@@ -11,7 +11,7 @@ const CONFIG = {
   coverageSummaryPath: path.join(ROOT_DIR, ".test-output/coverage/coverage-summary.json"),
   playwrightPath: path.join(ROOT_DIR, ".test-output/playwright-results.json"),
   filesToUpdate: ["README.md", "DOCKER_README.md"],
-  licenseLineRegex: /^((?:\[)?!\[License: MIT\].*?\)(?:\]\(.*?\))?).*$/m,
+  licenseLineRegex: /^(.*(?:\[)?!\[License: MIT\].*?\)(?:\]\(.*?\))?).*$/m,
   defaultColor: "red" as const,
   commit: {
     msg: "chore(docs): update test badges",

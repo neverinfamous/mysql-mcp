@@ -27,7 +27,7 @@ cors:
   allowCredentials: true
 
 # Tooling and Sandbox
-toolFilter: "starter"
+toolFilter: "codemode"
 allowedIoRoots:
   - "C:/temp/mcp-sandbox"
   - "/tmp/mcp-sandbox"
@@ -70,4 +70,4 @@ oauth:
   clockTolerance: 60
 
 # Advanced & Ecosystem Features
-# Many configuration options can also be specified natively as camelCase properties. REDIS_URL, CODEMODE_ISOLATION, PROXYSQL_HOST, PROXYSQL_PORT, PROXYSQL_USER, PROXYSQL_PASSWORD, MYSQL_ROUTER_URL, MYSQL_ROUTER_USER, MYSQL_ROUTER_PASSWORD, MYSQL_ROUTER_INSECURE, MYSQLSH_PATH, and LOG_LEVEL features, as well as CODEMODE_MAX_RESULT_SIZE, METADATA_CACHE_TTL_MS, MCP_RATE_LIMIT_MAX, CODEMODE_RATE_LIMIT_MAX, and MYSQL_XPORT are injected via environment variables.
+# Many configuration options can also be specified natively as camelCase properties. REDIS_URL, CODEMODE_ISOLATION, PROXYSQL_HOST, PROXYSQL_PORT, PROXYSQL_USER, PROXYSQL_PASSWORD, MYSQL_ROUTER_URL, MYSQL_ROUTER_USER, MYSQL_ROUTER_PASSWORD, MYSQL_ROUTER_INSECURE, MYSQLSH_PATH, and LOG_LEVEL features, as well as CODEMODE_MAX_RESULT_SIZE, METADATA_CACHE_TTL_MS, MCP_RATE_LIMIT_MAX, CODEMODE_RATE_LIMIT_MAX, MYSQL_XPORT, DD_API_KEY, DD_APP_KEY, DD_HOSTNAME, DD_SITE, DD_EXTRA_PERFORMANCE_METRICS, and OTEL_EXPORTER_OTLP_ENDPOINT are injected via environment variables.
