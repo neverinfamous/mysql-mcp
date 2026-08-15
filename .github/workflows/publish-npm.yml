@@ -12,7 +12,7 @@ on:
         required: false
         default: ""
       emergency_bypass:
-        description: 'Bypass upstream gatekeeper checks (EMERGENCY ONLY)'
+        description: 'Bypass upstream gatekeeper checks AND environment gates (EMERGENCY ONLY)'
         type: boolean
         required: true
         default: false

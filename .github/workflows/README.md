@@ -145,7 +145,7 @@ The `lint-and-test`, `codeql`, `secrets-scanning`, and `security-update (Trivy)`
 
 | Secret            | Used By                    | Purpose                     |
 | ----------------- | -------------------------- | --------------------------- |
-| `GITHUB_TOKEN`    | codeql, secrets-scanning, security-update | Git operations and agent authorization |
+| `GITHUB_TOKEN`    | codeql, secrets-scanning, security-update, ci-health-monitor | Git operations and agent authorization |
 | `GH_AW_GITHUB_MCP_SERVER_TOKEN`| ci-health-monitor | Agent authorization            |
 | `GH_AW_GITHUB_TOKEN` | ci-health-monitor         | Agent authorization            |
 | `COPILOT_GITHUB_TOKEN`| ci-health-monitor        | gh copilot engine authorization for agentic workflows |
