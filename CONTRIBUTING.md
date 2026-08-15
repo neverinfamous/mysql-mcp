@@ -1,5 +1,8 @@
 # Contributing to mysql-mcp
 
+## 💎 Value Proposition
+
+Accelerate development by contributing to a production-ready, highly tested AI-database integration. Build robust features for the MCP ecosystem with comprehensive observability, strict TypeScript validation, and a mature architectural framework designed for enterprise scale.
 
 Thank you for contributing to mysql-mcp. Help us build a robust, enterprise-grade AI-database integration. Your contributions make mysql-mcp faster, secure, and more powerful for mission-critical deployments.
 

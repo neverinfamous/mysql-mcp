@@ -1,6 +1,6 @@
 ---
 name: mysql-mcp
-version: 2.0.0
+version: 1.0.0
 tags:
   - "agent-skill"
 description: |
@@ -20,7 +20,7 @@ references:
 
 # MySQL MCP Server Guidelines
 
-The `mysql-mcp` server is an advanced Model Context Protocol server for MySQL with 165+ specialized tools across 28 groups, a C++ V8 sandboxed Code Mode, enterprise audit logging, and a full observability pipeline. This skill is the **orchestration hub** — it routes agents to the right resource at the right time without duplicating content that lives in the server's own help system or companion skills.
+The `mysql-mcp` server provides specialized tools, a Code Mode sandbox, audit logging, and a full observability pipeline. This skill is the **orchestration hub** — it routes agents to the right resource at the right time without duplicating content that lives in the server's own help system or companion skills.
 
 ## 1. Foundational Ecosystem
 

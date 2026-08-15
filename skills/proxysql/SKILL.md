@@ -28,7 +28,7 @@ references:
 
 # ProxySQL Production Standards
 
-ProxySQL is a high-performance MySQL proxy providing connection multiplexing, query routing, caching, and firewalling. It excels in complex architectures requiring granular traffic control.
+ProxySQL is a high-performance MySQL proxy providing connection multiplexing, query routing, caching, and firewalling.
 
 ### 3.1 Architecture & Three-Layer Configuration
 
