@@ -106,11 +106,14 @@ The `mysql-mcp` server operates within a broader skill ecosystem. **Do not guess
 |---|---|---|
 | Prometheus | `http://localhost:9090` | Time-series metrics scraping |
 | Grafana | `http://localhost:3001` | Pre-loaded dashboards (admin/admin) |
-| mysql-mcp-exporter | `http://localhost:3000` | MCP audit log metrics |
+| mysql-mcp-exporter | `http://localhost:3000` | MCP audit log metrics (reads from `AUDIT_LOG_PATH`) |
+| OpenTelemetry Collector | `http://localhost:4318` | OTLP metrics and traces pipeline |
 | Datadog Agent | `docker exec datadog-unified agent status` | Host metrics, APM, eBPF, DB integrations |
 | Loki | `http://localhost:3100` | Log aggregation |
 | Grafana Alloy | `http://localhost:12345` | Log collector (replaces Promtail) |
 | Dozzle | `http://localhost:8080` | Container log viewer |
+
+**\[WHEN\]** tracking telemetry or instrumenting code -> **\[ALWAYS\]** use `gen_ai.*` semantic conventions.
 
 ### Dashboard Management
 

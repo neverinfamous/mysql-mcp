@@ -84,7 +84,7 @@ This server exposes **a comprehensive set of resources** for database observabil
 
 ### Meet Prerequisites
 
-- Recent Node.js (>=24.0.0, LTS recommended)
+- Recent Node.js (LTS recommended)
 - Bun (for executing repository automation scripts)
 - MySQL server
 - pnpm
@@ -142,7 +142,7 @@ docker compose up -d
 - **Authentication**: Use `pup` CLI for authentication.
 - **Autodiscovery**: Avoid duplicate autodiscovery configurations.
 - **WSL2 Hardening Limits**: Enforce `stop_grace_period: 30s`, `mem_limit: 1536m`, and OpenMetrics timeouts of `10s`.
-- **Host Configuration**: Use `reported_hostname: adamic-wsl2`, `cgroup: host`, and disable `extra_performance_metrics`.
+- **Host Configuration**: Use `DD_HOSTNAME` and native `/etc/docker/daemon.json` cgroup configurations (`"default-cgroupns-mode": "host"`). Disable `extra_performance_metrics`.
 - **Windows File Tailing**: Be warned that Windows `inotify` tailing issues may occur with Docker/WSL2 log mapping.
 
 **OpenTelemetry Rules:**
@@ -152,7 +152,7 @@ docker compose up -d
 - **Processing & Logging**: Utilize batch processors and ensure logs are formatted as JSON logs.
 
 **Audit Architecture & Exporter Healthcheck:**
-- The `--audit-log` flag sets the exporter read path (`exporter-audit.jsonl`), distinct from `AUDIT_LOG_PATH` (`mcp-audit.jsonl`).
+- The `--audit-log` flag sets the primary write path for a process (`mcp-audit.jsonl`), while `AUDIT_LOG_PATH` sets the read path for the metrics exporter (`exporter-audit.jsonl`).
 - **Exporter Healthcheck**: `wget --spider -q http://127.0.0.1:3000/metrics`
 
 #### Build From Source
@@ -555,7 +555,7 @@ Use the remote hostname directly:
 ## 🛠️ Optimize Limits with Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools). Filter tools to ensure compatibility with IDE limits. We offer many specialized tools.** All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
+> **AI IDEs like Cursor have tool limits. Filter tools to ensure compatibility with IDE limits. We offer many specialized tools.** All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### Discover Filtering Options
 
@@ -622,7 +622,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `cluster` | Group Replication, InnoDB Cluster |
 | `proxysql` | ProxySQL management |
 | `router` | MySQL Router REST API |
-| `vector` | Vector embeddings, KNN search, hybrid search (MySQL 9.0+) |
+| `vector` | Vector embeddings, KNN search, hybrid search |
 
 ---
 
@@ -733,7 +733,7 @@ The server handles millions of ops/sec across core execution paths. This ensures
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for all file I/O operations |
-| `--audit-log`             | `AUDIT_LOG_PATH`        | Exporter read path (`exporter-audit.jsonl`), distinct from `AUDIT_LOG_PATH` (`mcp-audit.jsonl`) |
+| `--audit-log`             | `AUDIT_LOG_PATH`        | Sets the primary write path for a process, while `AUDIT_LOG_PATH` sets the read path for the metrics exporter |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
 | `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |
