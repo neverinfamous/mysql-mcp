@@ -31,7 +31,7 @@ Detail the specific tests you ran. Ensure thorough validation.
 - [ ] I have added Zod schemas to all new tools
 - [ ] I have used kebab-case for new filenames (except for .github templates)
 - [ ] I have avoided `continue-on-error: true` in workflow files (except Agentic .lock.yml files).
-- [ ] I have run tests locally (e.g., via `pnpm run check`)
+- [ ] I have run tests locally (e.g., via `pnpm run test`)
 - [ ] I have enforced the Dual-Schema Pattern
 - [ ] I have ensured Docker instructions use `:latest` tag for user-facing pulls in `DOCKER_README.md` (infrastructure files must use explicit version tags) and use exact account names (Docker Hub uses 'writenotenow' and GitHub uses 'neverinfamous')
 - [ ] I have avoided using 'any' (used 'unknown' instead) and preferred union types over enums.

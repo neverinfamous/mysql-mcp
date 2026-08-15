@@ -38,7 +38,9 @@ pnpm run build
 pnpm test
 
 # Run the full quality check
-pnpm run check   # Executes lint, typecheck, build, test, test:e2e
+pnpm run lint
+pnpm run typecheck
+pnpm test        # Run individually to prevent local timeout issues
 ```
 
 ### Run the Server Locally
@@ -111,7 +113,9 @@ pnpm run bench
 
 ```bash
 # Lint + type check (required before submitting)
-pnpm run check   # Executes lint, typecheck, build, test, test:e2e
+pnpm run lint
+pnpm run typecheck
+pnpm test        # Run individually to prevent local timeout issues
 
 # Or individually
 pnpm run lint        # ESLint only
@@ -259,7 +263,7 @@ Use our [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md).
 ### Check Before Submitting
 
 - [ ] **Fork** the repository and create a feature branch
-- [ ] **Test** your changes (`pnpm run check`)
+- [ ] **Test** your changes (`pnpm run lint`, `pnpm run typecheck`, `pnpm test`)
 - [ ] **Update documentation** if you changed APIs or behavior
 - [ ] **Add examples** for new features
 - [ ] **Check** that existing functionality still works
@@ -346,7 +350,7 @@ The `mysql-mcp` project is organized into modular directories under `src/`:
 | ----------------------- | ---------------------------------------------------- |
 | `pnpm run build`         | Production build via tsup                            |
 | `pnpm run dev`           | Watch mode (fast unbundled hot reloads via tsx)      |
-| `pnpm run check`         | **Quality gate** — lint, typecheck, build, test, test:e2e (run before PRs) |
+| `pnpm run lint` / `test` | **Quality gate** — run lint, typecheck, build, and tests separately |
 | `pnpm run lint`          | ESLint only                                          |
 | `pnpm run typecheck`     | TypeScript strict-mode type checking                 |
 | `pnpm run test:zod`      | Validate Zod schemas                                 |

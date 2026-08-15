@@ -52,7 +52,7 @@ The `mysql-mcp` server natively exposes MySQL Shell functionality to agents.
 
 The repository contains these testing environments:
 
-- **E2E & Unit**: `src/__tests__/`, `src/audit/*.test.ts`, and `tests/e2e/`. Run via `pnpm run check`.
+- **E2E & Unit**: `src/__tests__/`, `src/audit/*.test.ts`, and `tests/e2e/`. Run via `pnpm run test`.
 - **Advanced Agent Testing**:
   - `test-server/test-advanced/`: Stress testing, sandbox boundary fuzzing, connection saturation.
   - `test-server/test-tool-groups/`: Direct JSON-RPC tool group functionality.

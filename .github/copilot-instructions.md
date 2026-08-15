@@ -120,7 +120,7 @@ When reviewing PRs, check for:
 - [ ] Missing Zod schemas on new tools
 - [ ] Kebab-case violations in new filenames
 - [ ] No `continue-on-error: true` in workflow files (except Agentic .lock.yml files).
-- [ ] Verify the author has run tests locally (e.g., via `pnpm run check`)
+- [ ] Verify the author has run tests locally (e.g., via `pnpm run test`)
 - [ ] Dual-Schema Pattern enforcement
 - [ ] Ensure Docker instructions use `:latest` tag for user-facing pulls in `DOCKER_README.md` (infrastructure files must use explicit version tags) and use exact account names (Docker Hub uses 'writenotenow' and GitHub uses 'neverinfamous')
 - [ ] Avoid using 'any' (use 'unknown' instead) and prefer union types over enums.
