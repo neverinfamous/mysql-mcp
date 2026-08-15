@@ -219,7 +219,7 @@ services:
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"name": "mysql_router_rest_api", "url":
         "https://%%host%%:8443/api/20190715/router/status", "username":
-        "rest_api", "password": "router_api", "skip_cert_verify": true}]'
+        "rest_api", "password": "router_api", "reported_hostname": "adamic-wsl2", "skip_cert_verify": true}]'
       com.datadoghq.ad.logs: '[{"source":"mysqlrouter","service":"mysql-router"}]'
     healthcheck:
       test: ["CMD-SHELL", "curl -k -u rest_api:router_api -s https://127.0.0.1:8443/api/20190715/router/status > /dev/null || exit 1"]
@@ -250,7 +250,7 @@ services:
       com.datadoghq.ad.check_names: '["proxysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032,
-        "username":"radmin", "password":"radmin", "additional_metrics":
+        "username":"radmin", "password":"radmin", "reported_hostname": "adamic-wsl2", "additional_metrics":
         ["connection_pool_metrics", "backends_metrics", "users_metrics",
         "query_rules_metrics", "memory_metrics", "command_counters_metrics"]}]'
       com.datadoghq.ad.logs: '[{"source":"proxysql","service":"proxysql"}]'
@@ -279,7 +279,7 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["redisdb"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6379, "command_stats":
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6379, "reported_hostname": "adamic-wsl2", "command_stats":
         true, "slowlog-max-len": 128}]'
       com.datadoghq.ad.logs: '[{"source":"redis","service":"redis-server"}]'
     healthcheck:
@@ -330,7 +330,7 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["openmetrics"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": [".*"], "max_returned_metrics": 10000, "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "tags": ["service:mysql_mcp", "env:development"]}]'
+      com.datadoghq.ad.instances: '[{"openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": [".*"], "max_returned_metrics": 10000, "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "reported_hostname": "adamic-wsl2", "tags": ["service:mysql_mcp", "env:development"]}]'
       com.datadoghq.ad.logs: '[{"source":"mysql_mcp","service":"mysql_mcp"}]'
 
   mysql-router-telemetry:

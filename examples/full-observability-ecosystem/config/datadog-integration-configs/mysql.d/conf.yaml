@@ -5,8 +5,8 @@ ad_identifiers:
 
 instances:
   - host: "%%host%%"
-    username: root
-    password: root
+    username: datadog
+    password: datadog
     port: 3306
     min_collection_interval: 5
     options:
@@ -17,6 +17,7 @@ instances:
       extra_performance_metrics: false
       schema_size_metrics: false
       disable_innodb_metrics: false
+    reported_hostname: adamic-wsl2
     tags:
       - "hostname:adamic-wsl2"
     custom_queries:

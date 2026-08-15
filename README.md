@@ -9,7 +9,7 @@
 
 ## 💎 Value Proposition
 
-Accelerate your AI agents with production-ready MySQL integration. Deploy MCP v2 stateless architecture via NodeStreamableHTTPServerTransport. Maximize token efficiency via Code Mode. Secure your database with OAuth 2.1.
+Integrate your AI agents with a production-ready MySQL environment. Deploy MCP v2 stateless architecture via NodeStreamableHTTPServerTransport. Optimize token efficiency via Code Mode. Secure your database with OAuth 2.1.
 
 ## 🎯 Leverage Core Benefits
 
@@ -84,7 +84,7 @@ This server exposes **a comprehensive set of resources** for database observabil
 
 ### Meet Prerequisites
 
-- Node.js >= 24.0.0 (Note: Node.js 26.1.0 is the pinned version for local development via `.node-version`)
+- Node.js >= 24.0.0 (See `.node-version` for the pinned local development version)
 - Bun (for executing repository automation scripts)
 - MySQL server
 - pnpm
