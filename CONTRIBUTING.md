@@ -162,7 +162,7 @@ docker run --rm -i -v ./data:/app/data writenotenow/mysql-mcp-dev --transport st
 - **Strict mode** — `tsconfig.json` enforces strict TypeScript
 - **ESLint** — Run `pnpm run lint` to check, `pnpm run lint:fix` to auto-fix (when available)
 - **Prettier** — Formatting is handled automatically during the release workflow
-- **Type safety** — Avoid `any`; use proper types and Zod schemas
+- **Type safety** — Avoid `any` (use `unknown` instead); use proper types, Zod schemas, and prefer union types over enums
 - **Modularity** — Keep files concise; split into sub-modules when necessary
 - **Error handling** — Use structured `{success, error, code, category, suggestion, recoverable}` responses in tool handlers
 
