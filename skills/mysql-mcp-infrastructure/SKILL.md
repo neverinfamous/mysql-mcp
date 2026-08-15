@@ -73,15 +73,18 @@ bash init-cluster.sh
 
 ## 3. Infrastructure Audit Rules
 
-When generating, modifying, or troubleshooting Docker Compose files or orchestration scripts, adhere to these rigorous standards (derived from the `adamic` global infrastructure audits):
+When generating, modifying, or troubleshooting Docker Compose files or orchestration scripts, adhere to these rigorous standards:
 
 - **Healthchecks**: Every database-tier service (MySQL, ProxySQL, etc.) MUST have a defined healthcheck. The startup dependency chain MUST enforce health wait states (e.g., ProxySQL depends on MySQL router `condition: service_healthy`).
 - **Restart Policies**: All services must have `restart: unless-stopped`.
 - **Resource Limits**: Always define a `mem_limit`. Ensure MySQL nodes have sufficient container headroom above their configured `innodb_buffer_pool_size`.
 - **Logging**: Enforce the `json-file` driver with rotation (`max-size`, `max-file`).
+- **Observability Constraints**:
+  - Enforce the `AUDIT_LOG_PATH` environment variable for audit-metrics standards.
+  - Database-tier proxies (`mysql-router`, `proxysql`) that handle active connections MUST use `stop_grace_period: 30s` to prevent in-flight query failures during restarts.
 - **WSL Context**: 
   - Scripts executed within WSL MUST use dynamic discovery (e.g., `docker compose config --services`) and MUST use `docker exec` (no host binary coupling).
   - Datadog Agent containers running in WSL MUST include `cgroup: host` for accurate `docker.cpu.usage` metrics.
-  - All `reported_hostname` values for Datadog should use the `adamic-wsl2` convention.
+  - All `reported_hostname` values for Datadog should use the standard project convention (e.g., `project-wsl2`).
 - **Strict Tags**: All images must use explicit version tags. Never use `latest`.
 - **Exit Codes**: Orchestration scripts must explicitly `process.exit(1)` on failure to break CI/CD pipelines immediately.

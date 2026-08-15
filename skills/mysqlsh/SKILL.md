@@ -78,7 +78,7 @@ cluster.status()
 
 ### 2.3 Dump & Load Utilities (`util.*`)
 
-MySQL Shell utilities process data in parallel with chunking, making them **10-20x faster** than legacy `mysqldump`.
+MySQL Shell utilities process data in parallel with chunking, providing significantly higher throughput than legacy tools.
 
 **Dump Best Practices:**
 - **[ALWAYS]** use `threads: N` matched to CPU capacity.
@@ -106,24 +106,13 @@ util.loadDump("/backup/dir", {
 })
 ```
 
-**MCP Tools Mapping:**
-| `util.*` Function | MCP Tool |
-|---|---|
-| `util.dumpInstance()` | `mysqlsh_dump_instance` |
-| `util.dumpSchemas()` | `mysqlsh_dump_schemas` |
-| `util.dumpTables()` | `mysqlsh_dump_tables` |
-| `util.loadDump()` | `mysqlsh_load_dump` |
-| `util.exportTable()` | `mysqlsh_export_table` |
-| `util.importTable()` | `mysqlsh_import_table` |
-| `util.importJson()` | `mysqlsh_import_json` |
-| `util.checkForServerUpgrade()` | `mysqlsh_check_upgrade` |
 
 ### 2.4 Upgrade Checker
 
 `util.checkForServerUpgrade()` performs pre-flight compatibility checks before MySQL version upgrades.
 
 ```javascript
-util.checkForServerUpgrade('user@host', {targetVersion: "8.4.0"})
+util.checkForServerUpgrade('user@host', {targetVersion: "x.x.x"})
 ```
 
 - Output categorized into **Errors** (must fix), **Warnings**, and **Notices**.

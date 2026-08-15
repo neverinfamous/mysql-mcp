@@ -29,6 +29,7 @@ jobs:
     uses: ./.github/workflows/secrets-scanning.yml
     permissions:
       contents: read
+      pull-requests: write
 
   trivy:
     uses: ./.github/workflows/security-update.yml

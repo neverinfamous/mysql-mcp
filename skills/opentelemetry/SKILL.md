@@ -72,3 +72,5 @@ tracer.startActiveSpan('database.query', (span) => {
 ## 7. Security Gates
 
 - **PII / Secrets Scrubbing**: Ensure sensitive PII, API keys, and secrets are scrubbed before logging attributes to spans or metrics. Never include passwords or tokens in trace attributes.
+- **Audit Logging**: Always configure the `AUDIT_LOG_PATH` environment variable when dealing with security-relevant audit telemetry or exporter logic.
+

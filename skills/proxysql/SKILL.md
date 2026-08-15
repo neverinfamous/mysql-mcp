@@ -149,20 +149,6 @@ ORDER BY avg_time_us DESC LIMIT 20;
 - Use to identify caching candidates, slow queries, and query distribution patterns.
 - **[CAUTION]** High volumes of unique, non-parameterized queries bloat this table. Safely truncate with `DELETE FROM stats_mysql_query_digest` to reset baselines.
 
-**MCP Tools:**
-| Admin Query | MCP Tool |
-|---|---|
-| `stats_mysql_global` | `proxysql_status` |
-| `mysql_servers` | `proxysql_servers` |
-| `mysql_query_rules` | `proxysql_query_rules` |
-| `stats_mysql_query_digest` | `proxysql_query_digest` |
-| `stats_mysql_connection_pool` | `proxysql_connection_pool` |
-| `mysql_users` | `proxysql_users` |
-| `global_variables` | `proxysql_global_variables` |
-| Runtime admin vars | `proxysql_runtime_status` |
-| `stats_memory_metrics` | `proxysql_memory_stats` |
-| `SHOW FULL PROCESSLIST` | `proxysql_process_list` |
-| Raw admin commands | `proxysql_commands` |
 
 ### 3.8 Group Replication / InnoDB Cluster Support
 

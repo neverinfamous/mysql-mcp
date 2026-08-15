@@ -50,8 +50,8 @@ The `mysql-mcp` server operates within a broader skill ecosystem. **Do not guess
 **\[WHEN\]** you need test ecosystem topology, port mappings, or WSL troubleshooting -> **\[ALWAYS\]** read the Infrastructure README:
 - `test-server/infrastructure/AGENT_README.md`
 
-**\[WHEN\]** you need to update or modify the core server instructions -> **\[ALWAYS\]** edit the source markdown files in `src/constants/instructions/markdown/` and run the generation script:
-- `scripts/generate-server-instructions.ts`
+**\[WHEN\]** you need to update or modify the core server instructions -> **\[ALWAYS\]** edit the source markdown files in `test-server/src/constants/instructions/markdown/` and run the generation script:
+- `test-server/scripts/generate-server-instructions.ts`
 
 **\[WHEN\]** you need pre-configured Docker stacks for database setup -> **\[ALWAYS\]** check the examples directory:
 - `examples`
@@ -80,7 +80,7 @@ The `mysql-mcp` server operates within a broader skill ecosystem. **Do not guess
 
 - **Runtime Configuration & Lifecycle**: The server exposes an `update_configuration` tool. **[CRITICAL]** Configuration changes do NOT apply immediately; you **MUST** restart the server. "Restarting the server" means restarting the local Node process, NEVER the underlying database or Docker infrastructure. To restart the Node process cleanly and quickly apply code changes, **[ALWAYS]** ask the USER to manually click the "Refresh" button on the MCP server in the Antigravity IDE UI. **[NEVER]** attempt to use `process.exit(0)` directly as it causes permanent IDE client connection drops.
 
-- **Code Mode Priority**: **\[ALWAYS\]** prefer using `mysql_execute_code` (Code Mode) for multi-step database operations to dramatically reduce token overhead (70-90% savings). Access all tools via the `mysql.*` namespace inside the sandbox.
+- **Code Mode Priority**: **\[ALWAYS\]** prefer using `mysql_execute_code` (Code Mode) for multi-step database operations to dramatically reduce token overhead. Access all tools via the `mysql.*` namespace inside the sandbox.
 - **Code Mode Safety**: Code Mode does **NOT** bypass destructive-operation safety gates. `DROP DATABASE`, `DROP`, `TRUNCATE`, `DELETE` without `WHERE`, `ALTER TABLE ... DROP COLUMN`, and `ALTER TABLE ... RENAME COLUMN` executed inside Code Mode scripts MUST still require explicit user confirmation before the script is submitted.
 - **Tool Filtering**: Due to IDE limits, you cannot load all tools at once. **\[ALWAYS\]** use tool filtering (e.g., `--tool-filter starter` or `--tool-filter codemode`) when deploying or instructing the user on setup.
 - **Connection Safety**: **\[ALWAYS\]** respect strict schema configurations (like `STRICT_TRANS_TABLES`) and use parameterized queries, even when executing scripts within Code Mode. Load the **`mysql`** skill for engine-specific production rules.

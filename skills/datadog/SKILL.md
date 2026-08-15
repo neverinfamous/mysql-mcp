@@ -159,22 +159,27 @@ In heavily monitored or tested environments (like those driven by MCP test suite
 
 ## 5. Custom Queries for InnoDB Cluster
 
-The default Datadog MySQL integration does not track Group Replication specifics. Add `custom_queries` to `mysql.d/conf.yaml` for InnoDB Cluster telemetry:
+The default Datadog MySQL integration does not track Group Replication specifics. For containerized databases, use Docker autodiscovery labels (`com.datadoghq.ad.instances`) to inject custom queries for InnoDB Cluster telemetry. **Never** combine static `conf.yaml` files with containerized databases.
+
+Example Docker label for custom queries:
 
 ```yaml
-custom_queries:
-  - metric_prefix: mysql.group_replication
-    query: >
-      SELECT COUNT_TRANSACTIONS_IN_QUEUE, COUNT_TRANSACTIONS_REMOTE_IN_APPLIER_QUEUE
-      FROM performance_schema.replication_group_member_stats
-      WHERE MEMBER_ID = @@server_uuid
-    columns:
-      - name: transactions_in_queue
-        type: gauge
-      - name: transactions_remote_in_applier_queue
-        type: gauge
-    tags:
-      - "custom_query:group_replication_lag"
+com.datadoghq.ad.instances: |
+  [
+    {
+      "custom_queries": [
+        {
+          "metric_prefix": "mysql.group_replication",
+          "query": "SELECT COUNT_TRANSACTIONS_IN_QUEUE, COUNT_TRANSACTIONS_REMOTE_IN_APPLIER_QUEUE FROM performance_schema.replication_group_member_stats WHERE MEMBER_ID = @@server_uuid",
+          "columns": [
+            {"name": "transactions_in_queue", "type": "gauge"},
+            {"name": "transactions_remote_in_applier_queue", "type": "gauge"}
+          ],
+          "tags": ["custom_query:group_replication_lag"]
+        }
+      ]
+    }
+  ]
 ```
 
 This surfaces transaction queue backlog and applier lag, which are invisible to the default integration but critical for detecting cluster health degradation.

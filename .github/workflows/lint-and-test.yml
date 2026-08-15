@@ -124,22 +124,20 @@ jobs:
       - name: Smoke test — HTTP transport starts
         run: |
           docker run --rm -d --name pr-smoke -p 3000:3000 \
+            --health-cmd="wget --spider -q http://127.0.0.1:3000/health || exit 1" \
+            --health-interval=2s --health-timeout=2s --health-retries=5 \
             -e MCP_TRANSPORT=http -e PORT=3000 -e MCP_HOST=0.0.0.0 \
             -e ALLOWED_IO_ROOTS=/tmp \
+            -e AUDIT_LOG_PATH=/tmp/mcp-audit.jsonl \
+            -e OTEL_TRACES_EXPORTER=none -e OTEL_METRICS_EXPORTER=none -e OTEL_LOGS_EXPORTER=none \
             -e TOOL_FILTER=router pr-smoke-test:latest \
             --transport http --tool-filter router
-          sleep 5
-          if ! docker ps --filter name=pr-smoke --format '{{.Status}}' | grep -q "Up"; then
-            echo "❌ Docker smoke test failed — container crashed on startup"
-            docker logs pr-smoke 2>&1 || true
-            exit 1
-          fi
-          HTTP_STATUS=$(curl -k -sf -o /dev/null -w '%{http_code}' https://localhost:3000/health || echo "000")
-          if [ "$HTTP_STATUS" != "200" ]; then
-            echo "❌ Health endpoint returned $HTTP_STATUS"
+          
+          timeout 15s bash -c 'until [ "$(docker inspect -f {{.State.Health.Status}} pr-smoke)" == "healthy" ]; do sleep 1; done' || {
+            echo "❌ Docker smoke test failed — container not healthy"
             docker logs pr-smoke 2>&1 || true
             docker stop pr-smoke || true
             exit 1
-          fi
+          }
           docker stop pr-smoke
           echo "✅ Docker smoke test passed"

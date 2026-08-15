@@ -28,7 +28,7 @@ description: |
 MySQL and MariaDB are powerful relationship-driven databases, but AI agents MUST adhere to these strict behavioral boundaries when executing queries, utilizing the `mysql-mcp` server, or generating application code.
 
 > [!NOTE]
-> **Version Notice (2026)**: MySQL 8.0 reached EOL in April 2026. Actively target **8.4 LTS** or **9.0+** for production environments. Both MySQL 9.0+ and MariaDB now feature native `VECTOR` data types and search capabilities.
+> Actively target **8.4 LTS** or **9.0+** for production environments. Both MySQL 9.0+ and MariaDB now feature native `VECTOR` data types and search capabilities.
 
 ## 1. Query Safety & Execution Rules
 

@@ -204,7 +204,7 @@ Use the centralized logger with structured payloads. Include: `module`, `operati
 
 ### Follow Observability and Infrastructure Standards
 
-- **Datadog Constraints** — Use `pup` CLI for authentication. Avoid duplicate autodiscovery configurations. Enforce `stop_grace_period: 30s`, `mem_limit: 1536m`, and OpenMetrics timeouts of `10s`. Use `DD_HOSTNAME` and native `/etc/docker/daemon.json` cgroup configurations (`"default-cgroupns-mode": "host"`). Disable `DD_EXTRA_PERFORMANCE_METRICS`.
+- **Datadog Constraints** — Use `pup` CLI for authentication. Avoid duplicate autodiscovery configurations. Add standard tracking labels (`com.datadoghq.tags.env`, `com.datadoghq.tags.service`, `com.datadoghq.tags.version`) to your containers. Enforce `stop_grace_period: 30s`, `mem_limit: 1536m`, and OpenMetrics timeouts of `10s`. Use `DD_HOSTNAME` and native `/etc/docker/daemon.json` cgroup configurations (`"default-cgroupns-mode": "host"`). Disable `DD_EXTRA_PERFORMANCE_METRICS`.
 - **OpenTelemetry Standards** — Telemetry implementations must adhere to the official OTel `gen_ai.*` semantic conventions. Use auto-instrumentation when possible. Ensure `traceparent` and `tracestate` propagation. Utilize batch processors and ensure logs are formatted as JSON logs.
 - **Dual Audit Log Architecture** — Primary MCP server writes to mcp-audit.jsonl. Grafana Alloy ingests mcp-audit.jsonl and routes to Loki. Exporter reads from mcp-audit.jsonl via AUDIT_LOG_PATH to compute metrics. Exporter isolates its own writes by setting `--audit-log` to exporter-audit.jsonl. The metrics server and exporter are the exact same process operating on port 3000, preventing any port contention.
 - **Exporter Healthcheck**: `wget --spider -q http://127.0.0.1:3000/metrics`

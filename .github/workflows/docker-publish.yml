@@ -160,22 +160,20 @@ jobs:
         run: |
           # Start with router filter (no MySQL connection needed)
           docker run --rm -d --name smoke-http -p 3000:3000 \
+            --health-cmd="wget --spider -q http://127.0.0.1:3000/health || exit 1" \
+            --health-interval=2s --health-timeout=2s --health-retries=5 \
             -e MCP_TRANSPORT=http -e PORT=3000 -e MCP_HOST=0.0.0.0 -e ALLOWED_IO_ROOTS=/tmp \
+            -e AUDIT_LOG_PATH=/tmp/mcp-audit.jsonl \
+            -e OTEL_TRACES_EXPORTER=none -e OTEL_METRICS_EXPORTER=none -e OTEL_LOGS_EXPORTER=none \
             -e TOOL_FILTER=router smoke-test:latest \
             --transport http --tool-filter router
-          sleep 5
-          if ! docker ps --filter name=smoke-http --format '{{.Status}}' | grep -q "Up"; then
-            echo "❌ HTTP smoke test failed — container crashed"
-            docker logs smoke-http 2>&1 || true
-            exit 1
-          fi
-          HTTP_STATUS=$(curl -k -sf -o /dev/null -w '%{http_code}' https://localhost:3000/health || echo "000")
-          if [ "$HTTP_STATUS" != "200" ]; then
-            echo "❌ Health endpoint returned $HTTP_STATUS"
+          
+          timeout 15s bash -c 'until [ "$(docker inspect -f {{.State.Health.Status}} smoke-http)" == "healthy" ]; do sleep 1; done' || {
+            echo "❌ HTTP smoke test failed — container not healthy"
             docker logs smoke-http 2>&1 || true
             docker stop smoke-http || true
             exit 1
-          fi
+          }
           docker stop smoke-http
           echo "✅ HTTP transport smoke test passed"
 
@@ -254,6 +252,10 @@ jobs:
             suffix=-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
           tags: |
             type=sha,prefix=sha-,format=short
+          labels: |
+            tags.datadoghq.com/service=mysql-mcp
+            tags.datadoghq.com/env=production
+            tags.datadoghq.com/version=${{ steps.version.outputs.version }}
 
       - name: Build and push platform image
         id: build
@@ -362,6 +364,10 @@ jobs:
             type=raw,value=v${{ steps.version.outputs.version }},enable=${{ startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == true }}
             type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == true }}
             type=sha,prefix=sha-,format=short
+          labels: |
+            tags.datadoghq.com/service=mysql-mcp
+            tags.datadoghq.com/env=production
+            tags.datadoghq.com/version=${{ steps.version.outputs.version }}
 
       - name: Create and push manifest
         working-directory: /tmp/digests
