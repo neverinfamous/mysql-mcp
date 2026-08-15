@@ -36,7 +36,7 @@
         "_comment_REDIS_URL": "redis://localhost:6379",
         "_comment_MYSQL_ROUTER_URL": "https://localhost:8443",
         "_comment_MYSQL_ROUTER_USER": "rest_api",
-        "_comment_MYSQL_ROUTER_PASSWORD": "password",
+        "_comment_MYSQL_ROUTER_PASSWORD": "router_password",
         "_comment_MYSQL_ROUTER_INSECURE": "true",
         "_comment_PROXYSQL_HOST": "localhost",
         "_comment_PROXYSQL_PORT": "6032",

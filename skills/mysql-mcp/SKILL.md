@@ -150,4 +150,4 @@ node test-server/infrastructure/scripts/heal-primary.mjs
 ## 7. Testing Infrastructure Directives
 
 **\[CRITICAL\]** When working on the `mysql-mcp` codebase itself, manual editing of the generated markdown test files in `test-usability/`, `test-usability-direct/`, `test-advanced/`, and `test-tool-groups/` is **STRICTLY FORBIDDEN**.
-**\[ALWAYS\]** make modifications through `scripts/test-manifest.ts` or the `scripts/content/*.content.md` partials, which act as the single source of truth for the test generation engine.
+**\[ALWAYS\]** make modifications through `test-server/scripts/test-manifest.ts` or the `test-server/scripts/content/*.content.md` partials, which act as the single source of truth for the test generation engine.

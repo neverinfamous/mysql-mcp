@@ -47,7 +47,7 @@ services:
     environment:
       - DD_API_KEY=${DD_API_KEY}
       - DD_SITE=${DD_SITE:-datadoghq.com}
-      - DD_HOSTNAME=<your_hostname>
+      - DD_HOSTNAME=adamic-wsl2
       - DD_LOGS_ENABLED=true
       - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
       - DD_APM_ENABLED=true
@@ -128,7 +128,7 @@ services:
       com.datadoghq.ad.check_names: '["openmetrics"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": [".*"], "max_returned_metrics": 10000, "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "reported_hostname": "adamic-wsl2", "tags": ["service:mysql_mcp", "env:development"]}]'
-      com.datadoghq.ad.logs: '[{"source":"mysql_mcp","service":"mysql_mcp"}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql-mcp-exporter","service":"mysql-mcp-exporter"}]'
 
 volumes:
   mysql-data:

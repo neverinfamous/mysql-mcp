@@ -365,7 +365,7 @@ services:
         "send_monotonic_counter": true, "timeout": 10,
         "min_collection_interval": 15, "tags": ["service:mysql_mcp",
         "env:development"]}]'
-      com.datadoghq.ad.logs: '[{"source":"mysql_mcp","service":"mysql_mcp"}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql-mcp-exporter","service":"mysql-mcp-exporter"}]'
 
   mysql-router-telemetry:
     image: oven/bun:1.2.0-alpine

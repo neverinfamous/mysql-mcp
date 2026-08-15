@@ -28,7 +28,7 @@ Integrate your AI agents with a production-ready MySQL environment. Deploy MCP v
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Observability**                     | Export Prometheus metrics and track logs with Dozzle. |
+| **Observability**                     | Export Prometheus metrics. Track container logs with Dozzle and audit trails with Grafana Alloy/Loki. |
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. |
 | **MCP v2 Compliant**                | Fully support the MCP v2 specification. This includes stateless routing, caching, safety hints, and notifications. |
 
