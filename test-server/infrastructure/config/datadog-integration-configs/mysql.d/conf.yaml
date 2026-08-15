@@ -19,7 +19,6 @@ instances:
       disable_innodb_metrics: false
     tags:
       - "hostname:adamic-wsl2"
-    reported_hostname: adamic-wsl2
     custom_queries:
       - metric_prefix: mysql.group_replication
         query: >
