@@ -430,7 +430,7 @@ services:
       com.datadoghq.ad.logs: '[{"source":"bun","service":"mysql-router-telemetry"}]'
 
   dozzle:
-    image: amir20/dozzle:v10.7.1
+    image: amir20/dozzle:v10.7.2
     container_name: dozzle
     restart: unless-stopped
     ports:
