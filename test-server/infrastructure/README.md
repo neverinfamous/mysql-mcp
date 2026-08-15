@@ -31,7 +31,7 @@ docker compose up -d
 | **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:3.0.10` |
 
 | **Redis** | `redis-server` | `6379` | `redis:8.10.0` |
-| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.7.1` |
+| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle` |
 | **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:5.5.0` |
 | **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v3.13.2` |
 | **MySQL MCP Exporter** | `mysql-mcp-exporter` | `3000` | `local build (../../../mysql-mcp)` |
