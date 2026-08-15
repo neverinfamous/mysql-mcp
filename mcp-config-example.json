@@ -19,7 +19,7 @@
         "MYSQL_DATABASE": "testdb",
         "MYSQL_POOL_SIZE": "10",
         "_comment_TOOL_FILTER": "Use 'codemode' for maximum token efficiency, or 'starter' for the default bundle.",
-        "TOOL_FILTER": "starter",
+        "TOOL_FILTER": "codemode",
         "_comment_ALLOWED_IO_ROOTS": "C:/temp/mcp-sandbox,/tmp/mcp-sandbox",
         "METADATA_CACHE_TTL_MS": "30000",
         "CODEMODE_MAX_RESULT_SIZE": "102400",

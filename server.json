@@ -3,7 +3,7 @@
   "name": "io.github.neverinfamous/mysql-mcp",
   "title": "MySQL MCP Server",
   "description": "Streamline database operations with our Enterprise-grade MySQL MCP Server. Securely connect using OAuth 2.1. Boost token efficiency via Code Mode.",
-  "version": "4.0.0",
+  "version": "x.x.x",
   "packages": [
     {
       "registryType": "oci",

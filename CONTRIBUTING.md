@@ -14,7 +14,7 @@ Thank you for contributing to mysql-mcp. Help us build a robust, enterprise-grad
 
 ### Meet Prerequisites
 
-- Node.js >= 24.0.0 (Note: Node.js 26.1.0 is the pinned version for local development via `.node-version`)
+- Node.js >= 24.0.0 (See `.node-version` for the pinned local development version)
 - Bun (for executing repository automation scripts)
 - Current pnpm version
 - **Git** (for version control)

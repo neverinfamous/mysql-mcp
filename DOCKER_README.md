@@ -300,6 +300,7 @@ Add a configuration to your IDE's MCP settings file.
         "-e", "PROXYSQL_PORT",
         "-e", "PROXYSQL_USER",
         "-e", "PROXYSQL_PASSWORD",
+        "-e", "MYSQLSH_PATH",
         "writenotenow/mysql-mcp:latest",
         "--transport",
         "stdio"
@@ -307,19 +308,20 @@ Add a configuration to your IDE's MCP settings file.
       "env": {
         "TOOL_FILTER": "ecosystem",
         "MYSQL_HOST": "host.docker.internal",
-        "MYSQL_PORT": "6446",
-        "MYSQL_USER": "app_user",
+        "MYSQL_PORT": "3307",
+        "MYSQL_USER": "cluster_admin",
         "MYSQL_PASSWORD": "app_password",
         "MYSQL_DATABASE": "testdb",
         "MYSQL_ROUTER_URL": "https://host.docker.internal:8443",
-        "MYSQL_ROUTER_USER": "cluster_admin",
+        "MYSQL_ROUTER_USER": "rest_api",
         "MYSQL_ROUTER_PASSWORD": "cluster_password",
         "MYSQL_ROUTER_INSECURE": "true",
         "MYSQL_XPORT": "6448",
         "PROXYSQL_HOST": "host.docker.internal",
         "PROXYSQL_PORT": "6032",
         "PROXYSQL_USER": "radmin",
-        "PROXYSQL_PASSWORD": "radmin"
+        "PROXYSQL_PASSWORD": "radmin",
+        "MYSQLSH_PATH": "mysqlsh"
       },
       "timeout": 600
     }
