@@ -241,7 +241,15 @@ Add a configuration to your IDE's MCP settings file.
         "run",
         "-i",
         "--rm",
-        "writenotenow/mysql-mcp:latest"
+        "-e", "TOOL_FILTER",
+        "-e", "MYSQL_HOST",
+        "-e", "MYSQL_PORT",
+        "-e", "MYSQL_USER",
+        "-e", "MYSQL_PASSWORD",
+        "-e", "MYSQL_DATABASE",
+        "writenotenow/mysql-mcp:latest",
+        "--transport",
+        "stdio"
       ],
       "env": {
         "TOOL_FILTER": "cluster",
@@ -277,7 +285,24 @@ Add a configuration to your IDE's MCP settings file.
         "run",
         "-i",
         "--rm",
-        "writenotenow/mysql-mcp:latest"
+        "-e", "TOOL_FILTER",
+        "-e", "MYSQL_HOST",
+        "-e", "MYSQL_PORT",
+        "-e", "MYSQL_USER",
+        "-e", "MYSQL_PASSWORD",
+        "-e", "MYSQL_DATABASE",
+        "-e", "MYSQL_ROUTER_URL",
+        "-e", "MYSQL_ROUTER_USER",
+        "-e", "MYSQL_ROUTER_PASSWORD",
+        "-e", "MYSQL_ROUTER_INSECURE",
+        "-e", "MYSQL_XPORT",
+        "-e", "PROXYSQL_HOST",
+        "-e", "PROXYSQL_PORT",
+        "-e", "PROXYSQL_USER",
+        "-e", "PROXYSQL_PASSWORD",
+        "writenotenow/mysql-mcp:latest",
+        "--transport",
+        "stdio"
       ],
       "env": {
         "TOOL_FILTER": "ecosystem",
@@ -286,12 +311,15 @@ Add a configuration to your IDE's MCP settings file.
         "MYSQL_USER": "app_user",
         "MYSQL_PASSWORD": "app_password",
         "MYSQL_DATABASE": "testdb",
-        "MYSQL_ROUTER_HOST": "host.docker.internal",
-        "MYSQL_ROUTER_PORT": "8443",
+        "MYSQL_ROUTER_URL": "https://host.docker.internal:8443",
         "MYSQL_ROUTER_USER": "cluster_admin",
         "MYSQL_ROUTER_PASSWORD": "cluster_password",
         "MYSQL_ROUTER_INSECURE": "true",
-        "MYSQL_XPORT": "6448"
+        "MYSQL_XPORT": "6448",
+        "PROXYSQL_HOST": "host.docker.internal",
+        "PROXYSQL_PORT": "6032",
+        "PROXYSQL_USER": "radmin",
+        "PROXYSQL_PASSWORD": "radmin"
       },
       "timeout": 600
     }

@@ -84,7 +84,7 @@ This server exposes **a comprehensive set of resources** for database observabil
 
 ### Meet Prerequisites
 
-- Node.js >= 24.0.0
+- Node.js >= 24.0.0 (Note: Node.js 26.1.0 is the pinned version for local development via `.node-version`)
 - Bun (for executing repository automation scripts)
 - MySQL server
 - pnpm
