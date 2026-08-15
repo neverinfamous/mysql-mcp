@@ -1,9 +1,5 @@
 # 🔒 Security Policy
 
-## 💎 Value Proposition
-
-Secure your AI agents with enterprise-grade Zero-Trust OAuth 2.1 authentication and strict V8 sandboxing. Benefit from a defense-in-depth architecture that enforces strict tool boundaries, prevents SQL injection, and sanitizes all inputs via Zod schemas.
-
 MySQL MCP implements security controls for database connections. It supports stdio and HTTP transports. It utilizes MCP v2 stateless architecture.
 
 ## 🛡️ Defend Your Database Infrastructure
