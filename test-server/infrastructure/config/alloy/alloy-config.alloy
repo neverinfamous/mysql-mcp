@@ -6,7 +6,7 @@
 local.file_match "mcp_logs" {
   path_targets = [
     { "__path__" = "/var/log/mysql-mcp/agent-issues.jsonl", "job" = "mysql_mcp_logs" },
-    { "__path__" = "/var/log/mysql-mcp/mcp-audit.jsonl", "job" = "mysql_mcp_logs" }
+    { "__path__" = "/var/log/mysql-mcp/mcp-audit.jsonl", "job" = "mysql_mcp_logs" },
   ]
 }
 
