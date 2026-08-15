@@ -84,7 +84,7 @@ This server exposes **a comprehensive set of resources** for database observabil
 
 ### Meet Prerequisites
 
-- Recent Node.js (LTS recommended)
+- Recent Node.js (>=24.0.0, LTS recommended)
 - Bun (for executing repository automation scripts)
 - MySQL server
 - pnpm
@@ -714,7 +714,7 @@ The server handles millions of ops/sec across core execution paths. This ensures
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for all file I/O operations |
-| `--audit-log`             | `AUDIT_LOG_PATH`        | Path to the audit log file                          |
+| `--audit-log`             | `AUDIT_LOG_PATH`        | Write path for audit logs (flag), read path (env)   |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
 | `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |
@@ -730,6 +730,7 @@ The server handles millions of ops/sec across core execution paths. This ensures
 | —                         | `MYSQL_ROUTER_USER`     | MySQL Router user                                   |
 | —                         | `MYSQL_ROUTER_PASSWORD` | MySQL Router password                               |
 | —                         | `MYSQL_ROUTER_INSECURE` | Bypass Router TLS verification                      |
+| —                         | `MYSQL_ROUTER_API_VERSION` | MySQL Router REST API version (default: /api/20190715) |
 | —                         | `PROXYSQL_HOST`         | ProxySQL host                                       |
 | —                         | `PROXYSQL_PORT`         | ProxySQL port                                       |
 | —                         | `PROXYSQL_USER`         | ProxySQL user                                       |

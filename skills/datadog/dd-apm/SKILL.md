@@ -22,7 +22,7 @@ Match the user's request to one of the entries below. Each entry has the same sh
 
 **Kubernetes APM install / instrument / onboard** — trigger when the user mentions Kubernetes, K8s, EKS, GKE, AKS, kind, minikube, K3s, helm, DatadogAgent CR, kubectl, SSI on a cluster, pod injection, or init containers.
 
-**Immediately read** `skills/datadog/dd-apm/k8s-ssi/agent-install/SKILL.md` now, then `skills/datadog/dd-apm/k8s-ssi/enable-ssi/SKILL.md`, then `skills/datadog/dd-apm/k8s-ssi/verify-ssi/SKILL.md` — do not proceed from memory.
+**Immediately read** `.claude/skills/dd-apm/k8s-ssi/agent-install/SKILL.md` now, then `.claude/skills/dd-apm/k8s-ssi/enable-ssi/SKILL.md`, then `.claude/skills/dd-apm/k8s-ssi/verify-ssi/SKILL.md` — do not proceed from memory.
 
 > **Common wrong approaches that LOOK like they work but silently fail:**
 > - `helm install datadog datadog/datadog` — the standard chart does NOT support SSI via DatadogAgent CR.
@@ -33,7 +33,7 @@ Match the user's request to one of the entries below. Each entry has the same sh
 
 **Linux APM install / instrument / onboard** — trigger when the user mentions a single host, VM, EC2 instance, bare-metal, RHEL/Ubuntu/Debian, systemd, or no orchestrator.
 
-**Immediately read** `skills/datadog/dd-apm/linux-ssi/agent-install/SKILL.md` now, then `skills/datadog/dd-apm/linux-ssi/enable-ssi/SKILL.md`, then `skills/datadog/dd-apm/linux-ssi/verify-ssi/SKILL.md` — do not proceed from memory.
+**Immediately read** `.claude/skills/dd-apm/linux-ssi/agent-install/SKILL.md` now, then `.claude/skills/dd-apm/linux-ssi/enable-ssi/SKILL.md`, then `.claude/skills/dd-apm/linux-ssi/verify-ssi/SKILL.md` — do not proceed from memory.
 
 > **Do NOT** install the agent via plain `apt-get install datadog-agent` (or yum equivalent) and assume SSI follows — host auto-instrumentation requires the install script with the SSI flags, which the sub-skill walks through.
 
@@ -41,7 +41,7 @@ Match the user's request to one of the entries below. Each entry has the same sh
 
 **Service rename / service remapping** — trigger when the user mentions renaming a service, collapsing multiple service names, stripping suffixes/prefixes, or cleaning up inferred services.
 
-**Immediately read** `skills/datadog/dd-apm/service-remapping/SKILL.md` now — do not proceed from memory.
+**Immediately read** `.claude/skills/dd-apm/service-remapping/SKILL.md` now — do not proceed from memory.
 
 > **Do NOT** change `tags.datadoghq.com/service` labels or `DD_SERVICE` env vars to rename a service in Datadog. That requires a rollout and only affects new data. Use a service remapping rule — it rewrites the name at ingestion time with no deployment change.
 

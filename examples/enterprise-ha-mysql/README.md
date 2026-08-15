@@ -3,7 +3,7 @@
 This is a clean, sanitized template for deploying an enterprise-grade High-Availability (HA) MySQL architecture, fully monitored by Datadog.
 
 ## Architecture
-- **3x MySQL 9.1 Nodes:** Configured for Group Replication (InnoDB Cluster).
+- **3x MySQL 9.7.1 Nodes:** Configured for Group Replication (InnoDB Cluster).
 - **1x MySQL Router:** Automatically tracks cluster topology and routes traffic to the primary node.
 - **1x ProxySQL:** Connection pooling and query routing/caching on top of the router.
 - **1x Datadog Agent:** Pre-configured with Autodiscovery to automatically parse metrics from MySQL and ProxySQL.
@@ -31,7 +31,7 @@ This is a clean, sanitized template for deploying an enterprise-grade High-Avail
 
 ## Connecting with `mysql-mcp`
 
-The most resilient way to connect to this ecosystem is through ProxySQL (Port 6033). Add the following to your Claude Desktop or Cursor MCP configuration:
+The most resilient way to connect to this ecosystem is through ProxySQL (Port 6043). Add the following to your Claude Desktop or Cursor MCP configuration:
 
 ```json
 {
@@ -41,11 +41,11 @@ The most resilient way to connect to this ecosystem is through ProxySQL (Port 60
       "args": ["-y", "@neverinfamous/mysql-mcp"],
       "env": {
         "MYSQL_HOST": "127.0.0.1",
-        "MYSQL_PORT": "6033",
+        "MYSQL_PORT": "6043",
         "MYSQL_USER": "mcp_user",
         "MYSQL_PASSWORD": "mcp_password",
         "MYSQL_DATABASE": "testdb",
-        "MYSQLSH_PORT": "3307"
+        "MYSQLSH_PORT": "3317"
       }
     }
   }

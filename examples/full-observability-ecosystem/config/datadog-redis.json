@@ -30,12 +30,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "max",
-          "value"
-        ],
-        "legend_layout": "vertical",
+        "legend_layout": "auto",
         "markers": [],
         "requests": [
           {
@@ -43,14 +38,14 @@
             "formulas": [
               {
                 "alias": "Latency of the redis INFO command",
-                "formula": "query2"
+                "formula": "top(query2, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "avg:redis.info.latency_ms{$scope,$host} by {host}",
+                "query": "avg:redis.info.latency_ms{$scope,$host} by {host}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -84,13 +79,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "requests": [
           {
@@ -109,13 +97,13 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.cpu.sys{$host,$scope}",
+                "query": "avg:redis.cpu.sys{$host,$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "avg:redis.cpu.user{$host,$scope}",
+                "query": "avg:redis.cpu.user{$host,$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -161,7 +149,7 @@
                 "aggregator": "max",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.keys{$scope,$host}",
+                "query": "sum:redis.keys{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -204,7 +192,7 @@
                 "aggregator": "max",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.clients.blocked{$scope,$host}",
+                "query": "sum:redis.clients.blocked{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -254,14 +242,14 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.stats.keyspace_hits{$scope,$host}",
+                "query": "avg:redis.stats.keyspace_hits{$scope,$host}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "avg:redis.stats.keyspace_misses{$scope,$host}",
+                "query": "avg:redis.stats.keyspace_misses{$scope,$host}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -304,7 +292,7 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.rdb.changes_since_last{$scope,$host}",
+                "query": "sum:redis.rdb.changes_since_last{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -328,13 +316,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "requests": [
           {
@@ -348,7 +329,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.mem.rss{$scope,$host}",
+                "query": "sum:redis.mem.rss{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -406,7 +387,7 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.net.commands{$scope,$host}",
+                "query": "sum:redis.net.commands{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -448,7 +429,7 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.mem.fragmentation_ratio{$scope,$host}",
+                "query": "avg:redis.mem.fragmentation_ratio{$scope,$host}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -490,7 +471,7 @@
                 "aggregator": "last",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.keys{$scope,$host}",
+                "query": "sum:redis.keys{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -534,7 +515,7 @@
                 "aggregator": "last",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.expires{$scope,$host}",
+                "query": "sum:redis.expires{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -559,14 +540,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
+        "legend_layout": "auto",
         "markers": [
           {
             "display_type": "error dashed",
@@ -585,20 +559,20 @@
             "formulas": [
               {
                 "alias": "% memory used",
-                "formula": "(query1 / query2) * 100"
+                "formula": "top((query1 / query2) * 100, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.mem.used{$scope,$host} by {host}",
+                "query": "avg:redis.mem.used{$scope,$host} by {host}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "max:redis.mem.maxmemory{$scope,$host} by {host}",
+                "query": "max:redis.mem.maxmemory{$scope,$host} by {host}.rollup(max, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -634,13 +608,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -649,14 +616,14 @@
             "formulas": [
               {
                 "alias": "Keys evicted due to the maxmemory limit",
-                "formula": "per_minute(query2)"
+                "formula": "top(per_minute(query2), 10, 'sum', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "sum:redis.keys.evicted{$scope,$host} by {host}",
+                "query": "sum:redis.keys.evicted{$scope,$host} by {host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -709,7 +676,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.slowlog.micros.count{$host,$scope}",
+                "query": "sum:redis.slowlog.micros.count{$host,$scope}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -730,13 +697,6 @@
     },
     {
       "definition": {
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -757,7 +717,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.replication.delay{$host,$scope}",
+                "query": "avg:redis.replication.delay{$host,$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -793,13 +753,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -815,7 +768,7 @@
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "sum:redis.clients.blocked{$scope,$host}",
+                "query": "sum:redis.clients.blocked{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -852,7 +805,7 @@
           {
             "formulas": [
               {
-                "formula": "query1"
+                "formula": "top(query1, 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -860,7 +813,7 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.key.length{$scope, $host, $key} by {key}",
+                "query": "sum:redis.key.length{$scope, $host, $key} by {key}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -918,7 +871,7 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.replication.master_link_down_since_seconds{$scope,$host}",
+                "query": "sum:redis.replication.master_link_down_since_seconds{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -939,13 +892,6 @@
     },
     {
       "definition": {
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "legend_size": "0",
         "markers": [],
@@ -962,7 +908,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.net.slaves{$scope,$host}",
+                "query": "sum:redis.net.slaves{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -998,13 +944,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -1020,7 +959,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.net.rejected{$scope,$host}",
+                "query": "sum:redis.net.rejected{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1054,11 +993,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "max",
-          "avg",
-          "min"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -1074,7 +1008,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.net.clients{$scope,$host}",
+                "query": "sum:redis.net.clients{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1109,13 +1043,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [
           {
@@ -1142,13 +1069,13 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.stats.keyspace_hits{$scope,$host}",
+                "query": "avg:redis.stats.keyspace_hits{$scope,$host}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "avg:redis.stats.keyspace_misses{$scope,$host}",
+                "query": "avg:redis.stats.keyspace_misses{$scope,$host}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1184,13 +1111,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [
           {
@@ -1212,7 +1132,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.mem.fragmentation_ratio{$scope,$host}",
+                "query": "avg:redis.mem.fragmentation_ratio{$scope,$host}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1248,13 +1168,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -1270,7 +1183,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.keys.expired{$scope,$host}",
+                "query": "sum:redis.keys.expired{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1304,13 +1217,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -1326,7 +1232,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.keys{$scope,$host}",
+                "query": "sum:redis.keys{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1360,13 +1266,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value"
-        ],
-        "legend_layout": "horizontal",
+        "legend_layout": "auto",
         "markers": [],
         "requests": [
           {
@@ -1386,7 +1286,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.slowlog.micros.95percentile{$scope,$host} by {name,command}",
+                "query": "sum:redis.slowlog.micros.95percentile{$scope,$host} by {name,command}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1422,20 +1322,20 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "max",
-          "value"
-        ],
-        "legend_layout": "vertical",
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "area",
+            "formulas": [
+              {
+                "formula": "top(query1, 10, 'mean', 'desc')"
+              }
+            ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.net.instantaneous_input{$scope,$host} by {host}",
+                "query": "avg:redis.net.instantaneous_input{$scope,$host} by {host}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1448,14 +1348,14 @@
             "display_type": "area",
             "formulas": [
               {
-                "formula": "-query2"
+                "formula": "top(-query2, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "avg:redis.net.instantaneous_output{$scope,$host} by {host}",
+                "query": "avg:redis.net.instantaneous_output{$scope,$host} by {host}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1494,7 +1394,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.command.calls{$scope,$host} by {command}",
+                "query": "avg:redis.command.calls{$scope,$host} by {command}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],

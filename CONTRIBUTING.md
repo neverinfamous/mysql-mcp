@@ -15,7 +15,7 @@ Thank you for contributing to mysql-mcp. Help us build a robust, enterprise-grad
 
 ### Meet Prerequisites
 
-- Recent Node.js (LTS recommended)
+- Recent Node.js (>=24.0.0, LTS recommended)
 - Bun (for executing repository automation scripts)
 - Current pnpm version
 - **Git** (for version control)

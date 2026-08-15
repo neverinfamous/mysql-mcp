@@ -263,22 +263,6 @@ pup reference-tables create --file table.json
 pup reference-tables batch-query --file query.json
 ```
 
-### CI/CD
-```bash
-pup cicd pipelines list --from 24h
-pup cicd pipelines search --query "status:error" --from 24h --limit 50
-```
-
-### Test Optimization
-```bash
-pup test-optimization tests search --query "status:fail" --from 24h --limit 50
-```
-
-### Code Coverage
-```bash
-pup code-coverage search --query "@test.service:my-service" --from 24h
-```
-
 ### Cost Cloud Configs
 ```bash
 # AWS CUR configs

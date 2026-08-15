@@ -67,8 +67,7 @@ Run all of the following. Each populates a row in the final report.
 
 ```bash
 # Agent version and status
-ssh -o StrictHostKeyChecking=no -i <SSH_KEY> <SSH_USER>@<SSH_HOST> \
-  "sudo datadog-agent status 2>&1 | grep -E 'Agent \(v|Status:|API Keys status'"
+sudo datadog-agent status 2>&1 | grep -E "Agent \(v|Status:|API Keys status"
 
 # Inject library armed in ld.so.preload
 ssh -o StrictHostKeyChecking=no -i <SSH_KEY> <SSH_USER>@<SSH_HOST> "cat /etc/ld.so.preload"

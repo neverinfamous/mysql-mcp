@@ -127,7 +127,7 @@ Before Phase 1, run a single short verification pass — do **not** announce a "
 
    For each file checked, parse line-by-line: skip blanks / comment lines (`#`) / malformed lines (no `=`). Strip a leading `export ` if present (so `.envrc`-style files work). Split on the first `=`. Strip surrounding quotes on the value. Only set a variable that is not already in `os.environ` — never overwrite the shell.
 
-   **Required keys**: `DD_API_KEY` AND (`DD_APPLICATION_KEY` OR `DD_APP_KEY`). `DD_SITE` is optional (defaults to `datadoghq.com`). Provider keys (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.) are validated later in Phase 5 against the introspected task — not here.
+   **Required keys**: `DD_API_KEY` AND (`DD_APPLICATION_KEY` OR `DD_APP_KEY`). `DD_SITE` is optional (defaults to `datadoghq.com`). Provider keys (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.) are validated later in Phases 6/7 against the introspected task — not here.
 
    **If all required keys resolved** — record which file(s) were loaded and emit a single-line summary in the Precheck block. Continue.
 
@@ -568,7 +568,7 @@ Wait for confirmation. If the user provides a focus question, carry it to Phase 
 >
 > **Why this phase matters**: this closes the loop. You started by looking at production behavior; you now have an evidence-backed read on where the experiment exposes gaps and what to try next.
 
-**Action**: Follow the **`agent-observability-experiment-analyzer`** skill in **single-exploratory** (or **single-Q&A** if the user supplied a focus question in Checkpoint 5):
+**Action**: Follow the **`agent-observability-experiment-analyzer`** skill in **single-exploratory** (or **single-Q&A** if the user supplied a focus question in Checkpoint 7):
 
 ```
 /agent-observability-experiment-analyzer <experiment_id_from_url> [<focus question if any>] --output agent

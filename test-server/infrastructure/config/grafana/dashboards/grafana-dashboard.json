@@ -532,7 +532,7 @@
             "type": "prometheus",
             "uid": "prometheus_datasource"
           },
-          "expr": "sum(mysql_mcp_tool_tokens_total{tool=~\"$tool\"})",
+          "expr": "sum(gen_ai_usage_prompt_tokens_total{tool=~\"$tool\"})",
           "legendFormat": "Total Tokens",
           "refId": "A"
         }
@@ -603,7 +603,7 @@
             "type": "prometheus",
             "uid": "prometheus_datasource"
           },
-          "expr": "mysql_mcp_tool_tokens_per_call{tool=~\"$tool\"}",
+          "expr": "gen_ai_usage_prompt_tokens_per_call{tool=~\"$tool\"}",
           "legendFormat": "{{tool}}",
           "refId": "A"
         }
@@ -695,7 +695,7 @@
             "type": "prometheus",
             "uid": "prometheus_datasource"
           },
-          "expr": "sum(rate(mysql_mcp_tool_tokens_total{tool=~\"$tool\"}[5m])) by (tool)",
+          "expr": "sum(rate(gen_ai_usage_prompt_tokens_total{tool=~\"$tool\"}[5m])) by (tool)",
           "legendFormat": "{{tool}}",
           "refId": "A"
         }
@@ -786,7 +786,7 @@
             "type": "prometheus",
             "uid": "prometheus_datasource"
           },
-          "expr": "sum(mysql_mcp_tool_tokens_total{tool=~\"$tool\"}) by (tool)",
+          "expr": "sum(gen_ai_usage_prompt_tokens_total{tool=~\"$tool\"}) by (tool)",
           "legendFormat": "{{tool}}",
           "refId": "A"
         }

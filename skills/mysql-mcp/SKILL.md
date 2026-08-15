@@ -20,7 +20,7 @@ references:
 
 # MySQL MCP Server Guidelines
 
-The `mysql-mcp` server is an advanced Model Context Protocol server for MySQL with a comprehensive suite of specialized tools across numerous groups, a C++ V8 sandboxed Code Mode, enterprise audit logging, and a full observability pipeline. This skill is the **orchestration hub** — it routes agents to the right resource at the right time without duplicating content that lives in the server's own help system or companion skills.
+The `mysql-mcp` server is an advanced Model Context Protocol server for MySQL with 165+ specialized tools across 28 groups, a C++ V8 sandboxed Code Mode, enterprise audit logging, and a full observability pipeline. This skill is the **orchestration hub** — it routes agents to the right resource at the right time without duplicating content that lives in the server's own help system or companion skills.
 
 ## 1. Foundational Ecosystem
 
@@ -82,12 +82,12 @@ The `mysql-mcp` server operates within a broader skill ecosystem. **Do not guess
 
 - **Code Mode Priority**: **\[ALWAYS\]** prefer using `mysql_execute_code` (Code Mode) for multi-step database operations to dramatically reduce token overhead (70-90% savings). Access all tools via the `mysql.*` namespace inside the sandbox.
 - **Code Mode Safety**: Code Mode does **NOT** bypass destructive-operation safety gates. `DROP`, `TRUNCATE`, `DELETE` without `WHERE`, and `ALTER TABLE ... DROP COLUMN` executed inside Code Mode scripts MUST still require explicit user confirmation before the script is submitted.
-- **Tool Filtering**: Due to IDE limits, you cannot load all tools at once. **[ALWAYS]** use tool filtering (e.g., `--tool-filter starter` or `--tool-filter codemode`) when deploying or instructing the user on setup.
+- **Tool Filtering**: Due to IDE limits, you cannot load all 165+ tools at once. **\[ALWAYS\]** use tool filtering (e.g., `--tool-filter starter` or `--tool-filter codemode`) when deploying or instructing the user on setup.
 - **Connection Safety**: **\[ALWAYS\]** respect strict schema configurations (like `STRICT_TRANS_TABLES`) and use parameterized queries, even when executing scripts within Code Mode. Load the **`mysql`** skill for engine-specific production rules.
 
 - **MySQL Version Awareness**: **\[WHEN\]** using vector tools (`mysql_vector_*`) -> **\[ALWAYS\]** verify the target database is MySQL 9.0+ (9.1+ required for HNSW indexes). **\[WHEN\]** writing SQL that uses `VECTOR` data type or `VECTOR_DISTANCE()` -> **\[ALWAYS\]** load the **`mysql`** skill for MySQL 9.0+ syntax rules.
 
-- **Server Instructions Architecture**: The server uses a two-tier on-demand instruction system. A lightweight base payload is auto-injected at init. Group-specific help payloads are served lazily via `mysql://help/{group}` resources. There are numerous group help resources plus `mysql://help` (gotchas). The server instructions own tool-level mechanics (parameter aliases, pagination defaults, error codes). This skill owns orchestration and cross-cutting concerns.
+- **Server Instructions Architecture**: The server uses a two-tier on-demand instruction system. A slim ~700-token base payload is auto-injected at init. Group-specific help (~400-1,500 tokens each) is served lazily via `mysql://help/{group}` resources. There are 28 group help resources plus `mysql://help` (gotchas). The server instructions own tool-level mechanics (parameter aliases, pagination defaults, error codes). This skill owns orchestration and cross-cutting concerns.
 
 ## 5. Telemetry & Observability
 

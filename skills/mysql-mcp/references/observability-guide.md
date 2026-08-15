@@ -97,7 +97,7 @@ Dashboard IDs: AI Efficiency → `q48-mq9-3i7`, Audit Log → `qwe-2un-us8`
 
 ## Dashboard Management
 
-Pre-configured Datadog dashboard JSONs in `examples/dashboards/`:
+Pre-configured Datadog dashboard JSONs in `examples\dashboards\`:
 
 | File | Dashboard |
 |---|---|

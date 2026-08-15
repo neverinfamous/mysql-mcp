@@ -13,7 +13,7 @@ description: Root cause analysis on production LLM traces. Diagnoses why an LLM 
 4. If MCP tools are absent → check whether `pup` is executable: run `pup --version` via Bash. A JSON response containing `"version"` confirms pup is available.
 5. If pup responds → use **pup mode** throughout. Translate every MCP tool call to its pup equivalent using the Tool Reference appendix at the bottom of this file.
 6. If neither is available → stop and tell the user:
-   > "Neither the Datadog MCP server nor the pup CLI is available. Connect the MCP server (`claude mcp add --scope user --transport http datadog-llmo-mcp 'https://mcp.datadoghq.com/api/unstable/mcp-server/mcp?toolsets=llmobs,core'`) or install pup."
+   > "Neither the Datadog MCP server nor the pup CLI is available. Connect the MCP server (`claude mcp add --scope user --transport http datadog-llmo-mcp 'https://mcp.datadoghq.com/api/unstable/mcp-server/mcp?toolsets=llmobs'`) or install pup."
 
 `--backend pup` is accepted anywhere in the invocation arguments and is stripped before passing remaining args to the skill logic.
 
@@ -74,7 +74,6 @@ If neither `ml_app` nor `eval_name` is provided, ask the user.
 | Tool | Purpose |
 |------|---------|
 | `list_llmobs_evals` | Discover all configured evals for an `ml_app`. Used in Phase 0 mode inference. |
-| `list_llmobs_evals_by_ml_app` | Discover all configured evals filtered by an `ml_app`. Used in Phase 0 mode inference. |
 | `get_llmobs_eval_aggregate_stats` | Pass/fail rate or score distribution for an eval over a time window. |
 | `get_llmobs_evaluator` | Full evaluator config: prompt template, assessment criteria, span filter, sampling, provider. Use instead of the deprecated `get_llmobs_eval_config`. |
 
@@ -538,7 +537,7 @@ Write the full report following the Output Format below. **This is the primary d
 3. After successful creation by either method, output the URL on its own line:
    `RCA report exported to notebook: <url>`
 
-Print the URL prominently — if `agent-observability-eval-bootstrap` runs next in the same session, it will detect this URL and offer to append the evaluator suite to the same notebook.
+Print the URL prominently — if `/eval-bootstrap` runs next in the same session, it will detect this URL and offer to append the evaluator suite to the same notebook.
 
 #### Notebook Cell Structure
 

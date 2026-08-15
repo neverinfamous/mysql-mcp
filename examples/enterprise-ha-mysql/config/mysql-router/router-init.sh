@@ -20,7 +20,14 @@ mysqlrouter --bootstrap cluster_admin:cluster_admin@example-ha-node1:3306 \
   --user root \
   --conf-use-sockets \
   --force \
+  --conf-set-option=http_server.port=8443 \
+  --conf-set-option=rest_connection_pool.require_realm=default_auth_realm \
   --conf-set-option=routing:bootstrap_ro.connection_sharing=1
+
+echo "Configuring REST API authentication..."
+mkdir -p /tmp/mysqlrouter/data
+echo 'router_api' | /usr/bin/mysqlrouter_passwd set /tmp/mysqlrouter/data/rest_users rest_api
+sed -i 's|backend=metadata_cache|backend=file\nfilename=/tmp/mysqlrouter/data/rest_users|' /tmp/mysqlrouter/mysqlrouter.conf
 
 echo "Starting MySQL Router..."
 mysqlrouter --config /tmp/mysqlrouter/mysqlrouter.conf

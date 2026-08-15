@@ -8,6 +8,7 @@ instances:
     username: root
     password: root
     port: 3306
+    min_collection_interval: 5
     options:
       replication: false
       galera_cluster: false

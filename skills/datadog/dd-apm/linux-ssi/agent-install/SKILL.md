@@ -127,7 +127,7 @@ ssh -o StrictHostKeyChecking=no -i <SSH_KEY> <SSH_USER>@<SSH_HOST> \
 
 `DD_APM_INSTRUMENTATION_ENABLED=host` causes the install script to also install `datadog-apm-inject` and language library packages under `/opt/datadog-packages/` in one pass.
 
-If the script completes without errors — proceed to Phase 3.
+If the script completes without errors — proceed to Phase 2.
 
 ERROR: `curl: command not found`:
 ```bash
@@ -154,7 +154,7 @@ Healthy output shows:
 - `Agent (v7.XX.X)` with `Status: Running`
 - `API Keys status: API Key ending with XXXX: Valid`
 
-ERROR: `command not found` — installation did not complete. Re-run Phase 2.
+ERROR: `command not found` — installation did not complete. Re-run Phase 1.
 
 ERROR: `API key invalid` — update and restart:
 ```bash

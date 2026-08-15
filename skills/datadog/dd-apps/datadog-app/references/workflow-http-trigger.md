@@ -91,6 +91,10 @@ function workflowInstancesUrl(workflowId: string) {
   return `${DATADOG_API_BASE_URL}/api/v2/workflows/${workflowId}/instances`;
 }
 
+function getStatusKind(body: unknown): string | undefined {
+  return (body as WorkflowInstanceResponse | undefined)?.data?.attributes
+    ?.instanceStatus?.detailsKind;
+}
 
 function isRunningStatus(statusKind?: string) {
   return !statusKind || statusKind === "IN_PROGRESS";

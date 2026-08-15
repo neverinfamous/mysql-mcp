@@ -38,11 +38,11 @@ Once the database is running, you can connect the `mysql-mcp` server to it by ad
       "args": ["-y", "@neverinfamous/mysql-mcp"],
       "env": {
         "MYSQL_HOST": "127.0.0.1",
-        "MYSQL_PORT": "3306",
+        "MYSQL_PORT": "3316",
         "MYSQL_USER": "root",
         "MYSQL_PASSWORD": "mysqlmcp",
         "MYSQL_DATABASE": "testdb",
-        "MYSQLSH_PORT": "3306"
+        "MYSQLSH_PORT": "3316"
       }
     }
   }

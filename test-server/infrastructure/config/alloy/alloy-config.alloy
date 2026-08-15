@@ -5,7 +5,7 @@
 // Discover log files to tail
 local.file_match "mcp_logs" {
   path_targets = [{
-    "__path__" = "/var/log/mysql-mcp/mcp-audit.jsonl",
+    "__path__" = "/var/log/mysql-mcp/{mcp-audit,agent-issues}.jsonl",
     "job"      = "mysql_mcp_logs",
   }]
 }

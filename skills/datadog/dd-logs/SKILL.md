@@ -60,7 +60,7 @@ pup logs search --query="@http.status_code:>=500" --from="1h"
 
 ## Configuration APIs
 
-Available log configuration commands in pup:
+Available log configuration commands in pup 0.42.0:
 
 ```bash
 # List log archives
@@ -151,7 +151,7 @@ pup logs archives list
 ### Rehydrate (Restore)
 
 ```bash
-# No `pup logs rehydrate` command in pup.
+# No `pup logs rehydrate` command in pup 0.42.0.
 # Use Datadog UI/API for rehydration workflows.
 ```
 

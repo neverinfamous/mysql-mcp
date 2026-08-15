@@ -12,7 +12,7 @@ LangChain is a meta-framework — it wraps a specific provider. **Walk one level
 
 | LangChain class | Underlying provider | Reference file |
 |---|---|---|
-| `ChatOpenAI`, `OpenAI`, `AzureChatOpenAI` (with `azure_endpoint=`) | OpenAI / Azure OpenAI | `providers/openai.md` (Azure: also `AZURE_OPENAI_ENDPOINT`) |
+| `ChatOpenAI`, `OpenAI`, `AzureChatOpenAI` (with `azure_endpoint=`) | OpenAI / Azure OpenAI | `providers/openai.md` or `providers/openai.md` (Azure: also `AZURE_OPENAI_ENDPOINT`) |
 | `ChatAnthropic`, `AnthropicLLM` | Anthropic | `providers/anthropic.md` |
 | `ChatVertexAI`, `ChatGoogleGenerativeAI` | Vertex / Gemini | `providers/gemini.md` |
 | `ChatBedrock`, `BedrockLLM` | AWS Bedrock | `providers/bedrock.md` |

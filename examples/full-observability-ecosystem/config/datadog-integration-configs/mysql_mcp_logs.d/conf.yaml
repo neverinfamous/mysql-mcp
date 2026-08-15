@@ -6,6 +6,7 @@ logs:
     tags:
       - env:development
       - log_type:agent_issues
+    start_position: beginning
 
   - type: file
     path: /var/log/mysql-mcp/mcp-audit.jsonl
@@ -14,3 +15,13 @@ logs:
     tags:
       - env:development
       - log_type:mcp_audit
+    start_position: beginning
+
+  - type: file
+    path: /var/log/mysql-mcp/exporter-audit.jsonl
+    service: mysql_mcp
+    source: mysql_mcp
+    tags:
+      - env:development
+      - log_type:exporter_audit
+    start_position: beginning

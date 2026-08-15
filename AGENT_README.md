@@ -16,6 +16,7 @@ Do NOT randomly `grep` or guess the repository structure. Use the following refe
 | [test-server/tool-reference.md](test-server/tool-reference.md) | Categorized tool inventory mapping functional groups. |
 | [src/constants/instructions/markdown/](src/constants/instructions/markdown/) | The source markdown files for the compiled instructions sent to connecting clients. Handled dynamically via `mysql://help` resources. |
 | [SECURITY.md](SECURITY.md) | Security policy, vulnerability management, and authentication rules. |
+| [skills/AGENT_README.md](skills/AGENT_README.md) | The modular skill suite instructions for AI assistants. |
 
 ---
 

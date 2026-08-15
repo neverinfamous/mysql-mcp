@@ -31,7 +31,7 @@ references:
 
 MySQL Shell is an advanced client and automation tool with JavaScript, Python, and SQL modes. It is the **only supported interface** for InnoDB Cluster management via the AdminAPI.
 
-## 1. Execution Modes
+### 2.1 Execution Modes
 
 | Mode | Activate | Use Case |
 |---|---|---|
@@ -42,7 +42,7 @@ MySQL Shell is an advanced client and automation tool with JavaScript, Python, a
 - **[ALWAYS]** use `\js` or `\py` modes for administrative and automation tasks.
 - **[ALWAYS]** use `\sql` mode strictly for ad-hoc querying.
 
-## 2. AdminAPI & InnoDB Cluster Management
+### 2.2 AdminAPI & InnoDB Cluster Management
 
 The `dba` global object (AdminAPI) is the **only recommended way** to deploy and manage InnoDB Cluster, ClusterSet, and ReplicaSet topologies.
 
@@ -76,7 +76,7 @@ cluster.status()
 | `cluster.rescan()` | Re-scan for topology changes |
 | `dba.createClusterSet()` | Create multi-datacenter ClusterSet |
 
-## 3. Dump & Load Utilities (`util.*`)
+### 2.3 Dump & Load Utilities (`util.*`)
 
 MySQL Shell utilities process data in parallel with chunking, making them **10-20x faster** than legacy `mysqldump`.
 
@@ -107,10 +107,8 @@ util.loadDump("/backup/dir", {
 ```
 
 **MCP Tools Mapping:**
-| Shell Feature / Function | MCP Tool |
+| `util.*` Function | MCP Tool |
 |---|---|
-| Version Info | `mysqlsh_version` |
-| Script Execution | `mysqlsh_run_script` |
 | `util.dumpInstance()` | `mysqlsh_dump_instance` |
 | `util.dumpSchemas()` | `mysqlsh_dump_schemas` |
 | `util.dumpTables()` | `mysqlsh_dump_tables` |
@@ -120,7 +118,7 @@ util.loadDump("/backup/dir", {
 | `util.importJson()` | `mysqlsh_import_json` |
 | `util.checkForServerUpgrade()` | `mysqlsh_check_upgrade` |
 
-## 4. Upgrade Checker
+### 2.4 Upgrade Checker
 
 `util.checkForServerUpgrade()` performs pre-flight compatibility checks before MySQL version upgrades.
 
@@ -131,7 +129,7 @@ util.checkForServerUpgrade('user@host', {targetVersion: "8.4.0"})
 - Output categorized into **Errors** (must fix), **Warnings**, and **Notices**.
 - **[ALWAYS]** run on a replica instance first to avoid impacting production.
 
-## 5. Scripting & Batch Automation
+### 2.5 Scripting & Batch Automation
 
 ```bash
 # Execute script (auto-detects mode by extension)
@@ -145,7 +143,7 @@ mysqlsh --js --file=migrate.js
 - **[ALWAYS]** use `--login-path` or environment secrets. **[NEVER]** pass plaintext passwords via CLI flags.
 - Access CLI arguments via `os.argv` (JS) or `sys.argv` (Python).
 
-## 6. Security
+### 2.6 Security
 
 - **[NEVER]** use plaintext passwords (`-p`) in CLI flags — they leak into shell history.
 - **[ALWAYS]** use `mysql_config_editor` to store credentials in `~/.mylogin.cnf`:
@@ -155,7 +153,7 @@ mysqlsh --js --file=migrate.js
   ```
 - Restrict file permissions: `chmod 600 ~/.mylogin.cnf`.
 
-## 7. MCP Configuration
+### 2.7 MCP Configuration
 
 ```bash
 # Path to mysqlsh binary (if not in PATH)
@@ -168,7 +166,7 @@ MYSQLSH_WORK_DIR=/tmp/mysql-dumps
 MYSQLSH_TIMEOUT=300000
 ```
 
-## 8. Troubleshooting
+### 2.8 Troubleshooting
 
 | Symptom | Cause | Fix |
 |---|---|---|
