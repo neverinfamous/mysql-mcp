@@ -140,7 +140,7 @@ docker compose up -d
 
 **Datadog Constraints:**
 - **Authentication**: Use `pup` CLI for authentication.
-- **Autodiscovery**: Avoid duplicate autodiscovery configurations. Add standard tracking labels (`com.datadoghq.tags.env`, `com.datadoghq.tags.service`, `com.datadoghq.tags.version`) to your containers.
+- **Autodiscovery**: Avoid duplicate autodiscovery configurations. Add standard tracking labels (`tags.datadoghq.com/env`, `tags.datadoghq.com/service`, `tags.datadoghq.com/version`) to your containers.
 - **WSL2 Hardening Limits**: Enforce `stop_grace_period: 30s`, `mem_limit: 1536m`, and OpenMetrics timeouts of `10s`.
 - **Host Configuration**: Use `DD_HOSTNAME` and native `/etc/docker/daemon.json` cgroup configurations (`"default-cgroupns-mode": "host"`). Disable `DD_EXTRA_PERFORMANCE_METRICS`.
 - **Windows File Tailing**: Be warned that Windows `inotify` tailing issues may occur with Docker/WSL2 log mapping.

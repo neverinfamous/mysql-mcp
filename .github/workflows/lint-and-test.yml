@@ -126,7 +126,7 @@ jobs:
           docker run --rm -d --name pr-smoke -p 3000:3000 \
             --health-cmd="wget --spider -q http://127.0.0.1:3000/health || exit 1" \
             --health-interval=2s --health-timeout=2s --health-retries=5 \
-            -e MCP_TRANSPORT=http -e PORT=3000 -e MCP_HOST=0.0.0.0 \
+            -e MYSQLMCP_PORT=3000 -e MCP_HOST=0.0.0.0 \
             -e ALLOWED_IO_ROOTS=/tmp \
             -e AUDIT_LOG_PATH=/tmp/mcp-audit.jsonl \
             -e OTEL_TRACES_EXPORTER=none -e OTEL_METRICS_EXPORTER=none -e OTEL_LOGS_EXPORTER=none \

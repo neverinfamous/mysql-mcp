@@ -44,6 +44,9 @@ services:
       retries: 30
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node1"}]'
+      - 'tags.datadoghq.com/env=development'
+      - 'tags.datadoghq.com/service=mysql-node1'
+      - 'tags.datadoghq.com/version=1.0.0'
 
   mysql-node2:
     image: mysql:9.7.1
@@ -85,6 +88,9 @@ services:
       retries: 30
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node2"}]'
+      - 'tags.datadoghq.com/env=development'
+      - 'tags.datadoghq.com/service=mysql-node2'
+      - 'tags.datadoghq.com/version=1.0.0'
 
   mysql-node3:
     image: mysql:9.7.1
@@ -126,6 +132,9 @@ services:
       retries: 30
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node3"}]'
+      - 'tags.datadoghq.com/env=development'
+      - 'tags.datadoghq.com/service=mysql-node3'
+      - 'tags.datadoghq.com/version=1.0.0'
 
   mysql-async-replica:
     image: mysql:9.7.1
@@ -167,6 +176,9 @@ services:
       retries: 30
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-async-replica"}]'
+      - 'tags.datadoghq.com/env=development'
+      - 'tags.datadoghq.com/service=mysql-async-replica'
+      - 'tags.datadoghq.com/version=1.0.0'
 
   cluster-healer:
     image: mysql:9.7.1
@@ -229,6 +241,9 @@ services:
         max-size: "10m"
         max-file: "3"
     labels:
+      tags.datadoghq.com/env: development
+      tags.datadoghq.com/service: mysql-router
+      tags.datadoghq.com/version: 1.0.0
       com.datadoghq.ad.check_names: '["http_check"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"name": "mysql_router_rest_api", "url":
@@ -276,6 +291,9 @@ services:
         max-size: "10m"
         max-file: "3"
     labels:
+      tags.datadoghq.com/env: development
+      tags.datadoghq.com/service: proxysql
+      tags.datadoghq.com/version: 1.0.0
       com.datadoghq.ad.check_names: '["proxysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032,
@@ -306,6 +324,9 @@ services:
         max-size: "10m"
         max-file: "3"
     labels:
+      tags.datadoghq.com/env: development
+      tags.datadoghq.com/service: redis-server
+      tags.datadoghq.com/version: 1.0.0
       com.datadoghq.ad.check_names: '["redisdb"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6379, "command_stats":
@@ -357,6 +378,9 @@ services:
       timeout: 5s
       retries: 3
     labels:
+      tags.datadoghq.com/env: development
+      tags.datadoghq.com/service: mysql-mcp-exporter
+      tags.datadoghq.com/version: 1.0.0
       com.datadoghq.ad.check_names: '["openmetrics"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"openmetrics_endpoint":
