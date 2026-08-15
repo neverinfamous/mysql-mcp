@@ -365,7 +365,7 @@ services:
         "send_monotonic_counter": true, "timeout": 10,
         "min_collection_interval": 15, "tags": ["service:mysql_mcp",
         "env:development"]}]'
-      com.datadoghq.ad.logs: '[{"source":"mysql-mcp-exporter","service":"mysql-mcp-exporter"}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql_mcp","service":"mysql-mcp-exporter"}]'
 
   mysql-router-telemetry:
     image: oven/bun:1.2.0-alpine
@@ -565,6 +565,7 @@ services:
       - DD_ENV=development
       - DD_VERSION=1.0.0
       - DD_TAGS=source:wsl2
+      - DD_EXTRA_PERFORMANCE_METRICS=false
       # OTLP Ingest
       - DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_HTTP_ENDPOINT=0.0.0.0:4318
       # Logs

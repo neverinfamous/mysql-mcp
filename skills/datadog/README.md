@@ -2,15 +2,6 @@
 
 Datadog skills for Claude Code, Codex CLI, Gemini CLI, Cursor, Windsurf, OpenCode, and other AI agents.
 
-## Value Proposition
-
-| Feature | Benefit |
-| :--- | :--- |
-| **Comprehensive Visibility** | Monitor infrastructure and apps effortlessly. |
-| **Rapid Resolution** | Detect and fix issues instantly. |
-| **Actionable Insights** | Analyze logs and traces quickly. |
-| **Proactive Alerts** | Create monitors to catch anomalies. |
-
 ## Skills
 
 | Skill | Description |

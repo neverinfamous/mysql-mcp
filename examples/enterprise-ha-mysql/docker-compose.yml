@@ -215,6 +215,7 @@ services:
       - DD_APM_ENABLED=true
       - DD_PROCESS_AGENT_ENABLED=true
       - DD_SYSTEM_PROBE_ENABLED=true
+      - DD_EXTRA_PERFORMANCE_METRICS=false
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc/:/host/proc/:ro
