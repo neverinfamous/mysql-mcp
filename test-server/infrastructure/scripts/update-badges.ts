@@ -134,10 +134,14 @@ function updateBadges(): string[] {
     let content = originalNormalized;
     
     if (badgeString.length > 0) {
-       const replaced = content.replace(CONFIG.licenseLineRegex, `$1 ${badgeString}`);
-       if (replaced !== content) {
-         content = replaced;
-         console.log(`Successfully updated badges in ${file}`);
+       if (CONFIG.licenseLineRegex.test(content)) {
+         const replaced = content.replace(CONFIG.licenseLineRegex, `$1 ${badgeString}`);
+         if (replaced !== content) {
+           content = replaced;
+           console.log(`Successfully updated badges in ${file}`);
+         } else {
+           console.log(`Badges in ${file} are already up-to-date.`);
+         }
        } else {
          console.warn(`Could not find anchor line to update badges in ${file}`);
          if (isStrict) {
