@@ -22,6 +22,11 @@ import {
   ValidationError,
 } from "../../../types/index.js";
 
+// Mock child_process for WSL fallback
+vi.mock("node:child_process", () => ({
+  execSync: vi.fn().mockReturnValue("172.20.1.2\n"),
+}));
+
 // Mock generic ConnectionPool
 vi.mock("../../../pool/connection-pool.js");
 

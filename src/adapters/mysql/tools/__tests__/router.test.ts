@@ -14,6 +14,11 @@ import { EventEmitter } from "events";
 
 process.env["MYSQL_ROUTER_URL"] = "https://localhost:8443";
 
+// Mock child_process for WSL fallback
+vi.mock("node:child_process", () => ({
+  execSync: vi.fn().mockReturnValue("172.20.1.2\n"),
+}));
+
 // Mock https module
 vi.mock("node:https", () => ({
   default: {
