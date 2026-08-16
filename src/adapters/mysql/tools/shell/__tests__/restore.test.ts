@@ -90,7 +90,7 @@ describe("Shell Restore Tools", () => {
 
       expect(result.success).toBe(true);
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain(`util.loadDump("/backup/full"`);
       expect(jsArg).toContain("ignoreVersion: true");
       expect(jsArg).toContain("resetProgress: true");
@@ -113,7 +113,7 @@ describe("Shell Restore Tools", () => {
         mockContext,
       );
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("threads: 4");
       expect(jsArg).toContain("dryRun: true");
       expect(jsArg).toContain('includeSchemas: ["s1"]');
@@ -137,7 +137,7 @@ describe("Shell Restore Tools", () => {
       expect(result.success).toBe(true);
       expect(result.data.localInfileEnabled).toBe(true);
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("SET GLOBAL local_infile = ON");
     });
 

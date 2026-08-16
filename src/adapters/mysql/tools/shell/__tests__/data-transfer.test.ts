@@ -82,7 +82,7 @@ describe("Shell Data Transfer Tools", () => {
       expect(result.success).toBe(true);
       expect(result.data.result).toEqual({ rows: 100 });
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('util.exportTable("test.users"');
       expect(jsArg).toContain('fieldsTerminatedBy: ","');
       expect(jsArg).toContain('fieldsEnclosedBy: "\\""');
@@ -102,7 +102,7 @@ describe("Shell Data Transfer Tools", () => {
         mockContext,
       );
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       // TSV is the default for util.exportTable(), no fieldsTerminatedBy option should be set
       expect(jsArg).not.toContain("fieldsTerminatedBy");
     });
@@ -122,7 +122,7 @@ describe("Shell Data Transfer Tools", () => {
         mockContext,
       );
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('where: "age > 18"');
     });
 
@@ -140,7 +140,7 @@ describe("Shell Data Transfer Tools", () => {
         mockContext,
       );
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("/tmp/dump/with/backslashes.csv");
     });
     it("should return structured error for privilege errors", async () => {
@@ -205,7 +205,7 @@ describe("Shell Data Transfer Tools", () => {
       );
 
       expect(result.success).toBe(true);
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain(`util.importTable("/tmp/data.csv"`);
       expect(jsArg).toContain("threads: 4");
       expect(jsArg).toContain("skipRows: 1");
@@ -235,7 +235,7 @@ describe("Shell Data Transfer Tools", () => {
       expect(result.success).toBe(true);
       expect(result.data.localInfileEnabled).toBe(true);
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("SET GLOBAL local_infile = ON");
     });
 
@@ -314,7 +314,7 @@ describe("Shell Data Transfer Tools", () => {
       expect(result.success).toBe(true);
       expect(result.data.protocol).toBe("X Protocol");
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('collection: "docs"');
     });
 
@@ -340,7 +340,7 @@ describe("Shell Data Transfer Tools", () => {
         mockContext,
       );
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('table: "my_table"');
       expect(jsArg).toContain('tableColumn: "data_col"');
       expect(jsArg).toContain("convertBsonTypes: true");
