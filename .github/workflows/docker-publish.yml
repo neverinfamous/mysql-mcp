@@ -10,14 +10,14 @@ on:
   workflow_dispatch:
     inputs:
       emergency_bypass:
-        description: 'Bypass upstream gatekeeper checks AND environment gates (EMERGENCY ONLY)'
+        description: "Bypass upstream gatekeeper checks AND environment gates (EMERGENCY ONLY)"
         type: boolean
         required: true
         default: false
       bypass_reason:
-        description: 'Justification for bypassing upstream safety gates (required when emergency_bypass is true)'
+        description: "Justification for bypassing upstream safety gates (required when emergency_bypass is true)"
         required: false
-        default: ''
+        default: ""
 
 env:
   REGISTRY: docker.io
@@ -167,7 +167,7 @@ jobs:
             -e OTEL_TRACES_EXPORTER=none -e OTEL_METRICS_EXPORTER=none -e OTEL_LOGS_EXPORTER=none \
             -e TOOL_FILTER=router smoke-test:latest \
             --transport http
-          
+
           timeout 15s bash -c 'until [ "$(docker inspect -f {{.State.Health.Status}} smoke-http)" == "healthy" ]; do sleep 1; done' || {
             echo "❌ HTTP smoke test failed — container not healthy"
             docker logs smoke-http 2>&1 || true
@@ -388,7 +388,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: ${{ env.IMAGE_NAME }}
           readme-filepath: ./DOCKER_README.md
-          short-description: "Production-ready MySQL MCP with Code Mode token reduction and OAuth security."
+          short-description: "Production-ready MySQL MCP with Code Mode, OAuth & Integrated Observability."
 
       - name: Deployment Summary
         if: startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == true
