@@ -77,7 +77,7 @@ describe("Shell Backup Tools", () => {
       expect(result.success).toBe(true);
       expect(result.data.dryRun).toBe(true);
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain(`util.dumpInstance("/backup/full"`);
       expect(jsArg).toContain("dryRun: true");
       expect(jsArg).toContain("threads: 8");
@@ -103,7 +103,7 @@ describe("Shell Backup Tools", () => {
         mockContext,
       );
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('compression: "gzip"');
       expect(jsArg).toContain('includeSchemas: ["s1"]');
       expect(jsArg).toContain('excludeSchemas: ["s2"]');
@@ -175,7 +175,7 @@ describe("Shell Backup Tools", () => {
       expect(result.success).toBe(true);
       expect(result.data.schemas).toEqual(["db1", "db2"]);
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain(
         `util.dumpSchemas(["db1","db2"], "/backup/schemas"`,
       );
@@ -202,7 +202,7 @@ describe("Shell Backup Tools", () => {
         mockContext,
       );
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("dryRun: true");
       expect(jsArg).toContain('includeTables: ["t1"]');
       expect(jsArg).toContain('excludeTables: ["t2"]');
@@ -228,7 +228,7 @@ describe("Shell Backup Tools", () => {
       expect(result.success).toBe(true);
       expect(result.data.ddlOnly).toBe(true);
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("events: false");
       expect(jsArg).toContain("triggers: false");
       expect(jsArg).toContain("routines: false");
@@ -337,7 +337,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.success).toBe(true);
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain(
         `util.dumpTables("db1", ["t1"], "/backup/tables"`,
       );
@@ -357,7 +357,7 @@ describe("Shell Backup Tools", () => {
         mockContext,
       );
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('compression: "none"');
     });
 
@@ -375,7 +375,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.data.triggersExcluded).toBe(true);
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain("triggers: false");
     });
 
@@ -394,7 +394,7 @@ describe("Shell Backup Tools", () => {
 
       expect(result.data.triggersExcluded).toBe(false);
 
-      const jsArg = mockSpawn.mock.calls[0][1][4];
+      const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).not.toContain("triggers: false");
     });
 

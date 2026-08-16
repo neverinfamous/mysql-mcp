@@ -47,7 +47,7 @@ export const MCP_JSON_HEADERS = {
 } as const;
 
 export function getDefaultMysqlUrl(): string {
-  return process.env.MYSQL_URL || 'mysql://root:root@127.0.0.1:6446/testdb';
+  return process.env.MYSQL_TEST_URL || process.env.MYSQL_URL || 'mysql://root:root@127.0.0.1:6446/testdb';
 }
 
 /**

@@ -34,7 +34,7 @@ test.describe("Rate Limiting", () => {
       port,
       ["--tool-filter", "starter"],
       "rate-limit-429",
-      { MCP_RATE_LIMIT_MAX: "5" },
+      { MCP_RATE_LIMIT_MAX: "5", REDIS_URL: "" },
     );
     const base = `http://127.0.0.1:${port}`;
 
@@ -67,7 +67,7 @@ test.describe("Rate Limiting", () => {
       port,
       ["--tool-filter", "starter"],
       "rate-limit-retry-after",
-      { MCP_RATE_LIMIT_MAX: "3" },
+      { MCP_RATE_LIMIT_MAX: "3", REDIS_URL: "" },
     );
     const base = `http://127.0.0.1:${port}`;
 
@@ -103,7 +103,7 @@ test.describe("Rate Limiting", () => {
       port,
       ["--tool-filter", "starter"],
       "rate-limit-health",
-      { MCP_RATE_LIMIT_MAX: "2" },
+      { MCP_RATE_LIMIT_MAX: "2", REDIS_URL: "" },
     );
     const base = `http://127.0.0.1:${port}`;
 
