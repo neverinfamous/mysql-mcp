@@ -172,6 +172,7 @@ export class CodeModeSandbox {
     let logRef: ivm.Reference<unknown> | undefined;
     let script: ivm.Script | undefined;
     const refCleanup: ivm.Reference<unknown>[] = [];
+    const refNamesCleanup: string[] = [];
     const logs: string[] = [];
 
     const startTime = performance.now();
@@ -491,6 +492,7 @@ export class CodeModeSandbox {
               refCleanup.push(fnRef);
               const refName = `fnRef_${groupName}_${methodName}`;
               context.global.setSync(refName, fnRef);
+              refNamesCleanup.push(refName);
               batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}][${JSON.stringify(methodName)}] = (...args) => {
                   const safeArgs = JSON.parse(JSON.stringify(args, globalThis.__sandbox_replacer));
                   const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, safeArgs, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(res => {
@@ -625,28 +627,26 @@ export class CodeModeSandbox {
       errorMsg = error instanceof Error ? error.message : String(error);
     } finally {
       // Cleanup references and isolate robustly
+      // Cleanup isolate robustly
+      for (const refName of refNamesCleanup) {
+        try {
+          context?.global.deleteSync(refName);
+        } catch { /* ignore */ }
+      }
       for (const ref of refCleanup) {
         try {
           ref.release();
-        } catch {
-          /* ignore */
-        }
+        } catch { /* ignore */ }
       }
       try {
         logRef?.release();
-      } catch {
-        /* ignore */
-      }
+      } catch { /* ignore */ }
       try {
         script?.release();
-      } catch {
-        /* ignore */
-      }
+      } catch { /* ignore */ }
       try {
         context?.release();
-      } catch {
-        /* ignore */
-      }
+      } catch { /* ignore */ }
       try {
         if (isTimedOut && scriptPromise) {
           void scriptPromise.finally(() => {
@@ -655,9 +655,7 @@ export class CodeModeSandbox {
         } else {
           isolate.dispose();
         }
-      } catch {
-        /* ignore */
-      }
+      } catch { /* ignore */ }
     }
 
     const endTime = performance.now();

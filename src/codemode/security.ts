@@ -30,12 +30,14 @@ export class CodeModeSecurityManager {
   private redisClient?: RedisClientType;
   private readonly windowMs: number;
 
+  private intervalHandle?: NodeJS.Timeout;
+
   constructor(config?: Partial<SecurityConfig> & { redisUrl?: string; windowMs?: number }) {
     this.config = { ...DEFAULT_SECURITY_CONFIG, ...config };
     this.windowMs = config?.windowMs ?? 60000;
     const redisUrl = config?.redisUrl ?? process.env["REDIS_URL"];
     
-    setInterval(() => this.cleanupRateLimits(), 5 * 60 * 1000).unref();
+    this.intervalHandle = setInterval(() => this.cleanupRateLimits(), 5 * 60 * 1000).unref();
     if (redisUrl) {
       this.redisClient = createClient({ 
         url: redisUrl,
@@ -287,8 +289,13 @@ return current
   }
 
   destroy(): void {
+    if (this.intervalHandle) {
+      clearInterval(this.intervalHandle);
+      this.intervalHandle = undefined;
+    }
     if (this.redisClient?.isOpen) {
-      this.redisClient.destroy();
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
+      void this.redisClient.disconnect();
     }
   }
 }
