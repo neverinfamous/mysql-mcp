@@ -373,6 +373,7 @@ services:
     environment:
       - ROUTER_API_URL=https://mysql-router:8443/api/20190715
       - ROUTER_API_USER=rest_api
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
       - ROUTER_API_PASSWORD=router_api
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://datadog-unified:4318
       - OTEL_METRIC_EXPORT_INTERVAL=15000
