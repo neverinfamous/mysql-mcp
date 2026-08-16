@@ -246,7 +246,7 @@ Core Observability Resources + multiple help resources providing read-only metad
 
 | URI | Content |
 | --- | ------- |
-| `mysql://audit-log` | Parses and streams the configured `--audit-log` JSONL file to agents. |
+| `mysql://audit` | Recent forensic audit trail and pre-mutation snapshot stats. |
 | `mysql://metrics` | In-memory streaming telemetry (p50/p95/p99 latency). |
 | `mysql://help` | Critical gotchas, parameter aliases, and API reference. |
 
