@@ -21,6 +21,23 @@ const CONFIG = {
   }
 };
 
+const isReleaseBranch = 
+  process.env.GITHUB_HEAD_REF?.startsWith("release/") || 
+  process.env.GITHUB_REF?.startsWith("refs/heads/release/") ||
+  (() => {
+    try {
+      const branch = require("node:child_process").execSync("git rev-parse --abbrev-ref HEAD", { encoding: "utf8", stdio: "pipe" }).trim();
+      return branch.startsWith("release/");
+    } catch {
+      return false;
+    }
+  })();
+
+if (isReleaseBranch) {
+  console.log("Release branch detected. Skipping badge updates entirely.");
+  process.exit(0);
+}
+
 const isStrict = Boolean(process.env.CI) || process.argv.includes("--strict");
 
 function getBadgeColor(percentage: number): string {
