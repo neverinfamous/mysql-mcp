@@ -72,7 +72,7 @@ async function main() {
     const { ecosystemRoot, adamicRoot } = resolveScriptPaths(import.meta.url);
     const REPO_ROOT = ecosystemRoot;
     const MYSQL_ROOT_PASSWORD = await loadSecrets(adamicRoot);
-    const { dockerCmd, dockerBaseArgs } = detectDocker();
+    const { dockerCmd } = detectDocker();
 
     // Build a wsl()-equivalent that works with the string-based spawn API
     // needed for `docker compose` compound commands.

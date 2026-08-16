@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { TOOL_GROUPS } from '../../src/filtering/tool-constants.js';
-import { TEST_FILES, TestFileEntry } from './test-manifest.js';
+import { TEST_FILES } from './test-manifest.js';
 import { DirectoryConfig, TestDirectory } from './lib/types.js';
 import { toCodeModeName } from './lib/namespace-transform.js';
-import { renderTestPrompt, TemplateConfig } from './lib/render-template.js';
+import { renderTestPrompt } from './lib/render-template.js';
 
 const TEST_DIR = path.resolve('./test-server');
 
@@ -56,7 +56,7 @@ function validateSSoT() {
 function generateFiles() {
   for (const entry of TEST_FILES) {
     const dirConfig = DIRECTORY_CONFIGS[entry.directory];
-    const actualToolCount = TOOL_GROUPS[entry.group] ? TOOL_GROUPS[entry.group].length : 0;
+
     
     // Tools list
     const toolNames = dirConfig.useCodeModeNamespace

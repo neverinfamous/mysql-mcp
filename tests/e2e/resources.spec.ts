@@ -7,7 +7,7 @@
 
 import { test, expect } from "@playwright/test";
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
-import { BASE_URL, expectSuccess } from "./helpers.js";
+import { BASE_URL } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 

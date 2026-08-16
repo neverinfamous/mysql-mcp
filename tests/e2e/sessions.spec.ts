@@ -7,7 +7,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
+import { MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 

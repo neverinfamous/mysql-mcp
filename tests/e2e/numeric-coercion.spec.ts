@@ -8,7 +8,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { createClient, callToolRaw, expectHandlerError,
+import { createClient, callToolRaw,
   HEALTH_QUERY
 } from "./helpers.js";
 

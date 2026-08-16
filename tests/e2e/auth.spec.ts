@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { setTimeout as delay } from "node:timers/promises";
+
 import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE, SSE_CONNECT_TIMEOUT_MS } from "./helpers.js";
 
 const AUTH_PORT = 3155 + Number(process.env.TEST_WORKER_INDEX || 0);

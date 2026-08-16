@@ -6,7 +6,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { createClient, callToolAndParse, callToolRaw, expectHandlerError } from "./helpers.js";
+import { createClient, callToolAndParse, callToolRaw } from "./helpers.js";
 import type { Client } from "@modelcontextprotocol/client";
 
 test.describe.configure({ mode: "serial" });

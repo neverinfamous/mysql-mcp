@@ -23,7 +23,7 @@ jobs:
           MYSQL_DATABASE: testdb
         ports:
           - 3307:3306
-        options: --health-cmd="mysqladmin ping -h localhost -uroot -proot" --health-interval=10s --health-timeout=5s --health-retries=3 --innodb-use-native-aio=0 --innodb-flush-method=fsync --memory="1g"
+        options: --health-cmd="mysqladmin ping -h localhost -uroot -proot" --health-interval=10s --health-timeout=5s --health-retries=3 --memory="1g"
       redis:
         image: redis:7.4.0-alpine
         ports:

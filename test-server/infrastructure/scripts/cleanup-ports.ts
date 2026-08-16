@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import os from "node:os";
+
 
 const ports = [3101, 3103, 3160, 3161, 3162, 3163];
 

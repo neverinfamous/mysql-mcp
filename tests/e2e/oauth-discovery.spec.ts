@@ -11,7 +11,7 @@
 import { test, expect } from "@playwright/test";
 import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 
-const OAUTH_PORT = 3131 + Number(process.env.TEST_WORKER_INDEX || 0);
+
 
 test.describe("OAuth 2.1 Discovery", () => {
   test.describe("Without OAuth enabled (default)", () => {

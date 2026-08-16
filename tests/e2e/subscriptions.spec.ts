@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { setTimeout as delay } from "node:timers/promises";
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { randomUUID } from "node:crypto";
-import { BASE_URL, createClient, callToolAndParse, expectSuccess, skipIfSuperReadOnly } from "./helpers.js";
+import { BASE_URL, skipIfSuperReadOnly } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 

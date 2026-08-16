@@ -6,7 +6,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { MCP_PROTOCOL_STREAMABLE, MCP_PROTOCOL_LEGACY } from "./helpers.js";
+import { MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 
 test.describe("HTTP Transport Protocols", () => {
   test("should return server metadata on GET /", async ({ request }) => {

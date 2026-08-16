@@ -1,4 +1,4 @@
-import { TestDirectory, TestFileEntry } from './lib/types';
+import { TestFileEntry } from './lib/types';
 
 export const TEST_FILES: TestFileEntry[] = [
   {

@@ -18,7 +18,7 @@
  */
 
 import { readFile, appendFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+
 import { setTimeout as delay } from "node:timers/promises";
 
 import { test, expect } from "@playwright/test";
