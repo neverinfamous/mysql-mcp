@@ -102,7 +102,8 @@ function updateBadges(): string[] {
   const summary = readJsonFileSafe<CoverageSummary>(CONFIG.coverageSummaryPath);
   if (summary) {
     if (typeof summary.total?.lines?.pct === 'number') {
-      linesPct = summary.total.lines.pct;
+      // Round to 1 decimal place to prevent minor cross-platform coverage flapping (e.g. 84.36% vs 84.37%)
+      linesPct = Math.round(summary.total.lines.pct * 10) / 10;
       coverageColor = getBadgeColor(linesPct);
       hasCoverage = true;
     } else {
