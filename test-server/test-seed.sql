@@ -661,8 +661,8 @@ RETURNS DOUBLE DETERMINISTIC
 BEGIN
   DECLARE str1 VARCHAR(255);
   DECLARE str2 VARCHAR(255);
-  SET str1 = VECTOR_TO_STRING(vec1);
-  SET str2 = VECTOR_TO_STRING(vec2);
+  SET str1 = CAST(vec1 AS CHAR);
+  SET str2 = CAST(vec2 AS CHAR);
   
   IF str1 = str2 THEN
     RETURN 0.0;
@@ -680,15 +680,15 @@ DELIMITER ;
 CREATE TABLE test_embeddings (
   id INT AUTO_INCREMENT PRIMARY KEY,
   content TEXT,
-  embedding VECTOR(3),
+  embedding BLOB,
   FULLTEXT INDEX ft_content (content)
 ) ENGINE=InnoDB;
 
 INSERT INTO test_embeddings (content, embedding) VALUES
-('machine learning basics', STRING_TO_VECTOR('[0.1, 0.2, 0.3]')),
-('deep learning neural networks', STRING_TO_VECTOR('[0.15, 0.25, 0.35]')),
-('natural language processing', STRING_TO_VECTOR('[0.5, 0.6, 0.7]')),
-('computer vision models', STRING_TO_VECTOR('[0.8, 0.3, 0.1]')),
-('reinforcement learning agents', STRING_TO_VECTOR('[0.4, 0.9, 0.2]'));
+('machine learning basics', '[0.1, 0.2, 0.3]'),
+('deep learning neural networks', '[0.15, 0.25, 0.35]'),
+('natural language processing', '[0.5, 0.6, 0.7]'),
+('computer vision models', '[0.8, 0.3, 0.1]'),
+('reinforcement learning agents', '[0.4, 0.9, 0.2]');
 
 ANALYZE TABLE test_embeddings;
