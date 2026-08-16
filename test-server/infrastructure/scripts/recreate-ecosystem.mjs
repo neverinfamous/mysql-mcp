@@ -10,7 +10,7 @@
  * @see {@link ../AGENT_README.md} for full architecture documentation.
  */
 
-import { spawn } from 'child_process';
+import { spawn, execFile as execFileCallback } from 'child_process';
 import { promisify } from 'util';
 import { exec as execCallback } from 'child_process';
 import { join } from 'path';
@@ -24,6 +24,7 @@ import {
 } from './utils.mjs';
 
 const execAsync = promisify(execCallback);
+const execFileAsync = promisify(execFileCallback);
 
 // ── Configuration ────────────────────────────────────────────────────
 // All magic values centralized here (modeled after check-status.mjs CONFIG).
@@ -131,9 +132,20 @@ async function main() {
      * @returns {Promise<string>} Query output, or `''` on error.
      */
     async function mysqlExec(container, query) {
-        const cmd = `docker exec -e MYSQL_PWD ${container} mysql -uroot -N -s -e "${query.replace(/(["'$`\\])/g, '\\$1')}"`;
+        const bin = dockerCmd === 'wsl' ? 'wsl' : 'docker';
+        const args = ['exec', '-e', 'MYSQL_PWD', container, 'mysql', '-uroot', '-N', '-s', '-e', query];
+        if (dockerCmd === 'wsl') args.unshift('docker');
+
         try {
-            const { stdout } = await execAsync(wslPrefix + cmd, { encoding: 'utf-8', cwd: REPO_ROOT, env: { ...process.env, MYSQL_PWD: MYSQL_ROOT_PASSWORD, WSLENV: (process.env.WSLENV ? process.env.WSLENV + ':' : '') + 'MYSQL_PWD/u' } });
+            const { stdout } = await execFileAsync(bin, args, {
+                encoding: 'utf-8',
+                cwd: REPO_ROOT,
+                env: {
+                    ...process.env,
+                    MYSQL_PWD: MYSQL_ROOT_PASSWORD,
+                    WSLENV: (process.env.WSLENV ? process.env.WSLENV + ':' : '') + 'MYSQL_PWD/u'
+                }
+            });
             return (stdout || '').trim();
         } catch {
             return '';

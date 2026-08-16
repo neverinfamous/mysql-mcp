@@ -14,8 +14,7 @@ interface StandardSchemaLike {
  * Check if a value implements the Standard Schema protocol
  */
 function isStandardSchema(value: unknown): value is StandardSchemaLike {
-  // codeql[js/inconvertible-types] False positive: value is unknown, and typeof null === 'object'
-  return typeof value === 'object' && value !== null && '~standard' in value;
+  return value !== null && typeof value === 'object' && '~standard' in value;
 }
 
 /**
