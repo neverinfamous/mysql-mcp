@@ -55,6 +55,11 @@ function readJsonFileSafe<T>(filePath: string): T | null {
 
 function autoCommit(updatedFiles: string[]) {
   if (updatedFiles.length === 0) return;
+  
+  if (isStrict) {
+    throw new Error(`Strict mode active: Failing because badges are out of date in the following files: ${updatedFiles.join(", ")}. Please run 'pnpm run check' locally and commit the updated badges.`);
+  }
+
   console.log(`\nAuto-committing badge updates for: ${updatedFiles.join(", ")}`);
   const commitScript = path.join(ROOT_DIR, ".agents", "scripts", "commit.ts");
   const addArgs = updatedFiles.flatMap(f => ["--add", f]);
