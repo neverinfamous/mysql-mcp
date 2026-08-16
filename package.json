@@ -21,7 +21,7 @@
     "test:coverage": "vitest run --coverage && pnpm exec tsx test-server/infrastructure/scripts/update-badges.ts",
     "test:e2e": "pnpm exec tsx test-server/infrastructure/scripts/cleanup-ports.ts && playwright test && pnpm exec tsx test-server/infrastructure/scripts/update-badges.ts",
     "test:zod": "node scripts/test-zod-errors.mjs",
-    "check": "pnpm run lint && pnpm run typecheck && pnpm run build && pnpm run test && pnpm run test:e2e",
+    "check": "pnpm run lint && pnpm run typecheck && pnpm run build && pnpm run test:coverage && pnpm run test:e2e",
     "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\"",
     "generate:instructions": "tsx scripts/generate-server-instructions.ts",
     "generate:code-map": "tsx scripts/update-code-map.ts",
