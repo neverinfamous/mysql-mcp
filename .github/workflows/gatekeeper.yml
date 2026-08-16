@@ -36,6 +36,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      issues: write
 
   publish:
     needs: [lint-and-test, codeql, secrets, trivy]
