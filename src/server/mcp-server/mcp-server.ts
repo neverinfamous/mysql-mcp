@@ -332,7 +332,9 @@ export class McpServer {
     process.stdin.on("close", () => {
       logger.info("Stdio transport closed, triggering graceful shutdown");
       void this.stop().finally(() => {
-        process.exit(0);
+        if (process.env["NODE_ENV"] !== "test") {
+          process.exit(0);
+        }
       });
     });
 
