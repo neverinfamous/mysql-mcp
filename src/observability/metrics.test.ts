@@ -27,7 +27,7 @@ describe("MetricsRegistry", () => {
     
     expect(toolMetrics).toBeDefined();
     expect(toolMetrics.calls).toBe(2);
-    expect(toolMetrics.errors).toBe(0);
+    expect(toolMetrics.errors).toEqual({});
     expect(toolMetrics.tokens).toBe(150);
   });
 
@@ -36,7 +36,7 @@ describe("MetricsRegistry", () => {
     
     const summary = registry.getSummary();
     const tools = summary.tools as Record<string, { calls: number; errors: number; tokens: number }>;
-    expect(tools["mysql_write_query"].errors).toBe(1);
+    expect(tools["mysql_write_query"].errors).toEqual({ unknown: 1 });
   });
 
   describe("SystemDb Integration", () => {
@@ -55,6 +55,7 @@ describe("MetricsRegistry", () => {
         if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
         if (fs.existsSync(`${dbPath}-shm`)) fs.unlinkSync(`${dbPath}-shm`);
         if (fs.existsSync(`${dbPath}-wal`)) fs.unlinkSync(`${dbPath}-wal`);
+        if (fs.existsSync(`${dbPath}-journal`)) fs.unlinkSync(`${dbPath}-journal`);
       } catch {
         // Ignore EBUSY errors on Windows
       }
@@ -63,8 +64,8 @@ describe("MetricsRegistry", () => {
     it("should flush metrics to SystemDb periodically", () => {
       registry.recordToolCall("test_tool", 100, true, 50);
       
-      // Fast-forward 5 minutes + 1 second (startup deferral) to trigger interval
-      vi.advanceTimersByTime(5 * 60 * 1000 + 1000);
+      // Fast-forward 5 minutes + 2 seconds (startup deferral) to trigger interval
+      vi.advanceTimersByTime(5 * 60 * 1000 + 2000);
       
       const db = systemDb.getDb();
       const rows = db.prepare("SELECT * FROM metrics_snapshots").all() as { tool: string; calls: number }[];

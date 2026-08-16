@@ -105,7 +105,7 @@ describe("ConnectionPool", () => {
       });
       await poolWithInit.initialize();
 
-      const internalPool = (poolWithInit as any).pool;
+      const internalPool = (poolWithInit as Record<string, unknown>).pool;
       const mockConn = {
         query: vi.fn().mockResolvedValue([]),
         release: vi.fn(),
@@ -130,7 +130,7 @@ describe("ConnectionPool", () => {
       });
       await poolWithInit.initialize();
 
-      const internalPool = (poolWithInit as any).pool;
+      const internalPool = (poolWithInit as Record<string, unknown>).pool;
       const mockConn = {
         query: vi.fn().mockRejectedValue(new Error("Syntax error")),
         release: vi.fn(),
@@ -398,7 +398,7 @@ describe("ConnectionPool Error Handling", () => {
 
     // Spy on the internal pool's getConnection
     // We cast to any to access the private pool property or just rely on the mock factory
-    const internalPool = (pool as any).pool;
+    const internalPool = (pool as Record<string, unknown>).pool;
     vi.spyOn(internalPool, "getConnection").mockRejectedValueOnce(
       new Error("Pool exhausted"),
     );
@@ -418,9 +418,9 @@ describe("ConnectionPool Error Handling", () => {
     });
     await pool.initialize();
 
-    const internalPool = (pool as any).pool;
+    const internalPool = (pool as Record<string, unknown>).pool;
     const connection = await internalPool.getConnection();
-    (pool as any).initializedConnections.add(connection);
+    (pool as Record<string, unknown>).initializedConnections.add(connection);
     vi.spyOn(connection, "query").mockRejectedValueOnce(
       new Error("Query failed"),
     );
@@ -440,7 +440,7 @@ describe("ConnectionPool Error Handling", () => {
     });
     await pool.initialize();
 
-    const internalPool = (pool as any).pool;
+    const internalPool = (pool as Record<string, unknown>).pool;
     const connection = await internalPool.getConnection();
     vi.spyOn(connection, "execute").mockRejectedValueOnce(
       new Error("Execution failed"),
@@ -462,7 +462,7 @@ describe("ConnectionPool Error Handling", () => {
     await pool.initialize();
 
     // Force shutting down state
-    (pool as any).isShuttingDown = true;
+    (pool as Record<string, unknown>).isShuttingDown = true;
 
     await expect(pool.getConnection()).rejects.toThrow(
       "Connection pool is shutting down",
@@ -482,7 +482,7 @@ describe("ConnectionPool Error Handling", () => {
     });
     await pool.initialize();
 
-    const internalPool = (pool as any).pool;
+    const internalPool = (pool as Record<string, unknown>).pool;
     vi.spyOn(internalPool, "end").mockRejectedValueOnce(
       new Error("Forced error"),
     );
@@ -521,7 +521,7 @@ describe("ConnectionPool Error Handling", () => {
     });
     await pool.initialize();
 
-    const internalPool = (pool as any).pool;
+    const internalPool = (pool as Record<string, unknown>).pool;
     vi.spyOn(internalPool, "getConnection").mockRejectedValueOnce(
       new Error("Health check failed"),
     );

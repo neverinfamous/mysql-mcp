@@ -7,7 +7,7 @@ export default defineConfig({
   },
   format: ["esm"],
   dts: false,
-  clean: true,
+  clean: false,
   treeshake: true,
   splitting: true,
   sourcemap: false,
@@ -16,11 +16,14 @@ export default defineConfig({
   target: "es2022",
   external: [
     "mysql2",
-    "@modelcontextprotocol/sdk",
+    "@modelcontextprotocol/server",
+    "@modelcontextprotocol/core",
+    "@modelcontextprotocol/node",
+    "@modelcontextprotocol/server-legacy",
     "zod",
     "jose",
     "isolated-vm",
     "acorn"
   ],
-  tsconfig: "tsconfig.build.json",
+  tsconfig: "tsconfig.json",
 });

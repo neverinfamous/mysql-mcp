@@ -64,7 +64,7 @@ export function createFulltextSearchTool(
               offset = cursorData["offset"];
             }
           } catch {
-            throw new ValidationError("Invalid cursor format", {
+            throw new ValidationError("Invalid cursor format", undefined, {
               suggestion: "Use the nextCursor value returned from a previous query.",
             });
           }
@@ -89,7 +89,9 @@ export function createFulltextSearchTool(
         }
 
         // Return searched columns and relevance for minimal payload
-        let sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
+        // Bypass ProxySQL read-routing bug for MATCH queries on locked connections
+        // We use WITH cte AS (...) SELECT ... because ProxySQL's default rule routes ^SELECT .* to HG2
+        let sql = `WITH cte AS (SELECT *, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}) SELECT * FROM cte ORDER BY relevance DESC`;
         const queryArgs: (string | number)[] = [sanitizedQuery, sanitizedQuery];
 
         const finalLimit = limit !== undefined && limit > 0 ? limit : 5;
@@ -119,7 +121,7 @@ export function createFulltextSearchTool(
           let totalCount = data.length;
           if (includeFacets && data.length > 0) {
             facets = {};
-            const countSql = `SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
+            const countSql = `WITH cte AS (SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}) SELECT * FROM cte`;
             try {
               const countResult = await adapter.executeReadQuery(countSql, [sanitizedQuery]);
               totalCount = Number(countResult.rows?.[0]?.["cnt"] ?? data.length);
@@ -128,7 +130,7 @@ export function createFulltextSearchTool(
             }
 
             for (const col of columns) {
-              const facetSql = `SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE MATCH(\`${col}\`) AGAINST(? ${matchModeModifier})`;
+              const facetSql = `WITH cte AS (SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE MATCH(\`${col}\`) AGAINST(? ${matchModeModifier})) SELECT * FROM cte`;
               try {
                 const facetResult = await adapter.executeReadQuery(facetSql, [sanitizedQuery]);
                 const firstRow = facetResult.rows?.[0];
@@ -158,21 +160,32 @@ export function createFulltextSearchTool(
           });
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
-          if (msg.includes("does not exist")) {
+          if (msg.includes("Unknown column")) {
             return formatHandlerErrorResponse(
-              new Error(`Table '${table}' does not exist`),
+              new ValidationError(`One or more columns specified do not exist in table '${table}'`, undefined, {
+                suggestion: "Check the table schema using mysql_describe_table to see available columns."
+              }),
+            );
+          }
+          if (msg.includes("does not exist") || msg.includes("doesn't exist")) {
+            return formatHandlerErrorResponse(
+              new ValidationError(`Table '${table}' does not exist`, undefined, {
+                suggestion: "Table or collection does not exist. Run mysql_list_tables or mysql_doc_list_collections to see available objects."
+              }),
             );
           }
           if (
             msg.includes("Can't find FULLTEXT index matching the column list")
           ) {
             return formatHandlerErrorResponse(
-              new Error("No FULLTEXT index found for the specified columns"),
+              new ValidationError("No FULLTEXT index found for the specified columns", undefined, {
+                suggestion: "Ensure that a FULLTEXT index exists on the exact combination of columns specified."
+              }),
             );
           }
           if (msg.includes("syntax error, unexpected")) {
             return formatHandlerErrorResponse(
-              new Error(`Invalid search syntax: ${query}`),
+              new ValidationError(`Invalid search syntax: ${query}`),
             );
           }
           return formatHandlerErrorResponse(error);

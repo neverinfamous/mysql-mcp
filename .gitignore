@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+bun.lockb
+bun.lock
 
 # Build outputs
 dist/
@@ -81,12 +83,10 @@ config/secrets/
 # MySQL Router & Cluster config files (local setup)
 mysqlrouter.conf
 router-cluster.conf
-router-data/
-cluster-config/
-innodb-cluster.yml
+test-server/infrastructure/router-data/
+
 
 # ProxySQL config files (local setup)
-proxysql.cnf
 
 # MySQL credentials/password files
 *.pwd
@@ -118,3 +118,10 @@ playwright-results.json
 .agents/workflows/git-generate-changelog.md
 .agents/workflows/git-impact-search.md
 .agents/workflows/git-velocity-report.md
+
+# Data mounts
+data/
+
+# Local test SQLite DBs
+*.sqlite
+*.sqlite-journal

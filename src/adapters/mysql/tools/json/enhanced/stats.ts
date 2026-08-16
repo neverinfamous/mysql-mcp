@@ -14,6 +14,7 @@ import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
   validateIdentifier,
+  validateWhereClause,
 } from "../../../../../utils/validators.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 
@@ -36,6 +37,9 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
+        if (where) {
+          validateWhereClause(where);
+        }
 
         const whereClause = where ? `WHERE ${where}` : "";
 
@@ -43,11 +47,12 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 SELECT 
                     COUNT(*) as total_rows,
                     SUM(CASE WHEN \`${column}\` IS NULL THEN 1 ELSE 0 END) as null_count,
-                    AVG(JSON_LENGTH(\`${column}\`)) as avg_length,
-                    MAX(JSON_LENGTH(\`${column}\`)) as max_length,
-                    MIN(JSON_LENGTH(\`${column}\`)) as min_length,
-                    AVG(JSON_DEPTH(\`${column}\`)) as avg_depth,
-                    MAX(JSON_DEPTH(\`${column}\`)) as max_depth,
+                    SUM(CASE WHEN \`${column}\` IS NOT NULL AND JSON_VALID(\`${column}\`) != 1 THEN 1 ELSE 0 END) as invalid_count,
+                    AVG(CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_LENGTH(\`${column}\`) ELSE NULL END) as avg_length,
+                    MAX(CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_LENGTH(\`${column}\`) ELSE NULL END) as max_length,
+                    MIN(CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_LENGTH(\`${column}\`) ELSE NULL END) as min_length,
+                    AVG(CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_DEPTH(\`${column}\`) ELSE NULL END) as avg_depth,
+                    MAX(CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_DEPTH(\`${column}\`) ELSE NULL END) as max_depth,
                     AVG(LENGTH(\`${column}\`)) as avg_size_bytes,
                     MAX(LENGTH(\`${column}\`)) as max_size_bytes
                 FROM (SELECT \`${column}\` FROM ${escapeQualifiedTable(table)} ${whereClause} LIMIT ${String(sampleSize)}) as sample
@@ -59,7 +64,7 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const topKeysQuery = `
             SELECT jt.key_name as key_name, COUNT(*) as count
             FROM (SELECT \`${column}\` FROM ${escapeQualifiedTable(table)} ${whereClause} LIMIT ${String(sampleSize)}) as sample,
-            JSON_TABLE(JSON_KEYS(sample.\`${column}\`), '$[*]' COLUMNS (key_name VARCHAR(255) PATH '$')) as jt
+            JSON_TABLE(JSON_KEYS(CASE WHEN JSON_VALID(sample.\`${column}\`) THEN sample.\`${column}\` ELSE '{}' END), '$[*]' COLUMNS (key_name VARCHAR(255) PATH '$')) as jt
             GROUP BY jt.key_name
             ORDER BY count DESC
             LIMIT 10
@@ -80,6 +85,7 @@ export function createJsonStatsTool(adapter: MySQLAdapter): ToolDefinition {
           data: {
             totalSampled: Number(row?.["total_rows"] ?? 0),
             nullCount: Number(row?.["null_count"] ?? 0),
+            invalidCount: Number(row?.["invalid_count"] ?? 0),
             length: {
               avg: Number(row?.["avg_length"] ?? 0),
               max: Number(row?.["max_length"] ?? 0),

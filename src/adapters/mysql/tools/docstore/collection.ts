@@ -4,9 +4,11 @@ import {
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
-import type {
-  ToolDefinition,
-  RequestContext,
+import {
+  type ToolDefinition,
+  type RequestContext,
+  ConflictError,
+  ValidationError,
 } from "../../../../types/index.js";
 import {
   IDENTIFIER_RE,
@@ -48,42 +50,78 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { schema } = ListCollectionsSchema.parse(params);
 
+          if (schema && !IDENTIFIER_RE.test(schema)) {
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid schema name")
+            );
+          }
+
           if (schema) {
             const schemaCheck = await adapter.executeQuery(
-              "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-              [schema],
+              `SHOW SCHEMAS LIKE '${schema}'`
             );
             if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-              return withTokenEstimate({
-                success: false,
-                error: `Schema '${schema}' does not exist`,
-                code: "SCHEMA_NOT_FOUND",
-                category: "domain",
-              });
+              return formatHandlerErrorResponse(
+                new Error(`Schema '${schema}' does not exist`)
+              );
             }
           }
 
-          const query = `
-                    SELECT TABLE_NAME as name, TABLE_COMMENT as comment, TABLE_ROWS as rowCount
-                    FROM information_schema.TABLES
-                    WHERE TABLE_SCHEMA = COALESCE(?, DATABASE())
-                      AND TABLE_NAME IN (
-                          SELECT c1.TABLE_NAME FROM information_schema.COLUMNS c1
-                          JOIN information_schema.COLUMNS c2
-                            ON c1.TABLE_SCHEMA = c2.TABLE_SCHEMA AND c1.TABLE_NAME = c2.TABLE_NAME
-                          WHERE c1.COLUMN_NAME = 'doc' AND c1.DATA_TYPE = 'json'
-                            AND c2.COLUMN_NAME = '_id'
-                            AND c1.TABLE_SCHEMA = COALESCE(?, DATABASE())
-                      )`;
-          const result = await adapter.executeQuery(query, [
-            schema ?? null,
-            schema ?? null,
-          ]);
+          const showTablesQuery = schema ? `SHOW TABLE STATUS FROM \`${schema}\`` : `SHOW TABLE STATUS`;
+          const tablesResult = await adapter.executeQuery(showTablesQuery);
+          const tables = tablesResult.rows ?? [];
+          
+          // Optimize: single query to find tables with doc JSON and _id columns
+          const schemaClause = schema ? `TABLE_SCHEMA = '${schema.replace(/'/g, "''")}'` : `TABLE_SCHEMA = DATABASE()`;
+          const infoQuery = `SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE FROM information_schema.columns WHERE ${schemaClause} AND COLUMN_NAME IN ('doc', '_id')`;
+          
+          let validCollections = new Set<string>();
+          try {
+            const infoResult = await adapter.executeQuery(infoQuery);
+            const tableCols = new Map<string, Set<string>>();
+            for (const row of (infoResult.rows ?? [])) {
+              const tName = row['TABLE_NAME'] as string;
+              const cName = row['COLUMN_NAME'] as string;
+              const dType = typeof row['DATA_TYPE'] === 'string' ? row['DATA_TYPE'].toLowerCase() : '';
+              
+              if (!tableCols.has(tName)) tableCols.set(tName, new Set());
+              const cols = tableCols.get(tName);
+              if (cols) {
+                if (cName === 'doc' && dType === 'json') {
+                  cols.add('doc');
+                }
+                if (cName === '_id') {
+                  cols.add('_id');
+                }
+              }
+            }
+            validCollections = new Set(
+              Array.from(tableCols.entries())
+                   .filter(([, cols]) => cols.has('doc') && cols.has('_id'))
+                   .map(([tName]) => tName)
+            );
+          } catch {
+             // Fallback to empty if information_schema fails
+          }
+          
+          const collections: Record<string, unknown>[] = [];
+          for (const row of tables) {
+            const tableName = row['Name'] as string;
+            if (!tableName) continue;
+            
+            if (validCollections.has(tableName)) {
+              collections.push({
+                name: tableName,
+                comment: row['Comment'] ?? "",
+                rowCount: Number(row['Rows'] ?? 0)
+              });
+            }
+          }
           return withTokenEstimate({
             success: true,
             data: {
-              collections: result.rows ?? [],
-              count: result.rows?.length ?? 0,
+              collections,
+              count: collections.length,
             },
           });
         } catch (error: unknown) {
@@ -112,19 +150,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           schema = parsed.schema;
           const { ifNotExists, validation } = parsed;
           if (!IDENTIFIER_RE.test(name))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid collection name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid collection name")
+            );
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid schema name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid schema name")
+            );
 
           const tableRef = escapeTableRef(name, schema);
 
@@ -143,12 +175,14 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             }
             // If schema does not exist, report it even with ifNotExists
             if (check.reason === "schema") {
-              return withTokenEstimate({
-                success: false,
-                error: `Schema '${check.name}' does not exist`,
-                code: "SCHEMA_NOT_FOUND",
-                category: "domain",
-              });
+              return formatHandlerErrorResponse(
+                new Error(`Schema '${check.name}' does not exist`)
+              );
+            }
+            if (check.reason === "not_a_collection") {
+              return formatHandlerErrorResponse(
+                new ValidationError(`Table '${check.name}' already exists but is not a valid document collection`)
+              );
             }
           }
 
@@ -162,12 +196,26 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                     _json_schema JSON GENERATED ALWAYS AS ('{}') VIRTUAL
                 ) ENGINE=InnoDB`;
 
-          if (validation?.level && validation.level !== "OFF") {
-            const schemaJson = JSON.stringify(validation.schema ?? {});
+          const validationLevel = validation?.level ?? (validation?.schema ? "STRICT" : "OFF");
+          if (validationLevel !== "OFF") {
+            const schemaJson = JSON.stringify(validation?.schema ?? {});
+            // Escape backslashes and single quotes for MySQL string literal
+            const escapedSchemaJson = schemaJson.replace(/\\/g, '\\\\').replace(/'/g, "''");
+            
+            // PRE-CHECK: Validate JSON Schema definition against MySQL engine
+            try {
+              await adapter.executeQuery(`SELECT JSON_SCHEMA_VALID('${escapedSchemaJson}', '{}')`);
+            } catch (err: unknown) {
+              const msg = err instanceof Error ? err.message : String(err);
+              return formatHandlerErrorResponse(
+                new ValidationError(`Invalid JSON Schema definition: ${msg.replace(/^.*: /, '')}`)
+              );
+            }
+
             sql = `${createClause} ${tableRef} (
                         doc JSON,
                         _id VARBINARY(32) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) STORED PRIMARY KEY,
-                        CONSTRAINT chk_schema CHECK (JSON_SCHEMA_VALID('${schemaJson}', doc))
+                        CHECK (JSON_SCHEMA_VALID('${escapedSchemaJson}', doc))
                     ) ENGINE=InnoDB`;
           }
 
@@ -184,27 +232,18 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.toLowerCase().includes("unknown database")) {
-            return withTokenEstimate({
-              success: false,
-              error: `Schema '${schema ?? "unknown"}' does not exist`,
-              code: "SCHEMA_NOT_FOUND",
-              category: "domain",
-            });
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${schema ?? "unknown"}' does not exist`)
+            );
           }
           if (message.toLowerCase().includes("already exists")) {
-            return withTokenEstimate({
-              success: false,
-              error: `Collection '${name ?? "unknown"}' already exists`,
-              code: "CONFLICT_ERROR",
-              category: "domain",
-            });
+            return formatHandlerErrorResponse(
+              new ConflictError(`Collection '${name ?? "unknown"}' already exists`, undefined, {
+                suggestion: "Collection already exists. Use ifNotExists: true to skip creation or choose a different name.",
+              })
+            );
           }
-          return withTokenEstimate({
-              success: false,
-              error: message,
-              code: "EXECUTION_ERROR",
-              category: "execution",
-            });
+          return formatHandlerErrorResponse(error);
         }
       },
     },
@@ -226,42 +265,37 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           schema = parsed.schema;
           const { ifExists } = parsed;
           if (!IDENTIFIER_RE.test(name))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid collection name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid collection name")
+            );
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid schema name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid schema name")
+            );
 
           const tableRef = escapeTableRef(name, schema);
 
           // P154: Schema existence check when explicitly provided
           if (schema) {
             const schemaCheck = await adapter.executeQuery(
-              "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-              [schema],
+              `SHOW SCHEMAS LIKE '${schema}'`
             );
             if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-              return withTokenEstimate({
-                success: false,
-                error: `Schema '${schema}' does not exist`,
-                code: "SCHEMA_NOT_FOUND",
-                category: "domain",
-              });
+              return formatHandlerErrorResponse(
+                new Error(`Schema '${schema}' does not exist`)
+              );
             }
           }
 
-          // Pre-check existence when ifExists is true so we can report accurately
-          if (ifExists) {
-            const check = await checkCollectionExists(adapter, name, schema);
-            if (!check.exists) {
+          // Always check existence to prevent dropping non-docstore relational tables
+          const check = await checkCollectionExists(adapter, name, schema);
+          if (!check.exists) {
+            if (check.reason === "not_a_collection") {
+              return formatHandlerErrorResponse(
+                new ValidationError(`Table '${name}' exists but is not a valid document collection`)
+              );
+            }
+            if (ifExists) {
               return withTokenEstimate({
                 success: true,
                 data: {
@@ -288,19 +322,11 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.toLowerCase().includes("unknown table")) {
-            return withTokenEstimate({
-              success: false,
-              error: `Collection '${name ?? "unknown"}' does not exist`,
-              code: "TABLE_NOT_FOUND",
-              category: "domain",
-            });
+            return formatHandlerErrorResponse(
+              new Error(`Collection '${name ?? "unknown"}' does not exist`)
+            );
           }
-          return withTokenEstimate({
-              success: false,
-              error: message,
-              code: "EXECUTION_ERROR",
-              category: "execution",
-            });
+          return formatHandlerErrorResponse(error);
         }
       },
     },
@@ -317,75 +343,67 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { collection, schema } = CollectionInfoSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid collection name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid collection name")
+            );
+          if (schema && !IDENTIFIER_RE.test(schema))
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid schema name")
+            );
 
-          // Check collection existence (with schema detection)
-          const infoCheck = await checkCollectionExists(
-            adapter,
-            collection,
-            schema,
-          );
-          if (!infoCheck.exists) {
-            return infoCheck.reason === "schema"
-              ? withTokenEstimate({
-                  success: false,
-                  error: `Schema '${infoCheck.name}' does not exist`,
-                  code: "SCHEMA_NOT_FOUND",
-                  category: "domain",
-                })
-              : withTokenEstimate({
-                  success: false,
-                  error: `Collection '${collection}' does not exist`,
-                  code: "TABLE_NOT_FOUND",
-                  category: "domain",
-                });
+          // Ensure it is a valid document collection
+          const check = await checkCollectionExists(adapter, collection, schema);
+          if (!check.exists) {
+            if (check.reason === "schema") {
+              throw new Error(`Schema '${check.name}' does not exist`);
+            }
+            if (check.reason === "not_a_collection") {
+              throw new ValidationError(`Table '${check.name}' exists but is not a valid document collection`);
+            }
+            throw new Error(`Collection '${check.name}' does not exist`);
           }
 
-          // Get accurate row count using COUNT(*) instead of INFORMATION_SCHEMA estimate
-          const schemaClause = schema
-            ? `\`${schema}\`.\`${collection}\``
-            : `\`${collection}\``;
-          const countResult = await adapter.executeQuery(
-            `SELECT COUNT(*) as rowCount FROM ${schemaClause}`,
-          );
-          const countFirstRow = countResult.rows?.[0];
-          const rowCount =
-            countFirstRow && typeof countFirstRow === "object" && "rowCount" in countFirstRow
-              ? Number(countFirstRow["rowCount"])
-              : 0;
+          // We use SHOW statements to avoid ProxySQL hostgroup locking that can happen with information_schema
+          // Get accurate row count using COUNT(*) can also fail if the connection is locked, so we use SHOW TABLE STATUS
 
-          const tableInfo = await adapter.executeQuery(
-            `
-                    SELECT DATA_LENGTH as dataSize, INDEX_LENGTH as indexSize
-                    FROM information_schema.TABLES
-                    WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?
-                `,
-            [schema ?? null, collection],
+          const schemaPrefix = schema ? `FROM \`${schema}\` ` : '';
+          const tableStatus = await adapter.executeQuery(
+            `SHOW TABLE STATUS ${schemaPrefix}WHERE Name = '${collection}'`
           );
 
-          const indexInfo = await adapter.executeQuery(
-            `
-                    SELECT INDEX_NAME, COLUMN_NAME, SEQ_IN_INDEX, NON_UNIQUE
-                    FROM information_schema.STATISTICS
-                    WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?
-                `,
-            [schema ?? null, collection],
+          if (!tableStatus.rows || tableStatus.rows.length === 0) {
+            throw new Error(`Collection '${collection}' does not exist`);
+          }
+
+          const stats = tableStatus.rows[0];
+          const rowCount = stats && typeof stats === 'object' && 'Rows' in stats ? Number(stats['Rows']) : 0;
+          const dataSize = stats && typeof stats === 'object' && 'Data_length' in stats ? Number(stats['Data_length']) : 0;
+          const indexSize = stats && typeof stats === 'object' && 'Index_length' in stats ? Number(stats['Index_length']) : 0;
+
+          const tableRef = escapeTableRef(collection, schema);
+          const keysResult = await adapter.executeQuery(
+            `SHOW KEYS FROM ${tableRef}`
           );
 
-          const stats = tableInfo.rows?.[0] ?? {};
+          const indexes = (keysResult.rows ?? []).map(row => {
+            const r = row;
+            return {
+              INDEX_NAME: r['Key_name'],
+              COLUMN_NAME: r['Column_name'],
+              SEQ_IN_INDEX: r['Seq_in_index'],
+              NON_UNIQUE: r['Non_unique']
+            };
+          });
+
           return withTokenEstimate({
             success: true,
             data: {
               collection,
               info: {
                 rowCount,
-                ...stats,
-                indexes: indexInfo.rows ?? [],
+                dataSize,
+                indexSize,
+                indexes,
               },
             },
           });

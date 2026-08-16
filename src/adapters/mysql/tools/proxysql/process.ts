@@ -14,7 +14,7 @@ import {
   ProxySQLGlobalVariablesOutputSchema,
   ProxySQLProcessListOutputSchema,
 } from "../../schemas/proxysql.js";
-import { proxySQLQuery, redactSensitiveVariables, LIKE_SAFE_RE } from "./utils.js";
+import { proxySQLQuery, redactSensitiveVariables } from "./utils.js";
 
 export function createProxySQLUsersTool(): ToolDefinition {
   return {
@@ -37,7 +37,7 @@ export function createProxySQLUsersTool(): ToolDefinition {
       try {
         const { username } = ProxySQLUsersInputSchema.parse(params);
         let sql = "SELECT username, active, use_ssl, default_hostgroup, default_schema, transaction_persistent, max_connections, comment FROM mysql_users";
-        if (username) {
+        if (username !== undefined) {
           const sanitized = username.replace(/'/g, "''");
           sql += ` WHERE username = '${sanitized}'`;
         }
@@ -86,15 +86,6 @@ export function createProxySQLGlobalVariablesTool(): ToolDefinition {
         }
 
         if (like) {
-          if (!LIKE_SAFE_RE.test(like)) {
-            return {
-              success: false,
-              error: `Invalid like pattern: '${like}' — only alphanumeric, underscore, dash, dot, percent (%), and space characters are allowed`,
-              code: "VALIDATION_ERROR",
-              category: "validation",
-              recoverable: false,
-            };
-          }
           const sanitizedLike = like.replace(/'/g, "''");
           conditions.push(`variable_name LIKE '${sanitizedLike}'`);
         }

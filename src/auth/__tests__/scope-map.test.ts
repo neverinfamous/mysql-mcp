@@ -35,7 +35,7 @@ describe("scope-map", () => {
         const defaultScope =
           TOOL_GROUP_SCOPES[group as keyof typeof TOOL_GROUP_SCOPES];
         for (const tool of tools) {
-          const expectedScope = TOOL_SCOPE_OVERRIDES[tool as keyof typeof TOOL_SCOPE_OVERRIDES] ?? defaultScope;
+          const expectedScope = TOOL_SCOPE_OVERRIDES[tool] ?? defaultScope;
           expect(map.get(tool)).toBe(expectedScope);
         }
       }

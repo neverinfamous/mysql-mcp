@@ -53,7 +53,7 @@ export function createPerformanceResource(
                     LIMIT 10
                 `,
         )
-        .catch(() => ({ rows: [] as Record<string, unknown>[] }));
+        .catch(() => ({ rows: [], insertId: 0, affectedRows: 0 }));
 
       const [statusResult, perfResult] = await Promise.all([
         statusPromise,

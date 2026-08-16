@@ -15,7 +15,7 @@ export const EventCreateSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for body"),
   query: z.string().optional().describe("Alias for body"),
   onCompletion: z
-    .string()
+    .enum(["PRESERVE", "NOT PRESERVE"])
     .optional()
     .default("NOT PRESERVE")
     .describe("What to do after event completes"),
@@ -37,7 +37,7 @@ export const EventCreateSchema = z.object({
   body: z.string().optional(),
   sql: z.string().optional(),
   query: z.string().optional(),
-  onCompletion: z.string().default("NOT PRESERVE"),
+  onCompletion: z.enum(["PRESERVE", "NOT PRESERVE"]).default("NOT PRESERVE"),
   status: z.enum(["ENABLE", "DISABLE", "DISABLE ON SLAVE"]).default("ENABLE"),
   comment: z.string().optional(),
   ifNotExists: z.boolean().default(false),
@@ -64,7 +64,7 @@ export const EventAlterSchemaBase = z.object({
   body: z.string().optional().describe("New SQL statement(s). Note: Can also use sql or query."),
   sql: z.string().optional().describe("Alias for body"),
   query: z.string().optional().describe("Alias for body"),
-  onCompletion: z.string().optional(),
+  onCompletion: z.enum(["PRESERVE", "NOT PRESERVE"]).optional(),
   status: z
     .enum(["ENABLE", "DISABLE", "DISABLE ON SLAVE"])
     .optional()
@@ -82,7 +82,7 @@ export const EventAlterSchema = z.object({
   body: z.string().optional(),
   sql: z.string().optional(),
   query: z.string().optional(),
-  onCompletion: z.string().optional(),
+  onCompletion: z.enum(["PRESERVE", "NOT PRESERVE"]).optional(),
   status: z.enum(["ENABLE", "DISABLE", "DISABLE ON SLAVE"]).optional(),
   comment: z.string().optional(),
 }).transform(data => ({
@@ -100,6 +100,9 @@ export const EventDropSchemaBase = z.object({
   name: z.string().optional().describe("Event name to drop. Note: Do not use eventName."),
   eventName: z.string().optional().describe("Alias for name"),
   event: z.string().optional().describe("Alias for name"),
+  schema: z.string().optional().describe("Schema name (defaults to current database)"),
+  schemaName: z.string().optional().describe("Alias for schema"),
+  database: z.string().optional().describe("Alias for schema"),
   ifExists: z.boolean().optional().default(false).describe("Add IF EXISTS clause"),
 });
 
@@ -107,9 +110,13 @@ export const EventDropSchema = z.object({
   name: z.string().optional(),
   eventName: z.string().optional(),
   event: z.string().optional(),
+  schema: z.string().optional(),
+  schemaName: z.string().optional(),
+  database: z.string().optional(),
   ifExists: z.boolean().default(false),
 }).transform(data => ({
   name: data.name ?? data.eventName ?? data.event ?? "",
+  schema: (data.schema ?? data.schemaName ?? data.database) === "" ? undefined : (data.schema ?? data.schemaName ?? data.database),
   ifExists: data.ifExists,
 })).refine(data => data.name !== "", { message: "name (or eventName alias) is required" });
 
@@ -119,41 +126,49 @@ export const EventListSchemaBase = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  schemaName: z.string().optional().describe("Alias for schema"),
   database: z.string().optional().describe("Alias for schema"),
   pattern: z.string().optional().describe("Pattern to filter event names by (LIKE). Note: Can also use name."),
   name: z.string().optional().describe("Alias for pattern"),
   eventName: z.string().optional().describe("Alias for pattern"),
   event: z.string().optional().describe("Alias for pattern"),
-  includeDisabled: z
-    .boolean()
+  status: z
+    .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED", "REPLICA_SIDE_DISABLED"])
     .optional()
-    .default(true)
-    .describe("Include disabled events"),
+    .describe("Filter by status"),
+  limit: z.coerce.number().int().min(1).default(50).describe("Maximum number of results to return"),
+  offset: z.coerce.number().int().min(0).default(0).describe("Number of results to skip"),
 });
 
 export const EventListSchema = z.object({
   schema: z.string().optional(),
+  schemaName: z.string().optional(),
   database: z.string().optional(),
   pattern: z.string().optional(),
   name: z.string().optional(),
   eventName: z.string().optional(),
   event: z.string().optional(),
-  includeDisabled: z.boolean().default(true),
+  status: z.enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED", "REPLICA_SIDE_DISABLED"]).optional(),
+  limit: z.coerce.number().int().min(1).default(50),
+  offset: z.coerce.number().int().min(0).default(0),
 }).transform(data => ({
-  schema: data.schema ?? data.database,
+  schema: (data.schema ?? data.schemaName ?? data.database) === "" ? undefined : (data.schema ?? data.schemaName ?? data.database),
   pattern: data.pattern ?? data.name ?? data.eventName ?? data.event,
-  includeDisabled: data.includeDisabled,
+  status: data.status,
+  limit: data.limit,
+  offset: data.offset,
 }));
 
 
 export const EventStatusSchemaBase = z.object({
-  name: z.string().optional().describe("Event name"),
+  name: z.string().optional().describe("Event name. Note: Do not use eventName."),
   eventName: z.string().optional().describe("Alias for name"),
   event: z.string().optional().describe("Alias for name"),
   schema: z
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  schemaName: z.string().optional().describe("Alias for schema"),
   database: z.string().optional().describe("Alias for schema"),
 });
 
@@ -162,10 +177,11 @@ export const EventStatusSchema = z.object({
   eventName: z.string().optional(),
   event: z.string().optional(),
   schema: z.string().optional(),
+  schemaName: z.string().optional(),
   database: z.string().optional(),
 }).transform(data => ({
   name: data.name ?? data.eventName ?? data.event ?? "",
-  schema: data.schema ?? data.database,
+  schema: (data.schema ?? data.schemaName ?? data.database) === "" ? undefined : (data.schema ?? data.schemaName ?? data.database),
 })).refine(data => data.name !== "", { message: "name (or eventName alias) is required" });
 
 

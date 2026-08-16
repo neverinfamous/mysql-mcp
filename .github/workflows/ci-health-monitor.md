@@ -12,6 +12,12 @@ engine:
   id: copilot
   model: claude-3-5-sonnet-latest
 
+secrets:
+  COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+  GH_AW_GITHUB_MCP_SERVER_TOKEN: ${{ secrets.GH_AW_GITHUB_MCP_SERVER_TOKEN }}
+  GH_AW_GITHUB_TOKEN: ${{ secrets.GH_AW_GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 network:
   allowed:
     - defaults
@@ -19,13 +25,6 @@ network:
 
 permissions: read-all
 
-## 💎 Value Proposition
-
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
 
 safe-outputs:
   report-failure-as-issue: false
@@ -40,26 +39,26 @@ timeout-minutes: 15
 concurrency: ci-health-monitor
 ---
 
-# CI Health Monitor
+# CI Health Monitor Instructions
 
-You are auditing the CI/CD infrastructure for the **mysql-mcp** project. Your job is to check workflows. Look for deprecations, outdated actions, and health issues.
+Audit the mysql-mcp CI/CD infrastructure to guarantee peak reliability. Proactively identify deprecations, outdated actions, and pipeline bottlenecks.
 
-## Important Rules
+## Audit Instructions
 
 - **Only report actionable findings.** Don't flag things that are working correctly.
 - **If everything is healthy, report "all clear" via noop.** Do not create empty issues.
 - **Be specific with fix suggestions.** Include the exact file, line, and replacement value.
 
-## Step 1: Audit Workflow Files
+## Inspect Workflows for Reliability
 
-List all `.yml` files in `.github/workflows/`. For each workflow file:
+List all `.yml` files in `.github/workflows/`, explicitly excluding auto-generated lockfiles (`*.lock.yml`). For each workflow file:
 
 1. **Check action versions** — for each `uses:` line, note the action name and version/tag. Check if a newer major or minor version exists by reading the action's releases.
-2. **Check Node.js runtime** — look for `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` workarounds or actions known to use deprecated Node.js versions (16, 18, 20). Flag any that blocks Node.js 26 compatibility.
-3. **Check for deprecated features** — `set-output`, `save-state`, `::set-output::` commands, or other deprecated GitHub Actions features.
-4. **Check Dependabot config** — read `dependabot.yml` and verify it covers all ecosystems in use (npm, GitHub Actions, Docker).
+2. **Check Node.js runtime** — focus on action versions, not deprecated flags. Look for actions using deprecated Node.js versions. Flag any blocking target runtime compatibility.
+3. **Check for deprecated features** — such as set-output, save-state, or ::set-output:: commands.
+4. **Check Dependabot config**. Verify .github/dependabot.yml covers used ecosystems (npm, GitHub Actions, Docker).
 
-## Step 2: Review Recent Workflow Runs
+## Pipeline Execution Trends
 
 Check recent workflow runs (last 7 days):
 
@@ -67,9 +66,9 @@ Check recent workflow runs (last 7 days):
 2. Any runs with annotations or warnings?
 3. Any runs that are abnormally slow?
 
-## Step 3: Report
+## Reporting Output
 
-Before creating a new issue, check for existing open issues with the `[ci-health]` prefix. Add comments to existing issues instead of creating duplicates. Create a new issue only if none exists.
+Before creating a new issue, check for existing open issues with the `[ci-health]` prefix. Use the `noop` tool if an issue is already being tracked. Create a new issue only if none exists.
 
 ### If issues are found:
 
@@ -78,8 +77,8 @@ Create an issue via safe-output with this structure:
 ```
 ## 🏥 CI Health Report — [DATE]
 
-### 🔴 Critical (blocks Node.js 26 compatibility)
-- [action@version] in [workflow.yml] — needs update to [version] for Node.js 26
+### 🔴 Critical (blocks current target Node.js runtime compatibility)
+- [action@version] in [workflow.yml] — needs update to [version] for current target Node.js runtime
 
 ### 🟡 Warnings
 - [description of warning/deprecation]

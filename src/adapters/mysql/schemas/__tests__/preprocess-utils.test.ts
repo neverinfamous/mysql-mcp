@@ -79,7 +79,7 @@ describe("preprocess-utils", () => {
       expect(preprocessDocCollectionParams({ tbl: "c" })).toMatchObject({ name: "c", collection: "c" });
     });
     it("should set schema from database", () => {
-      expect(preprocessDocCollectionParams({ database: "d" })).toMatchObject({ database: "d", schema: "d" });
+      expect(preprocessDocCollectionParams({ database: "d" })).toMatchObject({ schema: "d" });
     });
     it("should convert document to documents array", () => {
       expect(preprocessDocCollectionParams({ document: { a: 1 } })).toMatchObject({ documents: [{ a: 1 }] });
@@ -230,8 +230,8 @@ describe("preprocess-utils", () => {
       expect(preprocessJsonColumnParams({ idColumn: "id", rowId: "abc" })).toMatchObject({ where: "`id` = 'abc'" });
     });
     it("should resolve table, column, path aliases", () => {
-      expect(preprocessJsonColumnParams({ tableName: "t", col: "c", json_path: "p", searchString: "s" })).toMatchObject({ table: "t", column: "c", path: "p", searchValue: "s" });
-      expect(preprocessJsonColumnParams({ name: "t", columnName: "c", jsonPath: "p" })).toMatchObject({ table: "t", column: "c", path: "p" });
+      expect(preprocessJsonColumnParams({ tableName: "t", col: "c", json_path: "p", searchString: "s" })).toMatchObject({ table: "t", column: "c", path: "$.p", searchValue: "s" });
+      expect(preprocessJsonColumnParams({ name: "t", columnName: "c", jsonPath: "p" })).toMatchObject({ table: "t", column: "c", path: "$.p" });
       expect(preprocessJsonColumnParams({ tbl: "t", valueColumn: "c" })).toMatchObject({ table: "t", column: "c" });
       expect(preprocessJsonColumnParams({ table_name: "t", fieldName: "c" })).toMatchObject({ table: "t", column: "c" });
       expect(preprocessJsonColumnParams({ c: "c" })).toMatchObject({ column: "c" });
@@ -298,9 +298,9 @@ describe("preprocess-utils", () => {
       expect(preprocessDocIndexParams({ index: "i" })).toMatchObject({ name: "i" });
     });
     it("should process fields", () => {
-      expect(preprocessDocIndexParams({ fields: "f" })).toMatchObject({ fields: [{ path: "f" }] });
-      expect(preprocessDocIndexParams({ fields: ["f"] })).toMatchObject({ fields: [{ path: "f" }] });
-      expect(preprocessDocIndexParams({ fields: [{ field: "f", type: "integer" }] })).toMatchObject({ fields: [{ path: "f", type: "INT" }] });
+      expect(preprocessDocIndexParams({ fields: "f" })).toMatchObject({ fields: [{ path: "$.f" }] });
+      expect(preprocessDocIndexParams({ fields: ["f"] })).toMatchObject({ fields: [{ path: "$.f" }] });
+      expect(preprocessDocIndexParams({ fields: [{ field: "f", type: "integer" }] })).toMatchObject({ fields: [{ path: "$.f", type: "INT" }] });
     });
   });
 

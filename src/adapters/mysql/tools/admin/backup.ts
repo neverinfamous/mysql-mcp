@@ -52,12 +52,12 @@ function formatForMySQL(val: unknown): string {
 
   // Handle objects (JSON columns) - stringify
   if (typeof val === "object") {
-    return `'${JSON.stringify(val).replace(/'/g, "''")}'`;
+    return `'${JSON.stringify(val).replace(/\\/g, "\\\\").replace(/'/g, "''")}'`;
   }
 
   // Handle strings
   if (typeof val === "string") {
-    return `'${val.replace(/'/g, "''")}'`;
+    return `'${val.replace(/\\/g, "\\\\").replace(/'/g, "''")}'`;
   }
 
   // Numbers and booleans
@@ -212,7 +212,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           return withTokenEstimate({
             success: true,
             data: {
-              json: JSON.stringify(rows, null, 2),
+              json: JSON.stringify(rows),
               rowCount: rows.length,
             },
           });
@@ -308,9 +308,13 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Validate all column names upfront (throws for SQL injection - must not be caught)
+        const validatedColumns = new Set<string>();
         for (const row of data) {
           for (const colName of Object.keys(row)) {
-            validateIdentifier(colName, "column");
+            if (!validatedColumns.has(colName)) {
+              validateIdentifier(colName, "column");
+              validatedColumns.add(colName);
+            }
           }
         }
 
@@ -342,12 +346,14 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
             for (const row of chunk) {
               valueGroups.push(`(${columnNames.map(() => "?").join(", ")})`);
               for (const col of columnNames) {
-                let val = row[col];
-                if (
+                let val: unknown = row[col] ?? null;
+                if (val !== null && typeof val === "object" && !(val instanceof Date)) {
+                  val = JSON.stringify(val);
+                } else if (
                   typeof val === "string" &&
                   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(val)
                 ) {
-                  val = val.replace("T", " ").replace("Z", "").split(".")[0];
+                  val = val.replace("T", " ").replace("Z", "").split(".")[0] ?? val;
                 }
                 flatValues.push(val);
               }
@@ -391,22 +397,26 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     schema: z.string().optional().describe("Alias for database"),
     schemaName: z.string().optional().describe("Alias for database"),
     tables: z
-      .array(z.string())
+      .union([z.string(), z.array(z.string())])
       .optional()
       .describe("Specific tables to dump"),
     table: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     tableName: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     name: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     noData: z
-      .boolean()
+      .union([z.boolean(), z.string(), z.number()])
       .optional()
       .default(false)
       .describe("Schema only, no data"),
+    no_data: z.any().optional().describe("Alias for noData"),
+    schemaOnly: z.any().optional().describe("Alias for noData"),
+    schema_only: z.any().optional().describe("Alias for noData"),
     singleTransaction: z
-      .boolean()
+      .union([z.boolean(), z.string(), z.number()])
       .optional()
       .default(false)
       .describe("Use single transaction for dump (no locking)"),
+    single_transaction: z.any().optional().describe("Alias for singleTransaction"),
   });
 
   const schema = z.preprocess(
@@ -416,14 +426,38 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       if (res["database"] === undefined) {
         res["database"] = res["db"] ?? res["dbName"] ?? res["schema"] ?? res["schemaName"];
       }
+      if (res["database"] !== undefined && typeof res["database"] !== "string") {
+        res["database"] = typeof res["database"] === "number" || typeof res["database"] === "boolean" || typeof res["database"] === "bigint" ? String(res["database"]) : JSON.stringify(res["database"]);
+      }
       const aliasVal = res["table"] ?? res["tableName"] ?? res["name"];
       if (res["tables"] === undefined && aliasVal !== undefined) {
         res["tables"] = Array.isArray(aliasVal) ? aliasVal : [aliasVal];
       }
+      if (typeof res["tables"] === "string" || typeof res["tables"] === "number" || typeof res["tables"] === "boolean") {
+        res["tables"] = [String(res["tables"])];
+      } else if (Array.isArray(res["tables"])) {
+        res["tables"] = res["tables"].map(String);
+      }
+      if (res["noData"] === undefined) {
+        res["noData"] = res["no_data"] ?? res["schemaOnly"] ?? res["schema_only"];
+      }
+      if (res["singleTransaction"] === undefined) {
+        res["singleTransaction"] = res["single_transaction"];
+      }
+      if (typeof res["noData"] === "string") {
+        res["noData"] = res["noData"].toLowerCase() === "true" || res["noData"] === "1";
+      } else if (typeof res["noData"] === "number") {
+        res["noData"] = res["noData"] === 1;
+      }
+      if (typeof res["singleTransaction"] === "string") {
+        res["singleTransaction"] = res["singleTransaction"].toLowerCase() === "true" || res["singleTransaction"] === "1";
+      } else if (typeof res["singleTransaction"] === "number") {
+        res["singleTransaction"] = res["singleTransaction"] === 1;
+      }
       return res;
     },
     z.object({
-      database: z.string(),
+      database: z.string().optional(),
       db: z.string().optional(),
       dbName: z.string().optional(),
       schema: z.string().optional(),
@@ -436,11 +470,14 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       singleTransaction: z.boolean().optional().default(false),
     })
   ).transform((data) => ({
-    database: data.database,
+    database: data.database ?? "",
     tables: data.tables,
     noData: data.noData,
     singleTransaction: data.singleTransaction,
-  }));
+  }))
+  .refine((data) => data.database !== "", {
+    message: "database (or db/schema alias) is required",
+  });
 
   return {
     name: "mysql_create_dump",
@@ -479,13 +516,16 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
 
         // Verify tables exist if provided
         if (tables && tables.length > 0) {
-          for (const table of tables) {
-            try {
-              const tableCheck = await _adapter.executeReadQuery(
-                `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`,
-                [database, table],
-              );
-              if (!tableCheck.rows || tableCheck.rows.length === 0) {
+          try {
+            const placeholders = tables.map(() => "?").join(", ");
+            const tableCheck = await _adapter.executeReadQuery(
+              `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME IN (${placeholders})`,
+              [database, ...tables],
+            );
+            
+            const existingTables = new Set((tableCheck.rows ?? []).map((r) => String(Object.values(r)[0]).toLowerCase()));
+            for (const table of tables) {
+              if (!existingTables.has(table.toLowerCase())) {
                 return withTokenEstimate({
                   success: false,
                   error: `Table '${table}' does not exist in database '${database}'.`,
@@ -495,18 +535,19 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
                   recoverable: false,
                 });
               }
-            } catch (tableErr) {
-              return withTokenEstimate(
-                { ...formatHandlerErrorResponse(tableErr) }
-              );
             }
+          } catch (tableErr) {
+            return withTokenEstimate(
+              { ...formatHandlerErrorResponse(tableErr) }
+            );
           }
         }
 
-        let command = `mysqldump -u [username] -p ${database}`;
+        let command = `mysqldump -u [username] -p "${database.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
 
         if (tables && tables.length > 0) {
-          command += ` ${tables.join(" ")}`;
+          const quotedTables = tables.map(t => `"${t.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
+          command += ` ${quotedTables.join(" ")}`;
         }
 
         if (noData) {
@@ -550,6 +591,7 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     path: z.string().optional().describe("Alias for filename"),
     filepath: z.string().optional().describe("Alias for filename"),
     dumpFile: z.string().optional().describe("Alias for filename"),
+    dump_file: z.string().optional().describe("Alias for filename"),
   });
 
   const schema = z.preprocess(
@@ -559,27 +601,41 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       if (res["database"] === undefined) {
         res["database"] = res["db"] ?? res["dbName"] ?? res["schema"] ?? res["schemaName"];
       }
+      if (res["database"] !== undefined && typeof res["database"] !== "string") {
+        res["database"] = typeof res["database"] === "number" || typeof res["database"] === "boolean" || typeof res["database"] === "bigint" ? String(res["database"]) : JSON.stringify(res["database"]);
+      }
       if (res["filename"] === undefined) {
-        res["filename"] = res["file"] ?? res["path"] ?? res["filepath"] ?? res["dumpFile"];
+        res["filename"] = res["file"] ?? res["path"] ?? res["filepath"] ?? res["dumpFile"] ?? res["dump_file"];
+      }
+      if (res["filename"] !== undefined && typeof res["filename"] !== "string") {
+        res["filename"] = typeof res["filename"] === "number" || typeof res["filename"] === "boolean" || typeof res["filename"] === "bigint" ? String(res["filename"]) : JSON.stringify(res["filename"]);
       }
       return res;
     },
     z.object({
-      database: z.string(),
+      database: z.string().optional(),
       db: z.string().optional(),
       dbName: z.string().optional(),
       schema: z.string().optional(),
       schemaName: z.string().optional(),
-      filename: z.string(),
+      filename: z.string().optional(),
       file: z.string().optional(),
       path: z.string().optional(),
       filepath: z.string().optional(),
       dumpFile: z.string().optional(),
+      dump_file: z.string().optional(),
     })
-  ).transform((data) => ({
-    database: data.database,
-    filename: data.filename,
-  }));
+  )
+    .transform((data) => ({
+      database: data.database ?? "",
+      filename: data.filename ?? "",
+    }))
+    .refine((data) => data.database !== "", {
+      message: "database (or db/schema alias) is required",
+    })
+    .refine((data) => data.filename !== "", {
+      message: "filename (or file/path alias) is required",
+    });
 
   return {
     name: "mysql_restore_dump",
@@ -616,7 +672,17 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        const command = `mysql -u [username] -p ${database} < ${filename}`;
+        if (/[&|;$`"\n\r<>]/.test(filename)) {
+          return withTokenEstimate({
+            success: false,
+            error: "Filename contains invalid shell characters.",
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
+          });
+        }
+
+        const command = `mysql -u [username] -p "${database.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}" < "${filename}"`;
 
         return withTokenEstimate({
           success: true,

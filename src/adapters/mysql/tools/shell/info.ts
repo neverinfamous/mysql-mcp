@@ -42,6 +42,10 @@ export function createShellVersionTool(): ToolDefinition {
 
         const result = await execMySQLShell(["--version"]);
 
+        if (result.exitCode !== 0) {
+          throw new Error(result.stderr || result.stdout || "MySQL Shell command failed");
+        }
+
         // Parse version from output like "mysqlsh   Ver 8.0.44 for Win64 on x86_64"
         const versionRegex = /Ver\s+(\d+\.\d+\.\d+)/;
         const versionMatch = versionRegex.exec(result.stdout);

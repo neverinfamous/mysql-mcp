@@ -30,7 +30,7 @@ function createMockReqRes(
   req.on = vi.fn((event, callback) => {
     if (event === "end") callback();
     return req;
-  }) as any;
+  }) as Record<string, unknown>;
 
   const res = new ServerResponse(req);
   res.writeHead = vi.fn().mockReturnThis();
@@ -61,14 +61,14 @@ describe("HttpTransport", () => {
   describe("Request Handling", () => {
     it("should return 404 for unknown paths", async () => {
       const { req, res } = createMockReqRes("GET", "/unknown");
-      await (transport as any).handleRequest(req, res);
+      await (transport as Record<string, unknown>).handleRequest(req, res);
       expect(res.writeHead).toHaveBeenCalledWith(404);
       expect(res.end).toHaveBeenCalled();
     });
 
     it("should handle preflight OPTIONS request", async () => {
       const { req, res } = createMockReqRes("OPTIONS", "/mcp");
-      await (transport as any).handleRequest(req, res);
+      await (transport as Record<string, unknown>).handleRequest(req, res);
       expect(res.writeHead).toHaveBeenCalledWith(204);
     });
 
@@ -78,7 +78,7 @@ describe("HttpTransport", () => {
         authToken: "secret123",
       });
       const { req, res } = createMockReqRes("POST", "/mcp");
-      await (authTransport as any).handleRequest(req, res);
+      await (authTransport as Record<string, unknown>).handleRequest(req, res);
       expect(res.writeHead).toHaveBeenCalledWith(401, expect.any(Object));
 
       const { req: reqWithAuth, res: resWithAuth } = createMockReqRes(
@@ -86,7 +86,7 @@ describe("HttpTransport", () => {
         "/mcp",
         { authorization: "Bearer secret123" },
       );
-      await (authTransport as any).handleRequest(reqWithAuth, resWithAuth);
+      await (authTransport as Record<string, unknown>).handleRequest(reqWithAuth, resWithAuth);
       expect(resWithAuth.writeHead).not.toHaveBeenCalledWith(
         401,
         expect.any(Object),
@@ -96,7 +96,7 @@ describe("HttpTransport", () => {
         "/mcp",
         { authorization: "Bearer invalid" },
       );
-      await (authTransport as any).handleRequest(reqInvalid, resInvalid);
+      await (authTransport as Record<string, unknown>).handleRequest(reqInvalid, resInvalid);
       expect(resInvalid.writeHead).toHaveBeenCalledWith(
         401,
         expect.any(Object),
@@ -108,7 +108,7 @@ describe("HttpTransport", () => {
       const { req, res } = createMockReqRes("POST", "/mcp", {
         "content-length": "100",
       });
-      await (smallTransport as any).handleRequest(req, res);
+      await (smallTransport as Record<string, unknown>).handleRequest(req, res);
       expect(res.writeHead).toHaveBeenCalledWith(413, expect.any(Object));
     });
 
@@ -118,11 +118,11 @@ describe("HttpTransport", () => {
         stateless: true,
       });
       const { req, res } = createMockReqRes("GET", "/mcp");
-      await (statelessTransport as any).handleRequest(req, res);
+      await (statelessTransport as Record<string, unknown>).handleRequest(req, res);
       expect(res.writeHead).toHaveBeenCalledWith(405, expect.any(Object));
 
       const { req: reqDel, res: resDel } = createMockReqRes("DELETE", "/mcp");
-      await (statelessTransport as any).handleRequest(reqDel, resDel);
+      await (statelessTransport as Record<string, unknown>).handleRequest(reqDel, resDel);
       expect(resDel.writeHead).toHaveBeenCalledWith(204);
     });
 
@@ -130,25 +130,10 @@ describe("HttpTransport", () => {
       const { req, res } = createMockReqRes("POST", "/mcp");
       // mock readBody returning something other than initialize
       // we can simulate readBody error by passing unreadable req
-      await (transport as any).handleRequest(req, res);
+      await (transport as Record<string, unknown>).handleRequest(req, res);
       expect(res.writeHead).toHaveBeenCalledWith(400, expect.any(Object));
     });
 
-    it("should reject legacy SSE in stateless mode", async () => {
-      const statelessTransport = new HttpTransport({
-        port: 0,
-        stateless: true,
-      });
-      const { req, res } = createMockReqRes("GET", "/sse");
-      await (statelessTransport as any).handleRequest(req, res);
-      expect(res.writeHead).toHaveBeenCalledWith(404, expect.any(Object));
 
-      const { req: reqMsg, res: resMsg } = createMockReqRes(
-        "POST",
-        "/messages?sessionId=123",
-      );
-      await (statelessTransport as any).handleRequest(reqMsg, resMsg);
-      expect(resMsg.writeHead).toHaveBeenCalledWith(404, expect.any(Object));
-    });
   });
 });

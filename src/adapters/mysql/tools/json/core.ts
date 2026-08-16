@@ -6,6 +6,7 @@
  */
 
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import { escape } from "mysql2";
 import type {
   ToolDefinition,
   RequestContext,
@@ -95,8 +96,7 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
           validateWhereClause(where);
         }
 
-        let sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as extracted_value FROM ${escapeQualifiedTable(table)}`;
-        const queryParams: unknown[] = [path];
+        let sql = `SELECT CASE WHEN JSON_VALID(CAST(\`${column}\` AS CHAR)) THEN JSON_EXTRACT(CAST(\`${column}\` AS CHAR), ${escape(path)}) ELSE NULL END as extracted_value FROM ${escapeQualifiedTable(table)}`;
 
         if (where) {
           sql += ` WHERE ${where}`;
@@ -105,16 +105,16 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
         const appliedLimit = limit ?? 50;
         sql += ` LIMIT ${appliedLimit}`;
 
-        const result = await adapter.executeReadQuery(sql, queryParams);
+        const result = await adapter.executeReadQuery(sql);
         return withTokenEstimate({
           success: true,
           data: { rows: result.rows, count: result.rows?.length ?? 0 },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_extract" });
         }
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_extract" });
       }
     },
   };
@@ -141,20 +141,20 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
         validateWhereClause(where);
 
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(COALESCE(\`${column}\`, '{}'), ${escape(path)}, CAST(CONVERT(${escape(jsonValue)} USING utf8mb4) AS JSON)) WHERE ${where}`;
 
-        const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
+        const result = await adapter.executeWriteQuery(sql);
         return withTokenEstimate({
           success: true,
           data: { rowsAffected: result.rowsAffected },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_set" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_set" });
       }
     },
   };
@@ -182,26 +182,34 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
         validateWhereClause(where);
 
         // Check if path already exists before insert
-        const checkSql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as existing_value FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
-        const checkResult = await adapter.executeReadQuery(checkSql, [path]);
-        const pathExists =
-          checkResult.rows?.[0]?.["existing_value"] !== null &&
-          checkResult.rows?.[0]?.["existing_value"] !== undefined;
+        const checkSql = `SELECT SUM(CASE WHEN JSON_VALID(CAST(\`${column}\` AS CHAR)) THEN JSON_CONTAINS_PATH(CAST(\`${column}\` AS CHAR), 'one', ${escape(path)}) ELSE 0 END) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkResult = await adapter.executeReadQuery(checkSql);
+        const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
+        const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);
 
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_INSERT(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_INSERT(COALESCE(\`${column}\`, '{}'), ${escape(path)}, CAST(CONVERT(${escape(jsonValue)} USING utf8mb4) AS JSON)) WHERE ${where}`;
 
-        const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
+        const result = await adapter.executeWriteQuery(sql);
 
-        const response = pathExists
+        const response = totalRows === 0
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: 0,
+                changed: false,
+                suggestion: "No rows matched the WHERE clause",
+              },
+            }
+          : existingPaths === totalRows
           ? {
               success: true as const,
               data: {
                 rowsAffected: result.rowsAffected,
                 changed: false,
                 suggestion:
-                  "Path already exists; value was not modified (JSON_INSERT only inserts new paths)",
+                  "Path already exists in all matched rows; value was not modified (JSON_INSERT only inserts new paths)",
               },
             }
           : {
@@ -214,10 +222,10 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_insert" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_insert" });
       }
     },
   };
@@ -243,21 +251,51 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REPLACE(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
-        const jsonValue = validateJsonString(value);
+        // Check if path exists before replace
+        const checkSql = `SELECT SUM(CASE WHEN JSON_VALID(CAST(\`${column}\` AS CHAR)) THEN JSON_CONTAINS_PATH(CAST(\`${column}\` AS CHAR), 'one', ${escape(path)}) ELSE 0 END) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkResult = await adapter.executeReadQuery(checkSql);
+        const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
+        const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);
 
-        const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-        return withTokenEstimate({
-          success: true,
-          data: { rowsAffected: result.rowsAffected },
-        });
+        // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
+        const jsonValue = validateJsonString(value);
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REPLACE(\`${column}\`, ${escape(path)}, CAST(CONVERT(${escape(jsonValue)} USING utf8mb4) AS JSON)) WHERE ${where}`;
+
+        const result = await adapter.executeWriteQuery(sql);
+
+        const response = totalRows === 0
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: 0,
+                changed: false,
+                suggestion: "No rows matched the WHERE clause",
+              },
+            }
+          : existingPaths === 0
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: false,
+                suggestion:
+                  "Path does not exist in any matched rows; value was not modified (JSON_REPLACE only updates existing paths)",
+              },
+            }
+          : {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: true,
+              },
+            };
+        return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_replace" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_replace" });
       }
     },
   };
@@ -282,20 +320,51 @@ export function createJsonRemoveTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        const pathPlaceholders = paths.map(() => "?").join(", ");
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REMOVE(\`${column}\`, ${pathPlaceholders}) WHERE ${where}`;
+        const pathArgs = paths.map(p => escape(p)).join(", ");
 
-        const result = await adapter.executeWriteQuery(sql, paths);
-        return withTokenEstimate({
-          success: true,
-          data: { rowsAffected: result.rowsAffected },
-        });
+        // Check if at least one path exists before remove
+        const checkSql = `SELECT SUM(CASE WHEN JSON_VALID(CAST(\`${column}\` AS CHAR)) THEN JSON_CONTAINS_PATH(CAST(\`${column}\` AS CHAR), 'one', ${pathArgs}) ELSE 0 END) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkResult = await adapter.executeReadQuery(checkSql);
+        const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
+        const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);
+
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REMOVE(\`${column}\`, ${pathArgs}) WHERE ${where}`;
+
+        const result = await adapter.executeWriteQuery(sql);
+
+        const response = totalRows === 0
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: 0,
+                changed: false,
+                suggestion: "No rows matched the WHERE clause",
+              },
+            }
+          : existingPaths === 0
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: false,
+                suggestion:
+                  "None of the specified paths exist in any matched rows; values were not removed",
+              },
+            }
+          : {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: true,
+              },
+            };
+        return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_remove" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_remove" });
       }
     },
   };
@@ -327,19 +396,17 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
         // We ensure strict validation so that strings must be quoted (e.g. '"green"')
         const jsonValue = validateJsonString(value);
         let sql: string;
-        const queryParams: unknown[] = [jsonValue];
 
         const whereClause = where ? ` AND ${where}` : "";
         const limitClause = ` LIMIT ${limit ?? 50}`;
 
         if (path) {
-          sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?, ?)${whereClause}${limitClause}`;
-          queryParams.push(path);
+          sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_VALID(CAST(\`${column}\` AS CHAR)) = 1 AND JSON_CONTAINS(CAST(\`${column}\` AS CHAR), ${escape(jsonValue)}, ${escape(path)})${whereClause}${limitClause}`;
         } else {
-          sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?)${whereClause}${limitClause}`;
+          sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_VALID(CAST(\`${column}\` AS CHAR)) = 1 AND JSON_CONTAINS(CAST(\`${column}\` AS CHAR), ${escape(jsonValue)})${whereClause}${limitClause}`;
         }
 
-        const result = await adapter.executeReadQuery(sql, queryParams);
+        const result = await adapter.executeReadQuery(sql);
         return withTokenEstimate({
           success: true,
           data: {
@@ -349,10 +416,10 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_contains" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_contains" });
       }
     },
   };
@@ -370,7 +437,7 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, path, where, limit } =
+        const { table, column, path, where } =
           JsonKeysSchema.parse(params);
 
         // Validate inputs
@@ -382,13 +449,16 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
 
         const jsonPath = path ?? "$";
         const whereClause = where ? `WHERE ${where}` : "";
-        const limitClause = ` LIMIT ${limit ?? 50}`;
 
-        const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} ${whereClause} HAVING json_keys IS NOT NULL${limitClause}`;
+        // This tool only returns keys for a single document, so we strictly limit to 1
+        // to avoid transferring unused rows over the network (context exhaustion prevention).
+        const sql = `SELECT CASE WHEN JSON_VALID(CAST(\`${column}\` AS CHAR)) THEN JSON_KEYS(CAST(\`${column}\` AS CHAR), ${escape(jsonPath)}) ELSE NULL END as json_keys FROM ${escapeQualifiedTable(table)} ${whereClause} HAVING json_keys IS NOT NULL LIMIT 1`;
 
-        const result = await adapter.executeReadQuery(sql, [jsonPath]);
+        const result = await adapter.executeReadQuery(sql);
         
-        let keys: string[] = [];
+        let keys: string[] | null = null;
+        let suggestion: string | undefined = undefined;
+
         const rawKeys = result.rows?.[0]?.["json_keys"];
         if (rawKeys !== undefined && rawKeys !== null) {
           if (typeof rawKeys === "string") {
@@ -399,18 +469,20 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
           } else if (Array.isArray(rawKeys)) {
             keys = rawKeys.map(String);
           }
+        } else {
+          suggestion = "No rows matched the WHERE clause or no rows contained a valid JSON object at the specified path";
         }
         
         return withTokenEstimate({
           success: true,
-          data: { keys },
+          data: { keys, suggestion },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_keys" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_keys" });
       }
     },
   };
@@ -438,21 +510,51 @@ export function createJsonArrayAppendTool(
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_ARRAY_APPEND(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
-        const jsonValue = validateJsonString(value);
+        // Check if path exists before append
+        const checkSql = `SELECT SUM(CASE WHEN JSON_VALID(CAST(\`${column}\` AS CHAR)) THEN JSON_CONTAINS_PATH(CAST(\`${column}\` AS CHAR), 'one', ${escape(path)}) ELSE 0 END) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkResult = await adapter.executeReadQuery(checkSql);
+        const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
+        const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);
 
-        const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-        return withTokenEstimate({
-          success: true,
-          data: { rowsAffected: result.rowsAffected },
-        });
+        // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
+        const jsonValue = validateJsonString(value);
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_ARRAY_APPEND(\`${column}\`, ${escape(path)}, CAST(CONVERT(${escape(jsonValue)} USING utf8mb4) AS JSON)) WHERE ${where}`;
+
+        const result = await adapter.executeWriteQuery(sql);
+
+        const response = totalRows === 0
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: 0,
+                changed: false,
+                suggestion: "No rows matched the WHERE clause",
+              },
+            }
+          : existingPaths === 0
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: false,
+                suggestion:
+                  "Path does not exist in any matched rows; value was not appended (JSON_ARRAY_APPEND requires the target path to exist)",
+              },
+            }
+          : {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: true,
+              },
+            };
+        return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_array_append" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_array_append" });
       }
     },
   };

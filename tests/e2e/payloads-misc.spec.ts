@@ -112,12 +112,12 @@ test.describe("Payload Contracts: Misc", () => {
         {},
       );
 
-      expect(typeof (beginPayload.data as any).transactionId).toBe("string");
+      expect(typeof beginPayload.data?.transactionId).toBe("string");
 
       const rollbackPayload = await callToolAndParse(
         client,
         "mysql_transaction_rollback",
-        { transactionId: (beginPayload.data as any).transactionId as string },
+        { transactionId: beginPayload.data?.transactionId as string },
       );
 
       expect(typeof rollbackPayload.success).toBe("boolean");
@@ -126,21 +126,4 @@ test.describe("Payload Contracts: Misc", () => {
     }
   });
 
-  // --- Replication status ---
-
-  test("mysql_replication_status returns replication info", async () => {
-    const client = await createClient();
-    try {
-      const payload = await callToolAndParse(
-        client,
-        "mysql_replication_status",
-        {},
-      );
-
-      // May or may not have replication configured
-      expect(typeof payload).toBe("object");
-    } finally {
-      await client.close();
-    }
-  });
 });

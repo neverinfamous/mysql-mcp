@@ -77,14 +77,6 @@ describe("Partitioning Schemas", () => {
       expect(result3.value).toBe("5");
     });
 
-    it("should default partitionType to RANGE", () => {
-      const result = AddPartitionSchema.parse({
-        table: "users",
-        partitionName: "p1",
-        value: "2025",
-      });
-      expect(result.partitionType).toBe("RANGE");
-    });
 
     it("should fail if required fields are missing", () => {
       expect(() => AddPartitionSchema.parse({ table: "users", value: "2024" })).toThrow("partitionName");
@@ -101,7 +93,7 @@ describe("Partitioning Schemas", () => {
       expect(result).toEqual({
         table: "users",
         database: undefined,
-        partitionName: "p0",
+        partitionName: ["p0"],
       });
     });
 
@@ -110,19 +102,19 @@ describe("Partitioning Schemas", () => {
         table: "users",
         partition: "p1",
       });
-      expect(result.partitionName).toBe("p1");
+      expect(result.partitionName).toEqual(["p1"]);
 
       const result2 = DropPartitionSchema.parse({
         table: "users",
         partitions: "p2",
       });
-      expect(result2.partitionName).toBe("p2");
+      expect(result2.partitionName).toEqual(["p2"]);
       
       const result3 = DropPartitionSchema.parse({
         table: "users",
         name: "p3",
       });
-      expect(result3.partitionName).toBe("p3");
+      expect(result3.partitionName).toEqual(["p3"]);
     });
 
     it("should fail if missing required fields", () => {

@@ -1,3 +1,5 @@
+import { escapeIdentifier } from "../../../../../utils/validators.js";
+
 export function selectList(
   selectColumns: string[] | undefined,
   windowExpr: string,
@@ -5,9 +7,9 @@ export function selectList(
 ): string {
   const cols =
     selectColumns && selectColumns.length > 0
-      ? selectColumns.map((c) => `\`${c}\``).join(", ")
+      ? selectColumns.map((c) => c === "*" ? "*" : `\`${escapeIdentifier(c)}\``).join(", ")
       : "*";
-  return `${cols}, ${windowExpr} AS \`${windowAlias}\``;
+  return `${cols}, ${windowExpr} AS \`${escapeIdentifier(windowAlias)}\``;
 }
 
 export function partitionClause(partitionBy?: string): string {

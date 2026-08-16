@@ -34,7 +34,8 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
 
-        const whereClause = where ? `WHERE ${where}` : "";
+        const baseWhere = where ? `(${where}) AND ` : "";
+        const whereClause = `WHERE ${baseWhere}\`${column}\` IS NOT NULL`;
 
         // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
         await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);
@@ -72,7 +73,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         const countResult = await adapter.executeQuery(
           `SELECT COUNT(*) as cnt FROM ${escapeQualifiedTable(table)} ${whereClause}`,
         );
-        const totalCount = (countResult.rows?.[0]?.["cnt"] as number) ?? 0;
+        const totalCount = Number(countResult.rows?.[0]?.["cnt"] ?? 0);
 
         if (totalCount === 0) {
           return withTokenEstimate({

@@ -52,10 +52,6 @@ export function createConstraintAnalysisTool(
       try {
         const parsed = ConstraintAnalysisSchema.parse(params);
 
-        if (!parsed.schema && !parsed.table) {
-          throw new ValidationError("schema or table parameter is required");
-        }
-
         // Validate schema existence when filtering by schema
         await checkSchemaExists(adapter, parsed.schema);
 
@@ -392,7 +388,7 @@ export function createMigrationRisksTool(
         };
 
         if (parsed.statements.length === 0) {
-          throw new ValidationError("statements parameter is required");
+          throw new ValidationError("Validation error: statements parameter is required");
         }
 
         if (parsed.schema) {
@@ -446,7 +442,7 @@ export function createMigrationRisksTool(
           summary: {
             totalStatements: parsed.statements.length,
             totalRisks: risks.length,
-            highestSeverity: highestRiskLevel,
+            highestSeverity: risks.length > 0 ? highestRiskLevel : "none",
             requiresDowntime,
             estimatedLockImpact:
               lockImpacts.size > 0 ? [...lockImpacts].join("; ") : "None",

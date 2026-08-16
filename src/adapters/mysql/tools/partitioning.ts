@@ -7,10 +7,7 @@
 
 import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import {
-  formatMysqlError,
-  formatHandlerErrorResponse,
-} from "./core/error-helpers.js";
+import { formatHandlerErrorResponse, stripErrorPrefix } from "./core/error-helpers.js";
 import {
   PartitionInfoSchema,
   PartitionInfoSchemaBase,
@@ -26,6 +23,7 @@ import {
   ReorganizePartitionOutputSchema,
 } from "../schemas/partitioning.js";
 import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../utils/annotations.js";
+import { escapeIdentifier } from "../../../utils/validators.js";
 
 /**
  * Get partitioning tools
@@ -227,23 +225,42 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         let sql: string;
-        const tableRef = database ? `\`${database}\`.\`${table}\`` : `\`${table}\``;
+        const tableRef = database ? `\`${escapeIdentifier(database)}\`.\`${escapeIdentifier(table)}\`` : `\`${escapeIdentifier(table)}\``;
 
-        switch (partitionType) {
+        let resolvedPartitionType = partitionType;
+        if (!resolvedPartitionType) {
+          const typeResult = await adapter.executeQuery(
+            `SELECT PARTITION_METHOD FROM information_schema.PARTITIONS WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ? LIMIT 1`,
+            checkParams
+          );
+          if (typeResult.rows && typeResult.rows.length > 0 && typeResult.rows[0]) {
+            const row = typeResult.rows[0];
+            const method = row["PARTITION_METHOD"] ?? row["partition_method"];
+            if (typeof method === "string") {
+              resolvedPartitionType = method.toUpperCase() as typeof partitionType;
+            } else {
+              resolvedPartitionType = "RANGE";
+            }
+          } else {
+            resolvedPartitionType = "RANGE";
+          }
+        }
+
+        switch (resolvedPartitionType) {
           case "RANGE":
           case "RANGE COLUMNS":
-            sql = `ALTER TABLE ${tableRef} ADD PARTITION (PARTITION \`${partitionName}\` VALUES LESS THAN (${value}))`;
+            sql = `ALTER TABLE ${tableRef} ADD PARTITION (PARTITION \`${escapeIdentifier(partitionName)}\` VALUES LESS THAN (${value}))`;
             break;
           case "LIST":
           case "LIST COLUMNS":
-            sql = `ALTER TABLE ${tableRef} ADD PARTITION (PARTITION \`${partitionName}\` VALUES IN (${value}))`;
+            sql = `ALTER TABLE ${tableRef} ADD PARTITION (PARTITION \`${escapeIdentifier(partitionName)}\` VALUES IN (${value}))`;
             break;
           case "HASH":
           case "KEY":
             sql = `ALTER TABLE ${tableRef} ADD PARTITION PARTITIONS ${value}`;
             break;
           default: {
-            const unexpectedType: never = partitionType;
+            const unexpectedType = resolvedPartitionType;
             const response = {
               success: false as const,
               error: `Unsupported partition type: ${String(unexpectedType)}`,
@@ -271,7 +288,21 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
+          const cleanMsg = stripErrorPrefix(msg);
 
+          if (msg.includes("is not BASE TABLE")) {
+            const response = {
+              success: false as const,
+              error: `Table '${table}' is a view, not a base table`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
           if (msg.includes("not partitioned")) {
             const response = {
               success: false as const,
@@ -312,17 +343,89 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             return { ...response, metrics: { tokenEstimate } };
           }
 
-          const response = {
-            success: false as const,
-            error: formatMysqlError(error),
-            code: "UNKNOWN_ERROR",
-            category: "internal",
-            recoverable: false,
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          if (msg.includes("Duplicate partition name")) {
+            const response = {
+              success: false as const,
+              error: `Partition '${partitionName}' already exists`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("strictly increasing")) {
+            const response = {
+              success: false as const,
+              error: `VALUES LESS THAN value must be strictly increasing for each partition`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("column lists for partitioning")) {
+            const response = {
+              success: false as const,
+              error: `Inconsistency in usage of column lists for partitioning (check your VALUES syntax)`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (
+            msg.includes("Only RANGE PARTITIONING can use VALUES LESS THAN") ||
+            msg.includes("Only LIST PARTITIONING can use VALUES IN")
+          ) {
+            const response = {
+              success: false as const,
+              error: `Mismatched partition type: ${cleanMsg}`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.toLowerCase().includes("syntax") || msg.toLowerCase().includes("parse error")) {
+            const response = {
+              success: false as const,
+              error: `SQL syntax error in partition values (check your VALUES syntax)`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("each partition must be defined")) {
+            const response = {
+              success: false as const,
+              error: `Mismatched partition type: ${cleanMsg}`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+
+          return formatHandlerErrorResponse(error);
         }
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -390,9 +493,11 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         try {
-          const tableRef = database ? `\`${database}\`.\`${table}\`` : `\`${table}\``;
+          const tableRef = database ? `\`${escapeIdentifier(database)}\`.\`${escapeIdentifier(table)}\`` : `\`${escapeIdentifier(table)}\``;
+          const partitionsList = partitionName.map(p => `\`${escapeIdentifier(p)}\``).join(", ");
+            
           await adapter.executeQuery(
-            `ALTER TABLE ${tableRef} DROP PARTITION \`${partitionName}\``,
+            `ALTER TABLE ${tableRef} DROP PARTITION ${partitionsList}`,
           );
 
           adapter.clearSchemaCache();
@@ -411,6 +516,19 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
 
+          if (msg.includes("is not BASE TABLE")) {
+            const response = {
+              success: false as const,
+              error: `Table '${table}' is a view, not a base table`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
           if (msg.includes("not partitioned")) {
             const response = {
               success: false as const,
@@ -430,7 +548,20 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           ) {
             const response = {
               success: false as const,
-              error: `Partition '${partitionName}' does not exist on table '${table}'`,
+              error: `Partition '${partitionName.join(", ")}' does not exist on table '${table}'`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("Cannot remove all partitions")) {
+            const response = {
+              success: false as const,
+              error: `Cannot remove all partitions, use DROP TABLE instead`,
               code: "VALIDATION_ERROR",
               category: "validation",
               recoverable: false,
@@ -441,17 +572,7 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             return { ...response, metrics: { tokenEstimate } };
           }
 
-          const response = {
-            success: false as const,
-            error: formatMysqlError(error),
-            code: "UNKNOWN_ERROR",
-            category: "internal",
-            recoverable: false,
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          return formatHandlerErrorResponse(error);
         }
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -518,21 +639,41 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           return { ...response, metrics: { tokenEstimate } };
         }
 
-        const fromList = fromPartitions.map((p) => `\`${p}\``).join(", ");
+        const fromList = fromPartitions.map((p) => `\`${escapeIdentifier(p)}\``).join(", ");
+        
+        let resolvedPartitionType = partitionType;
+        if (!resolvedPartitionType) {
+          const typeResult = await adapter.executeQuery(
+            `SELECT PARTITION_METHOD FROM information_schema.PARTITIONS WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ? LIMIT 1`,
+            checkParams
+          );
+          if (typeResult.rows && typeResult.rows.length > 0 && typeResult.rows[0]) {
+            const row = typeResult.rows[0];
+            const method = row["PARTITION_METHOD"] ?? row["partition_method"];
+            if (typeof method === "string") {
+              resolvedPartitionType = method.toUpperCase() as typeof partitionType;
+            } else {
+              resolvedPartitionType = "RANGE";
+            }
+          } else {
+            resolvedPartitionType = "RANGE";
+          }
+        }
+
         const toList = toPartitions
           .map((p) => {
             if (
-              partitionType === "RANGE" ||
-              partitionType === "RANGE COLUMNS"
+              resolvedPartitionType === "RANGE" ||
+              resolvedPartitionType === "RANGE COLUMNS"
             ) {
-              return `PARTITION \`${p.name}\` VALUES LESS THAN (${p.value})`;
+              return `PARTITION \`${escapeIdentifier(p.name)}\` VALUES LESS THAN (${p.value})`;
             } else {
-              return `PARTITION \`${p.name}\` VALUES IN (${p.value})`;
+              return `PARTITION \`${escapeIdentifier(p.name)}\` VALUES IN (${p.value})`;
             }
           })
           .join(", ");
 
-        const tableRef = database ? `\`${database}\`.\`${table}\`` : `\`${table}\``;
+        const tableRef = database ? `\`${escapeIdentifier(database)}\`.\`${escapeIdentifier(table)}\`` : `\`${escapeIdentifier(table)}\``;
         const sql = `ALTER TABLE ${tableRef} REORGANIZE PARTITION ${fromList} INTO (${toList})`;
 
         try {
@@ -552,7 +693,21 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
+          const cleanMsg = stripErrorPrefix(msg);
 
+          if (msg.includes("is not BASE TABLE")) {
+            const response = {
+              success: false as const,
+              error: `Table '${table}' is a view, not a base table`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
           if (msg.includes("not partitioned")) {
             const response = {
               success: false as const,
@@ -579,18 +734,89 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             );
             return { ...response, metrics: { tokenEstimate } };
           }
+          if (msg.includes("column lists for partitioning")) {
+            const response = {
+              success: false as const,
+              error: `Inconsistency in usage of column lists for partitioning (check your VALUES syntax)`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (
+            msg.includes("Only RANGE PARTITIONING can use VALUES LESS THAN") ||
+            msg.includes("Only LIST PARTITIONING can use VALUES IN")
+          ) {
+            const response = {
+              success: false as const,
+              error: `Mismatched partition type: ${cleanMsg}`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("Multiple definition")) {
+            const response = {
+              success: false as const,
+              error: `Partition value(s) already exist in another partition`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("Duplicate partition name")) {
+            const response = {
+              success: false as const,
+              error: `One of the specified partition names already exists`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("strictly increasing")) {
+            const response = {
+              success: false as const,
+              error: `VALUES LESS THAN value must be strictly increasing for each partition`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.toLowerCase().includes("syntax") || msg.toLowerCase().includes("parse error")) {
+            const response = {
+              success: false as const,
+              error: `SQL syntax error in partition values (check your VALUES syntax)`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
 
-          const response = {
-            success: false as const,
-            error: formatMysqlError(error),
-            code: "UNKNOWN_ERROR",
-            category: "internal",
-            recoverable: false,
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          return formatHandlerErrorResponse(error);
         }
       } catch (err: unknown) {
         return formatHandlerErrorResponse(err);

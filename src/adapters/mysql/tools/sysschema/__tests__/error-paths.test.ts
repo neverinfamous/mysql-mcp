@@ -8,23 +8,18 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createSysUserSummaryTool,
-  createSysHostSummaryTool,
-} from "../activity.js";
+  createSysHostSummaryTool } from "../activity.js";
 import {
   createSysStatementSummaryTool,
   createSysWaitSummaryTool,
-  createSysIOSummaryTool,
-} from "../performance.js";
+  createSysIOSummaryTool } from "../performance.js";
 import {
   createSysSchemaStatsTool,
   createSysInnoDBLockWaitsTool,
-  createSysMemorySummaryTool,
-} from "../resources.js";
-import type {} from "../../../mysql-adapter/index.js";
+  createSysMemorySummaryTool } from "../resources.js";
 import {
   createMockMySQLAdapter,
-  createMockRequestContext,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 
 describe("Sys Schema Error Paths", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;

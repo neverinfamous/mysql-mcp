@@ -6,11 +6,12 @@
  */
 
 import { ZodError } from "zod";
-import { MySQLMcpError } from "../../../../types/modules/errors.js";
+import { MySQLMcpError } from "../../../../types/index.js";
 import {
   ErrorCategory,
   type ErrorResponse,
-} from "../../../../types/modules/error-types.js";
+} from "../../../../types/index.js";
+import { Buffer } from "node:buffer";
 
 /**
  * Extract human-readable messages from a ZodError instead of raw JSON array.
@@ -46,9 +47,9 @@ export function formatMysqlError(err: unknown): string {
 
   return (
     message
-      // Strip adapter-layer prefixes (Raw query failed: / Query failed: / Execute failed:)
+      // Strip adapter-layer prefixes (Raw query failed: / Query fallback failed: / Query failed: / Execute failed:)
       .replace(
-        /^(Raw query failed:\s*)?(Query failed:\s*)?(Execute failed:\s*)*/i,
+        /^(?:(?:Raw query failed|Query fallback failed|Query failed|Execute failed):\s*)*/i,
         "",
       )
       // Strip MySQL error code prefixes (ER_NO_SUCH_TABLE: / ER_DUP_ENTRY: etc.)
@@ -61,6 +62,8 @@ export function formatMysqlError(err: unknown): string {
       .replace(/Unknown column ('.*?') in 'field list'/i, "Column $1 not found")
       // Map SQL syntax errors to "SQL syntax error: near '...'"
       .replace(/You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ('.*?').*/i, "SQL syntax error: near $1")
+      // Map vague prepared statement errors to helpful validation messages
+      .replace(/^Error in prepared statement execution$/i, "Prepared statement failed. Check that the number of '?' placeholders matches the length of the 'params' array and that all values are of a supported type.")
       .trim()
   );
 }
@@ -100,11 +103,18 @@ const isZodError = (err: unknown): err is ZodError => {
   return err instanceof ZodError || (err !== null && typeof err === "object" && "name" in err && err.name === "ZodError");
 };
 
-export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
+const isMySQLMcpError = (err: unknown): err is MySQLMcpError => {
+  return err instanceof MySQLMcpError || (err !== null && typeof err === "object" && "toResponse" in err && typeof err.toResponse === "function");
+};
+
+export function formatHandlerErrorResponse(
+  err: unknown,
+  context?: { module: string; tool: string }
+): ErrorResponse {
   let response: ErrorResponse;
 
   // MySQLMcpError — already enriched
-  if (err instanceof MySQLMcpError) {
+  if (isMySQLMcpError(err)) {
     response = err.toResponse();
     response.error = formatMysqlError(response.error);
   } else if (isZodError(err)) {
@@ -112,6 +122,16 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
     response = {
       success: false,
       error: formatZodError(err),
+      code: "VALIDATION_ERROR",
+      category: ErrorCategory.VALIDATION,
+      suggestion: undefined,
+      recoverable: false,
+      details: undefined,
+    };
+  } else if (err instanceof Error && err.name === "ValidationError") {
+    response = {
+      success: false,
+      error: formatMysqlError(err),
       code: "VALIDATION_ERROR",
       category: ErrorCategory.VALIDATION,
       suggestion: undefined,
@@ -133,6 +153,13 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
       details: undefined,
     };
   }
+
+  if (context) {
+    response.error = `[ERROR] [${context.module}] [${response.code}] ${response.error} (context: ${context.tool})`;
+  }
+
+  // Escape % to prevent Go client fmt.Sprintf bugs (like %!'(MISSING)')
+  response.error = response.error.replace(/%/g, '%%');
 
   // Calculate payload token cost (JSON byte length / 4)
   const tokenEstimate = Math.ceil(

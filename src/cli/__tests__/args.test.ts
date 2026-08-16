@@ -9,17 +9,31 @@ vi.mock("yaml", () => ({
   default: { parse: vi.fn() }
 }));
 
+// Mock picocolors to return unstyled strings so assertions match plain text
+vi.mock("picocolors", () => {
+  const identity = (s: string) => s;
+  return {
+    default: {
+      red: identity, green: identity, yellow: identity, blue: identity,
+      cyan: identity, bold: identity, dim: identity, reset: identity,
+    },
+  };
+});
+
 // Mock process.exit
 vi.spyOn(process, "exit").mockImplementation(
-  (code?: number | string | null | undefined) => {
+  (code?: number | string | null  ) => {
     throw new Error(`process.exit(${code})`);
   },
 );
 
-// Mock console.error
-const mockConsoleError = vi
-  .spyOn(console, "error")
-  .mockImplementation(() => {});
+// Mock process.stderr.write (help/version output goes here now)
+const mockStderrWrite = vi
+  .spyOn(process.stderr, "write")
+  .mockImplementation(() => true);
+
+// Suppress console.error noise during tests
+vi.spyOn(console, "error").mockImplementation(() => {});
 
 describe("CLI Args", () => {
   beforeEach(() => {
@@ -88,7 +102,7 @@ describe("CLI Args", () => {
     it("should print help and exit when --help flag is used", async () => {
       const result = await parseArgs(["--help"]);
       expect(result.shouldExit).toBe(true);
-      expect(mockConsoleError).toHaveBeenCalledWith(
+      expect(mockStderrWrite).toHaveBeenCalledWith(
         expect.stringContaining("Usage: mysql-mcp [options]"),
       );
     });
@@ -96,7 +110,7 @@ describe("CLI Args", () => {
     it("should print help and exit when -h flag is used", async () => {
       const result = await parseArgs(["-h"]);
       expect(result.shouldExit).toBe(true);
-      expect(mockConsoleError).toHaveBeenCalledWith(
+      expect(mockStderrWrite).toHaveBeenCalledWith(
         expect.stringContaining("Usage: mysql-mcp [options]"),
       );
     });
@@ -107,8 +121,6 @@ describe("CLI Args", () => {
       expect(result.config.toolFilter).toBe("-admin");
       vi.unstubAllEnvs();
     });
-
-
 
     it("should load oauth config from environment variables", async () => {
       vi.stubEnv("OAUTH_ENABLED", "true");
@@ -205,7 +217,7 @@ describe("CLI Args", () => {
     });
 
     it("should exit error if value argument looks like a flag", async () => {
-      // Case: --mysql-user -flag
+      // Case: --mysql-user -flag — strict parseArgs throws ERR_PARSE_ARGS_UNKNOWN_OPTION
       await expect(parseArgs(["--mysql-user", "-flag"])).rejects.toThrow(
         "process.exit(1)",
       );
@@ -238,16 +250,8 @@ describe("CLI Args", () => {
     it("should parse --version flag", async () => {
       const result = await parseArgs(["--version"]);
       expect(result.shouldExit).toBe(true);
-      expect(mockConsoleError).toHaveBeenCalledWith(
-        expect.stringContaining("mysql-mcp version"),
-      );
-    });
-
-    it("should print help when --help flag is used", async () => {
-      const result = await parseArgs(["--help"]);
-      expect(result.shouldExit).toBe(true);
-      expect(mockConsoleError).toHaveBeenCalledWith(
-        expect.stringContaining("Usage: mysql-mcp [options]"),
+      expect(mockStderrWrite).toHaveBeenCalledWith(
+        expect.stringContaining("mysql-mcp"),
       );
     });
 
@@ -271,10 +275,14 @@ describe("CLI Args", () => {
       expect(result.config.trustProxy).toBe(true);
     });
 
-    it("should parse log level", async () => {
+    it("should parse log level and call logger.setLevel", async () => {
+      const { logger } = await import("../../utils/logger.js");
+      const mockSetLevel = vi.spyOn(logger, "setLevel").mockImplementation(() => {});
+
       await parseArgs(["--log-level", "warn"]);
-      // It sets logger internally, we just test it parses without error
-      expect(true).toBe(true);
+
+      expect(mockSetLevel).toHaveBeenCalledWith("warning");
+      mockSetLevel.mockRestore();
     });
 
     it("should parse audit options", async () => {
@@ -346,7 +354,6 @@ describe("CLI Args", () => {
       vi.mocked(fs.promises.readFile).mockRejectedValue(new Error("File not found"));
 
       await expect(parseArgs(["--config", "config.json"])).rejects.toThrow("process.exit(1)");
-      expect(mockConsoleError).toHaveBeenCalled();
     });
 
     it("should prefer CLI over ENV over FILE", async () => {
@@ -381,6 +388,80 @@ describe("CLI Args", () => {
     it("should set dumpConfig true", async () => {
       const result = await parseArgs(["--dump-config"]);
       expect(result.dumpConfig).toBe(true);
+    });
+
+    // ── New coverage tests ────────────────────────────────────────
+
+    it("should parse --tool-filter CLI flag with dash value using equals syntax", async () => {
+      const result = await parseArgs(["--tool-filter=-admin"]);
+      expect(result.config.toolFilter).toBe("-admin");
+    });
+
+    it("should parse -f short alias for --tool-filter", async () => {
+      const result = await parseArgs(["-f", "starter"]);
+      expect(result.config.toolFilter).toBe("starter");
+    });
+
+    it("should parse --allowed-io-roots flag", async () => {
+      const result = await parseArgs(["--allowed-io-roots", "/tmp,/data"]);
+      expect(result.config.allowedIoRoots).toBeDefined();
+      expect(Array.isArray(result.config.allowedIoRoots)).toBe(true);
+    });
+
+    it("should parse --metrics-export with value 'prometheus'", async () => {
+      const result = await parseArgs(["--metrics-export", "prometheus"]);
+      expect(result.config.metricsExport).toBe("prometheus");
+    });
+
+    it("should parse --metrics-export with arbitrary value as boolean true", async () => {
+      const result = await parseArgs(["--metrics-export", "json"]);
+      expect(result.config.metricsExport).toBe(true);
+    });
+
+    it("should parse -m short alias for --mysql", async () => {
+      const result = await parseArgs(["-m", "mysql://user:pass@host:3306/db"]);
+      expect(result.databases).toHaveLength(1);
+      expect(result.databases[0]).toMatchObject({
+        host: "host",
+        username: "user",
+        database: "db",
+      });
+    });
+
+    it("should parse -v short alias for --version", async () => {
+      const result = await parseArgs(["-v"]);
+      expect(result.shouldExit).toBe(true);
+      expect(mockStderrWrite).toHaveBeenCalledWith(
+        expect.stringContaining("mysql-mcp"),
+      );
+    });
+
+    it("should parse --flag=value POSIX syntax", async () => {
+      const result = await parseArgs(["--port=8080", "--transport=sse"]);
+      expect(result.config.port).toBe(8080);
+      expect(result.config.transport).toBe("sse");
+    });
+
+    it("should parse multiple --mysql flags for multi-database", async () => {
+      const result = await parseArgs([
+        "--mysql", "mysql://user1:pass1@host1:3306/db1",
+        "--mysql", "mysql://user2:pass2@host2:3306/db2",
+      ]);
+      expect(result.databases).toHaveLength(2);
+      expect(result.databases[0].database).toBe("db1");
+      expect(result.databases[1].database).toBe("db2");
+    });
+
+
+
+
+    it("should parse -c short alias for --config", async () => {
+      vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify({
+        host: "file-host",
+      }));
+      const result = await parseArgs(["-c", "config.json"]);
+      expect(fs.promises.readFile).toHaveBeenCalledWith("config.json", "utf-8");
+      expect(result.config.host).toBe("file-host");
     });
   });
 });

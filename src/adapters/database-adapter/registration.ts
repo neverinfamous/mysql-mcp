@@ -1,13 +1,55 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import type { McpServer, CallToolResult } from "@modelcontextprotocol/server";
 import { logger } from "../../utils/logger.js";
 import { z } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
 import type {
   ToolDefinition,
   ResourceDefinition,
   PromptDefinition,
 } from "../../types/index.js";
 import type { DatabaseAdapter } from "./database-adapter.js";
+import { metrics } from "../../observability/metrics.js";
+
+/**
+ * Wraps a Zod schema to enforce JSON Schema 2020-12 dialect via the ~standard interface,
+ * while patching additionalProperties to allow MCP SDK meta-injections during validation.
+ */
+function with2020_12JSONSchema<T extends z.ZodType>(schema: T): T {
+  // @ts-expect-error Zod version typing mismatch between local zod and zod-to-json-schema
+  const jsonSchema = zodToJsonSchema(schema, { target: "jsonSchema2020-12" });
+  
+  function patchAdditionalProperties(obj: unknown): void {
+    if (typeof obj !== 'object' || obj === null) return;
+    const schemaObj = obj as Record<string, unknown>;
+    
+    if (schemaObj["type"] === 'object' && schemaObj["additionalProperties"] === false) {
+      delete schemaObj["additionalProperties"];
+    }
+    
+    for (const key of Object.keys(schemaObj)) {
+      patchAdditionalProperties(schemaObj[key]);
+    }
+  }
+  
+  patchAdditionalProperties(jsonSchema);
+
+  return new Proxy(schema, {
+    get(target, prop, receiver): unknown {
+      if (prop === "~standard") {
+        const existing = Reflect.get(target, prop, receiver);
+        const standard = existing ?? { vendor: "zod", version: 1 };
+        return {
+          ...(standard as object),
+          jsonSchema: {
+            input: () => jsonSchema,
+            output: () => jsonSchema
+          }
+        };
+      }
+      return Reflect.get(target, prop, receiver);
+    }
+  });
+}
 
 /**
  * Register all enabled tools with the MCP server
@@ -49,11 +91,14 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
   }
 
   if (tool.inputSchema !== undefined) {
-    toolOptions["inputSchema"] = tool.inputSchema;
+    const schema = tool.inputSchema instanceof z.ZodType 
+      ? tool.inputSchema 
+      : z.object(tool.inputSchema);
+    toolOptions["inputSchema"] = with2020_12JSONSchema(schema);
   }
 
   if (tool.outputSchema !== undefined) {
-    toolOptions["outputSchema"] = tool.outputSchema;
+    toolOptions["outputSchema"] = with2020_12JSONSchema(tool.outputSchema);
   }
 
   const hasOutputSchema = Boolean(tool.outputSchema);
@@ -62,13 +107,14 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
   server.registerTool(
     tool.name,
     toolOptions,
-    async (params: unknown, extra?: unknown) => {
+    async (params: unknown, ctx?: unknown) => {
       try {
         let progressToken: string | number | undefined;
-        if (typeof extra === "object" && extra !== null && "_meta" in extra) {
-          const meta = extra._meta;
-          if (typeof meta === "object" && meta !== null && "progressToken" in meta) {
-            const pt = meta.progressToken;
+        if (typeof ctx === "object" && ctx !== null) {
+          if ("mcpReq" in ctx) {
+            // MCP SDK v2.0.0 attaches _meta directly to mcpReq
+            const req = (ctx as { mcpReq?: { _meta?: { progressToken?: string | number } } }).mcpReq;
+            const pt = req?._meta?.progressToken;
             if (typeof pt === "string" || typeof pt === "number") {
               progressToken = pt;
             }
@@ -133,7 +179,31 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
             execFn,
           );
         }
-        return await execFn();
+
+        // Auditing is disabled, but we still need to record metrics
+        const startTime = Date.now();
+        let success = false;
+        let tokens = 0;
+        let errorType: string | undefined;
+        let errorCategory: string | undefined;
+
+        try {
+          const result = await execFn();
+          success = !result.isError;
+          if (success) {
+            tokens = result.content?.[0]?.type === "text" 
+              ? Math.ceil(Buffer.byteLength(result.content[0].text, "utf8") / 4) 
+              : 0;
+          }
+          return result;
+        } catch (error: unknown) {
+          errorType = error instanceof Error ? error.name : "UnknownError";
+          errorCategory = "Internal";
+          throw error; // Let the outer catch block format the error
+        } finally {
+          const durationMs = Date.now() - startTime;
+          metrics.recordToolCall(tool.name, durationMs, success, tokens, errorType, errorCategory);
+        }
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
@@ -220,8 +290,10 @@ export function registerResource(
     resource.uri,
     resourceMeta,
     async (uri: string | URL, _extra?: unknown) => {
+      metrics.recordResourceRead(uri.toString());
       const context = adapter.createContext();
       const result = await resource.handler(uri.toString(), context);
+      
       return {
         contents: [
           {
@@ -233,6 +305,8 @@ export function registerResource(
                 : JSON.stringify(result, null, 2),
           },
         ],
+        ...(resource.ttlMs !== undefined ? { ttlMs: resource.ttlMs } : {}),
+        ...(resource.cacheScope !== undefined ? { cacheScope: resource.cacheScope } : {}),
       };
     },
   );
@@ -253,15 +327,16 @@ export function registerPrompts(adapter: DatabaseAdapter, server: McpServer): vo
  * Register a single prompt with the MCP server
  */
 export function registerPrompt(adapter: DatabaseAdapter, server: McpServer, prompt: PromptDefinition): void {
-  let argsSchema: Record<string, z.ZodType> | undefined;
+  let argsSchema: z.ZodObject<z.ZodRawShape> | undefined;
   if (prompt.arguments && prompt.arguments.length > 0) {
-    argsSchema = {};
+    const shape: Record<string, z.ZodType> = {};
     for (const arg of prompt.arguments) {
-      argsSchema[arg.name] = z.string().optional().describe(arg.description);
+      shape[arg.name] = z.string().optional().describe(arg.description);
     }
+    argsSchema = z.object(shape);
   }
 
-  const registered = server.registerPrompt(
+  server.registerPrompt(
     prompt.name,
     {
       description: prompt.description,
@@ -319,25 +394,4 @@ export function registerPrompt(adapter: DatabaseAdapter, server: McpServer, prom
       };
     },
   );
-
-  // Patch the SDK's stored Zod object schema to accept `undefined` input.
-  if (registered.argsSchema && typeof registered.argsSchema === "object") {
-    const zodObj: unknown = Reflect.get(registered.argsSchema, "_zod");
-    if (typeof zodObj === "object" && zodObj !== null) {
-      const runFn: unknown = Reflect.get(zodObj, "run");
-      if (typeof runFn === "function") {
-        Reflect.set(zodObj, "run", (...args: unknown[]) => {
-          const payload = args[0];
-          if (typeof payload === "object" && payload !== null && "value" in payload) {
-            const val = Reflect.get(payload, "value");
-            if (val === undefined || val === null) {
-              Reflect.set(payload, "value", {});
-            }
-          }
-          const res: unknown = Reflect.apply(runFn, zodObj, args);
-          return res;
-        });
-      }
-    }
-  }
 }

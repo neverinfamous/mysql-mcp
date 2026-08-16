@@ -96,7 +96,7 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
     name: "mysql_innodb_status",
     title: "MySQL InnoDB Status",
     description:
-      "Get detailed InnoDB engine status. Defaults to parsed summary. Use summary=false for raw output.",
+      "Get detailed InnoDB engine status. Defaults to parsed summary output. Use raw=true for full text.",
     group: "monitoring",
     inputSchema: InnodbStatusSchemaBase,
     outputSchema: InnodbStatusOutputSchema,
@@ -110,6 +110,7 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const rawStatus =
           typeof rawRow?.["Status"] === "string" ? rawRow["Status"] :
           typeof rawRow?.["STATUS"] === "string" ? rawRow["STATUS"] :
+          typeof rawRow?.["status"] === "string" ? rawRow["status"] :
           "";
 
         if (summary) {
@@ -120,7 +121,7 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
           return { success: true, data, metrics: { tokenEstimate } };
         }
 
-        const maxRawLength = 50000;
+        const maxRawLength = 8000;
         const statusStr =
           rawStatus.length > maxRawLength
             ? rawStatus.substring(0, maxRawLength) + "\n... (truncated)"

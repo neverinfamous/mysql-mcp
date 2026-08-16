@@ -7,8 +7,7 @@
  * MCP Spec Reference:
  * https://modelcontextprotocol.io/specification/2025-11-25/server/utilities/logging
  */
-
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/server";
 
 /**
  * MCP log levels as defined in the specification
@@ -109,12 +108,13 @@ class McpLogger {
     }
 
     try {
-      // Use the SDK's sendLoggingMessage method
-      void this.server.sendLoggingMessage({
+      // Migrated to stderr logging (STDIO) per MCP 2026-07-28 guidelines (SEP-2577).
+      console.error(JSON.stringify({
+        timestamp: new Date().toISOString(),
         level,
         logger: this.loggerName,
         data: data ? { message, ...data } : message,
-      });
+      }));
     } catch {
       // Silently fail if logging fails - don't crash the server
       // The MCP transport might not be connected yet

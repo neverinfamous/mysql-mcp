@@ -8,8 +8,8 @@ import {
 } from "../anomaly-detection.js";
 
 describe("Anomaly Detection Tools", () => {
-  let mockAdapter: any;
-  let mockContext: any;
+  let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
+  let mockContext: ReturnType<typeof createMockRequestContext>;
 
   beforeEach(() => {
     mockAdapter = {
@@ -236,7 +236,9 @@ describe("Anomaly Detection Tools", () => {
       const tool = createDetectBloatRiskTool(mockAdapter);
       await tool.handler({ schema: "mydb" }, mockContext);
       const sql = mockAdapter.executeQuery.mock.calls[1][0];
-      expect(sql).toContain("TABLE_SCHEMA = 'mydb'");
+      const params = mockAdapter.executeQuery.mock.calls[1][1];
+      expect(sql).toContain("TABLE_SCHEMA = ?");
+      expect(params).toContain("mydb");
     });
 
     it("should catch outer errors", async () => {

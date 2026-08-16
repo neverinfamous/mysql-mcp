@@ -7,14 +7,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createSysUserSummaryTool,
-  createSysHostSummaryTool,
-} from "../activity.js";
-import type {} from "../../../mysql-adapter/index.js";
+  createSysHostSummaryTool } from "../activity.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Sys Schema Activity Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -40,8 +37,7 @@ describe("Sys Schema Activity Tools", () => {
         createMockQueryResult([
           {
             user: "root",
-            statements: 100,
-          },
+            statements: 100 },
         ]),
       );
 
@@ -84,8 +80,7 @@ describe("Sys Schema Activity Tools", () => {
         createMockQueryResult([
           {
             host: "localhost",
-            statements: 100,
-          },
+            statements: 100 },
         ]),
       );
 

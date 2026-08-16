@@ -9,17 +9,53 @@
 import { type ChildProcess, spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
 import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { rm } from "node:fs/promises";
-import { expect } from "@playwright/test";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { expect, test } from "@playwright/test";
+import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 
-const BASE_URL = "http://localhost:3000";
+export const BASE_URL = "http://127.0.0.1:3103";
+export const SSE_CONNECT_TIMEOUT_MS = 3000;
+export const HEALTH_QUERY = "SELECT 1";
 
-function getDefaultMysqlUrl(): string {
-  return (
-    process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3306/testdb"
-  );
+export const TIMEOUTS = {
+  SHORT: 3000,
+  DEFAULT: 60000,
+  LONG: 120_000,
+};
+
+export const SEED_TABLES = {
+  BASIC_TYPES: "_e2e_basic_types",
+  DATE_TYPES: "_e2e_date_types",
+  JSON_TYPES: "_e2e_json_types",
+  UUID_TYPES: "_e2e_uuid_types",
+};
+
+export const SCOPE_ERROR_MSG = "insufficient scope";
+export const BACKUP_DISABLED_PATTERN = /not enabled|not available/i;
+
+export const TEST_DB_NAME = "testdb";
+
+/** MCP protocol versions */
+export const MCP_PROTOCOL_STREAMABLE = "2025-03-26";
+export const MCP_PROTOCOL_LEGACY = "2024-11-05";
+
+/** Common headers for raw MCP HTTP requests */
+export const MCP_JSON_HEADERS = {
+  "Content-Type": "application/json",
+  Accept: "application/json, text/event-stream",
+} as const;
+
+export function getDefaultMysqlUrl(): string {
+  return process.env.MYSQL_URL || 'mysql://root:root@127.0.0.1:6446/testdb';
+}
+
+/**
+ * Generate a unique temp file path for an audit log.
+ * Exported so individual spec files don't need to duplicate this helper.
+ */
+export function auditLogPath(prefix: string, suffix: string): string {
+  return join(tmpdir(), `mysql-${prefix}-e2e-${suffix}-${Date.now()}.jsonl`);
 }
 
 // ─── Client creation ────────────────────────────────────────────────────────
@@ -27,15 +63,15 @@ function getDefaultMysqlUrl(): string {
 /**
  * Create a connected MCP client via SSE transport.
  *
- * @param baseURL - Server base URL. Defaults to `http://localhost:3000`.
+ * @param baseURL - Server base URL. Defaults to `http://127.0.0.1:3103`.
  */
 export async function createClient(baseURL?: string): Promise<Client> {
-  const url = new URL(`${baseURL ?? BASE_URL}/sse`);
+  const url = new URL(`${baseURL ?? BASE_URL}/mcp`);
   const maxRetries = 3;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      const transport = new SSEClientTransport(url);
+      const transport = new StreamableHTTPClientTransport(url);
       const client = new Client(
         { name: "payload-test-client", version: "1.0.0" },
         { capabilities: {} },
@@ -59,15 +95,27 @@ export async function createClient(baseURL?: string): Promise<Client> {
 /**
  * Call a tool and return the parsed JSON payload.
  */
+import { z } from "zod";
+
+export const McpPayloadSchema = z.object({
+  success: z.boolean().optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
+  error: z.string().optional(),
+  _meta: z.record(z.string(), z.unknown()).optional(),
+}).passthrough();
+
+export type McpPayload = z.infer<typeof McpPayloadSchema>;
+
 export async function callToolAndParse(
   client: Client,
   toolName: string,
   args: Record<string, unknown> = {},
-): Promise<Record<string, unknown>> {
-  const response = await client.callTool({
-    name: toolName,
-    arguments: args,
-  });
+  timeoutMs: number = TIMEOUTS.LONG
+): Promise<McpPayload> {
+  const response = await client.callTool(
+    { name: toolName, arguments: args },
+    { timeout: timeoutMs }
+  );
 
   expect(Array.isArray(response.content)).toBe(true);
   const content = response.content as Array<{ type: string; text?: string }>;
@@ -77,11 +125,28 @@ export async function callToolAndParse(
   expect(first.type).toBe("text");
 
   try {
-    return JSON.parse(first.text!) as Record<string, unknown>;
+    const raw = JSON.parse(first.text!);
+    return McpPayloadSchema.parse(raw);
   } catch (err: unknown) {
     throw new Error(
       `Failed to parse tool response as JSON. Response text was:\n${first.text}\n\nOriginal error: ${(err as Error).message}`,
     );
+  }
+}
+
+export async function skipIfSuperReadOnly(client: Client): Promise<void> {
+  let isReadOnly = false;
+  try {
+    const response = await client.callTool({ name: "mysql_read_query", arguments: { query: "SELECT @@global.super_read_only as ro;" } });
+    if (response.content.some(c => c.type === 'text' && c.text?.includes('"ro": 1'))) {
+      isReadOnly = true;
+    }
+  } catch (e) {
+    // ignore MCP connection errors
+  }
+  
+  if (isReadOnly) {
+    test.skip(true, 'Skipped because Router is in super_read_only mode');
   }
 }
 
@@ -93,11 +158,15 @@ export async function callToolRaw(
   client: Client,
   toolName: string,
   args: Record<string, unknown>,
+  timeoutMs: number = TIMEOUTS.LONG
 ): Promise<{
   content: Array<{ type: string; text: string }>;
   isError?: boolean;
 }> {
-  const response = await client.callTool({ name: toolName, arguments: args });
+  const response = await client.callTool(
+    { name: toolName, arguments: args },
+    { timeout: timeoutMs }
+  );
   return response as {
     content: Array<{ type: string; text: string }>;
     isError?: boolean;
@@ -155,11 +224,13 @@ const serverProcesses = new Map<number, ChildProcess>();
  * @param port - Port to run the server on.
  * @param extraArgs - Additional CLI arguments (e.g., `--audit-log`).
  * @param label - Debug label for error messages.
+ * @param extraEnv - Additional environment variables to merge (e.g., `{ MCP_RATE_LIMIT_MAX: "5" }`).
  */
 export async function startServer(
   port: number,
   extraArgs: string[] = [],
   label = "test",
+  extraEnv: Record<string, string> = {},
 ): Promise<void> {
   const hasMysql = extraArgs.includes("--mysql");
   const proc = spawn(
@@ -182,6 +253,7 @@ export async function startServer(
         ...process.env,
         MCP_RATE_LIMIT_MAX: "10000",
         ALLOWED_IO_ROOTS: `C:/temp,C:/tmp,/tmp,${tmpdir()}`,
+        ...extraEnv,
       },
     },
   );
@@ -215,10 +287,20 @@ export async function startServer(
 /**
  * Stop a server started by `startServer()`.
  */
+import { execSync } from "node:child_process";
+
 export function stopServer(port: number): void {
   const proc = serverProcesses.get(port);
   if (proc) {
-    proc.kill("SIGTERM");
+    if (process.platform === "win32" && proc.pid) {
+      try {
+        execSync(`taskkill /pid ${proc.pid} /T /F`, { stdio: "ignore" });
+      } catch {
+        // ignore
+      }
+    } else {
+      proc.kill("SIGKILL");
+    }
     serverProcesses.delete(port);
   }
 }
@@ -246,3 +328,4 @@ export async function cleanupAuditFiles(logPath: string): Promise<void> {
     }
   }
 }
+

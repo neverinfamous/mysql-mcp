@@ -20,6 +20,7 @@ import {
 import { z } from "zod";
 import {
   formatHandlerErrorResponse,
+  stripErrorPrefix,
   withTokenEstimate,
 } from "./core/error-helpers.js";
 import { READ_ONLY } from "../../../utils/annotations.js";
@@ -38,19 +39,24 @@ export function getReplicationTools(adapter: MySQLAdapter): ToolDefinition[] {
 }
 
 function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
+  const handlerSchema = z.object({}).strict();
+  const inputSchema = z.object({}).strict().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_master_status",
     title: "MySQL Master Status",
     description: "Get binary log position from master/source server.",
     group: "replication",
-    inputSchema: schema,
+    inputSchema: inputSchema,
     outputSchema: MasterStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
-      // Try new syntax first, then old
+      try {
+        handlerSchema.parse(_params);
+      } catch (e) {
+        return formatHandlerErrorResponse(e);
+      }
       try {
         const result = await adapter.executeQuery("SHOW BINARY LOG STATUS");
         const response = {
@@ -58,59 +64,102 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           data: { status: result.rows?.[0] },
         };
         return withTokenEstimate(response);
-      } catch {
-        try {
-          const result = await adapter.executeQuery("SHOW MASTER STATUS");
-          const response = {
-            success: true as const,
-            data: { status: result.rows?.[0] },
-          };
-          return withTokenEstimate(response);
-        } catch (e) {
-          return formatHandlerErrorResponse(
-            new MySQLMcpError(
-              `Binary logging may not be enabled: ${String(e)}`,
-              "DOMAIN_ERROR",
-              ErrorCategory.CONFIGURATION
-            )
-          );
+      } catch (error) {
+        const e = error as { code?: string; errno?: number; message?: string };
+        if (e.code === "ER_PARSE_ERROR" || e.errno === 1064 || e.message?.toLowerCase().includes("syntax")) {
+          try {
+            const result = await adapter.executeQuery("SHOW MASTER STATUS");
+            const response = {
+              success: true as const,
+              data: { status: result.rows?.[0] },
+            };
+            return withTokenEstimate(response);
+          } catch (error2) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `Failed to retrieve master status: ${stripErrorPrefix(error2 instanceof Error ? error2.message : String(error2))}`,
+                "QUERY_ERROR",
+                ErrorCategory.QUERY
+              )
+            );
+          }
         }
+        return formatHandlerErrorResponse(
+          new MySQLMcpError(
+            `Failed to retrieve binary log status: ${stripErrorPrefix(e.message || String(error))}`,
+            "QUERY_ERROR",
+            ErrorCategory.QUERY
+          )
+        );
       }
     },
   };
 }
 
 function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
+  const handlerSchema = z.object({
+    channel: z.string().max(64).optional().describe("Optional replication channel name"),
+  }).strict();
+  const inputSchema = z.object({
+    channel: z.string().max(64).optional().describe("Optional replication channel name"),
+  }).strict();
 
   return {
     name: "mysql_slave_status",
     title: "MySQL Slave Status",
     description: "Get detailed replication slave/replica status.",
     group: "replication",
-    inputSchema: schema,
+    inputSchema: inputSchema,
     outputSchema: SlaveStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
+      let channel: string | undefined;
+      try {
+        const parsed = handlerSchema.parse(_params);
+        channel = parsed.channel;
+      } catch (e) {
+        return formatHandlerErrorResponse(e);
+      }
+      
+      const channelClause = channel ? ` FOR CHANNEL '${channel.replace(/\\/g, '\\\\').replace(/'/g, "''")}'` : "";
+
       // Try new syntax first
       try {
-        const result = await adapter.executeQuery("SHOW REPLICA STATUS");
+        const result = await adapter.executeQuery(`SHOW REPLICA STATUS${channelClause}`);
         const status = result.rows?.[0];
         if (status) {
           const response = { success: true as const, data: { status } };
           return withTokenEstimate(response);
         }
-      } catch {
-        try {
-          const result = await adapter.executeQuery("SHOW SLAVE STATUS");
-          const status = result.rows?.[0];
-          if (status) {
-            const response = { success: true as const, data: { status } };
-            return withTokenEstimate(response);
+      } catch (error) {
+        const e = error as { code?: string; errno?: number; message?: string };
+        if (e.code === "ER_PARSE_ERROR" || e.errno === 1064 || e.message?.toLowerCase().includes("syntax")) {
+          try {
+            const result = await adapter.executeQuery(`SHOW SLAVE STATUS${channelClause}`);
+            const status = result.rows?.[0];
+            if (status) {
+              const response = { success: true as const, data: { status } };
+              return withTokenEstimate(response);
+            }
+          } catch (error2) {
+            const e2 = error2 as { message?: string };
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `Failed to retrieve slave status: ${stripErrorPrefix(e2.message || String(error2))}`,
+                "QUERY_ERROR",
+                ErrorCategory.QUERY
+              )
+            );
           }
-        } catch {
-          // Fall through to not-configured response
+        } else {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Failed to retrieve replica status: ${stripErrorPrefix(e.message || String(error))}`,
+              "QUERY_ERROR",
+              ErrorCategory.QUERY
+            )
+          );
         }
       }
       return withTokenEstimate({
@@ -169,7 +218,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
         const parts: string[] = [];
 
         if (effectiveLogFile) {
-          parts.push(`IN '${effectiveLogFile}'`);
+          parts.push(`IN '${effectiveLogFile.replace(/\\/g, '\\\\').replace(/'/g, "''")}'`);
         }
         if (position != null) {
           parts.push(`FROM ${position}`);
@@ -201,12 +250,12 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
           };
           return withTokenEstimate(response);
         } catch (e) {
-          const message = String(e);
+          const message = stripErrorPrefix(e instanceof Error ? e.message : String(e));
           const targetFile = effectiveLogFile || logFile;
-          if (targetFile && message.includes("Could not find target log")) {
+          if (targetFile && (message.includes("Could not find target log") || message.includes("Connection lost"))) {
             return formatHandlerErrorResponse(
               new MySQLMcpError(
-                `Binlog file '${targetFile}' not found`,
+                `Binlog file '${targetFile}' not found (or server rejected file)`,
                 "DOMAIN_ERROR",
                 ErrorCategory.RESOURCE
               )
@@ -228,47 +277,46 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
+  const handlerSchema = z.object({}).strict();
+  const inputSchema = z.object({}).strict().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_gtid_status",
     title: "MySQL GTID Status",
     description: "Get Global Transaction ID (GTID) status for replication.",
     group: "replication",
-    inputSchema: schema,
+    inputSchema: inputSchema,
     outputSchema: GtidStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
-        // Get GTID executed
-        const executedResult = await adapter.executeQuery(
-          "SELECT @@global.gtid_executed as gtid_executed",
+        handlerSchema.parse(_params);
+      } catch (e) {
+        return formatHandlerErrorResponse(e);
+      }
+      try {
+        const result = await adapter.executeQuery(
+          "SHOW GLOBAL VARIABLES LIKE 'gtid_%'",
         );
 
-        // Get GTID purged
-        const purgedResult = await adapter.executeQuery(
-          "SELECT @@global.gtid_purged as gtid_purged",
-        );
-
-        // Get GTID mode
-        const modeResult = await adapter.executeQuery(
-          "SELECT @@global.gtid_mode as gtid_mode",
-        );
+        const rows = result.rows ?? [];
+        const getValue = (name: string): unknown =>
+          rows.find((r: Record<string, unknown>) => r["Variable_name"] === name)?.["Value"];
 
         const response = {
           success: true as const,
           data: {
-            gtidExecuted: executedResult.rows?.[0]?.["gtid_executed"],
-            gtidPurged: purgedResult.rows?.[0]?.["gtid_purged"],
-            gtidMode: modeResult.rows?.[0]?.["gtid_mode"],
+            gtidExecuted: getValue("gtid_executed"),
+            gtidPurged: getValue("gtid_purged"),
+            gtidMode: getValue("gtid_mode"),
           },
         };
         return withTokenEstimate(response);
       } catch (e) {
         return formatHandlerErrorResponse(
           new MySQLMcpError(
-            `Failed to retrieve GTID status: ${String(e)}`,
+            `Failed to retrieve GTID status: ${stripErrorPrefix(e instanceof Error ? e.message : String(e))}`,
             "QUERY_ERROR",
             ErrorCategory.QUERY
           )
@@ -279,21 +327,35 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
+  const handlerSchema = z.object({
+    channel: z.string().max(64).optional().describe("Optional replication channel name"),
+  }).strict();
+  const inputSchema = z.object({
+    channel: z.string().max(64).optional().describe("Optional replication channel name"),
+  }).strict();
 
   return {
     name: "mysql_replication_lag",
     title: "MySQL Replication Lag",
     description: "Calculate replication lag in seconds.",
     group: "replication",
-    inputSchema: schema,
+    inputSchema: inputSchema,
     outputSchema: ReplicationLagOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
+      let channel: string | undefined;
+      try {
+        const parsed = handlerSchema.parse(_params);
+        channel = parsed.channel;
+      } catch (e) {
+        return formatHandlerErrorResponse(e);
+      }
+      const channelClause = channel ? ` FOR CHANNEL '${channel.replace(/\\/g, '\\\\').replace(/'/g, "''")}'` : "";
+
       // Try to get Seconds_Behind_Master from replica status
       try {
-        const result = await adapter.executeQuery("SHOW REPLICA STATUS");
+        const result = await adapter.executeQuery(`SHOW REPLICA STATUS${channelClause}`);
         const status = result.rows?.[0];
 
         if (status != null) {
@@ -301,8 +363,11 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
             success: true as const,
             data: {
               lagSeconds:
-                status["Seconds_Behind_Source"] ??
-                status["Seconds_Behind_Master"],
+                status["Seconds_Behind_Source"] != null
+                  ? Number(status["Seconds_Behind_Source"])
+                  : status["Seconds_Behind_Master"] != null
+                  ? Number(status["Seconds_Behind_Master"])
+                  : null,
               ioRunning:
                 status["Replica_IO_Running"] ?? status["Slave_IO_Running"],
               sqlRunning:
@@ -312,25 +377,46 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
           };
           return withTokenEstimate(response);
         }
-      } catch {
-        try {
-          const result = await adapter.executeQuery("SHOW SLAVE STATUS");
-          const status = result.rows?.[0];
+      } catch (error) {
+        const e = error as { code?: string; errno?: number; message?: string };
+        if (e.code === "ER_PARSE_ERROR" || e.errno === 1064 || e.message?.toLowerCase().includes("syntax")) {
+          try {
+            const result = await adapter.executeQuery(`SHOW SLAVE STATUS${channelClause}`);
+            const status = result.rows?.[0];
 
-          if (status != null) {
-            const response = {
-              success: true as const,
-              data: {
-                lagSeconds: status["Seconds_Behind_Master"],
-                ioRunning: status["Slave_IO_Running"],
-                sqlRunning: status["Slave_SQL_Running"],
-                lastError: status["Last_Error"],
-              },
-            };
-            return withTokenEstimate(response);
+            if (status != null) {
+              const response = {
+                success: true as const,
+                data: {
+                  lagSeconds:
+                    status["Seconds_Behind_Master"] != null
+                      ? Number(status["Seconds_Behind_Master"])
+                      : null,
+                  ioRunning: status["Slave_IO_Running"],
+                  sqlRunning: status["Slave_SQL_Running"],
+                  lastError: status["Last_Error"],
+                },
+              };
+              return withTokenEstimate(response);
+            }
+          } catch (error2) {
+            const e2 = error2 as { message?: string };
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `Failed to retrieve slave status: ${stripErrorPrefix(e2.message || String(error2))}`,
+                "QUERY_ERROR",
+                ErrorCategory.QUERY
+              )
+            );
           }
-        } catch {
-          // Not a replica
+        } else {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Failed to retrieve replica status: ${stripErrorPrefix(e.message || String(error))}`,
+              "QUERY_ERROR",
+              ErrorCategory.QUERY
+            )
+          );
         }
       }
 

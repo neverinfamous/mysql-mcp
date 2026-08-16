@@ -1,7 +1,7 @@
 import type { MySQLAdapter } from "./mysql-adapter.js";
 import type { PoolConnection, FieldPacket } from "mysql2/promise";
 import type { QueryResult } from "../../../types/index.js";
-import { ConnectionError, QueryError } from "../../../types/index.js";
+import { ConnectionError, QueryError, TransactionError } from "../../../types/index.js";
 
 export class QueryExecutor {
   constructor(private adapter: MySQLAdapter) {}
@@ -11,6 +11,7 @@ export class QueryExecutor {
     params?: unknown[],
     transactionId?: string,
   ): Promise<QueryResult> {
+    await this.adapter.ensureConnection();
     if (!this.adapter.pool) {
       throw new ConnectionError("Not connected to database");
     }
@@ -18,7 +19,7 @@ export class QueryExecutor {
     if (transactionId) {
       const conn = this.adapter.getTransactionConnection(transactionId);
       if (!conn) {
-        throw new Error(`Invalid transaction ID: ${transactionId}`);
+        throw new TransactionError(`Invalid transaction ID: ${transactionId}`);
       }
       return this.executeOnConnection(conn, sql, params);
     }
@@ -26,10 +27,16 @@ export class QueryExecutor {
     const startTime = Date.now();
 
     try {
-      const [results, fields] = await this.adapter.pool.execute(sql, params);
+      let results, fields;
+      if (!params || params.length === 0) {
+        [results, fields] = await this.adapter.pool.query(sql);
+      } else {
+        [results, fields] = await this.adapter.pool.execute(sql, params);
+      }
       return this.processExecutionResult(results, fields, startTime);
     } catch (error) {
       if (this.isUnsupportedPreparedStatementError(error)) {
+
         try {
           const [results, fields] = await this.adapter.pool.query(sql, params);
           return this.processExecutionResult(results, fields, startTime);
@@ -51,10 +58,15 @@ export class QueryExecutor {
     const startTime = Date.now();
 
     try {
-      const [results, fields] = await connection.execute(
-        sql,
-        params as (string | number | null)[],
-      );
+      let results, fields;
+      if (!params || params.length === 0) {
+        [results, fields] = await connection.query(sql);
+      } else {
+        [results, fields] = await connection.execute(
+          sql,
+          params as (string | number | null)[],
+        );
+      }
       return this.processExecutionResult(results, fields, startTime);
     } catch (error) {
       if (this.isUnsupportedPreparedStatementError(error)) {
@@ -72,6 +84,7 @@ export class QueryExecutor {
   }
 
   async rawQuery(sql: string): Promise<QueryResult> {
+    await this.adapter.ensureConnection();
     if (!this.adapter.pool) {
       throw new ConnectionError("Not connected");
     }
@@ -95,9 +108,11 @@ export class QueryExecutor {
     return (
       code === "ER_UNSUPPORTED_PS" ||
       message.toLowerCase().includes("not supported") ||
-      message.includes("ER_UNSUPPORTED_PS")
+      message.includes("ER_UNSUPPORTED_PS") ||
+      message.includes("connection is locked to hostgroup")
     );
   }
+
 
   private processExecutionResult(
     results: unknown,

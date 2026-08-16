@@ -474,8 +474,8 @@ describe("DatabaseAdapter", () => {
         // 2. Validate arguments in prompts/get
         const calledConfig = mockServer.registerPrompt.mock.calls[0][1];
         expect(calledConfig.argsSchema).toBeDefined();
-        expect(calledConfig.argsSchema).toHaveProperty("required_arg");
-        expect(calledConfig.argsSchema).toHaveProperty("optional_arg");
+        expect(calledConfig.argsSchema.shape).toHaveProperty("required_arg");
+        expect(calledConfig.argsSchema.shape).toHaveProperty("optional_arg");
       });
 
       it("should not pass argsSchema for prompts without arguments", () => {
@@ -511,8 +511,8 @@ describe("DatabaseAdapter", () => {
         // so the SDK advertises arguments in prompts/list
         const calledConfig = mockServer.registerPrompt.mock.calls[0][1];
         expect(calledConfig.argsSchema).toBeDefined();
-        expect(calledConfig.argsSchema).toHaveProperty("opt_a");
-        expect(calledConfig.argsSchema).toHaveProperty("opt_b");
+        expect(calledConfig.argsSchema.shape).toHaveProperty("opt_a");
+        expect(calledConfig.argsSchema.shape).toHaveProperty("opt_b");
       });
 
       it("should return guide message when required args are missing", async () => {

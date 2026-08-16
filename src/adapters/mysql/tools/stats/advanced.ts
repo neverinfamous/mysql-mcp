@@ -87,11 +87,15 @@ export const StatsTopNSchema = z.preprocess(
   (val: unknown) => {
     if (val === null || typeof val !== "object") return val;
     const obj = val as Record<string, unknown>;
+    const rawN = obj["n"] ?? obj["limit"];
+    const rawSelectCols = obj["selectColumns"];
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
-      n: obj["n"] ?? obj["limit"],
+      n: rawN !== undefined ? Number(rawN) : undefined,
+      direction: typeof obj["direction"] === "string" ? obj["direction"].toLowerCase() : obj["direction"],
+      selectColumns: typeof rawSelectCols === "string" ? rawSelectCols.split(",").map(s => s.trim()) : rawSelectCols,
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
@@ -99,7 +103,7 @@ export const StatsTopNSchema = z.preprocess(
     database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
-    n: z.number().min(1).max(100).default(10),
+    n: z.number().int().min(1).max(100).default(10),
     direction: z.enum(["asc", "desc"]).default("desc"),
     selectColumns: z.array(z.string()).optional(),
     where: z.string().optional(),
@@ -122,6 +126,7 @@ export const StatsDistinctSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Maximum values to return (default: 100)"),
+  n: z.unknown().optional().describe("Alias for limit"),
   where: z.string().optional().describe("Filter condition. Note: Pass where, not sql or query."),
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
@@ -131,10 +136,12 @@ export const StatsDistinctSchema = z.preprocess(
   (val: unknown) => {
     if (val === null || typeof val !== "object") return val;
     const obj = val as Record<string, unknown>;
+    const rawLimit = obj["limit"] ?? obj["n"];
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
+      limit: rawLimit !== undefined ? Number(rawLimit) : undefined,
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
@@ -142,7 +149,7 @@ export const StatsDistinctSchema = z.preprocess(
     database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
-    limit: z.number().min(1).max(1000).default(100),
+    limit: z.coerce.number().int().min(1).max(1000).default(100),
     where: z.string().optional(),
   })
 );
@@ -166,6 +173,7 @@ export const StatsFrequencySchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Maximum rows to return (default: 20)"),
+  n: z.unknown().optional().describe("Alias for limit"),
   where: z.string().optional().describe("Filter condition. Note: Pass where, not sql or query."),
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
@@ -175,10 +183,12 @@ export const StatsFrequencySchema = z.preprocess(
   (val: unknown) => {
     if (val === null || typeof val !== "object") return val;
     const obj = val as Record<string, unknown>;
+    const rawLimit = obj["limit"] ?? obj["n"];
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
+      limit: rawLimit !== undefined ? Number(rawLimit) : undefined,
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
@@ -186,7 +196,7 @@ export const StatsFrequencySchema = z.preprocess(
     database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
-    limit: z.number().min(1).max(1000).default(20),
+    limit: z.coerce.number().int().min(1).max(1000).default(20),
     where: z.string().optional(),
   })
 );
@@ -198,6 +208,8 @@ export const StatsSummarySchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   tbl: z.string().optional().describe("Alias for table"),
   table_name: z.string().optional().describe("Alias for table"),
+  collection: z.string().optional().describe("Alias for table"),
+  coll: z.string().optional().describe("Alias for table"),
   column: z.unknown().optional().describe("Alias for columns"),
   col: z.unknown().optional().describe("Alias for columns"),
   columns: z
@@ -217,8 +229,10 @@ export const StatsSummarySchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
-      columns: typeof obj["columns"] === "string" ? [obj["columns"]] : (obj["columns"] ?? (typeof obj["column"] === "string" ? [obj["column"]] : obj["column"]) ?? (typeof obj["col"] === "string" ? [obj["col"]] : obj["col"])),
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"] ?? obj["collection"] ?? obj["coll"],
+      columns: typeof obj["columns"] === "string" 
+        ? obj["columns"].split(",").map((s: string) => s.trim()) 
+        : (obj["columns"] ?? (typeof obj["column"] === "string" ? obj["column"].split(",").map((s: string) => s.trim()) : obj["column"]) ?? (typeof obj["col"] === "string" ? obj["col"].split(",").map((s: string) => s.trim()) : obj["col"])),
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
@@ -250,13 +264,35 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsTopNSchema.parse(params);
 
         const { database, table, column, n, direction, selectColumns, where } = parsed;
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
+        if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
+          return withTokenEstimate({
+            success: false,
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid database name",
+          });
+        }
         if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
             code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid table name",
           });
+        }
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
+          return withTokenEstimate({
+            success: false,
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid column name",
+          });
+        }
+        if (selectColumns && selectColumns.length > 0) {
+          for (const c of selectColumns) {
+            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
+              return withTokenEstimate({
+                success: false,
+                code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: `Invalid column name in selectColumns: ${c}`,
+              });
+            }
+          }
         }
         
         const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
@@ -276,7 +312,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
             ORDER BY ORDINAL_POSITION
           `;
           const dbParam = database ? database : (table.includes('.') ? table.split('.')[0] : null);
-          const tblParam = table.includes('.') ? table.split('.')[1] : table;
+          const tblParam = database ? table : (table.includes('.') ? table.split('.')[1] : table);
           const colResult = await adapter.executeQuery(colQuery, dbParam ? [dbParam, tblParam] : [tblParam]);
           const allCols = (colResult.rows ?? []).map((row) => ({
             COLUMN_NAME: String(row["COLUMN_NAME"]),
@@ -294,8 +330,10 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
             }
           }
 
-          if (excluded.length > 0) {
+          if (excluded.length > 0 && included.length > 0) {
             hint = `Auto-excluded long-content columns: ${excluded.join(", ")}. Use selectColumns to override.`;
+          } else if (excluded.length > 0 && included.length === 0) {
+            hint = `All columns are long-content. Could not auto-exclude.`;
           }
 
           columnList =
@@ -357,8 +395,14 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsDistinctSchema.parse(params);
 
         const { database, table, column, limit, where } = parsed;
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
+        if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
+          return withTokenEstimate({
+            success: false,
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid database name",
+          });
+        }
         if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
@@ -385,11 +429,13 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(sql);
         const values = (result.rows ?? []).map((row) => row["value"]);
 
-        // Get total distinct count
+        // Get total distinct count including NULLs
         const countSql = `
-          SELECT COUNT(DISTINCT \`${column}\`) AS cnt
-          FROM ${fullTableName}
-          ${whereClause}
+          SELECT COUNT(*) AS cnt FROM (
+            SELECT DISTINCT \`${column}\`
+            FROM ${fullTableName}
+            ${whereClause}
+          ) t
         `;
         const countResult = await adapter.executeQuery(countSql);
         const distinctCount = Number(countResult.rows?.[0]?.["cnt"] ?? 0);
@@ -430,8 +476,14 @@ export function createStatsFrequencyTool(
         const parsed = StatsFrequencySchema.parse(params);
 
         const { database, table, column, limit, where } = parsed;
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
+        if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
+          return withTokenEstimate({
+            success: false,
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid database name",
+          });
+        }
         if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
@@ -510,13 +562,40 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsSummarySchema.parse(params);
 
         const { database, table, where } = parsed;
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
+        if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
+          return withTokenEstimate({
+            success: false,
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid database name",
+          });
+        }
         if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
             code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid table name",
           });
+        }
+        
+        if (parsed.columns !== undefined) {
+          if (parsed.columns.length === 0) {
+            return withTokenEstimate({
+              success: true,
+              data: {
+                table,
+                summaries: [],
+              },
+            });
+          }
+          // Verify they are valid columns
+          for (const c of parsed.columns) {
+            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
+              return withTokenEstimate({
+                success: false,
+                code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: `Invalid column name in columns: ${c}`,
+              });
+            }
+          }
         }
         
         const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
@@ -525,13 +604,12 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         await adapter.executeQuery(`SELECT 1 FROM ${fullTableName} LIMIT 1`);
 
         const dbParam = database ? database : (table.includes('.') ? table.split('.')[0] : null);
-        const tblParam = table.includes('.') ? table.split('.')[1] : table;
+        const tblParam = database ? table : (table.includes('.') ? table.split('.')[1] : table);
 
         // Determine columns to summarize
         let targetColumns: string[];
 
-        if (parsed.columns && parsed.columns.length > 0) {
-          // Verify they are valid columns
+        if (parsed.columns !== undefined) {
           targetColumns = parsed.columns;
         } else {
           // Auto-detect numeric columns

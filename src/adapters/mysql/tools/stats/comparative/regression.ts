@@ -8,7 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
-import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable } from "../../../../../utils/validators.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable, validateWhereClause } from "../../../../../utils/validators.js";
 import { RegressionOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { RegressionSchemaBase, RegressionSchema } from "./schemas.js";
@@ -35,8 +35,9 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(xColumn, "column");
         validateIdentifier(yColumn, "column");
+        validateWhereClause(where);
 
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
         // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
         await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);
@@ -47,7 +48,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         const colCheck = await adapter.executeQuery(
           `SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS 
            WHERE TABLE_SCHEMA = ${schema ? '?' : 'DATABASE()'} AND TABLE_NAME = ? 
-           AND COLUMN_NAME IN (?, ?)`,
+           AND LOWER(COLUMN_NAME) IN (LOWER(?), LOWER(?))`,
           schema ? [schema, parsedTableName, xColumn, yColumn] : [parsedTableName, xColumn, yColumn],
         );
 
@@ -68,7 +69,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
             typeof row["DATA_TYPE"] === "string" ? row["DATA_TYPE"] : undefined;
           const colName =
             typeof row["COLUMN_NAME"] === "string"
-              ? row["COLUMN_NAME"]
+              ? row["COLUMN_NAME"].toLowerCase()
               : undefined;
           if (type && colName && NUMERIC_TYPES.has(type.toLowerCase())) {
             validCols.add(colName);
@@ -76,11 +77,11 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const missingRegCols = [xColumn, yColumn].filter(
-          (c) => !validCols.has(c),
+          (c) => !validCols.has(c.toLowerCase()),
         );
         if (missingRegCols.length > 0) {
           const notFoundReg = missingRegCols.filter(
-            (c) => !(colCheck.rows ?? []).some((r) => r["COLUMN_NAME"] === c),
+            (c) => !(colCheck.rows ?? []).some((r) => typeof r["COLUMN_NAME"] === "string" && r["COLUMN_NAME"].toLowerCase() === c.toLowerCase()),
           );
           if (notFoundReg.length > 0) {
             throw new ValidationError(`Column(s) not found: ${notFoundReg.join(", ")}`);
@@ -134,10 +135,10 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
             xColumn,
             yColumn,
             sampleSize: n,
-            slope: isNaN(slope) ? null : slope,
-            intercept: isNaN(intercept) ? null : intercept,
-            rSquared: isNaN(rSquared) ? null : rSquared,
-            equation: isNaN(slope)
+            slope: !Number.isFinite(slope) ? null : slope,
+            intercept: !Number.isFinite(intercept) ? null : intercept,
+            rSquared: !Number.isFinite(rSquared) ? null : rSquared,
+            equation: !Number.isFinite(slope) || !Number.isFinite(intercept)
               ? null
               : `y = ${slope.toFixed(4)}x + ${intercept.toFixed(4)}`,
             interpretation:

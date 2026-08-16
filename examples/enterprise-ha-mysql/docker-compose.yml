@@ -1,0 +1,297 @@
+services:
+  example-ha-node1:
+    image: mysql:9.7.1
+    container_name: example-ha-node1
+    hostname: example-ha-node1
+    restart: unless-stopped
+    ports:
+      - "3317:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
+    volumes:
+      - example-ha-node1-data:/var/lib/mysql
+      - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command: >
+      --server-id=1
+      --enforce-gtid-consistency=ON
+      --gtid-mode=ON
+      --binlog-checksum=NONE
+      --plugin-load-add=group_replication.so
+      --relay-log=example-ha-node1-relay-bin
+      --relay-log-recovery=ON
+    stop_grace_period: 30s
+    mem_limit: 1024m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    labels:
+      com.datadoghq.ad.check_names: '["mysql"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"datadog", "password":"datadog", "reported_hostname": "adamic-wsl2", "options": {"extra_performance_metrics": false}}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql","service":"mysql"}]'
+
+  example-ha-node2:
+    image: mysql:9.7.1
+    container_name: example-ha-node2
+    hostname: example-ha-node2
+    restart: unless-stopped
+    ports:
+      - "3318:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
+    volumes:
+      - example-ha-node2-data:/var/lib/mysql
+    command: >
+      --server-id=2
+      --enforce-gtid-consistency=ON
+      --gtid-mode=ON
+      --binlog-checksum=NONE
+      --plugin-load-add=group_replication.so
+      --relay-log=example-ha-node2-relay-bin
+      --relay-log-recovery=ON
+    stop_grace_period: 30s
+    mem_limit: 1024m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    labels:
+      com.datadoghq.ad.check_names: '["mysql"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"datadog", "password":"datadog", "reported_hostname": "adamic-wsl2", "options": {"extra_performance_metrics": false}}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql","service":"mysql"}]'
+
+  example-ha-node3:
+    image: mysql:9.7.1
+    container_name: example-ha-node3
+    hostname: example-ha-node3
+    restart: unless-stopped
+    ports:
+      - "3319:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
+    volumes:
+      - example-ha-node3-data:/var/lib/mysql
+    command: >
+      --server-id=3
+      --enforce-gtid-consistency=ON
+      --gtid-mode=ON
+      --binlog-checksum=NONE
+      --plugin-load-add=group_replication.so
+      --relay-log=example-ha-node3-relay-bin
+      --relay-log-recovery=ON
+    stop_grace_period: 30s
+    mem_limit: 1024m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    labels:
+      com.datadoghq.ad.check_names: '["mysql"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"datadog", "password":"datadog", "reported_hostname": "adamic-wsl2", "options": {"extra_performance_metrics": false}}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql","service":"mysql"}]'
+
+  cluster-healer:
+    image: mysql:9.7.1
+    container_name: example-ha-healer
+    restart: unless-stopped
+    entrypoint: ["/bin/bash", "-c", "echo 'cluster-healer not implemented in example' && tail -f /dev/null"]
+    depends_on:
+      example-ha-node1:
+        condition: service_healthy
+      example-ha-node2:
+        condition: service_healthy
+      example-ha-node3:
+        condition: service_healthy
+    stop_grace_period: 30s
+    mem_limit: 128m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    labels:
+      com.datadoghq.ad.check_names: '[]'
+      com.datadoghq.ad.logs: '[{"source":"mysql-shell","service":"cluster-healer"}]'
+
+  example-ha-router:
+    image: container-registry.oracle.com/mysql/community-router:9.7.1
+    container_name: example-ha-router
+    restart: unless-stopped
+    depends_on:
+      cluster-healer:
+        condition: service_healthy
+    entrypoint: [ "/bin/bash", "/docker-entrypoint-initdb.d/router-init.sh" ]
+    volumes:
+      - ./config/mysql-router/router-init.sh:/docker-entrypoint-initdb.d/router-init.sh
+    tmpfs:
+      - /tmp/mysqlrouter:uid=999,gid=999
+    ports:
+      - "6456:6446"
+    stop_grace_period: 30s
+    mem_limit: 256m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      com.datadoghq.ad.check_names: '["http_check"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"name": "mysql_router_rest_api", "url": "https://%%host%%:8443/api/20190715/router/status", "username": "rest_api", "password": "router_api", "reported_hostname": "adamic-wsl2", "skip_cert_verify": true}]'
+      com.datadoghq.ad.logs: '[{"source":"mysqlrouter","service":"example-ha-router"}]'
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q '192E' /proc/net/tcp || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  example-ha-proxysql:
+    image: proxysql/proxysql:3.0.10
+    container_name: example-ha-proxysql
+    restart: unless-stopped
+    depends_on:
+      example-ha-router:
+        condition: service_healthy
+    ports:
+      - "6042:6032"
+      - "6043:6033"
+    volumes:
+      - ./config/proxysql/proxysql.cnf:/etc/proxysql.cnf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q '1791' /proc/net/tcp || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    labels:
+      com.datadoghq.ad.check_names: '["proxysql"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032, "username":"admin", "password":"admin", "reported_hostname": "adamic-wsl2", "additional_metrics": ["connection_pool_metrics", "backends_metrics", "users_metrics", "query_rules_metrics", "memory_metrics", "command_counters_metrics"]}]'
+      com.datadoghq.ad.logs: '[{"source":"proxysql","service":"proxysql"}]'
+    stop_grace_period: 30s
+    mem_limit: 256m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  example-ha-datadog:
+    image: gcr.io/datadoghq/agent:7.82.1
+    container_name: example-ha-datadog
+    restart: unless-stopped
+    pid: host
+    environment:
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_SITE=${DD_SITE:-datadoghq.com}
+      - DD_HOSTNAME=adamic-wsl2
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_APM_ENABLED=true
+      - DD_PROCESS_AGENT_ENABLED=true
+      - DD_SYSTEM_PROBE_ENABLED=true
+      - DD_EXTRA_PERFORMANCE_METRICS=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - /sys/kernel/debug:/sys/kernel/debug
+      - ../../logs:/var/log/mysql-mcp:ro
+    security_opt:
+      - apparmor:unconfined
+    cap_add:
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - SYS_PTRACE
+      - NET_ADMIN
+      - NET_BROADCAST
+      - NET_RAW
+      - IPC_LOCK
+      - CHOWN
+    stop_grace_period: 30s
+    mem_limit: 1536m
+    cgroup: host
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD-SHELL", "agent health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mysql-mcp-exporter:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: mysql-mcp-exporter:1.0.0
+    container_name: example-ha-exporter
+    restart: unless-stopped
+    depends_on:
+      example-ha-router:
+        condition: service_healthy
+    command: >
+      --transport http --server-host 0.0.0.0 --tool-filter none 
+      --metrics-export prometheus --port 3000
+      --audit-log /var/log/mysql-mcp/exporter-audit.jsonl
+      --audit-reads --mysql mysql://root:${MYSQL_ROOT_PASSWORD:-mysqlmcp}@example-ha-router:6446/testdb
+    tty: true
+    stdin_open: true
+    environment:
+      - ALLOWED_IO_ROOTS=/var/log/mysql-mcp
+      - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY:-<your_secure_encryption_key>}
+      - AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl
+      - LOG_LEVEL=warning
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../logs:/var/log/mysql-mcp
+    stop_grace_period: 30s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/metrics" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    labels:
+      com.datadoghq.ad.check_names: '["openmetrics"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": [".*"], "max_returned_metrics": 10000, "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "reported_hostname": "adamic-wsl2", "tags": ["service:mysql_mcp", "env:development"]}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql-mcp-exporter","service":"mysql-mcp-exporter"}]'
+
+volumes:
+  example-ha-node1-data:
+  example-ha-node2-data:
+  example-ha-node3-data:

@@ -38,7 +38,7 @@ describe("InnoDB Cluster Tools", () => {
           ]),
         ) // Schema check
         .mockResolvedValueOnce(
-          createMockQueryResult([{ cluster_name: "myCluster" }]),
+          createMockQueryResult([{ cluster_name: "myCluster", cluster_type: "gr" }]),
         ) // Cluster info (basic)
         .mockResolvedValueOnce(createMockQueryResult([{ count: 3 }])) // Instance count
         .mockResolvedValueOnce(createMockQueryResult([{ count: 2 }])) // Router count
@@ -53,6 +53,7 @@ describe("InnoDB Cluster Tools", () => {
               cluster_name: "myCluster",
               cluster_id: 1,
               primary_mode: "SINGLE",
+              cluster_type: "gr",
             },
           ]),
         ); // Full cluster info (non-summary mode)
@@ -67,6 +68,7 @@ describe("InnoDB Cluster Tools", () => {
         cluster_name: "myCluster",
         cluster_id: 1,
         primary_mode: "SINGLE",
+        cluster_type: "gr",
       });
       expect(result.data.instanceCount).toBe(3);
       expect(result.data.routerCount).toBe(2);
@@ -269,7 +271,7 @@ describe("InnoDB Cluster Tools", () => {
           ]),
         )
         .mockResolvedValueOnce(
-          createMockQueryResult([{ cluster_name: "myCluster" }]),
+          createMockQueryResult([{ cluster_name: "myCluster", cluster_type: "gr" }]),
         )
         .mockResolvedValueOnce(createMockQueryResult([{ count: 3 }]))
         .mockResolvedValueOnce(createMockQueryResult([{ count: 1 }]))
@@ -282,6 +284,7 @@ describe("InnoDB Cluster Tools", () => {
           createMockQueryResult([
             {
               cluster_name: "myCluster",
+              cluster_type: "gr",
               router_options: JSON.stringify({
                 Configuration: {
                   "9.2.0": {
@@ -385,7 +388,7 @@ describe("InnoDB Cluster Tools", () => {
   describe("createClusterSwitchoverTool", () => {
     it("should warn when no online secondaries exist", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]))
         .mockResolvedValueOnce(
         createMockQueryResult([
           {
@@ -416,7 +419,7 @@ describe("InnoDB Cluster Tools", () => {
 
     it("should return currentPrimary as null when no primary exists", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]))
         .mockResolvedValueOnce(
         createMockQueryResult([
           {
@@ -442,7 +445,7 @@ describe("InnoDB Cluster Tools", () => {
 
     it("should recommend good switchover candidate", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]))
         .mockResolvedValueOnce(
         createMockQueryResult([
           {

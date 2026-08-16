@@ -1,101 +1,159 @@
+/**
+ * Auto-generated CLI help text — derived from CLI_OPTIONS registry.
+ */
+import pc from "picocolors";
 
+import { CLI_OPTIONS, type CliOptionGroup } from "./cli-options.js";
+import type { CliOptionDef } from "./cli-options.js";
+
+// ── Group display order and labels ─────────────────────────────
+
+const GROUP_ORDER: readonly CliOptionGroup[] = [
+  "connection",
+  "pool",
+  "server",
+  "oauth",
+  "security",
+  "audit",
+  "io",
+  "other",
+] as const;
+
+const GROUP_LABELS: Record<CliOptionGroup, string> = {
+  connection: "Connection Options",
+  pool: "Pool Options",
+  server: "Server Options",
+  oauth: "OAuth Options",
+  security: "Authentication & Security",
+  audit: "Audit Options",
+  io: "I/O Options",
+  other: "Other",
+};
+
+// ── Additional env vars not backed by CLI flags ────────────────
+
+const EXTRA_ENV_VARS: readonly (readonly [string, string])[] = [
+  ["MYSQL_ROUTER_URL", "MySQL Router URL"],
+  ["MYSQL_ROUTER_USER", "MySQL Router user"],
+  ["MYSQL_ROUTER_PASSWORD", "MySQL Router password"],
+  ["MYSQL_ROUTER_INSECURE", "Bypass Router TLS verification (true/false)"],
+  ["PROXYSQL_HOST", "ProxySQL host"],
+  ["PROXYSQL_PORT", "ProxySQL port"],
+  ["PROXYSQL_USER", "ProxySQL user"],
+  ["PROXYSQL_PASSWORD", "ProxySQL password"],
+  ["MYSQLSH_PATH", "Path to MySQL Shell executable"],
+  ["MYSQL_XPORT", "MySQL X Protocol port (default 33060)"],
+  ["CODEMODE_ISOLATION", "Code mode isolation level"],
+  ["CODEMODE_MAX_RESULT_SIZE", "Max Code Mode result payload in bytes"],
+  ["METADATA_CACHE_TTL_MS", "Cache TTL for schema metadata"],
+  ["MYSQLMCP_PORT", "Port for mysql-mcp"],
+];
+
+// ── Alignment constant ────────────────────────────────────────
+
+const LEFT_COL_WIDTH = 30;
+
+// ── Helpers ────────────────────────────────────────────────────
+
+/** Derive a metavar hint from the option definition. */
+function getMetavar(key: string, def: CliOptionDef): string {
+  if (def.type === "boolean") return "";
+
+  if (key === "mysql") return "<url>";
+  if (key === "config") return "<path>";
+  if (key === "transport") return "<type>";
+  if (key === "port") return "<port>";
+  if (key === "metrics-export") return "[format]";
+
+  if (key.endsWith("-host")) return "<host>";
+  if (key.endsWith("-port")) return "<port>";
+  if (key.endsWith("-user")) return "<user>";
+  if (key.endsWith("-password")) return "<pass>";
+  if (key.endsWith("-database")) return "<db>";
+  if (key.includes("uri") || key.includes("url") || key.includes("issuer"))
+    return "<url>";
+  if (key.includes("token")) return "<token>";
+  if (key.includes("timeout")) return "<ms>";
+  if (key.includes("tolerance")) return "<s>";
+  if (key.includes("size") || key.includes("limit")) return "<n>";
+  if (key.includes("path") || key.includes("log")) return "<path>";
+  if (key.includes("filter")) return "<filter>";
+  if (key.includes("level")) return "<level>";
+  if (key.includes("name")) return "<name>";
+  if (key.includes("roots")) return "<paths>";
+  if (key.includes("audience")) return "<aud>";
+
+  return "<value>";
+}
+
+/** Format a single option line. */
+function formatOption(key: string, def: CliOptionDef): string {
+  let left = `  --${key}`;
+  if (def.short) left += `, -${def.short}`;
+
+  const metavar = getMetavar(key, def);
+  if (metavar) left += ` ${metavar}`;
+
+  // Pad to alignment width
+  const padding = Math.max(1, LEFT_COL_WIDTH - left.length);
+  let right = def.description;
+  if (def.defaultValue) {
+    right += ` ${pc.dim(`(default: ${def.defaultValue})`)}`;
+  }
+
+  return `${left}${" ".repeat(padding)}${right}`;
+}
+
+/** Collect options for a given group in registry order. */
+function optionsForGroup(group: CliOptionGroup): [string, CliOptionDef][] {
+  return Object.entries(CLI_OPTIONS).filter(([, def]) => def.group === group);
+}
+
+// ── Public API ─────────────────────────────────────────────────
 
 /**
- * Print help message
+ * Print CLI help text to stderr.
  */
 export function printHelp(): void {
-  console.error(`
-mysql-mcp - Enterprise MySQL MCP Server
+  const lines: string[] = [];
 
-Usage: mysql-mcp [options]
+  lines.push("");
+  lines.push(`${pc.bold("mysql-mcp")} - Enterprise MySQL MCP Server`);
+  lines.push("");
+  lines.push(`Usage: mysql-mcp [options]`);
 
-Connection Options:
-  --mysql, -m <url>           MySQL connection string
-                              (mysql://user:pass@host:port/database)
-  --mysql-host <host>         MySQL host (default: localhost)
-  --mysql-port <port>         MySQL port (default: 3306)
-  --mysql-user <user>         MySQL username
-  --mysql-password <pass>     MySQL password
-  --mysql-database <db>       MySQL database name
+  // ── Option groups ──────────────────────────────────────────
+  for (const group of GROUP_ORDER) {
+    const opts = optionsForGroup(group);
+    if (opts.length === 0) continue;
 
-Pool Options:
-  --pool-size <n>             Connection pool size (default: 10)
-  --pool-timeout <ms>         Connection acquire timeout (default: 30000)
-  --pool-queue-limit <n>      Queue limit for waiting requests (default: 0)
+    lines.push("");
+    lines.push(`${pc.bold(GROUP_LABELS[group])}:`);
+    for (const [key, def] of opts) {
+      lines.push(formatOption(key, def));
+    }
+  }
 
-Server Options:
-  --config, -c <path>         Load configuration from YAML/JSON file
-  --dump-config               Print the resolved configuration and exit
-  --transport, -t <type>      Transport type: stdio, http, sse (default: stdio)
-  --port, -p <port>           HTTP port for http/sse transports
-  --server-host <host>        Host to bind HTTP transport to (default: localhost)
-  --tool-filter, -f <filter>  Tool filter string (e.g., "-replication,-partitioning")
-  --name <name>               Server name (default: mysql-mcp)
+  // ── Environment Variables ──────────────────────────────────
+  lines.push("");
+  lines.push(`${pc.bold("Environment Variables")}:`);
 
-OAuth Options:
-  --oauth-enabled, -o         Enable OAuth 2.1 authentication
-  --oauth-issuer <url>        Authorization server URL (issuer)
-  --oauth-audience <aud>      Expected token audience
-  --oauth-jwks-uri <url>      JWKS URI (auto-discovered from issuer if not set)
-  --oauth-clock-tolerance <s> Clock tolerance in seconds (default: 60)
+  // First: env vars that map to CLI flags
+  for (const [, def] of Object.entries(CLI_OPTIONS)) {
+    if (!def.envVar) continue;
+    const left = `  ${def.envVar}`;
+    const padding = Math.max(1, LEFT_COL_WIDTH - left.length);
+    lines.push(`${left}${" ".repeat(padding)}${def.description}`);
+  }
 
-Authentication & Security:
-  --auth-token <token>        Simple bearer token for HTTP authentication (env: MCP_AUTH_TOKEN)
-  --stateless                 Enable stateless HTTP mode (no sessions, no SSE)
-  --enable-hsts               Enable HSTS header (use when behind HTTPS)
-  --trust-proxy               Trust X-Forwarded-For header for client IP
-  --log-level <level>         Log level: debug, info, warn, error (default: info)
-  --metrics-export [format]   Enable metrics export endpoint (prometheus)
+  // Then: extra env vars with no CLI flag equivalent
+  for (const [envVar, description] of EXTRA_ENV_VARS) {
+    const left = `  ${envVar}`;
+    const padding = Math.max(1, LEFT_COL_WIDTH - left.length);
+    lines.push(`${left}${" ".repeat(padding)}${description}`);
+  }
 
-Audit Options:
-  --audit-log <path>          Path to JSONL audit log file (or 'stderr' to stream)
-  --audit-redact              Redact tool arguments from audit log
-  --audit-reads               Log read operations in addition to writes/admins
-  --audit-log-max-size <b>    Max audit log size in bytes before rotation (default: 10MB)
-  --audit-backup              Enable pre-mutation DDL snapshots for destructive tools
-  --audit-backup-data         Include sample data rows in pre-mutation snapshots
-  --audit-backup-max-size <b> Max table size in bytes for data capture (default: 50MB)
+  lines.push("");
 
-  --allowed-io-roots <paths>  Allowed input/output root directories (comma-separated or JSON array)
-
-Other:
-  --version, -v               Show version
-  --help, -h                  Show this help
-
-Environment Variables:
-  MYSQL_HOST                  MySQL host
-  MYSQL_PORT                  MySQL port
-  MYSQL_USER                  MySQL username
-  MYSQL_PASSWORD              MySQL password
-  MYSQL_DATABASE              MySQL database
-  MYSQL_POOL_SIZE             Connection pool size
-  TOOL_FILTER                 Tool filter string
-  MCP_HOST                    Host to bind HTTP transport to
-  MCP_AUTH_TOKEN               Simple bearer token for HTTP authentication
-  TRUST_PROXY                  Trust X-Forwarded-For (true/false)
-  MCP_ENABLE_HSTS              Enable HSTS header (same as --enable-hsts)
-  MCP_METRICS_EXPORT           Enable metrics export endpoint (prometheus or true)
-  ALLOWED_IO_ROOTS             Allowed input/output root directories
-  LOG_LEVEL                   Log level (debug, info, warn, error)
-  OAUTH_ENABLED               Enable OAuth (true/false)
-  OAUTH_ISSUER                Authorization server URL
-  OAUTH_AUDIENCE              Expected token audience
-  OAUTH_JWKS_URI              JWKS endpoint URL
-  OAUTH_CLOCK_TOLERANCE       Clock tolerance in seconds
-  MYSQL_ROUTER_URL            MySQL Router URL
-  MYSQL_ROUTER_USER           MySQL Router user
-  MYSQL_ROUTER_PASSWORD       MySQL Router password
-  MYSQL_ROUTER_INSECURE       Bypass Router TLS verification (true/false)
-  PROXYSQL_HOST               ProxySQL host
-  PROXYSQL_PORT               ProxySQL port
-  PROXYSQL_USER               ProxySQL user
-  PROXYSQL_PASSWORD           ProxySQL password
-  MYSQLSH_PATH                Path to MySQL Shell executable
-  MYSQL_XPORT                 MySQL X Protocol port (default 33060)
-  CODEMODE_ISOLATION          Code mode isolation level
-  CODE_MODE_MAX_RESULT_SIZE   Max Code Mode result payload in bytes
-  METADATA_CACHE_TTL_MS       Cache TTL for schema metadata
-
-  MYSQLMCP_PORT               Port for mysql-mcp
-`);
+  process.stderr.write(lines.join("\n") + "\n");
 }

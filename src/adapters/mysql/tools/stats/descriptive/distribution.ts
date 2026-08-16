@@ -38,7 +38,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
           throw new ValidationError("buckets must be at least 1");
         }
 
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where}) AND \`${column}\` IS NOT NULL` : `WHERE \`${column}\` IS NOT NULL`;
 
         // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
         await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);
@@ -75,12 +75,27 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Get min/max for bucket calculation
         const rangeResult = await adapter.executeQuery(
-          `SELECT MIN(\`${column}\`) as min_val, MAX(\`${column}\`) as max_val FROM ${escapeQualifiedTable(table)} ${whereClause}`,
+          `SELECT MIN(\`${column}\`) as min_val, MAX(\`${column}\`) as max_val, COUNT(*) as total_count FROM ${escapeQualifiedTable(table)} ${whereClause}`,
         );
 
         const rangeRow = rangeResult.rows?.[0];
         const minVal = Number(rangeRow?.["min_val"]) || 0;
         const maxVal = Number(rangeRow?.["max_val"]) || 0;
+        const totalCount = Number(rangeRow?.["total_count"]) || 0;
+
+        if (totalCount === 0) {
+          return withTokenEstimate({
+            success: true,
+            data: {
+              column,
+              distribution: [],
+              bucketCount: 0,
+              bucketSize: 0,
+              minValue: 0,
+              maxValue: 0,
+            },
+          });
+        }
 
         if (minVal === maxVal) {
           return withTokenEstimate({
@@ -88,7 +103,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
             data: {
               column,
               distribution: [
-                { bucket: 0, rangeStart: minVal, rangeEnd: maxVal, count: 1 },
+                { bucket: 0, rangeStart: minVal, rangeEnd: maxVal, count: totalCount, bucketMin: minVal, bucketMax: maxVal },
               ],
               bucketCount: 1,
               minValue: minVal,

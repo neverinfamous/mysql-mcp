@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
-import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
+import { isInitializeRequest } from "@modelcontextprotocol/server";
+import type { Transport } from "@modelcontextprotocol/server";
+import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import type { AuthenticatedContext } from "../../../auth/middleware.js";
 import { readBody } from "../security.js";
 import { SESSION_ABSOLUTE_TTL_MS } from "../types.js";
@@ -58,7 +58,7 @@ export async function handleStreamableRequest(
         );
         return;
       }
-      if (session.transport instanceof StreamableHTTPServerTransport) {
+      if (session.transport instanceof NodeStreamableHTTPServerTransport) {
         if (Date.now() - session.createdAt > SESSION_ABSOLUTE_TTL_MS) {
           res.writeHead(401, { "Content-Type": "application/json" });
           res.end(
@@ -145,7 +145,7 @@ export async function handleStreamableRequest(
       return;
     }
     
-    if (session.transport instanceof StreamableHTTPServerTransport) {
+    if (session.transport instanceof NodeStreamableHTTPServerTransport) {
       if (Date.now() - session.createdAt > SESSION_ABSOLUTE_TTL_MS) {
         res.writeHead(401, { "Content-Type": "application/json" });
         res.end(
@@ -185,7 +185,7 @@ export async function handleStreamableRequest(
 
   if (!sessionId && isInitializeRequest(body)) {
     const generatedSessionId = randomUUID();
-    const newTransport = new StreamableHTTPServerTransport({
+    const newTransport = new NodeStreamableHTTPServerTransport({
       sessionIdGenerator: () => generatedSessionId,
     });
     sessionManager.register(generatedSessionId, newTransport);
@@ -278,7 +278,7 @@ export async function handleStatelessRequest(
     return;
   }
 
-  const transport = new StreamableHTTPServerTransport({});
+  const transport = new NodeStreamableHTTPServerTransport({});
 
   if (onConnect) {
     await onConnect(transport);

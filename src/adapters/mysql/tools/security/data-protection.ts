@@ -21,6 +21,7 @@ import type {
 } from "../../../../types/index.js";
 import { ValidationError } from "../../../../types/modules/errors.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { format } from "mysql2";
 
 // =============================================================================
 // Helpers
@@ -31,93 +32,111 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 const MaskDataSchemaBase = z.object({
-  value: z.string().optional().describe("Value to mask"),
-  data: z.string().optional().describe("Alias for value"),
-  text: z.string().optional().describe("Alias for value"),
-  input: z.string().optional().describe("Alias for value"),
-  type: z.enum(["email", "phone", "ssn", "credit_card", "partial"]).describe("Masking type. Note: Must be one of: 'email', 'phone', 'ssn', 'credit_card', 'partial'."),
-  keepFirst: z.number().optional().describe("Characters to keep from start"),
-  keepLast: z.number().optional().describe("Characters to keep from end"),
-  maskChar: z.string().optional().describe("Character to use for masking"),
+  value: z.unknown().optional().describe("Value to mask"),
+  data: z.unknown().optional().describe("Alias for value"),
+  text: z.unknown().optional().describe("Alias for value"),
+  input: z.unknown().optional().describe("Alias for value"),
+  type: z.unknown().optional().describe("Masking type. Note: Must be one of: 'email', 'phone', 'ssn', 'credit_card', 'partial'."),
+  maskType: z.unknown().optional().describe("Alias for type"),
+  keepFirst: z.unknown().optional().describe("Characters to keep from start"),
+  keepLast: z.unknown().optional().describe("Characters to keep from end"),
+  maskChar: z.unknown().optional().describe("Character to use for masking"),
 });
 
 const MaskDataSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val !== "object" || val === null) return val;
-    const obj = val as Record<string, unknown>;
+    const obj = { ...(val as Record<string, unknown>) };
     if (!("value" in obj)) {
-      if ("data" in obj) return { ...obj, value: obj["data"] };
-      if ("text" in obj) return { ...obj, value: obj["text"] };
-      if ("input" in obj) return { ...obj, value: obj["input"] };
+      if ("data" in obj) obj["value"] = obj["data"];
+      else if ("text" in obj) obj["value"] = obj["text"];
+      else if ("input" in obj) obj["value"] = obj["input"];
     }
-    return val;
+    if (!("type" in obj) && "maskType" in obj) {
+      obj["type"] = obj["maskType"];
+    }
+    if (typeof obj["type"] === "string") {
+      let t = obj["type"].toLowerCase().replace(/[\s-_]/g, "");
+      if (t === "cc" || t === "creditcard" || t === "card" || t === "pan") t = "credit_card";
+      else if (t === "social" || t === "socialsecurity" || t === "sin" || t === "nin") t = "ssn";
+      else if (t === "mail" || t === "e_mail") t = "email";
+      else if (t === "telephone" || t === "cell" || t === "mobile") t = "phone";
+      obj["type"] = t;
+    }
+    return obj;
   },
   z.object({
-    value: z.string(),
+    value: z.union([z.string(), z.number()]).transform(String),
     type: z.enum(["email", "phone", "ssn", "credit_card", "partial"]),
-    keepFirst: z.coerce.number().default(0),
-    keepLast: z.coerce.number().default(0),
-    maskChar: z.string().default("*"),
+    keepFirst: z.coerce.number().int().min(0).default(0),
+    keepLast: z.coerce.number().int().min(0).default(0),
+    maskChar: z.string().length(1, "maskChar must be a single character").default("*"),
   })
 );
 
 const UserPrivilegesSchemaBase = z.object({
-  user: z.string().optional().describe("Filter by username"),
-  userName: z.string().optional().describe("Alias for user"),
-  username: z.string().optional().describe("Alias for user"),
-  name: z.string().optional().describe("Alias for user"),
-  host: z.string().optional().describe("Host pattern"),
-  includeRoles: z.boolean().optional().describe("Include role grants"),
-  summary: z
-    .boolean()
-    .optional()
-    .describe(
-      "Return condensed summary (privilege counts) instead of raw GRANT strings",
-    ),
+  user: z.unknown().optional().describe("Filter by username. Required to prevent payload bloat."),
+  userName: z.unknown().optional().describe("Alias for user"),
+  username: z.unknown().optional().describe("Alias for user"),
+  name: z.unknown().optional().describe("Alias for user"),
+  host: z.unknown().optional().describe("Host pattern"),
+  includeRoles: z.unknown().optional().describe("Include role grants"),
+  summary: z.unknown().optional().describe("Return condensed summary (privilege counts) instead of raw GRANT strings"),
+  format: z.unknown().optional().describe("Alias for summary: 'summary' or 'full'"),
 });
 
 const UserPrivilegesSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val !== "object" || val === null) return val;
     const obj = val as Record<string, unknown>;
-    if (!("user" in obj)) {
-      if ("userName" in obj) {
-        return { ...obj, user: obj["userName"] };
-      } else if ("username" in obj) {
-        return { ...obj, user: obj["username"] };
-      } else if ("name" in obj) {
-        return { ...obj, user: obj["name"] };
+    let user = obj["user"];
+    if (user === undefined || user === null || user === "") {
+      if ("userName" in obj) user = obj["userName"];
+      else if ("username" in obj) user = obj["username"];
+      else if ("name" in obj) user = obj["name"];
+    }
+    
+    if (Array.isArray(user) && user.length > 0) user = String(user[0]);
+    else if (typeof user === "object" && user !== null) user = JSON.stringify(user);
+    else if (typeof user === "string" && user.includes("@")) {
+      const parts = user.split("@");
+      user = parts[0];
+      if (obj["host"] === undefined) {
+        obj["host"] = parts.slice(1).join("@");
       }
     }
-    return val;
+    
+    let summary = obj["summary"];
+    if (summary === undefined && "format" in obj) {
+      summary = obj["format"] === "summary";
+    }
+
+    let includeRoles = obj["includeRoles"];
+    if (typeof includeRoles === "string") {
+      includeRoles = includeRoles.toLowerCase() === "true";
+    }
+    if (typeof summary === "string") {
+      summary = summary.toLowerCase() === "true";
+    }
+
+    return { ...obj, user, summary, includeRoles };
   },
   z.object({
-    user: z.string().default(""),
-    host: z.string().default("%"),
+    user: z.coerce.string().default(""),
+    host: z.coerce.string().default("%"),
     includeRoles: z.boolean().default(true),
     summary: z.boolean().default(false),
   })
 );
 
 const SensitiveTablesSchemaBase = z.object({
-  schema: z
-    .string()
-    .optional()
-    .describe("Schema to scan (defaults to current database)"),
-  database: z.string().optional().describe("Alias for schema"),
-  db: z.string().optional().describe("Alias for schema"),
-  table: z.string().optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
-  tableName: z.string().optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
-  patterns: z
-    .array(z.string())
-    .optional()
-    .describe("Column name patterns to consider sensitive"),
-  limit: z
-    .number()
-    .optional()
-    .describe(
-      "Maximum number of tables to return (default: 20). Set higher for full scan.",
-    ),
+  schema: z.unknown().optional().describe("Schema to scan. Required to prevent payload bloat."),
+  database: z.unknown().optional().describe("Alias for schema"),
+  db: z.unknown().optional().describe("Alias for schema"),
+  table: z.unknown().optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
+  tableName: z.unknown().optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
+  patterns: z.unknown().optional().describe("Column name patterns to consider sensitive"),
+  limit: z.unknown().optional().describe("Maximum number of tables to return (default: 20). Set higher for full scan."),
 });
 
 const SensitiveTablesSchema = z
@@ -125,24 +144,35 @@ const SensitiveTablesSchema = z
     (val: unknown) => {
       if (typeof val !== "object" || val === null) return val;
       const obj = val as Record<string, unknown>;
+      let schema = obj["schema"];
       if (!("schema" in obj)) {
         if ("database" in obj) {
-          return { ...obj, schema: obj["database"] };
+          schema = obj["database"];
         } else if ("db" in obj) {
-          return { ...obj, schema: obj["db"] };
+          schema = obj["db"];
         } else if ("table" in obj) {
-          return { ...obj, schema: obj["table"] };
+          schema = obj["table"];
         } else if ("tableName" in obj) {
-          return { ...obj, schema: obj["tableName"] };
+          schema = obj["tableName"];
         }
       }
-      return val;
+      
+      if (Array.isArray(schema) && schema.length > 0) schema = String(schema[0]);
+      else if (typeof schema === "object" && schema !== null) schema = JSON.stringify(schema);
+      
+      let patterns = obj["patterns"];
+      if (typeof patterns === "string") {
+        patterns = [patterns];
+      }
+      
+      return { ...obj, schema, patterns };
     },
     z.object({
-      schema: z.string().default(""),
-      database: z.string().default(""),
+      schema: z.coerce.string().default(""),
+      database: z.coerce.string().default(""),
       patterns: z
-        .array(z.string())
+        .array(z.coerce.string().min(2, "Pattern must be at least 2 characters long"))
+        .min(1, "At least one pattern must be provided")
         .default([
           "password",
           "secret",
@@ -158,7 +188,7 @@ const SensitiveTablesSchema = z
           "medical",
           "health",
         ]),
-      limit: z.number().int().positive().optional().default(20),
+      limit: z.coerce.number().int().positive().max(100).optional().default(20),
     }),
   )
   .transform((data) => ({
@@ -215,15 +245,55 @@ export function createSecurityMaskDataTool(
           case "phone": {
             // Keep last 4 digits, mask rest
             const digits = value.replace(/\D/g, "");
-            maskedValue =
-              maskChar.repeat(Math.max(0, digits.length - 4)) +
-              digits.slice(-4);
+            if (digits.length <= 4) {
+              return Promise.resolve(
+                withTokenEstimate({
+                  success: true,
+                  data: {
+                    original: value,
+                    masked: maskChar.repeat(value.length),
+                    type,
+                    warning:
+                      "Value too short for phone format (expected more than 4 digits); fully masked instead",
+                  },
+                }),
+              );
+            }
+            let digitsToMask = digits.length - 4;
+            maskedValue = value.replace(/\d/g, (match) => {
+              if (digitsToMask > 0) {
+                digitsToMask--;
+                return maskChar;
+              }
+              return match;
+            });
             break;
           }
           case "ssn": {
             // Show only last 4
             const ssnDigits = value.replace(/\D/g, "");
-            maskedValue = `${maskChar}${maskChar}${maskChar}-${maskChar}${maskChar}-${ssnDigits.slice(-4)}`;
+            if (ssnDigits.length < 9) {
+              return Promise.resolve(
+                withTokenEstimate({
+                  success: true,
+                  data: {
+                    original: value,
+                    masked: maskChar.repeat(value.length),
+                    type,
+                    warning:
+                      "Value too short for ssn format (expected at least 9 digits); fully masked instead",
+                  },
+                }),
+              );
+            }
+            let digitsToMask = ssnDigits.length - 4;
+            maskedValue = value.replace(/\d/g, (match) => {
+              if (digitsToMask > 0) {
+                digitsToMask--;
+                return maskChar;
+              }
+              return match;
+            });
             break;
           }
           case "credit_card": {
@@ -243,10 +313,19 @@ export function createSecurityMaskDataTool(
                 }),
               );
             }
-            maskedValue =
-              ccDigits.slice(0, 4) +
-              maskChar.repeat(Math.max(0, ccDigits.length - 8)) +
-              ccDigits.slice(-4);
+            let firstKept = 0;
+            let digitsToMask = ccDigits.length - 8;
+            maskedValue = value.replace(/\d/g, (match) => {
+              if (firstKept < 4) {
+                firstKept++;
+                return match;
+              }
+              if (digitsToMask > 0) {
+                digitsToMask--;
+                return maskChar;
+              }
+              return match;
+            });
             break;
           }
           case "partial": {
@@ -289,9 +368,9 @@ export function createSecurityMaskDataTool(
         );
       } catch (error) {
         if (error instanceof ZodError) {
-          return Promise.resolve(formatHandlerErrorResponse(error));
+          return Promise.resolve(formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_mask_data" }));
         }
-        return Promise.resolve(formatHandlerErrorResponse(error));
+        return Promise.resolve(formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_mask_data" }));
       }
     },
   };
@@ -319,136 +398,170 @@ export function createSecurityUserPrivilegesTool(
 
         if (!user) {
           return formatHandlerErrorResponse(
-            new ValidationError("Parameter 'user' (or 'userName') is required to prevent payload bloat.")
+            new ValidationError("Parameter 'user' (or 'userName') is required to prevent payload bloat."),
+            { module: "security", tool: "mysql_security_user_privileges" }
           );
         }
         // P154: User existence check when explicitly provided
-        const userCheck = await adapter.executeQuery(
-            "SELECT User FROM mysql.user WHERE User = ? LIMIT 1",
-            [user],
-          );
+        const userCheck = await adapter.rawQuery(
+          format("/* mcp-force-write */ SELECT User FROM mysql.user WHERE User = ? LIMIT 1", [user])
+        );
           if (!userCheck.rows || userCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
               new ValidationError(`User '${user}' does not exist.`),
+              { module: "security", tool: "mysql_security_user_privileges" }
             );
           }
 
-        // Get users
-        let usersQuery = `
-                SELECT User, Host,
-                       plugin AS authPlugin,
-                       account_locked AS accountLocked,
-                       password_expired AS passwordExpired,
-                       password_lifetime AS passwordLifetime,
-                       max_connections AS maxConnections,
-                       max_user_connections AS maxUserConnections
-                FROM mysql.user
-            `;
+          // Get users
+          let usersQuery = `
+                  /* mcp-force-write */ SELECT User, Host,
+                         plugin AS authPlugin,
+                         account_locked AS accountLocked,
+                         password_expired AS passwordExpired,
+                         password_lifetime AS passwordLifetime,
+                         max_connections AS maxConnections,
+                         max_user_connections AS maxUserConnections
+                  FROM mysql.user
+              `;
 
-        const conditions: string[] = [];
-        const queryParams: unknown[] = [];
+          const conditions: string[] = [];
+          const queryParams: string[] = [];
 
-        conditions.push("User = ?");
-        queryParams.push(user);
-        
-        if (host !== "%") {
-          conditions.push("Host = ?");
-          queryParams.push(host);
-        }
+          conditions.push("User = ?");
+          queryParams.push(user);
+          
+          if (host !== "%") {
+            conditions.push("Host = ?");
+            queryParams.push(host);
+          }
 
-        if (conditions.length > 0) {
-          usersQuery += " WHERE " + conditions.join(" AND ");
-        }
+          if (conditions.length > 0) {
+            usersQuery += " WHERE " + conditions.join(" AND ");
+          }
 
-        const usersResult = await adapter.executeQuery(usersQuery, queryParams);
+          const usersResult = await adapter.rawQuery(format(usersQuery, queryParams));
 
-        // For each user, get their grants
-        const userPrivileges = [];
-        for (const userRow of usersResult.rows ?? []) {
-          const u = userRow;
-          const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
-          const userHost = typeof u["Host"] === "string" ? u["Host"] : String(u["Host"]);
-
-          const grantsResult = await adapter.executeQuery(
-            `SHOW GRANTS FOR \`${userName}\`@\`${userHost}\``,
-          );
-
-          const grants = (grantsResult.rows ?? []).map((r) => {
-            const values = Object.values(r);
-            return typeof values[0] === "string" ? values[0] : String(values[0]);
-          });
-
-          let roles: string[] = [];
-          if (includeRoles) {
-            try {
-              const rolesResult = await adapter.executeQuery(
-                `
-                            SELECT FROM_USER, FROM_HOST
-                            FROM mysql.role_edges
-                            WHERE TO_USER = ? AND TO_HOST = ?
-                        `,
-                [userName, userHost],
+          // For each user, get their grants (executed in batches to avoid N+1 bottleneck)
+          const userPrivileges: Record<string, unknown>[] = [];
+          const userRows = usersResult.rows ?? [];
+          const BATCH_SIZE = 10;
+          
+          for (let i = 0; i < userRows.length; i += BATCH_SIZE) {
+            const chunk = userRows.slice(i, i + BATCH_SIZE);
+            
+            // Pre-fetch roles for the chunk to avoid N+1 queries
+            const roleMap = new Map<string, string[]>();
+            if (includeRoles && chunk.length > 0) {
+              try {
+                const roleConditions: string[] = [];
+                const roleParams: string[] = [];
+                
+                for (const u of chunk) {
+                  const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
+                  const userHost = typeof u["Host"] === "string" ? u["Host"] : String(u["Host"]);
+                  roleConditions.push("(TO_USER = ? AND TO_HOST = ?)");
+                  roleParams.push(userName, userHost);
+                }
+                
+                const rolesResult = await adapter.rawQuery(
+                  format(`
+                    /* mcp-force-write */ SELECT TO_USER, TO_HOST, FROM_USER, FROM_HOST
+                    FROM mysql.role_edges
+                    WHERE ${roleConditions.join(" OR ")}
+                  `,
+                  roleParams)
+                );
+                
+                for (const r of rolesResult.rows ?? []) {
+                  const toUser = typeof r["TO_USER"] === "string" ? r["TO_USER"] : String(r["TO_USER"]);
+                  const toHost = typeof r["TO_HOST"] === "string" ? r["TO_HOST"] : String(r["TO_HOST"]);
+                  const fromUser = typeof r["FROM_USER"] === "string" ? r["FROM_USER"] : String(r["FROM_USER"]);
+                  const fromHost = typeof r["FROM_HOST"] === "string" ? r["FROM_HOST"] : String(r["FROM_HOST"]);
+                  
+                  const key = `${toUser}@${toHost}`;
+                  const roleList = roleMap.get(key) ?? [];
+                  roleList.push(`${fromUser}@${fromHost}`);
+                  roleMap.set(key, roleList);
+                }
+              } catch {
+                // Role edges table might not exist in older versions
+              }
+            }
+            
+            const chunkResults = await Promise.all(chunk.map(async (userRow) => {
+              const u = userRow;
+              const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
+              const userHost = typeof u["Host"] === "string" ? u["Host"] : String(u["Host"]);
+              const escapedUserName = userName.replace(/`/g, '``');
+              const escapedUserHost = userHost.replace(/`/g, '``');
+    
+              const grantsResult = await adapter.rawQuery(
+                `SHOW GRANTS FOR \`${escapedUserName}\`@\`${escapedUserHost}\``
               );
-
-              roles = (rolesResult.rows ?? []).map((r) => {
-                const fromUser = typeof r["FROM_USER"] === "string" ? r["FROM_USER"] : String(r["FROM_USER"]);
-                const fromHost = typeof r["FROM_HOST"] === "string" ? r["FROM_HOST"] : String(r["FROM_HOST"]);
-                return `${fromUser}@${fromHost}`;
+    
+              const grants = (grantsResult.rows ?? []).map((r) => {
+                const values = Object.values(r);
+                return typeof values[0] === "string" ? values[0] : String(values[0]);
               });
-            } catch {
-              // Role edges table might not exist in older versions
+    
+              let roles: string[] = [];
+              if (includeRoles) {
+                roles = roleMap.get(`${userName}@${userHost}`) ?? [];
+              }
+  
+            if (summary) {
+              // Extract global privileges from GRANT statements
+              const globalPrivileges: string[] = [];
+              let hasAllPrivileges = false;
+              let hasWithGrantOption = false;
+  
+              for (const grant of grants) {
+                // Check for ALL PRIVILEGES
+                if (grant.includes("ALL PRIVILEGES")) {
+                  hasAllPrivileges = true;
+                }
+                // Check for WITH GRANT OPTION
+                if (grant.includes("WITH GRANT OPTION")) {
+                  hasWithGrantOption = true;
+                }
+                // Extract specific privileges from global grants (ON *.*)
+                const globalPattern = /GRANT\s+(.+?)\s+ON\s+\*\.\*\s+TO/i;
+                const globalMatch = globalPattern.exec(grant);
+                if (globalMatch?.[1]) {
+                  const privs = globalMatch[1].split(",").map((p) => p.trim());
+                  globalPrivileges.push(...privs);
+                }
+              }
+  
+              const deduped = [...new Set(globalPrivileges)];
+              return {
+                user: userName,
+                host: userHost,
+                authPlugin: u["authPlugin"],
+                accountLocked: u["accountLocked"] === "Y",
+                passwordExpired: u["passwordExpired"] === "Y",
+                grantCount: grants.length,
+                roleCount: roles.length,
+                hasAllPrivileges,
+                hasWithGrantOption,
+                globalPrivileges: deduped.slice(0, 10),
+                totalGlobalPrivileges: deduped.length,
+              };
+            } else {
+              return {
+                user: userName,
+                host: userHost,
+                authPlugin: u["authPlugin"],
+                accountLocked: u["accountLocked"] === "Y",
+                passwordExpired: u["passwordExpired"] === "Y",
+                grants,
+                roles,
+              };
             }
-          }
-
-          if (summary) {
-            // Extract global privileges from GRANT statements
-            const globalPrivileges: string[] = [];
-            let hasAllPrivileges = false;
-            let hasWithGrantOption = false;
-
-            for (const grant of grants) {
-              // Check for ALL PRIVILEGES
-              if (grant.includes("ALL PRIVILEGES")) {
-                hasAllPrivileges = true;
-              }
-              // Check for WITH GRANT OPTION
-              if (grant.includes("WITH GRANT OPTION")) {
-                hasWithGrantOption = true;
-              }
-              // Extract specific privileges from global grants (ON *.*)
-              const globalPattern = /GRANT\s+(.+?)\s+ON\s+\*\.\*\s+TO/i;
-              const globalMatch = globalPattern.exec(grant);
-              if (globalMatch?.[1]) {
-                const privs = globalMatch[1].split(",").map((p) => p.trim());
-                globalPrivileges.push(...privs);
-              }
-            }
-
-            const deduped = [...new Set(globalPrivileges)];
-            userPrivileges.push({
-              user: userName,
-              host: userHost,
-              authPlugin: u["authPlugin"],
-              accountLocked: u["accountLocked"] === "Y",
-              passwordExpired: u["passwordExpired"] === "Y",
-              grantCount: grants.length,
-              roleCount: roles.length,
-              hasAllPrivileges,
-              hasWithGrantOption,
-              globalPrivileges: deduped.slice(0, 10),
-              totalGlobalPrivileges: deduped.length,
-            });
-          } else {
-            userPrivileges.push({
-              user: userName,
-              host: userHost,
-              authPlugin: u["authPlugin"],
-              accountLocked: u["accountLocked"] === "Y",
-              passwordExpired: u["passwordExpired"] === "Y",
-              grants,
-              roles,
-            });
-          }
+          }));
+          
+          userPrivileges.push(...chunkResults);
         }
 
         return withTokenEstimate({
@@ -460,7 +573,7 @@ export function createSecurityUserPrivilegesTool(
           },
         });
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return formatHandlerErrorResponse(err, { module: "security", tool: "mysql_security_user_privileges" });
       }
     },
   };
@@ -487,17 +600,17 @@ export function createSecuritySensitiveTablesTool(
 
         if (!schema) {
           return formatHandlerErrorResponse(
-            new ValidationError("Parameter 'schema' (or 'database') is required to prevent payload bloat.")
+            new ValidationError("Parameter 'schema' (or 'database') is required to prevent payload bloat."),
+            { module: "security", tool: "mysql_security_sensitive_tables" }
           );
         }
-        // P154: Schema existence check when explicitly provided
-        const schemaCheck = await adapter.executeQuery(
-            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-            [schema],
-          );
+        const schemaCheck = await adapter.rawQuery(
+          format("/* mcp-force-write */ SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?", [schema])
+        );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
               new ValidationError(`Schema '${schema}' does not exist.`),
+              { module: "security", tool: "mysql_security_sensitive_tables" }
             );
           }
 
@@ -512,7 +625,7 @@ export function createSecuritySensitiveTablesTool(
         const schemaParams = [schema];
 
         const query = `
-                SELECT
+                /* mcp-force-write */ SELECT
                     TABLE_NAME AS tableName,
                     COLUMN_NAME AS columnName,
                     DATA_TYPE AS dataType,
@@ -525,10 +638,10 @@ export function createSecuritySensitiveTablesTool(
                 ORDER BY TABLE_NAME, COLUMN_NAME
             `;
 
-        const result = await adapter.executeQuery(query, [
+        const result = await adapter.rawQuery(format(query, [
           ...schemaParams,
           ...patternParams,
-        ]);
+        ]));
 
         // Group by table
         const tableMap = new Map<string, Record<string, unknown>[]>();
@@ -553,7 +666,7 @@ export function createSecuritySensitiveTablesTool(
         const limited = totalAvailable > limit;
         const sensitiveItems = limited ? allItems.slice(0, limit) : allItems;
 
-        return withTokenEstimate({
+        const tokenResult = withTokenEstimate({
           success: true,
           data: {
             sensitiveTables: sensitiveItems,
@@ -563,8 +676,9 @@ export function createSecuritySensitiveTablesTool(
             ...(limited ? { limited: true, totalAvailable } : {}),
           },
         });
+        return tokenResult;
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return formatHandlerErrorResponse(err, { module: "security", tool: "mysql_security_sensitive_tables" });
       }
     },
   };

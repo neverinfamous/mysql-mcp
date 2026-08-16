@@ -7,8 +7,7 @@
  * MCP Spec Reference:
  * https://modelcontextprotocol.io/specification/2025-11-25/server/utilities/progress
  */
-
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/server";
 
 /**
  * Progress token type as defined in MCP spec
@@ -23,6 +22,7 @@ interface ProgressNotificationParams {
   progress: number;
   total?: number;
   message?: string;
+  [key: string]: unknown;
 }
 
 /**

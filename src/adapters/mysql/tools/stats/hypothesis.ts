@@ -35,12 +35,22 @@ export const StatsHypothesisSchemaBase = z.object({
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
   testType: z.unknown().optional().describe("Type of test to perform"),
+  test_type: z.unknown().optional().describe("Alias for testType"),
+  type: z.unknown().optional().describe("Alias for testType"),
   hypothesizedMean: z.unknown().optional().describe("Null hypothesis mean to test against"),
+  hypothesized_mean: z.unknown().optional().describe("Alias for hypothesizedMean"),
+  mean: z.unknown().optional().describe("Alias for hypothesizedMean"),
   populationStdDev: z.unknown().optional().describe("Known population standard deviation (for z-test)"),
+  population_stddev: z.unknown().optional().describe("Alias for populationStdDev"),
+  stddev: z.unknown().optional().describe("Alias for populationStdDev"),
   groupBy: z.string().optional().describe("Column to group results by (for multiple one-sample tests)"),
+  group_by: z.string().optional().describe("Alias for groupBy"),
   groupColumn: z.string().optional().describe("Column containing the two groups (for two-sample test)"),
+  group_column: z.string().optional().describe("Alias for groupColumn"),
   group1: z.unknown().optional().describe("First group value"),
+  group_1: z.unknown().optional().describe("Alias for group1"),
   group2: z.unknown().optional().describe("Second group value"),
+  group_2: z.unknown().optional().describe("Alias for group2"),
   where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
@@ -57,7 +67,13 @@ export const StatsHypothesisSchema = z.preprocess(
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
       where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["sql"] ?? obj["query"],
-      testType: typeof obj["testType"] === "string" ? obj["testType"].replace(/-/g, "_") : obj["testType"],
+      testType: typeof (obj["testType"] ?? obj["test_type"] ?? obj["type"]) === "string" ? String(obj["testType"] ?? obj["test_type"] ?? obj["type"]).replace(/-/g, "_") : (obj["testType"] ?? obj["test_type"] ?? obj["type"]),
+      hypothesizedMean: obj["hypothesizedMean"] ?? obj["hypothesized_mean"] ?? obj["mean"],
+      populationStdDev: obj["populationStdDev"] ?? obj["population_stddev"] ?? obj["stddev"],
+      groupBy: obj["groupBy"] ?? obj["group_by"],
+      groupColumn: obj["groupColumn"] ?? obj["group_column"],
+      group1: obj["group1"] ?? obj["group_1"],
+      group2: obj["group2"] ?? obj["group_2"],
     };
   },
   z.object({
@@ -66,7 +82,7 @@ export const StatsHypothesisSchema = z.preprocess(
     column: z.string().min(1, "column is required"),
     testType: z.enum(["t_test", "z_test"]).default("t_test"),
     hypothesizedMean: z.coerce.number().default(0),
-    populationStdDev: z.coerce.number().optional(),
+    populationStdDev: z.coerce.number().min(0).optional(),
     groupBy: z.string().optional(),
     groupColumn: z.string().optional(),
     group1: z.union([z.string(), z.number()]).optional(),
@@ -120,14 +136,49 @@ export function createStatsHypothesisTool(
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid column name" });
         }
-        if (groupBy && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(groupBy)) {
+
+        const dbPart = database ? database : (table.includes('.') ? (table.split('.')[0] || '').replace(/`/g, '') : null);
+        const tblPart = table.includes('.') ? (table.split('.')[1] || '').replace(/`/g, '') : table.replace(/`/g, '');
+        
+        const tableCheckSql = `
+          SELECT 1 
+          FROM information_schema.TABLES 
+          WHERE TABLE_NAME = ? 
+          ${dbPart ? `AND TABLE_SCHEMA = ?` : `AND TABLE_SCHEMA = DATABASE()`}
+        `;
+        const tableParams = dbPart ? [tblPart, dbPart] : [tblPart];
+        const tableRes = await adapter.executeQuery(tableCheckSql, tableParams);
+        if (!tableRes.rows || tableRes.rows.length === 0) {
+          return withTokenEstimate({ success: false, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false, error: `Table '${tblPart}' not found` });
+        }
+
+        const typeCheckSql = `
+          SELECT DATA_TYPE 
+          FROM information_schema.COLUMNS 
+          WHERE TABLE_NAME = ? 
+          AND COLUMN_NAME = ?
+          ${dbPart ? `AND TABLE_SCHEMA = ?` : `AND TABLE_SCHEMA = DATABASE()`}
+        `;
+        const typeParams = dbPart ? [tblPart, column, dbPart] : [tblPart, column];
+        const typeRes = await adapter.executeQuery(typeCheckSql, typeParams);
+        const firstRow = typeRes.rows && typeRes.rows.length > 0 ? typeRes.rows[0] : undefined;
+        if (!firstRow) {
+          return withTokenEstimate({ success: false, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false, error: `Column '${column}' not found in table '${tblPart}'` });
+        }
+        
+        const dataType = String(firstRow['DATA_TYPE']).toLowerCase();
+        const numericTypes = ['tinyint', 'smallint', 'mediumint', 'int', 'integer', 'bigint', 'decimal', 'numeric', 'float', 'double', 'real', 'bit', 'year'];
+        if (!numericTypes.includes(dataType)) {
+          return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: `Column '${column}' is not numeric (type: ${dataType}). Statistical functions require numeric columns.` });
+        }
+        if (groupBy !== undefined && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(groupBy)) {
           return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid groupBy column name" });
         }
-        if (groupColumn && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(groupColumn)) {
+        if (groupColumn !== undefined && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(groupColumn)) {
           return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid groupColumn name" });
         }
 
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
         const formatInterpretation = (pValueRounded: number): string => {
           if (pValueRounded < 0.001) return "Highly significant (p < 0.001): Strong evidence against the null hypothesis";
@@ -138,7 +189,10 @@ export function createStatsHypothesisTool(
         };
 
         // Two-sample test
-        if (groupColumn && group1 !== undefined && group2 !== undefined) {
+        if (groupColumn !== undefined || group1 !== undefined || group2 !== undefined) {
+          if (groupColumn === undefined || group1 === undefined || group2 === undefined) {
+            return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "groupColumn, group1, and group2 are all required for a two-sample test" });
+          }
           const sql = `
               SELECT
                   \`${groupColumn}\` as group_key,
@@ -244,7 +298,7 @@ export function createStatsHypothesisTool(
         const row = rows[0];
         if (!row) return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "No data found" });
         const resultObj = calculateTestResults(Number(row['n'] ?? 0), Number(row['mean'] ?? 0), Number(row['stddev'] ?? 0));
-        return withTokenEstimate(resultObj['error'] != null ? { success: false, code: "CALCULATION_ERROR", category: "calculation", recoverable: false, error: typeof resultObj['error'] === 'string' ? resultObj['error'] : "Calculation error" } : { success: true, data: { table, column, testType, hypothesizedMean, results: resultObj } });
+        return withTokenEstimate(resultObj['error'] != null ? { success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: typeof resultObj['error'] === 'string' ? resultObj['error'] : "Calculation error" } : { success: true, data: { table, column, testType, hypothesizedMean, results: resultObj } });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }

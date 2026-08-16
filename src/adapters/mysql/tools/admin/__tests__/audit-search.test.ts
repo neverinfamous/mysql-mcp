@@ -23,12 +23,13 @@ describe("Audit Search Tool", () => {
         totalCount: 1,
       });
       const tool = createAuditSearchTool(mockAdapter);
-      const result = await tool.handler({}, mockContext);
+      const result = await tool.handler({ category: "admin" }, mockContext);
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("data.entries.length", 1);
       expect(result).toHaveProperty("data.totalCount", 1);
       expect(mockAuditLogger.search).toHaveBeenCalledWith({
-        limit: 10,
+        category: "admin",
+        limit: 5,
         offset: 0,
       });
     });
@@ -55,9 +56,9 @@ describe("Audit Search Tool", () => {
     it("should handle missing auditLogger", async () => {
       mockAdapter.getAuditLogger.mockReturnValue(null);
       const tool = createAuditSearchTool(mockAdapter);
-      const result = await tool.handler({}, mockContext);
+      const result = await tool.handler({ tool: "test_tool" }, mockContext);
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("error", "Audit Logger is not enabled or available");
+      expect(result).toHaveProperty("error", "Extension 'Audit Logger is not enabled or available (requires --audit-log flag)' is not installed or enabled");
     });
 
     it("should return validation error on invalid params", async () => {

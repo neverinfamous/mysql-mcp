@@ -46,7 +46,7 @@ const HELP_GROUPS = [
 ];
 
 test.describe("Help Resources", () => {
-  test("mysql://help is listed in resources", async ({}, testInfo) => {
+  test("mysql://help is listed in resources", async () => {
     const client = await createClient();
     try {
       const list = await client.listResources();
@@ -57,22 +57,18 @@ test.describe("Help Resources", () => {
     }
   });
 
-  test("all 20 group help resources are listed", async ({}, testInfo) => {
+  test("mysql://help/{group} template is listed in resource templates", async () => {
     const client = await createClient();
     try {
-      const list = await client.listResources();
-      const uris = list.resources.map((r) => r.uri);
-      for (const group of HELP_GROUPS) {
-        expect(uris, `Missing mysql://help/${group}`).toContain(
-          `mysql://help/${group}`,
-        );
-      }
+      const list = await client.listResourceTemplates();
+      const uris = list.resourceTemplates.map((r) => r.uriTemplate);
+      expect(uris).toContain("mysql://help/{group}");
     } finally {
       await client.close();
     }
   });
 
-  test("mysql://help returns non-empty markdown", async ({}, testInfo) => {
+  test("mysql://help returns non-empty application/json", async () => {
     const client = await createClient();
     try {
       const response = await client.readResource({ uri: "mysql://help" });
@@ -80,31 +76,34 @@ test.describe("Help Resources", () => {
       expect(response.contents).toBeDefined();
       expect(response.contents.length).toBe(1);
       expect(response.contents[0].uri).toBe("mysql://help");
-      expect(response.contents[0].mimeType).toBe("text/markdown");
+      expect(response.contents[0].mimeType).toBe("application/json");
 
       const text = response.contents[0].text as string;
-      expect(text.length).toBeGreaterThan(100);
+      const parsed = JSON.parse(text);
+      expect(parsed.groups).toBeDefined();
+      expect(Array.isArray(parsed.groups)).toBe(true);
+      expect(parsed.groups.length).toBeGreaterThan(0);
     } finally {
       await client.close();
     }
   });
 
-  test("mysql://help contains critical section keywords", async ({}, testInfo) => {
+  test("mysql://help JSON contains critical group keys", async () => {
     const client = await createClient();
     try {
       const response = await client.readResource({ uri: "mysql://help" });
-      const text = (response.contents[0].text as string).toLowerCase();
+      const parsed = JSON.parse(response.contents[0].text as string);
+      const groupNames = parsed.groups.map((g: any) => g.name);
 
-      // Root help should mention key concepts
-      expect(text).toContain("gotcha");
-      expect(text).toContain("code mode");
+      expect(groupNames).toContain("gotchas");
+      expect(groupNames).toContain("core");
     } finally {
       await client.close();
     }
   });
 
   for (const group of HELP_GROUPS) {
-    test(`mysql://help/${group} returns non-empty markdown`, async ({}, testInfo) => {
+    test(`mysql://help/${group} returns non-empty application/json`, async () => {
       const client = await createClient();
       try {
         const response = await client.readResource({
@@ -114,10 +113,12 @@ test.describe("Help Resources", () => {
         expect(response.contents).toBeDefined();
         expect(response.contents.length).toBe(1);
         expect(response.contents[0].uri).toBe(`mysql://help/${group}`);
-        expect(response.contents[0].mimeType).toBe("text/markdown");
+        expect(response.contents[0].mimeType).toBe("application/json");
 
         const text = response.contents[0].text as string;
-        expect(text.length, `${group} help content too short`).toBeGreaterThan(
+        const parsed = JSON.parse(text);
+        expect(parsed.group).toBe(group);
+        expect(parsed.helpContent.length, `${group} help content too short`).toBeGreaterThan(
           50,
         );
       } finally {

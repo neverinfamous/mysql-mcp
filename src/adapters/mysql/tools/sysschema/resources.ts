@@ -31,10 +31,10 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 const LimitSchemaBase = z.object({
-  limit: z.number().optional().describe("Maximum number of results to return"),
-  max: z.number().optional().describe("Alias for limit"),
-  count: z.number().optional().describe("Alias for limit"),
-});
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results to return"),
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+}).loose();
 
 const LimitSchema = z.preprocess(
   (val: unknown) => {
@@ -62,19 +62,22 @@ const SchemaStatsSchemaBase = z.object({
   database: z.string().optional().describe("Alias for schema"),
   db: z.string().optional().describe("Alias for schema"),
   schemaName: z.string().optional().describe("Alias for schema"),
-  limit: z.number().optional().describe("Maximum number of results"),
-});
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+}).loose();
 
 const SchemaStatsSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { schema?: unknown; database?: unknown; db?: unknown; schemaName?: unknown; limit?: unknown };
+    const v = val as { schema?: unknown; database?: unknown; db?: unknown; schemaName?: unknown; limit?: unknown; max?: unknown; count?: unknown };
+    const resolvedSchema = v.schema ?? v.database ?? v.db ?? v.schemaName;
     return {
       ...val,
-      schema: v.schema ?? v.database ?? v.db ?? v.schemaName,
-      limit: v.limit,
+      schema: resolvedSchema === "" ? undefined : resolvedSchema,
+      limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
@@ -83,6 +86,8 @@ const SchemaStatsSchema = z.preprocess(
     database: z.any().optional(),
     db: z.any().optional(),
     schemaName: z.any().optional(),
+    max: z.any().optional(),
+    count: z.any().optional(),
   }).strict()
 );
 
@@ -105,11 +110,12 @@ export function createSysSchemaStatsTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { schema, limit } = SchemaStatsSchema.parse(params);
+        const actualLimit = Math.min(limit, 100);
 
         // P154: Schema existence check when explicitly provided
         if (schema) {
           const schemaCheck = await adapter.executeQuery(
-            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            "WITH sys_query AS (SELECT schema_name FROM information_schema.schemata WHERE schema_name = ?) SELECT * FROM sys_query",
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
@@ -118,6 +124,7 @@ export function createSysSchemaStatsTool(
               error: `Schema '${schema}' does not exist`,
               code: "NOT_FOUND_ERROR",
               category: "not_found",
+              recoverable: false,
             });
           }
         }
@@ -126,54 +133,70 @@ export function createSysSchemaStatsTool(
         let resolvedSchema = schema;
         if (!resolvedSchema) {
           const dbResult = await adapter.executeQuery(
-            "SELECT DATABASE() as db",
+            "WITH sys_query AS (SELECT DATABASE() as db) SELECT * FROM sys_query",
           );
           const rows = dbResult.rows ?? [];
           const dbRow = rows[0];
-          resolvedSchema = typeof dbRow?.["db"] === "string" ? dbRow["db"] : "unknown";
+          
+          if (typeof dbRow?.["db"] !== "string" || dbRow["db"] === "") {
+            return withTokenEstimate({
+              success: false,
+              error: "No database selected and no schema provided. Please specify a schema.",
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: true,
+            });
+          }
+          
+          resolvedSchema = dbRow["db"];
         }
 
         // Get table statistics
         const tableStatsQuery = `
+                WITH sys_query AS (
                 SELECT
-                    table_schema,
-                    table_name,
-                    rows_fetched,
-                    fetch_latency,
-                    rows_inserted,
-                    insert_latency,
-                    rows_updated,
-                    update_latency,
-                    rows_deleted,
-                    delete_latency
-                FROM sys.schema_table_statistics
-                WHERE table_schema = COALESCE(?, DATABASE())
-                ORDER BY (fetch_latency + insert_latency + update_latency + delete_latency) DESC
-                LIMIT ${String(limit)}
+                    t.table_schema,
+                    t.table_name,
+                    t.rows_fetched,
+                    sys.format_time(t.fetch_latency) AS fetch_latency,
+                    t.rows_inserted,
+                    sys.format_time(t.insert_latency) AS insert_latency,
+                    t.rows_updated,
+                    sys.format_time(t.update_latency) AS update_latency,
+                    t.rows_deleted,
+                    sys.format_time(t.delete_latency) AS delete_latency
+                FROM sys.x$schema_table_statistics t
+                WHERE t.table_schema = COALESCE(?, DATABASE())
+                ORDER BY (t.fetch_latency + t.insert_latency + t.update_latency + t.delete_latency) DESC
+                LIMIT ${String(actualLimit)}
+                ) SELECT * FROM sys_query
             `;
 
         // Get index statistics
         const indexStatsQuery = `
+                WITH sys_query AS (
                 SELECT
-                    table_schema,
-                    table_name,
-                    index_name,
-                    rows_selected,
-                    select_latency,
-                    rows_inserted,
-                    insert_latency,
-                    rows_updated,
-                    update_latency,
-                    rows_deleted,
-                    delete_latency
-                FROM sys.schema_index_statistics
-                WHERE table_schema = COALESCE(?, DATABASE())
-                ORDER BY (select_latency + insert_latency + update_latency + delete_latency) DESC
-                LIMIT ${String(limit)}
+                    t.table_schema,
+                    t.table_name,
+                    t.index_name,
+                    t.rows_selected,
+                    sys.format_time(t.select_latency) AS select_latency,
+                    t.rows_inserted,
+                    sys.format_time(t.insert_latency) AS insert_latency,
+                    t.rows_updated,
+                    sys.format_time(t.update_latency) AS update_latency,
+                    t.rows_deleted,
+                    sys.format_time(t.delete_latency) AS delete_latency
+                FROM sys.x$schema_index_statistics t
+                WHERE t.table_schema = COALESCE(?, DATABASE())
+                ORDER BY (t.select_latency + t.insert_latency + t.update_latency + t.delete_latency) DESC
+                LIMIT ${String(actualLimit)}
+                ) SELECT * FROM sys_query
             `;
 
         // Get auto-increment status
         const autoIncQuery = `
+                WITH sys_query AS (
                 SELECT
                     table_schema,
                     table_name,
@@ -184,19 +207,18 @@ export function createSysSchemaStatsTool(
                 FROM sys.schema_auto_increment_columns
                 WHERE table_schema = COALESCE(?, DATABASE())
                 ORDER BY auto_increment_ratio DESC
-                LIMIT ${String(limit)}
+                LIMIT ${String(actualLimit)}
+                ) SELECT * FROM sys_query
             `;
 
-        const [tableStats, indexStats, autoIncStats] = await Promise.all([
-          adapter.executeQuery(tableStatsQuery, [schema ?? null]),
-          adapter.executeQuery(indexStatsQuery, [schema ?? null]),
-          adapter.executeQuery(autoIncQuery, [schema ?? null]),
-        ]);
+        const tableStats = await adapter.executeQuery(tableStatsQuery, [schema ?? null]);
+        const indexStats = await adapter.executeQuery(indexStatsQuery, [schema ?? null]);
+        const autoIncStats = await adapter.executeQuery(autoIncQuery, [schema ?? null]);
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
-            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+            if (value !== 0 && value !== "0" && value !== "0 ps" && value !== "  0 ps" && value !== "0 bytes" && value !== "   0 bytes" && value !== "" && value !== null) {
               cleaned[key] = value;
             }
           }
@@ -244,8 +266,10 @@ export function createSysInnoDBLockWaitsTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = LimitSchema.parse(params);
+        const actualLimit = Math.min(limit, 100);
 
         const query = `
+                WITH sys_query AS (
                 SELECT
                     wait_started,
                     wait_age,
@@ -268,13 +292,14 @@ export function createSysInnoDBLockWaitsTool(
                     blocking_lock_mode
                 FROM sys.innodb_lock_waits
                 ORDER BY wait_started
-                LIMIT ${String(limit)}
+                LIMIT ${String(actualLimit)}
+                ) SELECT * FROM sys_query
             `;
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
-            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+            if (value !== 0 && value !== "0" && value !== "0 ps" && value !== "  0 ps" && value !== "0 bytes" && value !== "   0 bytes" && value !== "" && value !== null) {
               cleaned[key] = value;
             }
           }
@@ -282,6 +307,7 @@ export function createSysInnoDBLockWaitsTool(
         };
 
         const result = await adapter.executeQuery(query);
+
         return withTokenEstimate({
           success: true,
           data: {
@@ -318,9 +344,11 @@ export function createSysMemorySummaryTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = LimitSchema.parse(params);
+        const actualLimit = Math.min(limit, 100);
 
         // Global memory summary
         const globalQuery = `
+                WITH sys_query AS (
                 SELECT
                     event_name,
                     current_count,
@@ -330,12 +358,13 @@ export function createSysMemorySummaryTool(
                     high_alloc,
                     high_avg_alloc
                 FROM sys.memory_global_by_current_bytes
-                ORDER BY current_alloc DESC
-                LIMIT ${String(limit)}
+                LIMIT ${String(actualLimit)}
+                ) SELECT * FROM sys_query
             `;
 
         // Memory by user
         const userQuery = `
+                WITH sys_query AS (
                 SELECT
                     user,
                     current_count_used,
@@ -344,19 +373,17 @@ export function createSysMemorySummaryTool(
                     current_max_alloc,
                     total_allocated
                 FROM sys.memory_by_user_by_current_bytes
-                ORDER BY current_allocated DESC
-                LIMIT ${String(limit)}
+                LIMIT ${String(actualLimit)}
+                ) SELECT * FROM sys_query
             `;
 
-        const [globalStats, userStats] = await Promise.all([
-          adapter.executeQuery(globalQuery),
-          adapter.executeQuery(userQuery),
-        ]);
+        const globalStats = await adapter.executeQuery(globalQuery);
+        const userStats = await adapter.executeQuery(userQuery);
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
-            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+            if (value !== 0 && value !== "0" && value !== "0 ps" && value !== "  0 ps" && value !== "0 bytes" && value !== "   0 bytes" && value !== "" && value !== null) {
               cleaned[key] = value;
             }
           }

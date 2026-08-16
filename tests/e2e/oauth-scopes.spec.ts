@@ -18,23 +18,18 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { type ChildProcess, spawn } from "node:child_process";
 import { createServer, type Server } from "node:http";
-import { setTimeout as delay } from "node:timers/promises";
 import { Buffer } from "node:buffer";
 import * as jose from "jose";
-import { tmpdir } from "node:os";
+import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE, SCOPE_ERROR_MSG } from "./helpers.js";
 
-const MCP_PORT = 3157;
-const JWKS_PORT = 3158;
 const ISSUER = "https://auth.example.com/mysql-scope-test";
 const AUDIENCE = "mysql-mcp-server";
 
-test.describe.configure({ mode: "serial" });
-
-test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
-  let serverProcess: ChildProcess;
+test.describe("OAuth 2.1 Scope Enforcement E2E", () => {
   let jwksServer: Server;
+  let mcpPort: number;
+  let jwksPort: number;
 
   // JWTs
   let readToken: string;
@@ -45,6 +40,9 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
   let invalidScopeToken: string;
 
   test.beforeAll(async () => {
+    mcpPort = 3170 + (test.info().workerIndex * 2);
+    jwksPort = 3170 + (test.info().workerIndex * 2) + 1;
+
     // 1. Generate RS256 keypair
     const keypair = await jose.generateKeyPair("RS256");
     const publicJwk = await jose.exportJWK(keypair.publicKey);
@@ -73,8 +71,8 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
           console.error("JWKS Server error:", e);
         }
       });
-      jwksServer.listen(JWKS_PORT, "127.0.0.1", () => {
-        console.log("JWKS Server listening on 127.0.0.1:" + JWKS_PORT);
+      jwksServer.listen(jwksPort, "127.0.0.1", () => {
+        console.log("JWKS Server listening on 127.0.0.1:" + jwksPort);
         resolve();
       });
     });
@@ -114,62 +112,24 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
       .sign(badKeypair.privateKey);
 
     // 4. Start mysql-mcp with OAuth enabled
-    serverProcess = spawn(
-      "node",
-      [
-        "dist/cli.js",
-        "--server-host",
-        "127.0.0.1",
-        "--transport",
-        "http",
-        "--port",
-        String(MCP_PORT),
-        "--mysql",
-        process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3306/testdb",
-        "--stateless",
-        "--log-level",
-        "debug",
-        "--tool-filter",
-        "+all",
-        "--oauth-enabled",
-        "--oauth-issuer",
-        ISSUER,
-        "--oauth-audience",
-        AUDIENCE,
-        "--oauth-jwks-uri",
-        `http://127.0.0.1:${JWKS_PORT}/jwks`,
-      ],
-      {
-        cwd: process.cwd(),
-        stdio: "pipe",
-        env: {
-          ...process.env,
-          MCP_RATE_LIMIT_MAX: "10000",
-          NO_PROXY: "*",
-          ALLOWED_IO_ROOTS: `C:/temp,C:/tmp,/tmp,${tmpdir()}`,
-        },
-      },
-    );
-
-    serverProcess.stdout?.on("data", (data) => console.log(`[TEST-SERVER]: ${data.toString()}`));
-    serverProcess.stderr?.on("data", (data) => console.error(`[TEST-SERVER]: ${data.toString()}`));
-
-    // Wait for server readiness
-    for (let i = 0; i < 30; i++) {
-      try {
-        const res = await fetch(`http://127.0.0.1:${MCP_PORT}/health`);
-        if (res.ok) break;
-      } catch {
-        // Not ready yet
-      }
-      await delay(500);
-    }
+    await startServer(mcpPort, [
+      "--stateless",
+      "--log-level",
+      "debug",
+      "--tool-filter",
+      "+all",
+      "--oauth-enabled",
+      "--oauth-issuer",
+      ISSUER,
+      "--oauth-audience",
+      AUDIENCE,
+      "--oauth-jwks-uri",
+      `http://127.0.0.1:${jwksPort}/jwks`,
+    ], "oauth-server", { NO_PROXY: "*" });
   });
 
   test.afterAll(async () => {
-    if (serverProcess) {
-      serverProcess.kill("SIGTERM");
-    }
+    stopServer(mcpPort);
     if (jwksServer) {
       await new Promise<void>((resolve) => jwksServer.close(() => resolve()));
     }
@@ -178,14 +138,13 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
   // ─── Helpers ────────────────────────────────────────────────────────────────
 
   async function initializeSession(token: string): Promise<string> {
-    const base = `http://127.0.0.1:${MCP_PORT}/mcp`;
+    const base = `http://127.0.0.1:${mcpPort}/mcp`;
     const headers = {
       "Content-Type": "application/json",
       Accept: "application/json, text/event-stream",
       Authorization: `Bearer ${token}`,
     };
 
-    console.log("Fetching /mcp with initialize...");
     const initRes = await fetch(base, {
       method: "POST",
       headers,
@@ -194,13 +153,12 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
         id: 1,
         method: "initialize",
         params: {
-          protocolVersion: "2025-03-26",
+          protocolVersion: MCP_PROTOCOL_STREAMABLE,
           capabilities: {},
           clientInfo: { name: "scope-test-client", version: "1.0" },
         },
       }),
     });
-    console.log("Fetch complete. Status:", initRes.status);
     expect(initRes.status).toBe(200);
 
     // In stateless mode, there is no session ID and no need for the initialized notification.
@@ -223,7 +181,7 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
       headers["mcp-session-id"] = sessionId;
     }
 
-    const res = await fetch(`http://127.0.0.1:${MCP_PORT}/mcp`, {
+    const res = await fetch(`http://127.0.0.1:${mcpPort}/mcp`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -303,7 +261,7 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
     );
     const txExtracted = extractResult(txResult);
     expect(txExtracted.isError).toBe(true);
-    expect(txExtracted.text.toLowerCase()).toContain("insufficient scope");
+    expect(txExtracted.text.toLowerCase()).toContain(SCOPE_ERROR_MSG);
 
     // ❌ DENIED: mysql_kill_query (admin group → admin scope)
     const vacuumResult = await callTool(readToken, session, "mysql_kill_query", {
@@ -311,7 +269,7 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
     });
     const vacuumExtracted = extractResult(vacuumResult);
     expect(vacuumExtracted.isError).toBe(true);
-    expect(vacuumExtracted.text.toLowerCase()).toContain("insufficient scope");
+    expect(vacuumExtracted.text.toLowerCase()).toContain(SCOPE_ERROR_MSG);
   });
 
   test("write token can call read and write tools but is blocked from admin tools", async () => {
@@ -343,7 +301,7 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
     });
     const vacuumExtracted = extractResult(vacuumResult);
     expect(vacuumExtracted.isError).toBe(true);
-    expect(vacuumExtracted.text.toLowerCase()).toContain("insufficient scope");
+    expect(vacuumExtracted.text.toLowerCase()).toContain(SCOPE_ERROR_MSG);
   });
 
   test("admin token can call admin-scoped tools", async () => {
@@ -358,7 +316,7 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
     // If it errors, it should be a DB-level error, not a scope error
     if (vacuumExtracted.isError) {
       expect(vacuumExtracted.text.toLowerCase()).not.toContain(
-        "insufficient scope",
+        SCOPE_ERROR_MSG,
       );
     }
   });
@@ -368,11 +326,11 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
 
     // ❌ DENIED: mysql_write_query (core group → write scope override)
     const writeResult = await callTool(readToken, session, "mysql_write_query", {
-      sql: "INSERT INTO test (id) VALUES (1)",
+      query: "INSERT INTO test (id) VALUES (1)",
     });
     const writeExtracted = extractResult(writeResult);
     expect(writeExtracted.isError).toBe(true);
-    expect(writeExtracted.text.toLowerCase()).toContain("insufficient scope");
+    expect(writeExtracted.text.toLowerCase()).toContain(SCOPE_ERROR_MSG);
 
     // ❌ DENIED: mysql_create_table (core group → write scope override)
     const createResult = await callTool(readToken, session, "mysql_create_table", {
@@ -381,7 +339,7 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
     });
     const createExtracted = extractResult(createResult);
     expect(createExtracted.isError).toBe(true);
-    expect(createExtracted.text.toLowerCase()).toContain("insufficient scope");
+    expect(createExtracted.text.toLowerCase()).toContain(SCOPE_ERROR_MSG);
   });
 
   test("write token is blocked from core destructive tools but allowed core write tools", async () => {
@@ -389,12 +347,12 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
 
     // ✅ ALLOWED: mysql_write_query (core group → write scope override)
     const writeResult = await callTool(writeToken, session, "mysql_write_query", {
-      sql: "INSERT INTO test (id) VALUES (1)",
+      query: "INSERT INTO test (id) VALUES (1)",
     });
     const writeExtracted = extractResult(writeResult);
     if (writeExtracted.isError) {
       expect(writeExtracted.text.toLowerCase()).not.toContain(
-        "insufficient scope",
+        SCOPE_ERROR_MSG,
       );
     }
 
@@ -404,11 +362,11 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
     });
     const dropExtracted = extractResult(dropResult);
     expect(dropExtracted.isError).toBe(true);
-    expect(dropExtracted.text.toLowerCase()).toContain("insufficient scope");
+    expect(dropExtracted.text.toLowerCase()).toContain(SCOPE_ERROR_MSG);
   });
 
   test("expired or invalid tokens are rejected at connection time", async () => {
-    const base = `http://127.0.0.1:${MCP_PORT}/mcp`;
+    const base = `http://127.0.0.1:${mcpPort}/mcp`;
 
     const getInitRes = async (token: string) =>
       fetch(base, {
@@ -423,7 +381,7 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
           id: 1,
           method: "initialize",
           params: {
-            protocolVersion: "2025-03-26",
+            protocolVersion: MCP_PROTOCOL_STREAMABLE,
             capabilities: {},
             clientInfo: { name: "scope-test-client", version: "1.0" },
           },

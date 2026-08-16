@@ -1,18 +1,24 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { getVectorTools } from "../../adapters/mysql/tools/vector/index.js";
-import { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
+import { type MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../types/index.js";
 
-// Mock the MySQLAdapter
-const mockExecuteQuery = vi.fn().mockImplementation(async (sql) => {
-  if (sql === "SELECT VERSION() as version") {
-    return { rows: [{ version: "9.0.0" }] };
+const mockExecuteQuery = vi.fn().mockResolvedValue({ rows: [], affectedRows: 0 });
+const mockRawQuery = vi.fn().mockImplementation(async (sql) => {
+  if (sql === "SELECT @@version as Value") {
+    return { rows: [{ Value: "9.0.0" }] };
+  }
+  if (sql.includes("SHOW COLUMNS")) {
+    return { rows: [{ Field: "v1", Type: "vector(3)", Null: "YES", Default: null, Extra: "" }, { Field: "id", Type: "int" }] };
   }
   return { rows: [], affectedRows: 0 };
 });
 
 const mockAdapter = {
   executeQuery: mockExecuteQuery,
+  rawQuery: mockRawQuery,
+  getHealth: vi.fn().mockResolvedValue({ version: "9.1.0" }),
+  describeTable: vi.fn().mockResolvedValue({ columns: [{ name: "v1", type: "vector(3)" }, { name: "id", type: "int" }] }),
 } as unknown as MySQLAdapter;
 
 const mockContext: RequestContext = { timestamp: new Date(), requestId: "test" };
@@ -31,14 +37,20 @@ describe("Vector Tools", () => {
   describe("Version Gating", () => {
     it("should return an error for MySQL versions < 9.0 on vector tools", async () => {
       // Mock version 8.0.35
-      const oldExecuteQuery = vi.fn().mockImplementation(async (sql) => {
-        if (sql === "SELECT VERSION() as version") {
-          return { rows: [{ version: "8.0.35" }] };
+      const oldRawQuery = vi.fn().mockImplementation(async (sql) => {
+        if (sql === "SELECT @@version as Value") {
+          return { rows: [{ Value: "8.0.35" }] };
+        }
+        if (sql.includes("SHOW COLUMNS")) {
+          return { rows: [{ Field: "v1", Type: "vector(3)", Null: "YES", Default: null, Extra: "" }] };
         }
         return { rows: [], affectedRows: 0 };
       });
       const oldAdapter = {
-        executeQuery: oldExecuteQuery,
+        executeQuery: vi.fn().mockResolvedValue({ rows: [], affectedRows: 0 }),
+        rawQuery: oldRawQuery,
+        getHealth: vi.fn().mockResolvedValue({ version: "8.0.35" }),
+        describeTable: vi.fn().mockResolvedValue({ columns: [{ name: "v1", type: "vector(3)" }] }),
       } as unknown as MySQLAdapter;
       
       const oldToolsArray = getVectorTools(oldAdapter);
@@ -57,7 +69,10 @@ describe("Vector Tools", () => {
     });
 
     it("should return an error for MySQL versions < 9.1 on create_index", async () => {
-      const indexTool = tools.get("mysql_vector_create_index")!;
+      mockAdapter.getHealth = vi.fn().mockResolvedValue({ version: "9.0.0" });
+      const oldToolsArray = getVectorTools(mockAdapter);
+      const oldTools = new Map(oldToolsArray.map((t) => [t.name, t]));
+      const indexTool = oldTools.get("mysql_vector_create_index")!;
       
       const result = await indexTool.handler(
         { table: "t1", column: "v1" },
@@ -111,22 +126,31 @@ describe("Vector Tools", () => {
     it("should return success when queryVector is valid", async () => {
 
       
-      const mockResult = Object.assign(
+      const mockRawQuery = Object.assign(
         function (query: string) {
           if (typeof query === "string") {
-            if (query.includes("VERSION()")) {
-              return Promise.resolve({ rows: [{ version: "9.0.0" }] });
+            if (query.includes("SELECT @@version as Value")) {
+              return Promise.resolve({ rows: [{ Value: "9.0.0" }] });
             }
-            if (query.includes("INFORMATION_SCHEMA")) {
-              return Promise.resolve({ rows: [{ COLUMN_NAME: "id" }] });
+            if (query.includes("SHOW COLUMNS")) {
+              return Promise.resolve({ rows: [{ Field: "v1", Type: "vector(3)" }] });
             }
           }
+          return Promise.resolve({ rows: [], affectedRows: 0 });
+        },
+        { _isMockFunction: true }
+      );
+      const mockExecuteQuery = Object.assign(
+        function (_query: string) {
           return Promise.resolve({ rows: [{ id: 1, distance: 0.1 }], affectedRows: 0 });
         },
         { _isMockFunction: true }
       );
       const successAdapter = {
-        executeQuery: mockResult,
+        executeQuery: mockExecuteQuery,
+        rawQuery: mockRawQuery,
+        getHealth: vi.fn().mockResolvedValue({ version: "9.1.0" }),
+        describeTable: vi.fn().mockResolvedValue({ columns: [{ name: "v1", type: "vector(3)" }] }),
       } as unknown as MySQLAdapter;
       
       const successTool = getVectorTools(successAdapter).find(t => t.name === "mysql_vector_search")!;
@@ -135,8 +159,6 @@ describe("Vector Tools", () => {
         { table: "t1", column: "v1", queryVector: [1, 2, 3] },
         mockContext
       );
-      
-      console.log(result);
       expect(result.success).toBe(true);
       expect(result.data.count).toBe(1);
     });
@@ -157,8 +179,12 @@ describe("Vector Tools", () => {
 
     it("should handle missing FULLTEXT index gracefully", async () => {
       const tool = tools.get("mysql_vector_hybrid_search")!;
-      mockAdapter.executeQuery.mockImplementation(async (sql) => {
-        if (sql === "SELECT VERSION() as version") return { rows: [{ version: "9.0.0" }] };
+      mockAdapter.rawQuery = vi.fn().mockImplementation(async (sql) => {
+        if (sql === "SELECT @@version as Value") return { rows: [{ Value: "9.0.0" }] };
+        if (sql.includes("SHOW COLUMNS")) return { rows: [{ Field: 'id' }, { Field: 'v1', Type: 'vector(3)' }] };
+        return { rows: [] };
+      });
+      mockAdapter.executeQuery = vi.fn().mockImplementation(async (_sql) => {
         throw new Error("Can't find FULLTEXT index");
       });
       
@@ -174,8 +200,12 @@ describe("Vector Tools", () => {
 
     it("should handle missing table gracefully", async () => {
       const tool = tools.get("mysql_vector_hybrid_search")!;
-      mockAdapter.executeQuery.mockImplementation(async (sql) => {
-        if (sql === "SELECT VERSION() as version") return { rows: [{ version: "9.0.0" }] };
+      mockAdapter.rawQuery = vi.fn().mockImplementation(async (sql) => {
+        if (sql === "SELECT @@version as Value") return { rows: [{ Value: "9.0.0" }] };
+        if (sql.includes("SHOW COLUMNS")) return { rows: [{ Field: 'id' }, { Field: 'v1', Type: 'vector(3)' }] };
+        return { rows: [] };
+      });
+      mockAdapter.executeQuery = vi.fn().mockImplementation(async (_sql) => {
         throw new Error("Table 't1' does not exist");
       });
       
@@ -190,9 +220,12 @@ describe("Vector Tools", () => {
 
     it("should strip vectorColumn from default select output", async () => {
       const tool = tools.get("mysql_vector_hybrid_search")!;
-      mockAdapter.executeQuery.mockImplementation(async (sql) => {
-        if (sql === "SELECT VERSION() as version") return { rows: [{ version: "9.0.0" }] };
-        if (sql.includes("INFORMATION_SCHEMA.COLUMNS")) return { rows: [{ COLUMN_NAME: 'id' }] };
+      mockAdapter.rawQuery = vi.fn().mockImplementation(async (sql) => {
+        if (sql === "SELECT @@version as Value") return { rows: [{ Value: "9.0.0" }] };
+        if (sql.includes("SHOW COLUMNS")) return { rows: [{ Field: 'id' }, { Field: 'v1', Type: 'vector(3)' }] };
+        return { rows: [] };
+      });
+      mockAdapter.executeQuery = vi.fn().mockImplementation(async (_sql) => {
         return { rows: [{ id: 1, v1: '[0.1, 0.2]', text: 'hello', combined_score: 1.0 }] };
       });
       
@@ -201,7 +234,6 @@ describe("Vector Tools", () => {
         mockContext
       );
       
-      console.log("TEST RESULT:", result);
       expect(result.success).toBe(true);
       expect(result.data.results[0]).not.toHaveProperty('v1');
       expect(result.data.results[0]).toHaveProperty('id');

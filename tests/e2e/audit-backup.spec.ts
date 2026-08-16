@@ -22,11 +22,14 @@ import {
   stopServer,
   createClient,
   callToolAndParse,
+  BACKUP_DISABLED_PATTERN,
 } from "./helpers.js";
-import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Client } from "@modelcontextprotocol/client";
 
 // Force sequential execution to prevent parallel workers from colliding on manual ports/files
-test.describe.configure({ mode: "serial", timeout: 120_000 });
+import { TIMEOUTS } from "./helpers.js";
+
+test.describe.configure({ mode: "serial", timeout: TIMEOUTS.LONG });
 
 const BACKUP_PORT_BASE = 3160;
 
@@ -90,7 +93,7 @@ test.describe("Audit Backup Snapshots", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Create a temp table, then drop it (drop triggers snapshot)
       await callToolAndParse(client, "mysql_create_table", {
@@ -103,7 +106,7 @@ test.describe("Audit Backup Snapshots", () => {
 
       // Insert a row so drop has something to snapshot
       await callToolAndParse(client, "mysql_write_query", {
-        sql: `INSERT INTO ${TEMP_TABLE} (val) VALUES ('test_data')`,
+        query: `INSERT INTO ${TEMP_TABLE} (val) VALUES ('test_data')`,
       });
 
       // Drop triggers a pre-mutation snapshot
@@ -146,7 +149,7 @@ test.describe("Audit Backup Snapshots", () => {
       try {
         if (client) {
           await callToolAndParse(client, "mysql_write_query", {
-            sql: `DROP TABLE IF EXISTS ${TEMP_TABLE}`,
+            query: `DROP TABLE IF EXISTS ${TEMP_TABLE}`,
           });
         }
       } catch {
@@ -180,7 +183,7 @@ test.describe("Audit Backup Snapshots", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Create table with 2 columns
       await callToolAndParse(client, "mysql_create_table", {
@@ -228,7 +231,7 @@ test.describe("Audit Backup Snapshots", () => {
       try {
         if (client) {
           await callToolAndParse(client, "mysql_write_query", {
-            sql: `DROP TABLE IF EXISTS ${TEMP_TABLE}`,
+            query: `DROP TABLE IF EXISTS ${TEMP_TABLE}`,
           });
         }
       } catch {
@@ -262,7 +265,7 @@ test.describe("Audit Backup Snapshots", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Create, then drop (creates snapshot of original)
       await callToolAndParse(client, "mysql_create_table", {
@@ -329,7 +332,7 @@ test.describe("Audit Backup Snapshots", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // All 3 tools should return { error: "..." } when backup is disabled
       const listResult = await callToolAndParse(
@@ -338,25 +341,23 @@ test.describe("Audit Backup Snapshots", () => {
         {},
       );
       expect(typeof listResult.error).toBe("string");
-      expect(listResult.error as string).toMatch(/not enabled|not available/i);
+      expect(listResult.error as string).toMatch(BACKUP_DISABLED_PATTERN);
 
       const diffResult = await callToolAndParse(
         client,
         "mysql_audit_diff_backup",
         { filename: "fake.snapshot.json" },
       );
-      expect(typeof diffResult.error).toBe("string");
-      expect(diffResult.error as string).toMatch(/not enabled|not available/i);
+      expect(diffResult.success).toBe(false);
+      expect(diffResult.error as string).toMatch(BACKUP_DISABLED_PATTERN);
 
       const restoreResult = await callToolAndParse(
         client,
         "mysql_audit_restore_backup",
         { filename: "fake.snapshot.json" },
       );
-      expect(typeof restoreResult.error).toBe("string");
-      expect(restoreResult.error as string).toMatch(
-        /not enabled|not available/i,
-      );
+      expect(restoreResult.success).toBe(false);
+      expect(restoreResult.error as string).toMatch(BACKUP_DISABLED_PATTERN);
     } finally {
       if (client) await client.close();
       stopServer(port);

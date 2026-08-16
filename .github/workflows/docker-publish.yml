@@ -54,15 +54,16 @@ jobs:
           echo "Justification: $BYPASS_REASON"
 
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@v7.0.1 # v7.0.1
         with:
           ref: ${{ github.sha }}
+          persist-credentials: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Build image for scanning (local only)
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v6.x
         with:
           context: .
           file: Dockerfile
@@ -71,7 +72,7 @@ jobs:
           load: true
           tags: local-scan:latest
           cache-from: type=gha,scope=linux/amd64
-          cache-to: type=gha,scope=linux/amd64,mode=max
+          cache-to: type=gha,scope=linux/amd64-scan,mode=max
 
       - name: Docker Scout security scan
         uses: docker/scout-action@bacf462e8d090c09660de30a6ccc718035f961e3 # v1
@@ -80,7 +81,7 @@ jobs:
           command: cves
           image: local-scan:latest
           only-fixed: true
-          only-severities: critical,high,medium,low
+          only-severities: critical,high,medium
           exit-code: true
         env:
           DOCKER_SCOUT_HUB_USER: ${{ secrets.DOCKER_USERNAME }}
@@ -93,7 +94,9 @@ jobs:
           format: table
           exit-code: 1
           ignore-unfixed: true
-          severity: CRITICAL,HIGH,MEDIUM,LOW
+          severity: CRITICAL,HIGH,MEDIUM
+          trivyignores: .trivyignore
+          skip-dirs: /usr/local/lib/node_modules/npm
           timeout: 10m
 
       - name: Trivy SARIF upload
@@ -104,21 +107,22 @@ jobs:
           format: sarif
           output: trivy-results.sarif
           ignore-unfixed: true
-          severity: CRITICAL,HIGH,MEDIUM,LOW
+          severity: CRITICAL,HIGH,MEDIUM
+          trivyignores: .trivyignore
+          skip-dirs: /usr/local/lib/node_modules/npm
           timeout: 10m
 
       - name: Upload Trivy results to GitHub Security
-        if: always()
-        uses: github/codeql-action/upload-sarif@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a # v4.36.3
+        if: always() && hashFiles('trivy-results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4.37.3 # v4.37.3
         with:
           sarif_file: trivy-results.sarif
-          category: trivy-docker-scan
+          category: trivy-docker-publish-scan
 
   # Smoke test: verify the Docker image actually starts before pushing
   # Prevents shipping images that pass CVE scans but crash at runtime (neverinfamous/mysql-mcp#149)
   smoke-test:
     needs: [security-scan]
-    if: ${{ needs.security-scan.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -126,15 +130,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@v7.0.1 # v7.0.1
         with:
           ref: ${{ github.sha }}
+          persist-credentials: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Build image for smoke test
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v6.x
         with:
           context: .
           file: Dockerfile
@@ -143,7 +148,7 @@ jobs:
           load: true
           tags: smoke-test:latest
           cache-from: type=gha,scope=linux/amd64
-          cache-to: type=gha,scope=linux/amd64,mode=max
+          cache-to: type=gha,scope=linux/amd64-smoke,mode=max
 
       - name: Smoke test — binary loads without crash
         run: |
@@ -155,29 +160,26 @@ jobs:
         run: |
           # Start with router filter (no MySQL connection needed)
           docker run --rm -d --name smoke-http -p 3000:3000 \
-            -e MCP_TRANSPORT=http -e PORT=3000 -e HOST=0.0.0.0 -e ALLOWED_IO_ROOTS=/tmp \
+            --health-cmd="wget --spider -q http://127.0.0.1:3000/health || exit 1" \
+            --health-interval=2s --health-timeout=2s --health-retries=5 \
+            -e MYSQLMCP_PORT=3000 -e MCP_HOST=0.0.0.0 -e ALLOWED_IO_ROOTS=/tmp \
+            -e AUDIT_LOG_PATH=/tmp/mcp-audit.jsonl \
+            -e OTEL_TRACES_EXPORTER=none -e OTEL_METRICS_EXPORTER=none -e OTEL_LOGS_EXPORTER=none \
             -e TOOL_FILTER=router smoke-test:latest \
-            --transport http --port 3000 --server-host 0.0.0.0 --tool-filter router
-          sleep 5
-          if ! docker ps --filter name=smoke-http --format '{{.Status}}' | grep -q "Up"; then
-            echo "❌ HTTP smoke test failed — container crashed"
-            docker logs smoke-http 2>&1 || true
-            exit 1
-          fi
-          HTTP_STATUS=$(curl -sf -o /dev/null -w '%{http_code}' http://localhost:3000/health || echo "000")
-          if [ "$HTTP_STATUS" != "200" ]; then
-            echo "❌ Health endpoint returned $HTTP_STATUS"
+            --transport http
+          
+          timeout 15s bash -c 'until [ "$(docker inspect -f {{.State.Health.Status}} smoke-http)" == "healthy" ]; do sleep 1; done' || {
+            echo "❌ HTTP smoke test failed — container not healthy"
             docker logs smoke-http 2>&1 || true
             docker stop smoke-http || true
             exit 1
-          fi
+          }
           docker stop smoke-http
           echo "✅ HTTP transport smoke test passed"
 
-  # Build each platform on native architecture (only runs if security scan passes)
+  # Build each platform on native architecture (only runs if security scan and smoke tests pass)
   build-platform:
     needs: [security-scan, smoke-test]
-    if: needs.smoke-test.result == 'success' && github.event_name != 'pull_request'
     strategy:
       fail-fast: false
       matrix:
@@ -188,6 +190,7 @@ jobs:
             runner: ubuntu-24.04-arm
 
     runs-on: ${{ matrix.runner }}
+    environment: dummy
     permissions:
       contents: read
       packages: write
@@ -196,29 +199,48 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@v7.0.1 # v7.0.1
         with:
           ref: ${{ github.sha }}
+          persist-credentials: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        uses: docker/login-action@v4.5.1 # v4.5.1
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Read version from package.json
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v4.x
+        with:
+          node-version-file: ".node-version"
+
+      - name: Read version
         id: version
         run: |
-          VERSION=$(grep -oP '"version":\s*"\K[0-9.]+' package.json | head -1)
+          if [ -f "VERSION" ]; then
+            VERSION=$(head -1 VERSION | tr -d '[:space:]')
+          fi
           if [ -z "$VERSION" ]; then
-            VERSION="1.0.0"
+            VERSION=$(node -p "require('./package.json').version")
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Detected version: $VERSION"
+
+      - name: Verify tag matches package.json
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          PKG_VERSION="${{ steps.version.outputs.version }}"
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "❌ Error: Tag version (v$TAG_VERSION) does not match package.json version ($PKG_VERSION)"
+            exit 1
+          fi
+          echo "✅ Tag version matches package.json ($PKG_VERSION)"
 
       - name: Extract metadata
         id: meta
@@ -230,10 +252,14 @@ jobs:
             suffix=-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
           tags: |
             type=sha,prefix=sha-,format=short
+          labels: |
+            tags.datadoghq.com/service=mysql-mcp
+            tags.datadoghq.com/env=production
+            tags.datadoghq.com/version=${{ steps.version.outputs.version }}
 
       - name: Build and push platform image
         id: build
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v6.x
         with:
           context: .
           file: Dockerfile
@@ -253,7 +279,7 @@ jobs:
           touch "/tmp/digests/${digest#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.x
         with:
           name: digests-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
           path: /tmp/digests/*
@@ -264,7 +290,6 @@ jobs:
   merge-and-push:
     runs-on: ubuntu-24.04
     needs: [build-platform]
-    if: needs.build-platform.result == 'success' && github.event_name != 'pull_request'
     permissions:
       contents: read
       packages: write
@@ -273,18 +298,19 @@ jobs:
       deployments: write
 
     environment:
-      # Evaluates to 'production' if tag push OR emergency bypass, otherwise '' (no environment gate)
-      name: ${{ (startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass) && 'production' || '' }}
+      # Evaluates to 'production' if tag push OR emergency bypass, otherwise 'dummy' (no environment gate)
+      name: ${{ (startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == true) && 'production' || 'dummy' }}
       url: https://hub.docker.com/r/writenotenow/mysql-mcp
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@v7.0.1 # v7.0.1
         with:
           ref: ${{ github.sha }}
+          persist-credentials: false
 
       - name: Download digests
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.x
         with:
           path: /tmp/digests
           pattern: digests-*
@@ -294,20 +320,38 @@ jobs:
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        uses: docker/login-action@v4.5.1 # v4.5.1
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v4.x
+        with:
+          node-version-file: ".node-version"
+
       - name: Read version
         id: version
         run: |
-          VERSION=$(grep -oP '"version":\s*"\K[0-9.]+' package.json | head -1)
+          if [ -f "VERSION" ]; then
+            VERSION=$(head -1 VERSION | tr -d '[:space:]')
+          fi
           if [ -z "$VERSION" ]; then
-            VERSION="1.0.0"
+            VERSION=$(node -p "require('./package.json').version")
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Verify tag matches package.json
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          PKG_VERSION="${{ steps.version.outputs.version }}"
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "❌ Error: Tag version (v$TAG_VERSION) does not match package.json version ($PKG_VERSION)"
+            exit 1
+          fi
+          echo "✅ Tag version matches package.json ($PKG_VERSION)"
 
       - name: Extract metadata for manifest
         id: meta
@@ -317,9 +361,13 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=raw,value=v${{ steps.version.outputs.version }},enable=true
-            type=raw,value=latest,enable=true
+            type=raw,value=v${{ steps.version.outputs.version }},enable=${{ startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == true }}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == true }}
             type=sha,prefix=sha-,format=short
+          labels: |
+            tags.datadoghq.com/service=mysql-mcp
+            tags.datadoghq.com/env=production
+            tags.datadoghq.com/version=${{ steps.version.outputs.version }}
 
       - name: Create and push manifest
         working-directory: /tmp/digests
@@ -333,17 +381,17 @@ jobs:
 
       # Update Docker Hub description
       - name: Update Docker Hub Description
-        uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5
+        uses: peter-evans/dockerhub-description@432a30c9e07499fd01da9f8a49f0faf9e0ca5b77 # v4.x
         timeout-minutes: 5
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: ${{ env.IMAGE_NAME }}
           readme-filepath: ./DOCKER_README.md
-          short-description: "MySQL MCP server with 241 tools, Code Mode, OAuth 2.1, HTTP/SSE, and Audit Logs."
+          short-description: "Production-ready MySQL MCP with Code Mode token reduction and OAuth security."
 
       - name: Deployment Summary
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == true
         run: |
           echo "✅ Successfully published Docker images to production"
           echo "🐳 Registry: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"

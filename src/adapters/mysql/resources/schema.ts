@@ -16,6 +16,8 @@ export function createSchemaResource(
     title: "MySQL Database Schema",
     description: "Full database schema including tables, views, and indexes",
     mimeType: "application/json",
+    ttlMs: 300000,
+    cacheScope: "public",
     annotations: {
       audience: ["user", "assistant"],
       priority: 0.8,

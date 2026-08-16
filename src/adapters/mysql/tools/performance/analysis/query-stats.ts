@@ -46,7 +46,7 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM performance_schema.events_statements_summary_by_digest
                 WHERE DIGEST_TEXT IS NOT NULL
                 ORDER BY ${orderColumn} DESC
-                LIMIT ${Math.min(limit, 20)}
+                LIMIT ${Math.min(limit, 100)}
             `;
 
         const result = await adapter.executeReadQuery(sql);

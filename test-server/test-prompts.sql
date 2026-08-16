@@ -1,12 +1,12 @@
 -- =============================================================================
 -- test-prompts.sql - Database seed for testing mysql-mcp prompts
 -- =============================================================================
--- This seed creates tables and data to support testing all 19 prompts.
+-- This seed creates tables and data to support testing all 20 prompts.
 -- Prompts are documentation/guidance generators, so this seed primarily
 -- ensures the referenced tools and queries will work when testing prompts.
 --
--- Target: testdb database on mysql-final Docker container
--- Usage: Get-Content test-prompts.sql -Raw | docker exec -i mysql-final mysql -uroot -proot testdb
+-- Target: testdb database on mysql-node1 Docker container
+-- Usage: Get-Content test-prompts.sql -Raw | docker exec -i mysql-node1 mysql -uroot -proot testdb
 -- =============================================================================
 
 -- Increase recursion depth for 10K-row CTE generation
@@ -349,8 +349,8 @@ SELECT
 -- =============================================================================
 -- TOTAL: 11 tables, ~11,217 rows
 -- =============================================================================
--- Ready to test all 19 prompts:
---   - 10 no-argument prompts (complete immediately)
+-- Ready to test all 20 prompts:
+--   - 11 no-argument prompts (complete immediately)
 --   - 4 optional-argument prompts with defaults
 --   - 5 required-argument prompts
 -- =============================================================================

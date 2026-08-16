@@ -1,5 +1,5 @@
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
+import { Client } from "@modelcontextprotocol/client";
 import { z } from "zod";
 import assert from "assert";
 import { resolve, dirname } from "path";
@@ -33,10 +33,7 @@ async function main() {
   console.log("Connected.");
   let notifications = [];
 
-  const ResourceUpdatedNotificationSchema = z
-    .object({ method: z.literal("notifications/resources/updated") })
-    .passthrough();
-  client.setNotificationHandler(ResourceUpdatedNotificationSchema, (notif) => {
+  client.setNotificationHandler("notifications/resources/updated", (notif) => {
     const uri = notif.params ? notif.params.uri : notif.uri;
     notifications.push(uri);
     console.log("Notification received:", uri);

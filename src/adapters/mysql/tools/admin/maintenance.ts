@@ -43,6 +43,7 @@ import {
   DESTRUCTIVE,
 } from "../../../../utils/annotations.js";
 import { progressFactory } from "../../../../progress/index.js";
+import { escapeQualifiedTable, parseQualifiedTable } from "../../../../utils/validators.js";
 
 export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -56,13 +57,41 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { tables } = OptimizeTableSchema.parse(params);
-        const tableList = tables.map((t) => `\`${t}\``).join(", ");
+        const { tables, local } = OptimizeTableSchema.parse(params);
+        
+        // Pre-check table existence
+        const checkPromises = tables.map(async (t) => {
+          const parsed = parseQualifiedTable(t);
+          const schema = parsed.schema;
+          const tableName = parsed.table;
+          const query = schema !== undefined
+            ? `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`
+            : `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`;
+          const args = schema !== undefined ? [schema, tableName] : [tableName];
+          const res = await adapter.executeReadQuery(query, args);
+          return { table: t, found: (res.rows ?? []).length > 0 };
+        });
+        const results = await Promise.all(checkPromises);
+        const notFound = results.filter((r) => !r.found).map((r) => r.table);
+        if (notFound.length > 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `Tables not found: ${notFound.join(", ")}`,
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { notFound },
+          });
+        }
+
+        const tableList = tables.map(escapeQualifiedTable).join(", ");
 
         const reporter = progressFactory.create(_context.progressToken);
         reporter?.start(1, `Optimizing tables: ${tables.join(", ")}...`);
 
-        const result = await adapter.rawQuery(`OPTIMIZE TABLE ${tableList}`);
+        const modifier = local ? "LOCAL " : "";
+        const result = await adapter.rawQuery(`OPTIMIZE ${modifier}TABLE ${tableList}`);
 
         reporter?.complete();
         const rows = result.rows ?? [];
@@ -105,15 +134,53 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { tables } = AnalyzeTableSchema.parse(params);
+        const { tables, local, update_histograms } = AnalyzeTableSchema.parse(params);
+        
+        // Pre-check table existence
+        const checkPromises = tables.map(async (t) => {
+          const parsed = parseQualifiedTable(t);
+          const schema = parsed.schema;
+          const tableName = parsed.table;
+          const query = schema !== undefined
+            ? `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`
+            : `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`;
+          const args = schema !== undefined ? [schema, tableName] : [tableName];
+          const res = await adapter.executeReadQuery(query, args);
+          return { table: t, found: (res.rows ?? []).length > 0 };
+        });
+        const results = await Promise.all(checkPromises);
+        const notFound = results.filter((r) => !r.found).map((r) => r.table);
+        if (notFound.length > 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `Tables not found: ${notFound.join(", ")}`,
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { notFound },
+          });
+        }
+
         const rows: Record<string, unknown>[] = [];
         
         const reporter = progressFactory.create(_context.progressToken);
+        const modifier = local ? "LOCAL " : "";
         for (let i = 0; i < tables.length; i++) {
           const t = tables[i];
           if (!t) continue;
           reporter?.progress(i, tables.length, `Analyzing table: ${t}`);
-          const result = await adapter.rawQuery(`ANALYZE TABLE \`${t}\``);
+          let query = `ANALYZE ${modifier}TABLE ${escapeQualifiedTable(t)}`;
+          if (update_histograms) {
+             query += ` UPDATE HISTOGRAMS ON ${escapeQualifiedTable(t)}.*`;
+          }
+          const result = await adapter.rawQuery(query).catch(async (e: unknown) => {
+            if (update_histograms) {
+               // Fallback if the simplistic histogram syntax is rejected
+               return await adapter.rawQuery(`ANALYZE ${modifier}TABLE ${escapeQualifiedTable(t)}`);
+            }
+            throw e;
+          });
           if (result.rows) {
             rows.push(...result.rows);
           }
@@ -159,6 +226,33 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables, option } = CheckTableSchema.parse(params);
+        
+        // Pre-check table existence
+        const checkPromises = tables.map(async (t) => {
+          const parsed = parseQualifiedTable(t);
+          const schema = parsed.schema;
+          const tableName = parsed.table;
+          const query = schema !== undefined
+            ? `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`
+            : `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`;
+          const args = schema !== undefined ? [schema, tableName] : [tableName];
+          const res = await adapter.executeReadQuery(query, args);
+          return { table: t, found: (res.rows ?? []).length > 0 };
+        });
+        const results = await Promise.all(checkPromises);
+        const notFound = results.filter((r) => !r.found).map((r) => r.table);
+        if (notFound.length > 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `Tables not found: ${notFound.join(", ")}`,
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { notFound },
+          });
+        }
+
         const optionClause = option ? ` ${option}` : "";
         const rows: Record<string, unknown>[] = [];
 
@@ -168,7 +262,7 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
           if (!t) continue;
           reporter?.progress(i, tables.length, `Checking table: ${t}`);
           // Use rawQuery - CHECK TABLE not supported in prepared statement protocol
-          const result = await adapter.rawQuery(`CHECK TABLE \`${t}\`${optionClause}`);
+          const result = await adapter.rawQuery(`CHECK TABLE ${escapeQualifiedTable(t)}${optionClause}`);
           if (result.rows) {
             rows.push(...result.rows);
           }
@@ -217,7 +311,34 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables, quick } = RepairTableSchema.parse(params);
-        const tableList = tables.map((t) => `\`${t}\``).join(", ");
+        
+        // Pre-check table existence
+        const checkPromises = tables.map(async (t) => {
+          const parsed = parseQualifiedTable(t);
+          const schema = parsed.schema;
+          const tableName = parsed.table;
+          const query = schema !== undefined
+            ? `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`
+            : `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`;
+          const args = schema !== undefined ? [schema, tableName] : [tableName];
+          const res = await adapter.executeReadQuery(query, args);
+          return { table: t, found: (res.rows ?? []).length > 0 };
+        });
+        const results = await Promise.all(checkPromises);
+        const notFound = results.filter((r) => !r.found).map((r) => r.table);
+        if (notFound.length > 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `Tables not found: ${notFound.join(", ")}`,
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { notFound },
+          });
+        }
+
+        const tableList = tables.map(escapeQualifiedTable).join(", ");
         const quickClause = quick ? " QUICK" : "";
 
         const reporter = progressFactory.create(_context.progressToken);
@@ -267,28 +388,35 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { tables } = FlushTablesSchema.parse(params);
+        const { tables, withReadLock, forExport } = FlushTablesSchema.parse(params);
+        const lockSuffix = withReadLock ? " WITH READ LOCK" : forExport ? " FOR EXPORT" : "";
 
         if (tables && tables.length > 0) {
           // Pre-check table existence since FLUSH TABLES silently succeeds for nonexistent tables
-          const placeholders = tables.map(() => "?").join(", ");
-          const checkResult = await adapter.executeReadQuery(
-            `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME IN (${placeholders})`,
-            tables,
-          );
-          const foundTables = new Set(
-            (checkResult.rows ?? []).map(
-              (r: Record<string, unknown>) => typeof r["TABLE_NAME"] === "string" ? r["TABLE_NAME"] : String(r["TABLE_NAME"]),
-            ),
-          );
-          const notFound = tables.filter((t) => !foundTables.has(t));
+          const checkPromises = tables.map(async (t) => {
+            const parsed = parseQualifiedTable(t);
+            const schema = parsed.schema;
+            const tableName = parsed.table;
+            
+            const query = schema !== undefined
+              ? `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`
+              : `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`;
+            const args = schema !== undefined ? [schema, tableName] : [tableName];
+            
+            const res = await adapter.executeReadQuery(query, args);
+            return { table: t, found: (res.rows ?? []).length > 0 };
+          });
+          
+          const results = await Promise.all(checkPromises);
+          const foundTables = new Set(results.filter(r => r.found).map(r => r.table));
+          const notFound = results.filter(r => !r.found).map(r => r.table);
 
           if (notFound.length > 0) {
             // Flush valid tables before reporting missing ones
             const validTables = tables.filter((t) => foundTables.has(t));
             if (validTables.length > 0) {
-              const validList = validTables.map((t) => `\`${t}\``).join(", ");
-              await adapter.executeQuery(`FLUSH TABLES ${validList}`);
+              const validList = validTables.map(escapeQualifiedTable).join(", ");
+              await adapter.executeQuery(`FLUSH TABLES ${validList}${lockSuffix}`);
             }
             return withTokenEstimate({
               success: false,
@@ -304,10 +432,10 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
             });
           }
 
-          const tableList = tables.map((t) => `\`${t}\``).join(", ");
-          await adapter.executeQuery(`FLUSH TABLES ${tableList}`);
+          const tableList = tables.map(escapeQualifiedTable).join(", ");
+          await adapter.executeQuery(`FLUSH TABLES ${tableList}${lockSuffix}`);
         } else {
-          await adapter.executeQuery("FLUSH TABLES");
+          await adapter.executeQuery(`FLUSH TABLES${lockSuffix}`);
         }
 
         return withTokenEstimate({ success: true, data: {} });
@@ -353,15 +481,18 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
             details: undefined,
           });
         }
-        return withTokenEstimate({
-          success: false,
-          error: message,
-          code: "KILL_ERROR",
-          category: ErrorCategory.QUERY,
-          suggestion: undefined,
-          recoverable: false,
-          details: undefined,
-        });
+        if (message.includes("You are not owner of thread")) {
+          return withTokenEstimate({
+            success: false,
+            error: `Permission denied: ${message}`,
+            code: "KILL_ERROR",
+            category: ErrorCategory.PERMISSION,
+            suggestion: "Ensure you have the PROCESS or SUPER privilege, or own the thread you are trying to kill.",
+            recoverable: false,
+            details: undefined,
+          });
+        }
+        return formatHandlerErrorResponse(error);
       }
     },
   };

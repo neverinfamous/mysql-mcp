@@ -7,7 +7,7 @@
  * Run: pnpm run bench
  */
 
-import { describe, bench, beforeEach, afterEach, vi } from "vitest";
+import { describe, bench, beforeEach, afterEach, afterAll, vi } from "vitest";
 import { CodeModeSandbox, SandboxPool } from "../../codemode/sandbox.js";
 import { CodeModeSecurityManager } from "../../codemode/security.js";
 
@@ -178,6 +178,14 @@ describe("Sandbox Execution", () => {
 // ---------------------------------------------------------------------------
 describe("Security Validation", () => {
   const security = new CodeModeSecurityManager();
+  const rateLimitSecManager = new CodeModeSecurityManager({
+    maxExecutionsPerMinute: 100000, // large enough to avoid throttling during bench
+  });
+
+  afterAll(() => {
+    security.destroy();
+    rateLimitSecManager.destroy();
+  });
 
   bench(
     "validateCode() safe short code (50 chars)",
@@ -214,10 +222,7 @@ describe("Security Validation", () => {
   bench(
     "checkRateLimit() throughput",
     () => {
-      const secManager = new CodeModeSecurityManager({
-        maxExecutionsPerMinute: 10000,
-      });
-      secManager.checkRateLimit("client-1");
+      rateLimitSecManager.checkRateLimit("client-1");
     },
     { iterations: 5000, warmupIterations: 50 },
   );

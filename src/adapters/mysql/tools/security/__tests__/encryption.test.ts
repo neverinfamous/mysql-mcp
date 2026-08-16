@@ -87,19 +87,22 @@ describe("Security Encryption Tools", () => {
       mockExecuteQuery
         // keyring plugins
         .mockResolvedValueOnce({
-          rows: [{ PLUGIN_NAME: "keyring_file", PLUGIN_STATUS: "ACTIVE" }],
+          rows: [{ Name: "keyring_file", Status: "ACTIVE" }],
         })
         // tablespaces
         .mockResolvedValueOnce({
           rows: [{ NAME: "mysql", ENCRYPTION: "Y" }],
         })
+        // tablespaces count
+        .mockResolvedValueOnce({
+          rows: [{ cnt: 1 }],
+        })
         // variables
         .mockResolvedValueOnce({
-          rows: [{ Variable_name: "default_table_encryption", Value: "ON" }],
-        })
-        // innodb variables
-        .mockResolvedValueOnce({
-          rows: [{ Variable_name: "innodb_redo_log_encrypt", Value: "ON" }],
+          rows: [
+            { Variable_name: "default_table_encryption", Value: "ON" },
+            { Variable_name: "innodb_redo_log_encrypt", Value: "ON" }
+          ],
         });
 
       const result = await tool.handler({}, {});
@@ -188,7 +191,7 @@ describe("Security Encryption Tools", () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("failed");
+      expect(result.error).toContain("is not installed or enabled");
     });
   });
 });

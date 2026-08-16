@@ -6,12 +6,10 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getClusterTools } from "../cluster/index.js";
-import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../__tests__/mocks/index.js";
 
 describe("getClusterTools", () => {
   let tools: ReturnType<typeof getClusterTools>;
@@ -76,19 +74,20 @@ describe("Handler Execution", () => {
     it("should query group_replication status", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]),
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]),
         ) // Plugin check
         .mockResolvedValueOnce(
           createMockQueryResult([{ MEMBER_STATE: "ONLINE" }]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_gr_status")!;
+      const tool = tools.find((t) => t.name === "mysql_gr_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       // Returns enabled, groupName, members etc
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("enabled");
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("members");
+      expect((result as Record<string, unknown>).data).toHaveProperty("enabled");
+      expect((result as Record<string, unknown>).data).toHaveProperty("members");
     });
   });
 
@@ -96,7 +95,7 @@ describe("Handler Execution", () => {
     it("should list group replication members", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]),
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]),
         ) // Plugin check
         .mockResolvedValueOnce(
           createMockQueryResult([
@@ -105,31 +104,33 @@ describe("Handler Execution", () => {
           ]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_gr_members")!;
+      const tool = tools.find((t) => t.name === "mysql_gr_members");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[1][0]; // Second call is the query
       expect(call).toContain("replication_group_members");
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("members");
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("count");
+      expect((result as Record<string, unknown>).data).toHaveProperty("members");
+      expect((result as Record<string, unknown>).data).toHaveProperty("count");
     });
 
     it("should accept memberId parameter", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]),
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]),
         ) // Plugin check
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_gr_members")!;
-      await tool.handler({ memberId: "uuid1" }, mockContext);
+      const tool = tools.find((t) => t.name === "mysql_gr_members");
+      if (!tool) throw new Error('Tool not found');;
+      await tool.handler({ memberId: "123e4567-e89b-12d3-a456-426614174001" }, mockContext);
 
       // Plugin check is first call
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         1,
         expect.stringContaining(
-          "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS",
+          "SHOW PLUGINS",
         ),
       );
 
@@ -137,7 +138,7 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         2,
         expect.stringContaining("WHERE m.MEMBER_ID = ?"),
-        ["uuid1"],
+        ["123e4567-e89b-12d3-a456-426614174001"],
       );
     });
   });
@@ -146,18 +147,25 @@ describe("Handler Execution", () => {
     it("should get primary member info", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]),
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]),
         ) // Plugin check
         .mockResolvedValueOnce(
+          createMockQueryResult([{ singlePrimaryMode: 1 }]),
+        ) // Mode check
+        .mockResolvedValueOnce(
           createMockQueryResult([{ memberId: "uuid1", host: "primary.local" }]),
-        );
+        ) // Primary query
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ serverUuid: "uuid2" }]),
+        ); // Local UUID
 
-      const tool = tools.find((t) => t.name === "mysql_gr_primary")!;
+      const tool = tools.find((t) => t.name === "mysql_gr_primary");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("primary");
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("hasPrimary");
+      expect((result as Record<string, unknown>).data).toHaveProperty("primary");
+      expect((result as Record<string, unknown>).data).toHaveProperty("hasPrimary");
     });
   });
 
@@ -165,20 +173,24 @@ describe("Handler Execution", () => {
     it("should get transaction status", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]),
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]),
         ) // Plugin check
         .mockResolvedValueOnce(
           createMockQueryResult([
             { memberId: "uuid1", txInQueue: 0, txChecked: 100 },
           ]),
-        );
+        ) // Stats query
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ gtidExecuted: "uuid:1-100", gtidPurged: "uuid:1-50" }]),
+        ); // GTID query
 
-      const tool = tools.find((t) => t.name === "mysql_gr_transactions")!;
+      const tool = tools.find((t) => t.name === "mysql_gr_transactions");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("memberStats");
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("gtid");
+      expect((result as Record<string, unknown>).data).toHaveProperty("memberStats");
+      expect((result as Record<string, unknown>).data).toHaveProperty("gtid");
     });
   });
 
@@ -186,7 +198,7 @@ describe("Handler Execution", () => {
     it("should get flow control statistics", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]),
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]),
         ) // Plugin check
         .mockResolvedValueOnce(
           createMockQueryResult([
@@ -194,13 +206,14 @@ describe("Handler Execution", () => {
           ]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_gr_flow_control")!;
+      const tool = tools.find((t) => t.name === "mysql_gr_flow_control");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("configuration");
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("memberQueues");
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("isThrottling");
+      expect((result as Record<string, unknown>).data).toHaveProperty("configuration");
+      expect((result as Record<string, unknown>).data).toHaveProperty("memberQueues");
+      expect((result as Record<string, unknown>).data).toHaveProperty("isThrottling");
     });
   });
 
@@ -210,7 +223,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ cluster_name: "myCluster", status: "OK" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_status")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -227,11 +241,12 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_instances")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_instances");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("instances");
+      expect((result as Record<string, unknown>).data).toHaveProperty("instances");
     });
 
     it("should fallback to GR members if metadata query fails", async () => {
@@ -247,14 +262,15 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_instances")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_instances");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
-      expect(Reflect.get(result || {}, "data")).toHaveProperty(
+      expect((result as Record<string, unknown>).data).toHaveProperty(
         "source",
         "group_replication",
       );
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("instances");
+      expect((result as Record<string, unknown>).data).toHaveProperty("instances");
       // Two calls: 1. metadata query, 2. fallback query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
     });
@@ -268,12 +284,13 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_topology")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_topology");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("topology");
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("visualization");
+      expect((result as Record<string, unknown>).data).toHaveProperty("topology");
+      expect((result as Record<string, unknown>).data).toHaveProperty("visualization");
     });
 
     it("should visualize all member states correctly", async () => {
@@ -284,33 +301,30 @@ describe("Handler Execution", () => {
             host: "node1",
             role: "PRIMARY",
             state: "ONLINE",
-            port: 3306,
-          },
+            port: 3306 },
           {
             id: "uuid2",
             host: "node2",
             role: "SECONDARY",
             state: "ONLINE",
-            port: 3306,
-          },
+            port: 3306 },
           {
             id: "uuid3",
             host: "node3",
             role: "SECONDARY",
             state: "RECOVERING",
-            port: 3306,
-          },
+            port: 3306 },
           {
             id: "uuid4",
             host: "node4",
             role: "SECONDARY",
             state: "OFFLINE",
-            port: 3306,
-          },
+            port: 3306 },
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_topology")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_topology");
+      if (!tool) throw new Error('Tool not found');;
       const result: any = await tool.handler({}, mockContext);
       const viz = result.data.visualization;
 
@@ -333,7 +347,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_router_status")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_router_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -343,7 +358,8 @@ describe("Handler Execution", () => {
     it("should handle error when router metadata is missing", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Table not found"));
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_router_status")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_router_status");
+      if (!tool) throw new Error('Tool not found');;
       const result: any = await tool.handler({}, mockContext);
 
       expect(result.success).toBe(false);
@@ -355,7 +371,7 @@ describe("Handler Execution", () => {
     it("should get switchover recommendation", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }])
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }])
         )
         .mockResolvedValueOnce(
         createMockQueryResult([
@@ -363,17 +379,17 @@ describe("Handler Execution", () => {
             memberId: "uuid1",
             host: "node1",
             role: "SECONDARY",
-            state: "ONLINE",
-          },
+            state: "ONLINE" },
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_switchover")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_switchover");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("candidates");
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("canSwitchover");
+      expect((result as Record<string, unknown>).data).toHaveProperty("candidates");
+      expect((result as Record<string, unknown>).data).toHaveProperty("canSwitchover");
     });
 
     it("should categorize candidates by lag suitability", async () => {
@@ -383,7 +399,7 @@ describe("Handler Execution", () => {
       // uuid3: 200 queue (NOT_RECOMMENDED)
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }])
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }])
         )
         .mockResolvedValueOnce(
         createMockQueryResult([
@@ -393,36 +409,33 @@ describe("Handler Execution", () => {
             role: "SECONDARY",
             state: "ONLINE",
             txQueue: 0,
-            applierQueue: 0,
-          },
+            applierQueue: 0 },
           {
             memberId: "uuid2",
             host: "node2",
             role: "SECONDARY",
             state: "ONLINE",
             txQueue: 20,
-            applierQueue: 30,
-          },
+            applierQueue: 30 },
           {
             memberId: "uuid3",
             host: "node3",
             role: "SECONDARY",
             state: "ONLINE",
             txQueue: 150,
-            applierQueue: 50,
-          },
+            applierQueue: 50 },
           {
             memberId: "uuid4",
             host: "node4",
             role: "PRIMARY",
             state: "ONLINE",
             txQueue: 0,
-            applierQueue: 0,
-          }, // Should be ignored
+            applierQueue: 0 }, // Should be ignored
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_switchover")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_switchover");
+      if (!tool) throw new Error('Tool not found');;
       const result: any = await tool.handler({}, mockContext);
       const candidates = result.data.candidates;
 
@@ -446,7 +459,7 @@ describe("Handler Execution", () => {
     it("should warn if all candidates are not recommended", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }])
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }])
         )
         .mockResolvedValueOnce(
         createMockQueryResult([
@@ -456,12 +469,12 @@ describe("Handler Execution", () => {
             role: "SECONDARY",
             state: "ONLINE",
             txQueue: 200,
-            applierQueue: 0,
-          },
+            applierQueue: 0 },
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_switchover")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_switchover");
+      if (!tool) throw new Error('Tool not found');;
       const result: any = await tool.handler({}, mockContext);
 
       expect(result.data.recommendedTarget).toBeNull();

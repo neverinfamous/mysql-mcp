@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createDetectConnectionSpikeTool } from "../connection-analysis.js";
 
 describe("Connection Analysis Tools", () => {
-  let mockAdapter: any;
-  let mockContext: any;
+  let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
+  let mockContext: ReturnType<typeof createMockRequestContext>;
 
   beforeEach(() => {
     mockAdapter = {
@@ -130,7 +130,6 @@ describe("Connection Analysis Tools", () => {
         { windowMinutes: 5, warningPercent: 70 },
         mockContext,
       );
-      console.log("RESULT USER CONC:", JSON.stringify(result.data, null, 2));
 
       expect(result.success).toBe(true);
       expect(result.data.totalConnections).toBe(10);

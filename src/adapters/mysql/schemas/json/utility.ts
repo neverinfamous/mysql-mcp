@@ -3,12 +3,12 @@ import { preprocessJsonColumnParams } from "../preprocess-utils.js";
 
 // --- JsonNormalize ---
 export const JsonNormalizeSchemaBase = z.object({
-  table: z.string().optional().describe("Table name. Note: This tool normalizes an existing JSON column in a table, it does not normalize raw JSON strings."),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName'). Note: This tool normalizes an existing JSON column in a table, it does not normalize raw JSON strings."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("JSON column name"),
+  column: z.string().optional().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col')"),
   col: z.string().optional().describe("Alias for column"),
-  where: z.string().optional().describe("WHERE clause"),
+  where: z.string().optional().describe("WHERE clause (Anti-Hallucination: Pass 'where', not 'filter')"),
   filter: z.string().optional().describe("Alias for where"),
   limit: z.unknown().optional().describe("Maximum rows to process"),
   idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
@@ -26,13 +26,13 @@ export const JsonNormalizeSchema = z
       col: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      limit: z.coerce.number().default(100),
+      limit: z.coerce.number().int().positive().max(100).default(100),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    where: data.where ?? data.filter,
+    where: (data.where ?? data.filter)?.trim(),
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
@@ -44,12 +44,12 @@ export const JsonNormalizeSchema = z
 
 // --- JsonStats ---
 export const JsonStatsSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("JSON column name"),
+  column: z.string().optional().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col')"),
   col: z.string().optional().describe("Alias for column"),
-  where: z.string().optional().describe("Optional WHERE clause"),
+  where: z.string().optional().describe("Optional WHERE clause (Anti-Hallucination: Pass 'where', not 'filter' or 'query')"),
   filter: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
@@ -71,13 +71,13 @@ export const JsonStatsSchema = z
       filter: z.string().optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
-      sampleSize: z.coerce.number().default(1000),
+      sampleSize: z.coerce.number().int().positive().max(10000).default(1000),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    where: data.where ?? data.filter ?? data.query ?? data.sql,
+    where: (data.where ?? data.filter ?? data.query ?? data.sql)?.trim(),
     sampleSize: data.sampleSize,
   }))
   .refine((data) => data.table !== "", {
@@ -89,10 +89,10 @@ export const JsonStatsSchema = z
 
 // --- JsonIndexSuggest ---
 export const JsonIndexSuggestSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("JSON column name"),
+  column: z.string().optional().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col')"),
   col: z.string().optional().describe("Alias for column"),
   sampleSize: z.unknown().optional().describe("Sample size to analyze"),
 });
@@ -106,7 +106,7 @@ export const JsonIndexSuggestSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      sampleSize: z.coerce.number().default(100),
+      sampleSize: z.coerce.number().int().positive().max(1000).default(100),
     }),
   )
   .transform((data) => ({
@@ -123,11 +123,13 @@ export const JsonIndexSuggestSchema = z
 
 // --- JsonValidate (no table/column — no aliases needed) ---
 export const JsonValidateSchemaBase = z.object({
-  value: z.unknown().optional().describe("JSON string to validate"),
+  value: z.unknown().optional().describe("JSON string to validate (Anti-Hallucination: Pass 'value', not 'json' or 'data')"),
   json: z.unknown().optional().describe("Alias for value"),
   data: z.unknown().optional().describe("Alias for value"),
   document: z.unknown().optional().describe("Alias for value"),
   jsonString: z.unknown().optional().describe("Alias for value"),
+  content: z.unknown().optional().describe("Alias for value"),
+  text: z.unknown().optional().describe("Alias for value"),
 });
 
 export const JsonValidateSchema = z
@@ -137,35 +139,40 @@ export const JsonValidateSchema = z
     data: z.unknown().optional(),
     document: z.unknown().optional(),
     jsonString: z.unknown().optional(),
+    content: z.unknown().optional(),
+    text: z.unknown().optional(),
   })
   .transform((data) => ({
-    value: data.value ?? data.json ?? data.data ?? data.document ?? data.jsonString,
+    value: data.value !== undefined ? data.value : 
+           data.json !== undefined ? data.json : 
+           data.data !== undefined ? data.data : 
+           data.document !== undefined ? data.document : 
+           data.jsonString !== undefined ? data.jsonString :
+           data.content !== undefined ? data.content :
+           data.text,
   }))
-  .refine((data) => data.value !== undefined && data.value !== null, {
+  .refine((data) => data.value !== undefined, {
     message: "value is required",
   });
 
 // --- JsonMerge ---
 export const JsonMergeSchemaBase = z.object({
-  json1: z.unknown().optional().describe("First JSON document. Note: This tool merges two raw JSON documents in-memory. It does NOT update database tables. Use mysql_json_update or mysql_json_set to update a table."),
+  json1: z.unknown().optional().describe("First JSON document (Anti-Hallucination: Pass 'json1', not 'doc1' or 'target'). Note: This tool merges two raw JSON documents in-memory. It does NOT update database tables. Use mysql_json_update or mysql_json_set to update a table."),
   doc1: z.unknown().optional().describe("Alias for json1"),
   target: z.unknown().optional().describe("Alias for json1"),
-  json2: z.unknown().optional().describe("Second JSON document"),
+  json2: z.unknown().optional().describe("Second JSON document (Anti-Hallucination: Pass 'json2', not 'doc2' or 'source')"),
   doc2: z.unknown().optional().describe("Alias for json2"),
   source: z.unknown().optional().describe("Alias for json2"),
   patch: z.unknown().optional().describe("Alias for json2"),
-  mode: z
-    .enum(["patch", "preserve"])
-    .optional()
-    .describe("Merge mode: patch (RFC 7396) or preserve (array merge)"),
+  mode: z.string().optional().describe("Merge mode: patch (RFC 7396) or preserve (array merge)"),
 });
 
 // --- JsonDiff ---
 export const JsonDiffSchemaBase = z.object({
-  json1: z.unknown().optional().describe("First JSON document. Note: This tool compares two raw JSON documents, it does NOT compare database rows."),
+  json1: z.unknown().optional().describe("First JSON document (Anti-Hallucination: Pass 'json1', not 'doc1' or 'target'). Note: This tool compares two raw JSON documents, it does NOT compare database rows."),
   doc1: z.unknown().optional().describe("Alias for json1"),
   target: z.unknown().optional().describe("Alias for json1"),
-  json2: z.unknown().optional().describe("Second JSON document"),
+  json2: z.unknown().optional().describe("Second JSON document (Anti-Hallucination: Pass 'json2', not 'doc2' or 'source')"),
   doc2: z.unknown().optional().describe("Alias for json2"),
   source: z.unknown().optional().describe("Alias for json2"),
 });
@@ -185,8 +192,8 @@ export const JsonMergeSchema = z
       .describe("Merge mode: patch (RFC 7396) or preserve (array merge)"),
   })
   .transform((data) => {
-    const val1 = data.json1 ?? data.doc1 ?? data.target;
-    const val2 = data.json2 ?? data.doc2 ?? data.source ?? data.patch;
+    const val1 = data.json1 !== undefined ? data.json1 : data.doc1 !== undefined ? data.doc1 : data.target;
+    const val2 = data.json2 !== undefined ? data.json2 : data.doc2 !== undefined ? data.doc2 : data.source !== undefined ? data.source : data.patch;
     return {
       json1: typeof val1 === "string" ? val1 : JSON.stringify(val1),
       json2: typeof val2 === "string" ? val2 : JSON.stringify(val2),
@@ -200,7 +207,19 @@ export const JsonMergeSchema = z
   })
   .refine((data) => data._raw2 !== undefined, {
     message: "json2 (or doc2 alias) is required",
-  });
+  })
+  .refine((data) => {
+    if (typeof data._raw1 === "string") {
+      try { JSON.parse(data._raw1); } catch { return false; }
+    }
+    return true;
+  }, { message: "json1 must be a valid JSON string or object" })
+  .refine((data) => {
+    if (typeof data._raw2 === "string") {
+      try { JSON.parse(data._raw2); } catch { return false; }
+    }
+    return true;
+  }, { message: "json2 must be a valid JSON string or object" });
 
 export const JsonDiffSchema = z
   .object({
@@ -212,8 +231,8 @@ export const JsonDiffSchema = z
     source: z.unknown().optional().describe("Alias for json2"),
   })
   .transform((data) => {
-    const val1 = data.json1 ?? data.doc1 ?? data.target;
-    const val2 = data.json2 ?? data.doc2 ?? data.source;
+    const val1 = data.json1 !== undefined ? data.json1 : data.doc1 !== undefined ? data.doc1 : data.target;
+    const val2 = data.json2 !== undefined ? data.json2 : data.doc2 !== undefined ? data.doc2 : data.source;
     return {
       json1: typeof val1 === "string" ? val1 : JSON.stringify(val1),
       json2: typeof val2 === "string" ? val2 : JSON.stringify(val2),
@@ -226,5 +245,17 @@ export const JsonDiffSchema = z
   })
   .refine((data) => data._raw2 !== undefined, {
     message: "json2 (or doc2 alias) is required",
-  });
+  })
+  .refine((data) => {
+    if (typeof data._raw1 === "string") {
+      try { JSON.parse(data._raw1); } catch { return false; }
+    }
+    return true;
+  }, { message: "json1 must be a valid JSON string or object" })
+  .refine((data) => {
+    if (typeof data._raw2 === "string") {
+      try { JSON.parse(data._raw2); } catch { return false; }
+    }
+    return true;
+  }, { message: "json2 must be a valid JSON string or object" });
 

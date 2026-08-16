@@ -11,6 +11,7 @@ import { TransactionError } from "../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
+  formatMysqlError,
 } from "./core/error-helpers.js";
 import {
   TransactionBeginSchema,
@@ -165,19 +166,16 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
           return formatHandlerErrorResponse(
-            new TransactionError(`Transaction not found: ${transactionId}`),
+            new TransactionError(`Transaction not found: ${transactionId}`, undefined, {
+              suggestion: "Transaction ID is invalid or has already been committed/rolled back.",
+            }),
           );
         }
 
-        // Validate savepoint name
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-          return formatHandlerErrorResponse(
-            new Error("Invalid savepoint name"),
-          );
-        }
+
 
         // Use query() instead of execute() - SAVEPOINT not supported in prepared statement protocol
-        await connection.query(`SAVEPOINT ${savepoint}`);
+        await connection.query(`SAVEPOINT \`${savepoint}\``);
         return withTokenEstimate({
           success: true,
           data: { transactionId, savepoint },
@@ -210,18 +208,16 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
           return formatHandlerErrorResponse(
-            new TransactionError(`Transaction not found: ${transactionId}`),
+            new TransactionError(`Transaction not found: ${transactionId}`, undefined, {
+              suggestion: "Transaction ID is invalid or has already been committed/rolled back.",
+            }),
           );
         }
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-          return formatHandlerErrorResponse(
-            new Error("Invalid savepoint name"),
-          );
-        }
+
 
         // Use query() instead of execute() - RELEASE SAVEPOINT not supported in prepared statement protocol
-        await connection.query(`RELEASE SAVEPOINT ${savepoint}`);
+        await connection.query(`RELEASE SAVEPOINT \`${savepoint}\``);
         return withTokenEstimate({
           success: true,
           data: {
@@ -260,18 +256,16 @@ function createTransactionRollbackToTool(
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
           return formatHandlerErrorResponse(
-            new TransactionError(`Transaction not found: ${transactionId}`),
+            new TransactionError(`Transaction not found: ${transactionId}`, undefined, {
+              suggestion: "Transaction ID is invalid or has already been committed/rolled back.",
+            }),
           );
         }
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-          return formatHandlerErrorResponse(
-            new Error("Invalid savepoint name"),
-          );
-        }
+
 
         // Use query() instead of execute() - ROLLBACK TO SAVEPOINT not supported in prepared statement protocol
-        await connection.query(`ROLLBACK TO SAVEPOINT ${savepoint}`);
+        await connection.query(`ROLLBACK TO SAVEPOINT \`${savepoint}\``);
         return withTokenEstimate({
           success: true,
           data: {
@@ -337,8 +331,19 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         for (let i = 0; i < statements.length; i++) {
           const stmt = statements[i];
-          if (!stmt) continue;
-          const result = await adapter.executeOnConnection(connection, stmt);
+          if (stmt === undefined || stmt === null || stmt === "") continue;
+          
+          let sql: string;
+          let params: unknown[] | undefined;
+          
+          if (typeof stmt === "string") {
+            sql = stmt;
+          } else {
+            sql = stmt.sql;
+            params = stmt.params;
+          }
+          
+          const result = await adapter.executeOnConnection(connection, sql, params);
           if (result.rows) {
             results.push({
               statement: i + 1,
@@ -358,16 +363,20 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate({
           success: true,
           data: {
-            statementsExecuted: statements.length,
+            statementsExecuted: results.length,
             results,
           },
         });
       } catch (error) {
-        await adapter.rollbackTransaction(transactionId);
-        const msg = String(error instanceof Error ? error.message : error);
+        try {
+          await adapter.rollbackTransaction(transactionId);
+        } catch {
+          // Ignore rollback errors to ensure the original error is returned
+        }
+        const cleanMsg = formatMysqlError(error);
         return withTokenEstimate({
           success: false,
-          error: `Transaction failed and was rolled back: ${msg}`,
+          error: `Transaction failed and was rolled back: ${cleanMsg}`,
           code: "EXECUTION_ERROR",
           category: "query",
           recoverable: false,

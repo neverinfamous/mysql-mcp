@@ -28,6 +28,7 @@ export const DependencyGraphSchemaBase = z.object({
     .optional()
     .describe("Maximum depth for traversal (default: no limit)"),
   table: z.string().optional().describe("Table to filter dependencies for"),
+  tables: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for table. Anti-Hallucination: This tool only supports filtering by a single table at a time."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
 });
@@ -37,25 +38,36 @@ export const DependencyGraphSchema = z.object({
   database: z.string().optional(),
   db: z.string().optional(),
   table: z.string().optional(),
+  tables: z.union([z.string(), z.array(z.string())]).optional(),
   tableName: z.string().optional(),
   name: z.string().optional(),
-  includeRowCounts: z.boolean().optional(),
-  compact: z.boolean().optional(),
+  includeRowCounts: z.preprocess((val) => {
+    if (typeof val === "string") return val.toLowerCase() === "true";
+    return val;
+  }, z.boolean().optional()),
+  compact: z.preprocess((val) => {
+    if (typeof val === "string") return val.toLowerCase() === "true";
+    return val;
+  }, z.boolean().optional()),
   limit: z.preprocess((val) => {
     if (typeof val === "string") return parseInt(val, 10);
     return val;
-  }, z.number().optional().default(100)),
+  }, z.number().min(1).max(500).optional().default(100)),
   maxDepth: z
     .preprocess((val) => {
       if (typeof val === "string") return parseInt(val, 10);
       return val;
-    }, z.number().optional())
+    }, z.number().min(0).optional())
     .optional(),
 }).transform(val => {
   if (val.database && !val.schema) val.schema = val.database;
   if (val.db && !val.schema) val.schema = val.db;
-  if (val.tableName && !val.table) val.table = val.tableName;
-  if (val.name && !val.table) val.table = val.name;
+  
+  let targetTable = val.table ?? val.tableName ?? val.name;
+  if (targetTable === undefined && val.tables !== undefined) {
+    targetTable = Array.isArray(val.tables) ? val.tables[0] : val.tables;
+  }
+  if (targetTable !== undefined) val.table = targetTable;
   
   if (
     typeof val.table === "string" &&
@@ -69,6 +81,12 @@ export const DependencyGraphSchema = z.object({
     }
   }
   return val;
+}).refine(val => val.schema !== undefined && val.schema.trim().length > 0, {
+  message: "schema parameter is required (e.g., { schema: 'my_database' })",
+  path: ["schema"],
+}).refine(val => !(Array.isArray(val.tables) && val.tables.length > 1), {
+  message: "This tool only supports filtering by a single table at a time. Do not pass an array of multiple tables.",
+  path: ["tables"],
 });
 
 /**
@@ -87,6 +105,8 @@ export const TopologicalSortSchemaBase = z.object({
     .describe(
       "Sort direction: 'create' = dependencies first, 'drop' = dependents first (default: create)",
     ),
+  table: z.string().optional().describe("Anti-Hallucination: Topological sort operates on the entire schema. Do not provide a table."),
+  tables: z.union([z.string(), z.array(z.string())]).optional().describe("Anti-Hallucination: Topological sort operates on the entire schema. Do not provide a list of tables."),
 });
 
 export const TopologicalSortSchema = z
@@ -94,14 +114,26 @@ export const TopologicalSortSchema = z
     schema: z.string().optional(),
     database: z.string().optional(),
     db: z.string().optional(),
-    direction: z.enum(["create", "drop"]).optional(),
+    direction: z.preprocess((val) => {
+      if (typeof val === "string") return val.toLowerCase();
+      return val;
+    }, z.enum(["create", "drop"]).optional()),
+    table: z.any().optional(),
+    tables: z.any().optional(),
   })
   .transform(val => {
     if (val.database && !val.schema) val.schema = val.database;
     if (val.db && !val.schema) val.schema = val.db;
     return val;
   })
-  .default({});
+  .refine(val => val.schema !== undefined && val.schema.trim().length > 0, {
+    message: "schema parameter is required (e.g., { schema: 'my_database' })",
+    path: ["schema"],
+  })
+  .refine(val => val.table === undefined && val.tables === undefined, {
+    message: "Topological sort operates on the entire schema. Do not provide a table parameter.",
+    path: ["table"],
+  });
 
 /**
  * mysql_cascade_simulator input
@@ -120,6 +152,9 @@ export const CascadeSimulatorSchemaBase = z.object({
     .string()
     .optional()
     .describe("Operation to simulate (default: DELETE)"),
+  action: z.string().optional().describe("Alias for operation"),
+  where: z.string().optional().describe("Anti-Hallucination: Cascade simulator operates on the schema level. Do not provide a WHERE clause."),
+  condition: z.string().optional().describe("Anti-Hallucination: Cascade simulator operates on the schema level. Do not provide a condition."),
 });
 
 const CascadeSimulatorInnerSchema = z.object({
@@ -129,7 +164,16 @@ const CascadeSimulatorInnerSchema = z.object({
   schema: z.string().optional(),
   database: z.string().optional(),
   db: z.string().optional(),
-  operation: z.enum(["DELETE", "DROP", "TRUNCATE"]).optional(),
+  operation: z.preprocess((val) => {
+    if (typeof val === "string") return val.toUpperCase();
+    return val;
+  }, z.enum(["DELETE", "DROP", "TRUNCATE"]).optional()),
+  action: z.preprocess((val) => {
+    if (typeof val === "string") return val.toUpperCase();
+    return val;
+  }, z.enum(["DELETE", "DROP", "TRUNCATE"]).optional()),
+  where: z.any().optional(),
+  condition: z.any().optional(),
 });
 
 export const CascadeSimulatorSchema = z.preprocess((input: unknown) => {
@@ -152,7 +196,14 @@ export const CascadeSimulatorSchema = z.preprocess((input: unknown) => {
       val.table = parts[1];
     }
   }
+  if (val.action && !val.operation) val.operation = val.action;
   return val;
+}).refine(val => val.table !== undefined && val.table.trim().length > 0, {
+  message: "table parameter is required",
+  path: ["table"],
+}).refine(val => val.where === undefined && val.condition === undefined, {
+  message: "Cascade simulator operates on the schema level to trace foreign key paths. Do not provide a WHERE clause or condition.",
+  path: ["where"],
 });
 
 /**
@@ -165,8 +216,8 @@ export const SchemaSnapshotSchemaBase = z.object({
     .describe("Schema to snapshot (REQUIRED. Note: Pass schema, not tableName)"),
   database: z.string().optional().describe("Alias for schema"),
   db: z.string().optional().describe("Alias for schema"),
-  table: z.string().optional().describe("Note: schemaSnapshot does not filter by table. Use describeTable instead."),
-  tableName: z.string().optional().describe("Note: schemaSnapshot does not filter by table. Use describeTable instead."),
+  table: z.string().optional().describe("Note: schemaSnapshot does not filter by table. Use mysql_describe_table instead."),
+  tableName: z.string().optional().describe("Note: schemaSnapshot does not filter by table. Use mysql_describe_table instead."),
   includeSystem: z
     .boolean()
     .optional()
@@ -174,7 +225,7 @@ export const SchemaSnapshotSchemaBase = z.object({
       "Include system schemas like mysql, information_schema (default: false)",
     ),
   sections: z
-    .array(z.string())
+    .union([z.string(), z.array(z.string())])
     .optional()
     .describe("Specific sections to include (default: all)"),
   compact: z
@@ -196,9 +247,16 @@ export const SchemaSnapshotSchema = z
     db: z.string().optional(),
     table: z.string().optional(),
     tableName: z.string().optional(),
-    includeSystem: z.boolean().optional(),
-    sections: z
-      .array(
+    includeSystem: z.preprocess((val) => {
+      if (typeof val === "string") return val.toLowerCase() === "true";
+      return val;
+    }, z.boolean().optional()),
+    sections: z.preprocess(
+      (val) => {
+        if (typeof val === "string") return val.split(",").map((s) => s.trim());
+        return val;
+      },
+      z.array(
         z.enum([
           "tables",
           "views",
@@ -206,22 +264,31 @@ export const SchemaSnapshotSchema = z
           "constraints",
           "functions",
           "triggers",
-          "sequences",
-          "types",
-          "extensions",
         ]),
       )
-      .optional(),
-    compact: z.boolean().optional().default(true),
+      .optional()
+    ),
+    compact: z.preprocess((val) => {
+      if (typeof val === "string") return val.toLowerCase() === "true";
+      return val;
+    }, z.boolean().optional().default(true)),
     limit: z.preprocess((val) => {
       if (typeof val === "string") return parseInt(val, 10);
       return val;
-    }, z.number().optional().default(100)),
+    }, z.number().min(1).max(500).optional().default(100)),
   })
   .transform(val => {
     if (val.database && !val.schema) val.schema = val.database;
     if (val.db && !val.schema) val.schema = val.db;
     return val;
+  })
+  .refine(val => val.schema !== undefined && val.schema.trim().length > 0, {
+    message: "schema parameter is required",
+    path: ["schema"],
+  })
+  .refine(val => val.table === undefined && val.tableName === undefined, {
+    message: "mysql_schema_snapshot does not support filtering by table. Please use mysql_describe_table instead to inspect a specific table.",
+    path: ["table"],
   })
   .default({ compact: true, limit: 100 });
 
@@ -239,16 +306,14 @@ export const ConstraintAnalysisSchemaBase = z.object({
     .string()
     .optional()
     .describe("Analyze constraints for a specific table only"),
+  tables: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for table. Anti-Hallucination: This tool only supports filtering by a single table at a time."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   checks: z
     .array(
       z.enum([
-        "redundant",
-        "missing_fk",
         "missing_not_null",
         "missing_pk",
-        "unindexed_fk",
         "circular_dependency",
       ]),
     )
@@ -261,16 +326,14 @@ const ConstraintAnalysisInnerSchema = z.object({
   database: z.string().optional(),
   db: z.string().optional(),
   table: z.string().optional(),
+  tables: z.union([z.string(), z.array(z.string())]).optional(),
   tableName: z.string().optional(),
   name: z.string().optional(),
   checks: z
     .array(
       z.enum([
-        "redundant",
-        "missing_fk",
         "missing_not_null",
         "missing_pk",
-        "unindexed_fk",
         "circular_dependency",
       ]),
     )
@@ -283,8 +346,12 @@ export const ConstraintAnalysisSchema = z.preprocess((input: unknown) => {
 }, ConstraintAnalysisInnerSchema.default({})).transform(val => {
   if (val.database && !val.schema) val.schema = val.database;
   if (val.db && !val.schema) val.schema = val.db;
-  if (val.tableName && !val.table) val.table = val.tableName;
-  if (val.name && !val.table) val.table = val.name;
+
+  let targetTable = val.table ?? val.tableName ?? val.name;
+  if (targetTable === undefined && val.tables !== undefined) {
+    targetTable = Array.isArray(val.tables) ? val.tables[0] : val.tables;
+  }
+  if (targetTable !== undefined) val.table = targetTable;
 
   if (
     typeof val.table === "string" &&
@@ -298,6 +365,12 @@ export const ConstraintAnalysisSchema = z.preprocess((input: unknown) => {
     }
   }
   return val;
+}).refine(val => val.schema !== undefined && val.schema.trim().length > 0, {
+  message: "schema parameter is required (e.g., { schema: 'my_database' })",
+  path: ["schema"],
+}).refine(val => !(Array.isArray(val.tables) && val.tables.length > 1), {
+  message: "This tool only supports filtering by a single table at a time. Do not pass an array of multiple tables.",
+  path: ["tables"],
 });
 
 /**
@@ -314,6 +387,7 @@ export const MigrationRisksSchemaBase = z.object({
     .describe("Single DDL statement (alias for statements)"),
   sql: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements/statement"),
   query: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements/statement"),
+  queries: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements/statement"),
   ddlQuery: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements/statement"),
   schema: z
     .string()
@@ -328,6 +402,7 @@ export const MigrationRisksSchema = z.object({
   statement: z.union([z.string(), z.array(z.string())]).optional(),
   sql: z.union([z.string(), z.array(z.string())]).optional(),
   query: z.union([z.string(), z.array(z.string())]).optional(),
+  queries: z.union([z.string(), z.array(z.string())]).optional(),
   ddlQuery: z.union([z.string(), z.array(z.string())]).optional(),
   schema: z.string().optional(),
   database: z.string().optional(),
@@ -355,13 +430,14 @@ export const MigrationRisksSchema = z.object({
   addStrings(val.statement);
   addStrings(val.sql);
   addStrings(val.query);
+  addStrings(val.queries);
   addStrings(val.ddlQuery);
 
-  val.statements = stmts;
+  val.statements = stmts.map(s => s.trim()).filter(s => s.length > 0);
   
   return val;
 }).refine(val => val.statements !== undefined && val.statements.length > 0, {
-  message: "statements are required",
+  message: "statements are required and cannot be empty",
   path: ["statements"],
 });
 
@@ -404,9 +480,6 @@ export const SchemaSnapshotOutputSchema = BaseOutputSchema.extend({
     constraints: z.array(z.record(z.string(), z.unknown())).optional(),
     functions: z.array(z.record(z.string(), z.unknown())).optional(),
     triggers: z.array(z.record(z.string(), z.unknown())).optional(),
-    sequences: z.array(z.record(z.string(), z.unknown())).optional(),
-    types: z.array(z.record(z.string(), z.unknown())).optional(),
-    extensions: z.array(z.record(z.string(), z.unknown())).optional(),
     stats: z.record(z.string(), z.unknown()).optional(),
     hint: z.string().optional()
   }).optional()

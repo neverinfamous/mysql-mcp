@@ -1,0 +1,508 @@
+{
+  "description": "This dashboard provides a high-level view of your ProxySQL environment, with in-depth performance indicators regarding the query cache or the latency.\n\n- [How to monitor ProxySQL with Datadog](https://docs.datadoghq.com/integrations/proxysql/) \n\nClone this template dashboard to make changes and add your own graph widgets. (cloned)",
+  "layout_type": "free",
+  "notify_list": null,
+  "pause_auto_refresh": null,
+  "reflow_type": null,
+  "template_variables": [
+    {
+      "available_values": [],
+      "default": "*",
+      "name": "proxysql_server",
+      "prefix": "proxysql_server"
+    },
+    {
+      "available_values": [],
+      "default": "*",
+      "name": "proxysql_port",
+      "prefix": "proxysql_port"
+    },
+    {
+      "available_values": [],
+      "default": "*",
+      "name": "sql_command",
+      "prefix": "sql_command"
+    }
+  ],
+  "title": "ProxySQL - Laptop",
+  "widgets": [
+    {
+      "definition": {
+        "sizing": "zoom",
+        "type": "image",
+        "url": "/static/images/logos/proxysql_large.svg"
+      },
+      "id": 0,
+      "layout": {
+        "height": 8,
+        "width": 22,
+        "x": 1,
+        "y": 10
+      }
+    },
+    {
+      "definition": {
+        "check": "proxysql.can_connect",
+        "group": "application:test,proxysql_port:6032,proxysql_server:localhost,host:docker-desktop",
+        "group_by": [
+          "proxysql_server",
+          "proxysql_port"
+        ],
+        "grouping": "cluster",
+        "tags": [
+          "$proxysql_port",
+          "$proxysql_server"
+        ],
+        "title": "Monitored instances status",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status"
+      },
+      "id": 1,
+      "layout": {
+        "height": 10,
+        "width": 22,
+        "x": 1,
+        "y": 20
+      }
+    },
+    {
+      "definition": {
+        "check": "proxysql.backend.status",
+        "group_by": [],
+        "grouping": "cluster",
+        "tags": [
+          "$proxysql_server",
+          "$proxysql_port"
+        ],
+        "title": "Backends status",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status"
+      },
+      "id": 2,
+      "layout": {
+        "height": 10,
+        "width": 22,
+        "x": 1,
+        "y": 32
+      }
+    },
+    {
+      "definition": {
+        "background_color": "gray",
+        "content": "# Connection pool",
+        "font_size": "14",
+        "show_tick": true,
+        "text_align": "center",
+        "tick_edge": "bottom",
+        "tick_pos": "50%",
+        "type": "note"
+      },
+      "id": 3,
+      "layout": {
+        "height": 6,
+        "width": 47,
+        "x": 25,
+        "y": 2
+      }
+    },
+    {
+      "definition": {
+        "custom_links": [],
+        "requests": [
+          {
+            "display_type": "line",
+            "formulas": [
+              {
+                "alias": "Latency",
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.pool.latency_ms{*} by {hostgroup}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": false,
+        "title": "Latency per hostgroup",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
+      },
+      "id": 4,
+      "layout": {
+        "height": 15,
+        "width": 47,
+        "x": 25,
+        "y": 10
+      }
+    },
+    {
+      "definition": {
+        "custom_links": [],
+        "requests": [
+          {
+            "display_type": "line",
+            "formulas": [
+              {
+                "alias": "Used connections",
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:proxysql.pool.connections_used{$proxysql_server,$proxysql_port} by {hostgroup}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": false,
+        "title": "Number of connections currently used per hostgroup",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
+      },
+      "id": 5,
+      "layout": {
+        "height": 15,
+        "width": 47,
+        "x": 25,
+        "y": 27
+      }
+    },
+    {
+      "definition": {
+        "custom_links": [],
+        "requests": [
+          {
+            "display_type": "line",
+            "formulas": [
+              {
+                "alias": "Bytes received",
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.pool.bytes_data_recv{$proxysql_server,$proxysql_port} by {hostgroup}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          },
+          {
+            "display_type": "line",
+            "formulas": [
+              {
+                "alias": "Bytes sent",
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.pool.bytes_data_sent{$proxysql_server,$proxysql_port} by {hostgroup}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": false,
+        "title": "Bytes received and sent per hostgroup",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
+      },
+      "id": 6,
+      "layout": {
+        "height": 15,
+        "width": 47,
+        "x": 25,
+        "y": 44
+      }
+    },
+    {
+      "definition": {
+        "background_color": "gray",
+        "content": "# Performance",
+        "font_size": "14",
+        "show_tick": true,
+        "text_align": "center",
+        "tick_edge": "bottom",
+        "tick_pos": "50%",
+        "type": "note"
+      },
+      "id": 7,
+      "layout": {
+        "height": 6,
+        "width": 47,
+        "x": 75,
+        "y": 2
+      }
+    },
+    {
+      "definition": {
+        "custom_links": [],
+        "legend_size": "0",
+        "requests": [
+          {
+            "display_type": "bars",
+            "formulas": [
+              {
+                "formula": "query1 + query2 + query3"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:proxysql.performance.command.cnt_5s{$proxysql_server,$proxysql_port,$sql_command} by {sql_command}.as_count()"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "sum:proxysql.performance.command.cnt_10s{$proxysql_server,$proxysql_port,$sql_command} by {sql_command}.as_count()"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query3",
+                "query": "sum:proxysql.performance.command.cnt_infs{$proxysql_server,$proxysql_port,$sql_command} by {sql_command}.as_count()"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": false,
+        "title": "Number of statements that took more than 5 seconds to complete",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
+      },
+      "id": 8,
+      "layout": {
+        "height": 15,
+        "width": 47,
+        "x": 75,
+        "y": 10
+      }
+    },
+    {
+      "definition": {
+        "custom_links": [],
+        "legend_size": "0",
+        "requests": [
+          {
+            "display_type": "line",
+            "formulas": [
+              {
+                "alias": "Memory usage",
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.query_cache.memory_bytes{$proxysql_server,$proxysql_port}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": false,
+        "title": "Memory usage of the query cache",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
+      },
+      "id": 9,
+      "layout": {
+        "height": 15,
+        "width": 47,
+        "x": 75,
+        "y": 27
+      }
+    },
+    {
+      "definition": {
+        "custom_links": [],
+        "legend_size": "0",
+        "requests": [
+          {
+            "display_type": "line",
+            "formulas": [
+              {
+                "alias": "Bytes out",
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.query_cache.bytes_out{$proxysql_server,$proxysql_port}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": false,
+        "title": "Cache read throughput",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
+      },
+      "id": 10,
+      "layout": {
+        "height": 15,
+        "width": 47,
+        "x": 75,
+        "y": 44
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "status_line",
+                "width": "auto"
+              },
+              {
+                "field": "timestamp",
+                "width": "auto"
+              },
+              {
+                "field": "host",
+                "width": "auto"
+              },
+              {
+                "field": "service",
+                "width": "auto"
+              },
+              {
+                "field": "source",
+                "width": "auto"
+              },
+              {
+                "field": "content",
+                "width": "compact"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "indexes": [],
+              "query_string": "source:proxysql",
+              "sort": {
+                "column": "timestamp",
+                "order": "desc"
+              },
+              "storage": "hot"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "Log stream",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "list_stream"
+      },
+      "id": 11,
+      "layout": {
+        "height": 57,
+        "width": 47,
+        "x": 125,
+        "y": 2
+      }
+    }
+  ]
+}

@@ -23,6 +23,7 @@ export const DescriptiveStatsOutputSchema = BaseOutputSchema.extend({
 export const PercentilesOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
+    totalCount: z.number().optional(),
     percentiles: z.record(z.string(), z.union([z.number(), z.string()]).nullish()),
   }).loose().optional(),
 });
@@ -30,6 +31,20 @@ export const PercentilesOutputSchema = BaseOutputSchema.extend({
 export const DistributionOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
+    distribution: z.array(
+      z.object({
+        bucket: z.number(),
+        rangeStart: z.number(),
+        rangeEnd: z.number(),
+        count: z.number(),
+        bucketMin: z.union([z.number(), z.string()]).nullish(),
+        bucketMax: z.union([z.number(), z.string()]).nullish(),
+      }).loose()
+    ).optional(),
+    bucketCount: z.number().optional(),
+    bucketSize: z.number().optional(),
+    minValue: z.number().optional(),
+    maxValue: z.number().optional(),
     skewness: z.number().nullish(),
     kurtosis: z.number().nullish(),
   }).loose().optional(),
@@ -65,9 +80,19 @@ export const SampleOutputSchema = BaseOutputSchema.extend({
 
 export const CorrelationOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    columnX: z.string().optional(),
-    columnY: z.string().optional(),
+    column1: z.string().optional(),
+    column2: z.string().optional(),
     correlation: z.number().nullish(),
+    interpretation: z.string().optional(),
+    sampleSize: z.number().optional(),
+    column1Stats: z.object({
+      mean: z.union([z.number(), z.string()]).nullish(),
+      stddev: z.union([z.number(), z.string()]).nullish(),
+    }).loose().optional(),
+    column2Stats: z.object({
+      mean: z.union([z.number(), z.string()]).nullish(),
+      stddev: z.union([z.number(), z.string()]).nullish(),
+    }).loose().optional(),
   }).loose().optional(),
 });
 
@@ -116,12 +141,16 @@ export const WindowFunctionOutputSchema = BaseOutputSchema.extend({
 
 export const TTestOutputSchema = BaseOutputSchema.extend({
   data: z.object({
+    table: z.string().optional(),
     column: z.string(),
     testType: z.string().optional(),
     hypothesizedMean: z.number().optional(),
     groupColumn: z.string().optional(),
     group1: z.union([z.string(), z.number()]).optional(),
     group2: z.union([z.string(), z.number()]).optional(),
+    groupBy: z.string().optional(),
+    groups: z.array(z.record(z.string(), z.unknown())).optional(),
+    count: z.number().optional(),
     tStat: z.number().nullish(),
     degreesOfFreedom: z.number().nullish(),
     pValue: z.number().nullish(),
@@ -138,9 +167,12 @@ export const OutliersOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
     method: z.string(),
+    stats: z.record(z.string(), z.unknown()).optional(),
     outlierCount: z.number(),
     totalCount: z.number(),
     outliers: z.array(z.record(z.string(), z.unknown())),
+    truncated: z.boolean().optional(),
+    totalOutliers: z.number().optional(),
   }).loose().optional(),
 });
 
@@ -151,8 +183,10 @@ export const OutliersOutputSchema = BaseOutputSchema.extend({
 export const TopNOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
-    topN: z.array(z.record(z.string(), z.unknown())).optional(),
-    groups: z.array(z.record(z.string(), z.unknown())).optional(),
+    direction: z.string().optional(),
+    count: z.number().optional(),
+    rows: z.array(z.record(z.string(), z.unknown())).optional(),
+    hint: z.string().optional(),
   }).loose().optional(),
 });
 
@@ -160,13 +194,14 @@ export const DistinctOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
     count: z.number(),
-    topValues: z.array(z.record(z.string(), z.unknown())).optional(),
+    values: z.array(z.unknown()).optional(),
   }).loose().optional(),
 });
 
 export const FrequencyOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
+    distinctValues: z.number().optional(),
     distribution: z.array(
       z.object({
         value: z.unknown(),

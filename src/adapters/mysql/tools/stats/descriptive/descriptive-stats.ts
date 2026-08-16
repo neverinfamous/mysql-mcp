@@ -36,7 +36,8 @@ export function createDescriptiveStatsTool(
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
 
-        const whereClause = where ? `WHERE ${where}` : "";
+        const baseWhere = where ? `(${where}) AND ` : "";
+        const whereClause = `WHERE ${baseWhere}\`${column}\` IS NOT NULL`;
 
         // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
         await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);

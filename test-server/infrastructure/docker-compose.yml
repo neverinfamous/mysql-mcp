@@ -1,0 +1,651 @@
+services:
+  # ==========================================
+  # INNODB CLUSTER
+  # ==========================================
+  mysql-node1:
+    image: mysql:9.7.1
+    container_name: mysql-node1
+    restart: unless-stopped
+    hostname: mysql-node1
+    ports:
+      - "3307:3306"
+      - "33061:33060"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_ROOT_HOST: '%'
+      TZ: America/New_York
+      LC_ALL: C.UTF-8
+    command: >
+      --server-id=1 --log-bin=mysql-bin --gtid_mode=ON
+      --enforce_gtid_consistency=ON --log_replica_updates=ON
+      --report_host=mysql-node1 --innodb-use-native-aio=0
+      --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
+      --innodb-flush-log-at-trx-commit=2 --relay-log=mysql-node1-relay-bin
+      --relay-log-recovery=ON --max_connections=200
+      --table_definition_cache=1000
+      --performance_schema_max_table_instances=2000
+      --sql-generate-invisible-primary-key=ON
+    volumes:
+      - mysql-node1-data-v4:/var/lib/mysql
+      - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ../../../mysql-mcp:/workspace/mysql-mcp
+      - ../../../adamic/.agents/scratch:/workspace/scratch
+    stop_grace_period: 30s
+    mem_limit: 1536m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot" ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node1"}]'
+      - 'tags.datadoghq.com/env=development'
+      - 'tags.datadoghq.com/service=mysql-node1'
+      - 'tags.datadoghq.com/version=1.0.0'
+
+  mysql-node2:
+    image: mysql:9.7.1
+    container_name: mysql-node2
+    restart: unless-stopped
+    hostname: mysql-node2
+    ports:
+      - "3308:3306"
+      - "33062:33060"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_ROOT_HOST: '%'
+      TZ: America/New_York
+    command: >
+      --server-id=2 --log-bin=mysql-bin --gtid_mode=ON
+      --enforce_gtid_consistency=ON --log_replica_updates=ON
+      --report_host=mysql-node2 --innodb-use-native-aio=0
+      --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
+      --innodb-flush-log-at-trx-commit=2 --relay-log=mysql-node2-relay-bin
+      --relay-log-recovery=ON --max_connections=200
+      --table_definition_cache=1000
+      --performance_schema_max_table_instances=2000
+      --sql-generate-invisible-primary-key=ON
+    volumes:
+      - mysql-node2-data-v4:/var/lib/mysql
+      - ../../../mysql-mcp:/workspace/mysql-mcp
+      - ../../../adamic/.agents/scratch:/workspace/scratch
+    stop_grace_period: 30s
+    mem_limit: 1536m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot" ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node2"}]'
+      - 'tags.datadoghq.com/env=development'
+      - 'tags.datadoghq.com/service=mysql-node2'
+      - 'tags.datadoghq.com/version=1.0.0'
+
+  mysql-node3:
+    image: mysql:9.7.1
+    container_name: mysql-node3
+    restart: unless-stopped
+    hostname: mysql-node3
+    ports:
+      - "3309:3306"
+      - "33063:33060"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_ROOT_HOST: '%'
+      TZ: America/New_York
+    command: >
+      --server-id=3 --log-bin=mysql-bin --gtid_mode=ON
+      --enforce_gtid_consistency=ON --log_replica_updates=ON
+      --report_host=mysql-node3 --innodb-use-native-aio=0
+      --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
+      --innodb-flush-log-at-trx-commit=2 --relay-log=mysql-node3-relay-bin
+      --relay-log-recovery=ON --max_connections=200
+      --table_definition_cache=1000
+      --performance_schema_max_table_instances=2000
+      --sql-generate-invisible-primary-key=ON
+    volumes:
+      - mysql-node3-data-v4:/var/lib/mysql
+      - ../../../mysql-mcp:/workspace/mysql-mcp
+      - ../../../adamic/.agents/scratch:/workspace/scratch
+    stop_grace_period: 30s
+    mem_limit: 1536m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot" ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node3"}]'
+      - 'tags.datadoghq.com/env=development'
+      - 'tags.datadoghq.com/service=mysql-node3'
+      - 'tags.datadoghq.com/version=1.0.0'
+
+  mysql-async-replica:
+    image: mysql:9.7.1
+    container_name: mysql-async-replica
+    restart: unless-stopped
+    hostname: mysql-async-replica
+    ports:
+      - "3310:3306"
+      - "33064:33060"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_ROOT_HOST: '%'
+      TZ: America/New_York
+    command: >
+      --server-id=4 --log-bin=mysql-bin --gtid_mode=ON
+      --enforce_gtid_consistency=ON --log_replica_updates=ON
+      --report_host=mysql-async-replica --innodb-use-native-aio=0
+      --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
+      --innodb-flush-log-at-trx-commit=2
+      --relay-log=mysql-async-replica-relay-bin --relay-log-recovery=ON
+      --max_connections=200 --table_definition_cache=1000
+      --performance_schema_max_table_instances=2000
+      --sql-generate-invisible-primary-key=ON
+    volumes:
+      - mysql-async-replica-data-v4:/var/lib/mysql
+      - ../../../mysql-mcp:/workspace/mysql-mcp
+      - ../../../adamic/.agents/scratch:/workspace/scratch
+    stop_grace_period: 30s
+    mem_limit: 1536m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot" ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-async-replica"}]'
+      - 'tags.datadoghq.com/env=development'
+      - 'tags.datadoghq.com/service=mysql-async-replica'
+      - 'tags.datadoghq.com/version=1.0.0'
+
+  cluster-healer:
+    image: mysql:9.7.1
+    container_name: cluster-healer
+    restart: unless-stopped
+    entrypoint: [ "/bin/bash", "/scripts/cluster-healer.sh" ]
+    environment:
+      - MYSQL_NODES_LIST=mysql-node1 mysql-node2 mysql-node3
+    depends_on:
+      mysql-node1:
+        condition: service_healthy
+      mysql-node2:
+        condition: service_healthy
+      mysql-node3:
+        condition: service_healthy
+    volumes:
+      - ./config/mysql/cluster-healer.sh:/scripts/cluster-healer.sh:ro
+    stop_grace_period: 30s
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD-SHELL", "cat /tmp/cluster-healthy 2>/dev/null || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 120s
+    labels:
+      com.datadoghq.ad.check_names: '[]'
+      com.datadoghq.ad.logs: '[{"source":"mysql-shell","service":"cluster-healer"}]'
+
+  # ==========================================
+  # ROUTING & PROXIES
+  # ==========================================
+  mysql-router:
+    image: container-registry.oracle.com/mysql/community-router:9.7.1
+    container_name: mysql-router
+    restart: unless-stopped
+    depends_on:
+      cluster-healer:
+        condition: service_healthy
+    entrypoint: [ "/bin/bash", "/docker-entrypoint-initdb.d/router-init.sh" ]
+    volumes:
+      - ./config/mysql-router/router-init.sh:/docker-entrypoint-initdb.d/router-init.sh
+    tmpfs:
+      - /tmp/mysqlrouter:uid=999,gid=999
+    ports:
+      - "6446:6446"
+      - "6447:6447"
+      - "6448:6448"
+      - "8443:8443"
+    stop_grace_period: 30s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      tags.datadoghq.com/env: development
+      tags.datadoghq.com/service: mysql-router
+      tags.datadoghq.com/version: 1.0.0
+      com.datadoghq.ad.check_names: '["http_check"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"reported_hostname": "adamic-wsl2", "name":
+        "mysql_router_rest_api", "url":
+        "https://%%host%%:8443/api/20190715/router/status", "username":
+        "rest_api", "password": "router_api", "skip_cert_verify": true, "tags":
+        ["service:mysql-router", "component:rest_api"]}]'
+      com.datadoghq.ad.logs: '[{"source":"mysqlrouter","service":"mysql-router"}]'
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -skf -u rest_api:router_api
+            https://127.0.0.1:8443/api/20190715/routes/bootstrap_rw/destinations
+            | grep -q 'address' || exit 1"
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 30
+
+  proxysql:
+    image: proxysql/proxysql:3.0.10
+    container_name: proxysql
+    restart: unless-stopped
+    depends_on:
+      mysql-router:
+        condition: service_healthy
+    command: >
+      bash -c ' echo "Waiting for mysql-router to become healthy..."; while !
+      wget -q -O- --user=rest_api --password=router_api --no-check-certificate
+      https://mysql-router:8443/api/20190715/routes/bootstrap_rw/destinations |
+      grep -q address; do
+        sleep 2;
+      done; echo "Router is healthy, starting ProxySQL..."; exec proxysql -f -c
+      /etc/proxysql.cnf --idle-threads -D /var/lib/proxysql '
+    ports:
+      - "6032:6032"
+      - "6033:6033"
+    volumes:
+      - ./config/proxysql/proxysql.cnf:/etc/proxysql.cnf:ro
+    stop_grace_period: 30s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      tags.datadoghq.com/env: development
+      tags.datadoghq.com/service: proxysql
+      tags.datadoghq.com/version: 1.0.0
+      com.datadoghq.ad.check_names: '["proxysql"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"reported_hostname": "adamic-wsl2",
+        "host":"%%host%%", "port":6032, "username":"radmin",
+        "password":"radmin", "additional_metrics": ["connection_pool_metrics",
+        "backends_metrics", "users_metrics", "query_rules_metrics",
+        "memory_metrics", "command_counters_metrics"]}]'
+      com.datadoghq.ad.logs: '[{"source":"proxysql","service":"proxysql"}]'
+    healthcheck:
+      test: [ "CMD-SHELL", "grep -q '1791' /proc/net/tcp || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis-server:
+    image: redis:8.10.0
+    container_name: redis-server
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    environment:
+      TZ: America/New_York
+    command: redis-server --save 60 1 --loglevel verbose
+    stop_grace_period: 30s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      tags.datadoghq.com/env: development
+      tags.datadoghq.com/service: redis-server
+      tags.datadoghq.com/version: 1.0.0
+      com.datadoghq.ad.check_names: '["redisdb"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"reported_hostname": "adamic-wsl2",
+        "host":"%%host%%", "port":6379, "command_stats": true,
+        "slowlog-max-len": 128}]'
+      com.datadoghq.ad.logs: '[{"source":"redis","service":"redis-server"}]'
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ==========================================
+  # MONITORING & TOOLS
+  # ==========================================
+  mysql-mcp-exporter:
+    build:
+      context: ../../../mysql-mcp
+      dockerfile: Dockerfile
+    image: mysql-mcp-exporter:1.0.0
+    container_name: mysql-mcp-exporter
+    restart: unless-stopped
+    depends_on:
+      mysql-router:
+        condition: service_healthy
+    command: >
+      --transport http --server-host 0.0.0.0 --tool-filter none --metrics-export
+      prometheus --port 3000 --audit-log /var/log/mysql-mcp/exporter-audit.jsonl
+      --audit-reads --mysql
+      mysql://root:${MYSQL_ROOT_PASSWORD:-root}@mysql-router:6446/testdb
+    environment:
+      - ALLOWED_IO_ROOTS=/var/log/mysql-mcp
+      - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY:-adamic123}
+      - AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl
+      - LOG_LEVEL=warning
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../logs:/var/log/mysql-mcp
+    stop_grace_period: 30s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/metrics" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    labels:
+      tags.datadoghq.com/env: development
+      tags.datadoghq.com/service: mysql-mcp-exporter
+      tags.datadoghq.com/version: 1.0.0
+      com.datadoghq.ad.check_names: '["openmetrics"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"reported_hostname": "adamic-wsl2",
+        "openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace":
+        "mysql_mcp", "metrics": ["mysql_mcp*", "gen_ai*"],
+        "max_returned_metrics": 10000, "send_monotonic_counter": true,
+        "timeout": 10, "min_collection_interval": 15, "tags":
+        ["service:mysql_mcp", "env:development"]}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql_mcp","service":"mysql-mcp-exporter"}]'
+
+  mysql-router-telemetry:
+    image: oven/bun:1.2.0-alpine
+    container_name: mysql-router-telemetry
+    restart: unless-stopped
+    depends_on:
+      mysql-router:
+        condition: service_healthy
+      datadog-unified:
+        condition: service_healthy
+    command: >
+      bun run /scripts/mysql-router-telemetry.mjs
+    volumes:
+      - ./scripts:/scripts:ro
+    environment:
+      - ROUTER_API_URL=https://mysql-router:8443/api/20190715
+      - ROUTER_API_USER=rest_api
+      - ROUTER_API_PASSWORD=router_api
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://datadog-unified:4318
+      - OTEL_METRIC_EXPORT_INTERVAL=15000
+    stop_grace_period: 30s
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD-SHELL", "pidof bun || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    labels:
+      com.datadoghq.ad.check_names: '[]'
+      com.datadoghq.ad.logs: '[{"source":"bun","service":"mysql-router-telemetry"}]'
+
+  dozzle:
+    image: amir20/dozzle:v10.7.2
+    container_name: dozzle
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    stop_grace_period: 15s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "/dozzle", "healthcheck" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  adminer:
+    image: adminer:5.5.0
+    container_name: adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    stop_grace_period: 15s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8080/" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  prometheus:
+    image: prom/prometheus:v3.13.2
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    extra_hosts:
+      - "host.docker.internal:${WINDOWS_HOST_IP:-192.168.1.70}"
+    stop_grace_period: 30s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  grafana:
+    image: grafana/grafana:13.1.3
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards
+    stop_grace_period: 15s
+    mem_limit: 384m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "curl", "-s", "--fail", "http://localhost:3000/api/health" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+
+  loki:
+    image: grafana/loki:3.7.6
+    container_name: loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    stop_grace_period: 30s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      # Loki 3.6+ uses a distroless image (no /bin/sh, wget, or grep).
+      # CMD-SHELL healthchecks are impossible. Service readiness is validated
+      # externally by check-status.mjs via the /ready HTTP endpoint.
+      disable: true
+
+  alloy:
+    image: grafana/alloy:v1.18.1
+    container_name: alloy
+    restart: unless-stopped
+    ports:
+      - "12345:12345"
+    volumes:
+      - ./config/alloy/alloy-config.alloy:/etc/alloy/config.alloy:ro
+      - ../../logs:/var/log/mysql-mcp:ro
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+    stop_grace_period: 30s
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "grep -q ':3039 ' /proc/net/tcp /proc/net/tcp6 2>/dev/null || exit 1"
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  datadog-unified:
+    image: gcr.io/datadoghq/agent:7.82.1
+    container_name: datadog-unified
+    restart: unless-stopped
+    pid: host
+    cgroup: host
+    # Note: cgroupns_mode: host is a Docker Engine runtime property for accurate
+    # cgroup metrics but is not recognized by Docker Compose v5+ schema validation.
+    # If needed, set "default-cgroupns-mode": "host" in /etc/docker/daemon.json instead.
+    cap_add:
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - SYS_PTRACE
+      - NET_ADMIN
+      - NET_RAW
+      - IPC_LOCK
+    security_opt:
+      - apparmor:unconfined
+    extra_hosts:
+      - "host.docker.internal:${WINDOWS_HOST_IP:-192.168.1.70}"
+    env_file:
+      - .env
+    environment:
+      - DD_SITE=datadoghq.com
+      - DD_HOSTNAME=adamic-wsl2
+      - DD_ENV=development
+      - DD_VERSION=1.0.0
+      - DD_TAGS=source:wsl2
+      - DD_EXTRA_PERFORMANCE_METRICS=false
+      # OTLP Ingest
+      - DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_HTTP_ENDPOINT=0.0.0.0:4318
+      # Logs
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      # Process monitoring
+      - DD_PROCESS_CONFIG_CONTAINER_COLLECTION_ENABLED=true
+      - DD_PROCESS_CONFIG_PROCESS_COLLECTION_ENABLED=true
+      - DD_CONTAINER_EXCLUDE=name:datadog-unified
+      # System probe (eBPF network performance monitoring)
+      - DD_SYSTEM_PROBE_ENABLED=true
+      # APM tracing
+      - DD_APM_ENABLED=true
+      - DD_APM_NON_LOCAL_TRAFFIC=true
+      # DogStatsD
+      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+      # Disable Kubernetes (not applicable)
+      - DD_KUBERNETES_COLLECT_METADATA_TAGS=false
+      - DD_COLLECT_KUBERNETES_EVENTS=false
+    ports:
+      - "8125:8125/udp"
+      - "4318:4318"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/os-release:/host/etc/os-release:ro
+      - /sys/kernel/debug:/sys/kernel/debug
+      - ./config/datadog-integration-configs:/etc/datadog-agent/conf.d:ro
+      - ../../logs:/var/log/mysql-mcp:ro
+    networks:
+      - default
+    stop_grace_period: 30s
+    mem_limit: 1536m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD-SHELL", "agent health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mysql-node1-data-v4:
+  mysql-node2-data-v4:
+  mysql-node3-data-v4:
+  mysql-async-replica-data-v4:
+  prometheus_data:
+networks:
+  default:
+    name: unified-database-ecosystem-net

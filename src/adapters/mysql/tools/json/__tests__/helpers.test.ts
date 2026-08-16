@@ -30,9 +30,9 @@ describe("JSON Helper Tools", () => {
 
   describe("createJsonGetTool", () => {
     it("should get JSON value by ID", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ value: '{"a":1}' }]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ is_valid: 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ value: '{"a":1}' }]));
 
       const tool = createJsonGetTool(mockAdapter);
       const result = (await tool.handler(
@@ -45,10 +45,13 @@ describe("JSON Helper Tools", () => {
         mockContext,
       )) as { data: { value: any } };
 
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
-      expect(call).toContain("JSON_EXTRACT");
-      expect(call).toContain("WHERE `id` = 1");
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(2);
+      const call1 = mockAdapter.executeReadQuery.mock.calls[0][0];
+      expect(call1).toContain("JSON_VALID");
+      
+      const call2 = mockAdapter.executeReadQuery.mock.calls[1][0];
+      expect(call2).toContain("JSON_EXTRACT");
+      expect(call2).toContain("WHERE `id` = 1");
       // Value is parsed from JSON string
       expect(result.data.value).toEqual({ a: 1 });
     });
@@ -90,8 +93,8 @@ describe("JSON Helper Tools", () => {
 
       const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("JSON_SEARCH");
-      expect(call).toContain("SELECT *, JSON_SEARCH");
-      expect(call).not.toContain("SELECT id, JSON_SEARCH");
+      expect(call).toContain("SELECT *, CASE WHEN JSON_VALID");
+      expect(call).not.toContain("SELECT id, `json_col`, JSON_SEARCH");
     });
   });
 
@@ -123,6 +126,7 @@ describe("JSON Helper Tools", () => {
         rowsAffected: 0,
         insertId: 0,
       });
+      mockAdapter.executeReadQuery.mockResolvedValue({ rows: [] });
 
       const tool = createJsonUpdateTool(mockAdapter);
       const result = (await tool.handler(
@@ -176,11 +180,7 @@ describe("JSON Helper Tools", () => {
         mockContext,
       )) as { data: { valid: boolean } };
 
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      // The bare string "hello" should be passed directly, not wrapped
-      const sqlParam = mockAdapter.executeReadQuery.mock
-        .calls[0][1];
-      expect(Array.isArray(sqlParam) ? sqlParam[0] : undefined).toBe("hello");
+      expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
       expect(result.data.valid).toBe(false);
     });
 
@@ -211,7 +211,7 @@ describe("JSON Helper Tools", () => {
       const tool = createJsonValidateTool(
         mockAdapter,
       );
-      const result = (await tool.handler({ value: "{bad" }, mockContext)) as {
+      const result = (await tool.handler({ value: '{"good": 1}' }, mockContext)) as {
         success: boolean;
         error: string;
       };
@@ -226,48 +226,23 @@ describe("JSON Helper Tools", () => {
   describe("P154 Graceful Error Handling", () => {
     const tableError = new Error("Table 'testdb.nonexistent' does not exist");
 
-    it("json_get should return exists: false for nonexistent table", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(tableError);
-      const tool = createJsonGetTool(mockAdapter);
-      const result = await tool.handler(
-        { table: "nonexistent", column: "doc", path: "$.x", where: "`id` = 1" },
-        mockContext,
-      );
-      expect(result).toMatchObject({
-        success: false,
-        error: "Table 'testdb.nonexistent' does not exist",
-      });
-    });
+    const errorTests = [
+      { name: "json_get", toolFn: createJsonGetTool, readQuery: true, args: { table: "nonexistent", column: "doc", path: "$.x", where: "`id` = 1" } },
+      { name: "json_update", toolFn: createJsonUpdateTool, readQuery: false, args: { table: "nonexistent", column: "doc", path: "$.x", value: 1, where: "`id` = 1" } },
+      { name: "json_search", toolFn: createJsonSearchTool, readQuery: true, args: { table: "nonexistent", column: "doc", searchValue: "test" } }
+    ];
 
-    it("json_update should return exists: false for nonexistent table", async () => {
-      mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
-      const tool = createJsonUpdateTool(mockAdapter);
-      const result = await tool.handler(
-        {
-          table: "nonexistent",
-          column: "doc",
-          path: "$.x",
-          value: 1,
-          where: "`id` = 1",
-        },
-        mockContext,
-      );
-      expect(result).toMatchObject({
-        success: false,
-        error: "Table 'testdb.nonexistent' does not exist",
-      });
-    });
-
-    it("json_search should return exists: false for nonexistent table", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(tableError);
-      const tool = createJsonSearchTool(mockAdapter);
-      const result = await tool.handler(
-        { table: "nonexistent", column: "doc", searchValue: "test" },
-        mockContext,
-      );
-      expect(result).toMatchObject({
-        success: false,
-        error: "Table 'testdb.nonexistent' does not exist",
+    errorTests.forEach(({ name, toolFn, readQuery, args }) => {
+      it(`${name} should return exists: false for nonexistent table`, async () => {
+        if (readQuery) {
+          mockAdapter.executeReadQuery.mockRejectedValue(tableError);
+        } else {
+          mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
+        }
+        const tool = toolFn(mockAdapter);
+        const result = await tool.handler(args as any, mockContext);
+        expect(result.success).toBe(false);
+        expect((result as any).error).toContain("Table 'testdb.nonexistent' does not exist");
       });
     });
 
@@ -280,9 +255,8 @@ describe("JSON Helper Tools", () => {
         { table: "data", column: "doc", path: "$.x", where: "`id` = 1" },
         mockContext,
       );
-      expect(result).toEqual(
-        expect.objectContaining({ success: false, error: "Connection lost" }),
-      );
+      expect(result.success).toBe(false);
+      expect((result as any).error).toContain("Connection lost");
     });
   });
 });

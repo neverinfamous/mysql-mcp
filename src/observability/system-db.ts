@@ -11,9 +11,14 @@ export interface SystemDbConfig {
 export class SystemDb {
   private db: Database | null = null;
   private readonly config: SystemDbConfig;
+  private pruneInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(config: SystemDbConfig) {
     this.config = config;
+  }
+
+  public get isMemoryDb(): boolean {
+    return this.config.dbPath === ":memory:";
   }
 
   async init(): Promise<void> {
@@ -26,9 +31,16 @@ export class SystemDb {
 
       this.db = new BetterSqlite3(this.config.dbPath);
 
-      // Initialize schema
-      this.db.pragma("journal_mode = WAL");
+      // Note: PRAGMA key is intentionally omitted. The Windows prebuild of
+      // better-sqlite3-multiple-ciphers treats it as a no-op, meaning all
+      // existing audit.sqlite files are plain (unencrypted) SQLite databases.
+      // Applying a key in the Alpine Docker build causes SQLCipher to attempt
+      // decryption of a plain file → "file is not a database". If real
+      // at-rest encryption is required in the future, migrate the database
+      // and set consistent cipher parameters across all platforms first.
+      this.db.pragma("journal_mode = TRUNCATE");
       this.db.pragma("synchronous = NORMAL");
+
 
       this.db.exec(`
         CREATE TABLE IF NOT EXISTS audit_logs (
@@ -62,18 +74,68 @@ export class SystemDb {
           p50 INTEGER NOT NULL,
           p95 INTEGER NOT NULL,
           p99 INTEGER NOT NULL,
-          tokens INTEGER NOT NULL
+          tokens INTEGER NOT NULL,
+          categories_json TEXT,
+          errors_json TEXT
         );
 
         CREATE INDEX IF NOT EXISTS idx_metrics_snapshots_timestamp ON metrics_snapshots(timestamp);
         CREATE INDEX IF NOT EXISTS idx_metrics_snapshots_tool ON metrics_snapshots(tool);
+        
+        -- Migration for existing databases
+        BEGIN TRANSACTION;
+        -- Ignore errors if column already exists
+        PRAGMA user_version;
+        COMMIT;
+      `);
+      
+      try {
+        this.db.exec("ALTER TABLE metrics_snapshots ADD COLUMN categories_json TEXT");
+      } catch {
+        // Column already exists
+      }
+      try {
+        this.db.exec("ALTER TABLE metrics_snapshots ADD COLUMN errors_json TEXT");
+      } catch {
+        // Column already exists
+      }
+
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS cache_metrics_snapshots (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          timestamp TEXT NOT NULL,
+          hits INTEGER NOT NULL,
+          misses INTEGER NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS resource_metrics_snapshots (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          timestamp TEXT NOT NULL,
+          uri TEXT NOT NULL,
+          reads INTEGER NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_resource_metrics_snapshots_timestamp ON resource_metrics_snapshots(timestamp);
+        CREATE INDEX IF NOT EXISTS idx_resource_metrics_snapshots_uri ON resource_metrics_snapshots(uri);
       `);
 
       logger.info(`System database initialized at ${this.config.dbPath}`);
+
+      if (this.config.dbPath !== ":memory:") {
+        this.pruneInterval = setInterval(() => this.prune(), 5 * 60 * 1000); // 5 minutes
+        this.pruneInterval.unref();
+        
+        // Run initial prune shortly after startup
+        setTimeout(() => this.prune(), 1000).unref();
+      }
     } catch (err) {
       logger.error("Failed to initialize SystemDb. better-sqlite3 may not be installed.", {
         error: err instanceof Error ? err.message : String(err),
       });
+      if (this.db) {
+        try { this.db.close(); } catch { /* ignore close error */ }
+        this.db = null;
+      }
       throw err;
     }
   }
@@ -90,9 +152,33 @@ export class SystemDb {
   }
 
   close(): void {
+    if (this.pruneInterval) {
+      clearInterval(this.pruneInterval);
+      this.pruneInterval = null;
+    }
     if (this.db) {
       this.db.close();
       this.db = null;
+    }
+  }
+
+  /**
+   * Automatically trims the database to prevent unbounded growth.
+   * Keeps the latest 100,000 audit logs and 10,000 metrics snapshots.
+   */
+  prune(): void {
+    if (!this.db) return;
+    try {
+      this.db.exec(`
+        DELETE FROM audit_logs WHERE id NOT IN (SELECT id FROM audit_logs ORDER BY timestamp DESC LIMIT 100000);
+        DELETE FROM metrics_snapshots WHERE id NOT IN (SELECT id FROM metrics_snapshots ORDER BY timestamp DESC LIMIT 10000);
+        DELETE FROM cache_metrics_snapshots WHERE id NOT IN (SELECT id FROM cache_metrics_snapshots ORDER BY timestamp DESC LIMIT 10000);
+        DELETE FROM resource_metrics_snapshots WHERE id NOT IN (SELECT id FROM resource_metrics_snapshots ORDER BY timestamp DESC LIMIT 10000);
+      `);
+    } catch (err) {
+      logger.error("Failed to prune SystemDb", {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   }
 }

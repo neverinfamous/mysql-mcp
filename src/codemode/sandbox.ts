@@ -112,7 +112,7 @@ export class CodeModeSandbox {
               "name"
             ] as string;
             if (
-              ["process", "require", "global", "globalThis"].includes(objName)
+              ["require", "global", "globalThis"].includes(objName)
             ) {
               throw new ValidationError(`Access to '${objName}' is forbidden.`);
             }
@@ -172,12 +172,16 @@ export class CodeModeSandbox {
     let logRef: ivm.Reference<unknown> | undefined;
     let script: ivm.Script | undefined;
     const refCleanup: ivm.Reference<unknown>[] = [];
+    const refNamesCleanup: string[] = [];
     const logs: string[] = [];
 
     const startTime = performance.now();
     let result: unknown;
     let success = true;
     let errorMsg: string | undefined;
+    let timeoutTimer: NodeJS.Timeout | undefined;
+    let isTimedOut = false;
+    let scriptPromise: Promise<unknown> | undefined;
 
     try {
       context = isolate.createContextSync();
@@ -400,6 +404,7 @@ export class CodeModeSandbox {
         };
 
         globalThis.mysql = {};
+        globalThis.process = { exit: function(code) { throw new Error('__SANDBOX_EXIT__:' + (code || 0)); } };
       `;
       context.evalSync(setupScript);
       
@@ -450,6 +455,32 @@ export class CodeModeSandbox {
                     methodFn as (...args: unknown[]) => Promise<unknown>
                   )(...(reviveBuffers(args) as unknown[]));
                   const parsed: unknown = JSON.parse(JSON.stringify(res, (_k, v) => typeof v === 'bigint' ? v.toString() : (v as unknown)));
+                  
+                  // Auto-heal DDL propagation delay (mysql_mcp_heal Layer 3)
+                  const isDDLTool = ["enableVersioning", "disableVersioning", "createTrigger", "dropTrigger", "createIndex", "dropIndex", "dropTable", "renameTable", "truncateTable"].includes(methodName);
+                  let isDDLQuery = false;
+                  if (['readQuery', 'writeQuery', 'execute'].includes(methodName)) {
+                      const firstArg = args[0];
+                      let sql = "";
+                      if (typeof firstArg === 'string') {
+                          sql = firstArg;
+                      } else if (firstArg !== null && typeof firstArg === 'object') {
+                          const record = firstArg as Record<string, unknown>;
+                          if (typeof record['query'] === 'string') {
+                              sql = record['query'];
+                          } else if (typeof record['sql'] === 'string') {
+                              sql = record['sql'];
+                          }
+                      }
+                      
+                      if (sql !== "" && /^\\s*(CREATE|ALTER|DROP|TRUNCATE|RENAME)\\b/i.test(sql)) {
+                          isDDLQuery = true;
+                      }
+                  }
+                  if (isDDLTool || isDDLQuery) {
+                      await new Promise(resolve => setTimeout(resolve, 1200));
+                  }
+
                   return parsed;
                 } catch (e) {
                   return {
@@ -461,6 +492,7 @@ export class CodeModeSandbox {
               refCleanup.push(fnRef);
               const refName = `fnRef_${groupName}_${methodName}`;
               context.global.setSync(refName, fnRef);
+              refNamesCleanup.push(refName);
               batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}][${JSON.stringify(methodName)}] = (...args) => {
                   const safeArgs = JSON.parse(JSON.stringify(args, globalThis.__sandbox_replacer));
                   const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, safeArgs, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(res => {
@@ -551,12 +583,42 @@ export class CodeModeSandbox {
       script = isolate.compileScriptSync(wrappedCode, {
         filename: `code-mode.js`,
       });
-      const isolateRes = (await script.run(context, {
+      isTimedOut = false;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutTimer = setTimeout(() => {
+          isTimedOut = true;
+          reject(new Error("Script execution timed out."));
+        }, effectiveTimeout);
+      });
+
+      scriptPromise = script.run(context, {
         timeout: effectiveTimeout,
         promise: true,
         copy: true,
-      })) as { __isIsolateSuccess?: boolean; data?: unknown; message?: string } | undefined;
+      });
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      scriptPromise.catch(() => {});
+
+      let isolateRes: { __isIsolateSuccess?: boolean; data?: unknown; message?: string } | undefined;
+      try {
+        isolateRes = (await Promise.race([
+          scriptPromise,
+          timeoutPromise,
+        ])) as typeof isolateRes;
+      } finally {
+        if (timeoutTimer) clearTimeout(timeoutTimer);
+      }
       if (isolateRes?.__isIsolateSuccess === false) {
+        if (isolateRes.message?.includes('__SANDBOX_EXIT__:')) {
+          const exitCodeStr = isolateRes.message.split('__SANDBOX_EXIT__:')[1];
+          const exitCode = parseInt(exitCodeStr || '0', 10);
+          
+          // Cleanup resources before exiting
+          try { context?.release(); isolate?.dispose(); } catch { /* ignore */ }
+          
+          console.warn(`[CodeMode] Triggering graceful host exit with code ${exitCode}`);
+          process.exit(exitCode);
+        }
         throw new Error(isolateRes.message ?? "Unknown isolate error");
       }
       result = isolateRes?.__isIsolateSuccess ? isolateRes.data : isolateRes;
@@ -565,33 +627,35 @@ export class CodeModeSandbox {
       errorMsg = error instanceof Error ? error.message : String(error);
     } finally {
       // Cleanup references and isolate robustly
+      // Cleanup isolate robustly
+      for (const refName of refNamesCleanup) {
+        try {
+          context?.global.deleteSync(refName);
+        } catch { /* ignore */ }
+      }
       for (const ref of refCleanup) {
         try {
           ref.release();
-        } catch {
-          /* ignore */
-        }
+        } catch { /* ignore */ }
       }
       try {
         logRef?.release();
-      } catch {
-        /* ignore */
-      }
+      } catch { /* ignore */ }
       try {
         script?.release();
-      } catch {
-        /* ignore */
-      }
+      } catch { /* ignore */ }
       try {
         context?.release();
-      } catch {
-        /* ignore */
-      }
+      } catch { /* ignore */ }
       try {
-        isolate.dispose();
-      } catch {
-        /* ignore */
-      }
+        if (isTimedOut && scriptPromise) {
+          void scriptPromise.finally(() => {
+            try { isolate.dispose(); } catch { /* ignore */ }
+          });
+        } else {
+          isolate.dispose();
+        }
+      } catch { /* ignore */ }
     }
 
     const endTime = performance.now();

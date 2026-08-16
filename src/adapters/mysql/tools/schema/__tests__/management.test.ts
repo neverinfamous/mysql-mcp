@@ -1,24 +1,20 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import {
   createListSchemasTool,
   createCreateSchemaTool,
-  createDropSchemaTool,
-} from "../management.js";
-import type {} from "../../../mysql-adapter/index.js";
+  createDropSchemaTool } from "../management.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
+import { setupSchemaTest } from "./setup.js";
 
 describe("Schema Management Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
   let mockContext: ReturnType<typeof createMockRequestContext>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockAdapter = createMockMySQLAdapter();
-    mockContext = createMockRequestContext();
+    ({ mockAdapter, mockContext } = setupSchemaTest());
   });
 
   describe("mysql_list_schemas", () => {
@@ -89,7 +85,7 @@ describe("Schema Management Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Invalid schema name");
+      expect(result.error).toContain("Invalid schema name");
     });
 
     it("should return structured error for invalid charset", async () => {
@@ -130,8 +126,7 @@ describe("Schema Management Tools", () => {
           name: "custom_db",
           charset: "latin1",
           collation: "latin1_swedish_ci",
-          ifNotExists: false,
-        },
+          ifNotExists: false },
         mockContext,
       );
 
@@ -221,7 +216,7 @@ describe("Schema Management Tools", () => {
           error: string;
         };
         expect(result.success).toBe(false);
-        expect(result.error).toBe("Cannot drop system schema");
+        expect(result.error).toContain("Cannot drop system schema");
       }
     });
 
@@ -233,7 +228,7 @@ describe("Schema Management Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Invalid schema name");
+      expect(result.error).toContain("Invalid schema name");
     });
 
     it("should drop schema without IF EXISTS if requested", async () => {

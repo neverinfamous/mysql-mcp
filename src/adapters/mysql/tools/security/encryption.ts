@@ -4,7 +4,7 @@
  * Tools for SSL/TLS monitoring, encryption status, and password validation.
  */
 
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -20,6 +20,7 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js";
 
 // =============================================================================
 // Helpers
@@ -30,23 +31,23 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 const PasswordValidateSchemaBase = z.object({
-  password: z.string().optional().describe("Password to validate"),
-  pass: z.string().optional().describe("Alias for password"),
-  pwd: z.string().optional().describe("Alias for password"),
-});
+  password: z.union([z.string(), z.number()]).optional().describe("Password to validate"),
+  pass: z.union([z.string(), z.number()]).optional().describe("Alias for password"),
+  pwd: z.union([z.string(), z.number()]).optional().describe("Alias for password"),
+}).strict();
 
-const PasswordValidateSchema = z.preprocess(
-  (val: unknown) => {
-    if (typeof val !== "object" || val === null) return val;
-    const obj = val as Record<string, unknown>;
-    if (!("password" in obj)) {
-      if ("pass" in obj) return { ...obj, password: obj["pass"] };
-      if ("pwd" in obj) return { ...obj, password: obj["pwd"] };
-    }
-    return val;
-  },
+const PasswordValidateSchema = z.object({
+  password: z.union([z.string(), z.number()]).describe("Password to validate").optional(),
+  pass: z.union([z.string(), z.number()]).optional().describe("Alias for password"),
+  pwd: z.union([z.string(), z.number()]).optional().describe("Alias for password"),
+}).strict().transform((obj) => {
+  const password = obj.password ?? obj.pass ?? obj.pwd;
+  return { password: password !== undefined && password !== null ? String(password) : "" };
+
+
+}).pipe(
   z.object({
-    password: z.string().min(1, "Password cannot be empty"),
+    password: z.string().min(1, "Password cannot be empty")
   })
 );
 
@@ -65,12 +66,14 @@ export function createSecuritySSLStatusTool(
     title: "MySQL SSL Status",
     description: "Get SSL/TLS connection and certificate status.",
     group: "security",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: SecuritySslStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        z.object({}).strict().parse(params);
+
         // Get SSL status
         const statusResult = await adapter.executeQuery(
           "SHOW STATUS LIKE 'Ssl%'",
@@ -130,7 +133,7 @@ export function createSecuritySSLStatusTool(
           },
         });
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return formatHandlerErrorResponse(err, { module: "security", tool: "mysql_security_ssl_status" });
       }
     },
   };
@@ -147,27 +150,46 @@ export function createSecurityEncryptionStatusTool(
     title: "MySQL Encryption Status",
     description: "Get Transparent Data Encryption (TDE) and keyring status.",
     group: "security",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: SecurityEncryptionStatusOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        z.object({}).strict().parse(params);
+
         // Check for keyring plugins
         const keyringResult = await adapter.executeQuery(`
-                SELECT PLUGIN_NAME, PLUGIN_STATUS
+                /* admin */ SELECT PLUGIN_NAME, PLUGIN_STATUS
                 FROM information_schema.PLUGINS
-                WHERE PLUGIN_NAME LIKE 'keyring%'
+                WHERE PLUGIN_NAME LIKE 'keyring%' AND PLUGIN_STATUS = 'ACTIVE'
             `);
 
         // Check encrypted tablespaces
-        const tablespaceResult = await adapter.executeQuery(`
-                SELECT
-                    NAME,
-                    ENCRYPTION
-                FROM information_schema.INNODB_TABLESPACES
-                WHERE ENCRYPTION = 'Y'
-            `);
+        // Handle potentially missing ENCRYPTION column or table in some MySQL/MariaDB versions
+        // and limit payload size
+        let encryptedTablespaces: Record<string, unknown>[] = [];
+        let encryptedTablespaceCount = 0;
+        try {
+          const tablespaceResult = await adapter.executeQuery(`
+                  /* admin */ SELECT
+                      NAME,
+                      ENCRYPTION
+                  FROM information_schema.INNODB_TABLESPACES
+                  WHERE ENCRYPTION = 'Y'
+                  LIMIT 100
+              `);
+          encryptedTablespaces = tablespaceResult.rows ?? [];
+
+          const countResult = await adapter.executeQuery(`
+                  /* admin */ SELECT COUNT(*) as cnt
+                  FROM information_schema.INNODB_TABLESPACES
+                  WHERE ENCRYPTION = 'Y'
+              `);
+          encryptedTablespaceCount = Number(countResult.rows?.[0]?.["cnt"] ?? encryptedTablespaces.length);
+        } catch {
+          // Ignore, table or column might not exist
+        }
 
         // Check encryption variables
         const varsResult = await adapter.executeQuery(
@@ -185,38 +207,20 @@ export function createSecurityEncryptionStatusTool(
           }),
         );
 
-        // Check redo/undo log encryption
-        const innodbVarsResult = await adapter.executeQuery(
-          "SHOW VARIABLES LIKE 'innodb_%encrypt%'",
-        );
-
-        const innodbVars: Record<string, unknown> = Object.fromEntries(
-          (innodbVarsResult.rows ?? []).map((r) => {
-            const record = r;
-            const varName =
-              typeof record["Variable_name"] === "string"
-                ? record["Variable_name"]
-                : "";
-            return [varName, record["Value"]];
-          }),
-        );
 
         return withTokenEstimate({
           success: true,
           data: {
             keyringPlugins: keyringResult.rows ?? [],
             keyringInstalled: (keyringResult.rows?.length ?? 0) > 0,
-            encryptedTablespaces: tablespaceResult.rows ?? [],
-            encryptedTablespaceCount: tablespaceResult.rows?.length ?? 0,
-            encryptionSettings: {
-              ...variables,
-              ...innodbVars,
-            },
+            encryptedTablespaces,
+            encryptedTablespaceCount,
+            encryptionSettings: variables,
             tdeAvailable: (keyringResult.rows?.length ?? 0) > 0,
           },
         });
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return formatHandlerErrorResponse(err, { module: "security", tool: "mysql_security_encryption_status" });
       }
     },
   };
@@ -240,6 +244,7 @@ export function createSecurityPasswordValidateTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
+
         const { password } = PasswordValidateSchema.parse(params);
 
         // First check if validate_password component is installed
@@ -259,18 +264,16 @@ export function createSecurityPasswordValidateTool(
           }),
         );
 
-        // If no validate_password variables exist, component is not installed
         if (Object.keys(policy).length === 0) {
           return formatHandlerErrorResponse(
-            new Error(
-              'Password validation component not installed. Install with: INSTALL COMPONENT "file://component_validate_password"',
-            ),
+            new ExtensionNotAvailableError("validate_password"),
+            { module: "security", tool: "mysql_security_password_validate" }
           );
         }
 
         // Use validate_password function
         const result = await adapter.executeQuery(
-          "SELECT VALIDATE_PASSWORD_STRENGTH(?) AS strength",
+          "/* admin */ SELECT VALIDATE_PASSWORD_STRENGTH(?) AS strength",
           [password],
         );
 
@@ -289,14 +292,11 @@ export function createSecurityPasswordValidateTool(
           data: {
             strength,
             interpretation,
-            meetsPolicy: strength >= 50, // General guideline
+            meetsPolicy: strength === 100, // MySQL returns 100 when policy is fully met
             policy,
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
         const message = error instanceof Error ? error.message : String(error);
         // Check for known component-not-installed errors
         const lower = message.toLowerCase();
@@ -305,12 +305,11 @@ export function createSecurityPasswordValidateTool(
           lower.includes("function")
         ) {
           return formatHandlerErrorResponse(
-            new Error(
-              'Password validation function failed. Reinstall with: INSTALL COMPONENT "file://component_validate_password"',
-            ),
+            new ExtensionNotAvailableError("validate_password"),
+            { module: "security", tool: "mysql_security_password_validate" }
           );
         }
-        return formatHandlerErrorResponse(new Error(message));
+        return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_password_validate" });
       }
     },
   };

@@ -1,11 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createStatsOutliersTool } from "../outlier.js";
-import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
-  createMockRequestContext,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 
 describe("Outliers Tool", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -26,6 +24,8 @@ describe("Outliers Tool", () => {
 
     it("should detect outliers using Z-score", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("information_schema.TABLES")) return createMockQueryResult([{ 1: 1 }]);
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         if (query.includes("AVG(")) {
           return createMockQueryResult([
             { mean: 10, stddev: 2, total_count: 100 },
@@ -46,8 +46,8 @@ describe("Outliers Tool", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.method).toBe("zscore");
       expect(data.outliers.length).toBe(1);
       expect(data.outliers[0].value).toBe(20);
@@ -57,6 +57,8 @@ describe("Outliers Tool", () => {
 
     it("should handle z-score with zero stddev", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("information_schema.TABLES")) return createMockQueryResult([{ 1: 1 }]);
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         if (query.includes("AVG(")) {
           return createMockQueryResult([
             { mean: 10, stddev: 0, total_count: 100 },
@@ -73,12 +75,14 @@ describe("Outliers Tool", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      expect(Reflect.get(result || {}, "data").outlierCount).toBe(0);
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain("zero variance");
     });
 
     it("should detect outliers using IQR", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("information_schema.TABLES")) return createMockQueryResult([{ 1: 1 }]);
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         if (query.includes("COUNT(")) {
           return createMockQueryResult([{ cnt: 100, total_count: 100 }]);
         }
@@ -103,8 +107,8 @@ describe("Outliers Tool", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.method).toBe("iqr");
       expect(data.stats.q1).toBe(10);
       expect(data.stats.q3).toBe(20);
@@ -117,6 +121,8 @@ describe("Outliers Tool", () => {
 
     it("should handle empty tables for IQR", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("information_schema.TABLES")) return createMockQueryResult([{ 1: 1 }]);
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         if (query.includes("COUNT(")) {
           return createMockQueryResult([{ cnt: 0, total_count: 0 }]);
         }
@@ -128,8 +134,8 @@ describe("Outliers Tool", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(false);
-      expect(Reflect.get(result || {}, "error")).toContain("Insufficient data");
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain("Insufficient data");
     });
   });
 });

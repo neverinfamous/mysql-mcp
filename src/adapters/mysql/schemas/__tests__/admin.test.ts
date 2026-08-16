@@ -29,7 +29,7 @@ describe("Admin Schemas", () => {
       expect(OptimizeTableSchema.parse({ table: "t1" })).toMatchObject({ tables: ["t1"] });
       expect(OptimizeTableSchema.parse({ tableName: "t2" })).toMatchObject({ tables: ["t2"] });
       expect(OptimizeTableSchema.parse({ name: "t3" })).toMatchObject({ tables: ["t3"] });
-      expect(OptimizeTableSchema.parse({ table: "t1,t2" })).toMatchObject({ tables: ["t1,t2"] });
+      expect(OptimizeTableSchema.parse({ table: "t1,t2" })).toMatchObject({ tables: ["t1", "t2"] });
     });
     it("should fail if no tables provided", () => {
       expect(() => OptimizeTableSchema.parse({})).toThrow("tables");
@@ -130,8 +130,8 @@ describe("Admin Schemas", () => {
   });
 
   describe("ReplicationStatusSchema", () => {
-    it("should default to summary=false", () => {
-      expect(ReplicationStatusSchema.parse({})).toMatchObject({ summary: false });
+    it("should default to summary=true", () => {
+      expect(ReplicationStatusSchema.parse({})).toMatchObject({ summary: true });
     });
     it("should handle string booleans", () => {
       expect(ReplicationStatusSchema.parse({ summary: "true" })).toMatchObject({ summary: true });
@@ -142,12 +142,12 @@ describe("Admin Schemas", () => {
   });
 
   describe("ServerConfigSchema", () => {
-    it("should require action", () => {
-      expect(() => ServerConfigSchema.parse({})).toThrow();
+    it("should default to get action", () => {
+      expect(ServerConfigSchema.parse({})).toMatchObject({ action: "get" });
     });
     it("should parse get action", () => {
       expect(ServerConfigSchema.parse({ action: "get", setting: "logLevel" })).toMatchObject({ action: "get", setting: "logLevel" });
-      expect(() => ServerConfigSchema.parse({ key: "logLevel" })).toThrow();
+      expect(ServerConfigSchema.parse({ key: "logLevel" })).toMatchObject({ action: "get", setting: "logLevel" });
     });
     it("should fail set action if setting or value missing", () => {
       expect(() => ServerConfigSchema.parse({ action: "set" })).toThrow();
@@ -159,15 +159,15 @@ describe("Admin Schemas", () => {
   });
 
   describe("AuditSearchSchema", () => {
-    it("should set defaults", () => {
-      expect(AuditSearchSchema.parse({})).toMatchObject({ limit: 10, offset: 0 });
+    it("should throw if no filter provided", () => {
+      expect(() => AuditSearchSchema.parse({})).toThrow();
     });
     it("should handle aliases for search", () => {
-      expect(AuditSearchSchema.parse({ query: "abc" })).toMatchObject({ search: "abc" });
+      expect(AuditSearchSchema.parse({ query: "abc" })).toMatchObject({ search: "abc", limit: 5, offset: 0 });
       expect(AuditSearchSchema.parse({ sql: "xyz" })).toMatchObject({ search: "xyz" });
     });
     it("should parse string limits", () => {
-      expect(AuditSearchSchema.parse({ limit: "10", offset: "20" })).toMatchObject({ limit: 10, offset: 20 });
+      expect(AuditSearchSchema.parse({ search: "test", limit: "10", offset: "20" })).toMatchObject({ search: "test", limit: 10, offset: 20 });
     });
   });
 

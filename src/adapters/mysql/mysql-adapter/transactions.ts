@@ -56,7 +56,9 @@ export class TransactionManager {
   async commitTransaction(transactionId: string): Promise<void> {
     const connection = this.adapter.activeTransactions.get(transactionId);
     if (!connection) {
-      throw new TransactionError(`Transaction not found: ${transactionId}`);
+      throw new TransactionError(`Transaction not found: ${transactionId}`, undefined, {
+        suggestion: "Transaction ID is invalid or has already been committed/rolled back.",
+      });
     }
 
     try {
@@ -81,7 +83,9 @@ export class TransactionManager {
   async rollbackTransaction(transactionId: string): Promise<void> {
     const connection = this.adapter.activeTransactions.get(transactionId);
     if (!connection) {
-      throw new TransactionError(`Transaction not found: ${transactionId}`);
+      throw new TransactionError(`Transaction not found: ${transactionId}`, undefined, {
+        suggestion: "Transaction ID is invalid or has already been committed/rolled back.",
+      });
     }
 
     try {

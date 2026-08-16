@@ -3,14 +3,11 @@ import {
   createStatsTopNTool,
   createStatsDistinctTool,
   createStatsFrequencyTool,
-  createStatsSummaryTool,
-} from "../advanced.js";
-import type {} from "../../../mysql-adapter/index.js";
+  createStatsSummaryTool } from "../advanced.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
-  createMockRequestContext,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 
 describe("Advanced Stats Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -48,8 +45,8 @@ describe("Advanced Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.count).toBe(1);
       expect(data.hint).toContain("body"); // Should warn about excluded column
 
@@ -68,7 +65,7 @@ describe("Advanced Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
+      expect((result as Record<string, unknown>).success).toBe(true);
 
       const selectSql = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(selectSql).toContain("`id`, `body`");
@@ -84,7 +81,7 @@ describe("Advanced Stats Tools", () => {
 
     it("should fetch distinct values", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
-        if (query.includes("COUNT(DISTINCT")) {
+        if (query.includes("COUNT(DISTINCT") || query.includes("COUNT(*)")) {
           return createMockQueryResult([{ cnt: 3 }]);
         }
         if (query.includes("SELECT DISTINCT")) {
@@ -102,8 +99,8 @@ describe("Advanced Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.count).toBe(3);
       expect(data.values).toEqual(["A", "B", "C"]);
     });
@@ -135,8 +132,8 @@ describe("Advanced Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.distinctValues).toBe(2);
       expect(data.distribution[0].value).toBe("A");
       expect(data.distribution[0].percentage).toBe(80);
@@ -168,8 +165,7 @@ describe("Advanced Stats Tools", () => {
               age_avg: 25.5,
               age_min: 18,
               age_max: 60,
-              age_stddev: 10.5,
-            },
+              age_stddev: 10.5 },
           ]);
         }
         return createMockQueryResult([]);
@@ -177,8 +173,8 @@ describe("Advanced Stats Tools", () => {
 
       const result = await tool.handler({ table: "users" }, mockContext);
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.summaries.length).toBe(1);
       expect(data.summaries[0].column).toBe("age");
       expect(data.summaries[0].avg).toBe(25.5);
@@ -199,7 +195,7 @@ describe("Advanced Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect((result as Record<string, unknown>).success).toBe(false);
       expect(Reflect.get(result || {}, "code")).toBe("TABLE_NOT_FOUND");
     });
   });

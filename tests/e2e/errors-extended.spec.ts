@@ -24,7 +24,7 @@ test.describe.configure({ mode: "serial" });
 // =============================================================================
 
 test.describe("Errors: Core", () => {
-  test("read_query on nonexistent table → structured error", async ({}, testInfo) => {
+  test("read_query on nonexistent table → structured error", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_read_query", {
@@ -34,14 +34,14 @@ test.describe("Errors: Core", () => {
         /* Accept if MySQL handles SELECT in write gracefully */
       } else {
         expectHandlerError(p);
+        expect(p.error as string).toMatch(/does not exist|_e2e_nonexistent_xyz/i);
       }
-      expect(p.error as string).toMatch(/does not exist|_e2e_nonexistent_xyz/i);
     } finally {
       await client.close();
     }
   });
 
-  test("describe_table on nonexistent table → structured error", async ({}, testInfo) => {
+  test("describe_table on nonexistent table → structured error", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_describe_table", {
@@ -57,7 +57,7 @@ test.describe("Errors: Core", () => {
     }
   });
 
-  test("drop_table on nonexistent table (no ifExists) → structured error or safe no-op", async ({}, testInfo) => {
+  test("drop_table on nonexistent table (no ifExists) → structured error or safe no-op", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_drop_table", {
@@ -73,7 +73,7 @@ test.describe("Errors: Core", () => {
     }
   });
 
-  test("get_indexes on nonexistent table → structured error", async ({}, testInfo) => {
+  test("get_indexes on nonexistent table → structured error", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_get_indexes", {
@@ -89,7 +89,7 @@ test.describe("Errors: Core", () => {
     }
   });
 
-  test("write_query with SELECT → structured error", async ({}, testInfo) => {
+  test("write_query with SELECT → structured error", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_write_query", {
@@ -105,7 +105,7 @@ test.describe("Errors: Core", () => {
     }
   });
 
-  test("read_query with INSERT → structured error", async ({}, testInfo) => {
+  test("read_query with INSERT → structured error", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_read_query", {
@@ -127,7 +127,7 @@ test.describe("Errors: Core", () => {
 // =============================================================================
 
 test.describe("Errors: JSONB", () => {
-  test("jsonb_extract on nonexistent table → structured error", async ({}, testInfo) => {
+  test("jsonb_extract on nonexistent table → structured error", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_json_extract", {
@@ -145,7 +145,7 @@ test.describe("Errors: JSONB", () => {
     }
   });
 
-  test("jsonb_set on nonexistent table → structured error", async ({}, testInfo) => {
+  test("jsonb_set on nonexistent table → structured error", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_json_set", {
@@ -170,7 +170,7 @@ test.describe("Errors: JSONB", () => {
 // =============================================================================
 
 test.describe("Errors: Text", () => {
-  test("regexp_match on nonexistent table → structured error", async ({}, testInfo) => {
+  test("regexp_match on nonexistent table → structured error", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_regexp_match", {
@@ -194,7 +194,7 @@ test.describe("Errors: Text", () => {
 // =============================================================================
 
 test.describe("Errors: Stats", () => {
-  test("stats_descriptive on nonexistent table → structured error", async ({}, testInfo) => {
+  test("stats_descriptive on nonexistent table → structured error", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_stats_descriptive", {
@@ -211,7 +211,7 @@ test.describe("Errors: Stats", () => {
     }
   });
 
-  test("stats_descriptive on nonexistent column → structured error", async ({}, testInfo) => {
+  test("stats_descriptive on nonexistent column → structured error", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_stats_descriptive", {
@@ -228,7 +228,7 @@ test.describe("Errors: Stats", () => {
     }
   });
 
-  test("stats_correlation on nonexistent column → structured error", async ({}, testInfo) => {
+  test("stats_correlation on nonexistent column → structured error", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_stats_correlation", {
@@ -246,7 +246,7 @@ test.describe("Errors: Stats", () => {
     }
   });
 
-  test("stats_top_n with n <= 0 → structured validation error", async ({}, testInfo) => {
+  test("stats_top_n with n <= 0 → structured validation error", async () => {
     const client = await createClient();
     try {
       const response = await callToolRaw(client, "mysql_stats_top_n", {
@@ -254,7 +254,7 @@ test.describe("Errors: Stats", () => {
         column: "price",
         n: -1,
       });
-      const text = (response as any).content[0]?.text;
+      const text = response.content[0]?.text;
       expect(text).toBeDefined();
       expect(text).toContain("Validation error");
     } finally {
@@ -268,7 +268,7 @@ test.describe("Errors: Stats", () => {
 // =============================================================================
 
 test.describe("Errors: Vector", () => {
-  test("vector_search on nonexistent table → structured or MCP error", async ({}, testInfo) => {
+  test("vector_search on nonexistent table → structured or MCP error", async () => {
     const client = await createClient();
     try {
       const response = await callToolRaw(client, "mysql_vector_search", {
@@ -284,14 +284,5 @@ test.describe("Errors: Vector", () => {
     }
   });
 
-  test("vector_search with mismatched dimensions → DIMENSION_MISMATCH", async ({}, testInfo) => {
-    const client = await createClient();
-    try {
-      // Must first create a valid vector table so the initial checks pass and it hits the distance check
-      // For testing, just calling it with dummy dimensions might trigger the check if handler pre-validates against existing column
-      // We already test basic non-existent table above
-    } finally {
-      await client.close();
-    }
-  });
+
 });

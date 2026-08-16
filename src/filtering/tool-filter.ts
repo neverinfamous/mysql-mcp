@@ -31,6 +31,12 @@ let cachedAllToolNames: string[] | null = null;
 let toolToGroupMap: Map<string, ToolGroup> | null = null;
 
 /**
+ * Cached meta-group tool expansions
+ * Lazy-initialized to prevent array re-allocations
+ */
+let cachedMetaGroupTools: Map<MetaGroup, string[]> | null = null;
+
+/**
  * Default tool groups and their member tools.
  * This serves as the canonical mapping of tools to groups.
  */
@@ -80,6 +86,7 @@ export function getToolGroup(toolName: string): ToolGroup | undefined {
 export function clearToolFilterCaches(): void {
   cachedAllToolNames = null;
   toolToGroupMap = null;
+  cachedMetaGroupTools = null;
 }
 
 /**
@@ -100,10 +107,19 @@ function isMetaGroup(name: string): name is MetaGroup {
  * Get all tool names from a meta-group
  */
 export function getMetaGroupTools(metaGroup: MetaGroup): string[] {
-  const tools: string[] = [];
+  cachedMetaGroupTools ??= new Map<MetaGroup, string[]>();
+
+  let tools = cachedMetaGroupTools.get(metaGroup);
+  if (tools) {
+    return tools;
+  }
+
+  tools = [];
   for (const group of META_GROUPS[metaGroup]) {
     tools.push(...TOOL_GROUPS[group]);
   }
+  
+  cachedMetaGroupTools.set(metaGroup, tools);
   return tools;
 }
 

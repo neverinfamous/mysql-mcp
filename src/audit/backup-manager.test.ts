@@ -273,7 +273,7 @@ describe("BackupManager", () => {
 
       const filename = await mgr.createSnapshot(
         "mysql_drop_table",
-        { table: 42 } as unknown as Record<string, unknown>,
+        { table: 42 },
         "req-008",
         adapter,
       );

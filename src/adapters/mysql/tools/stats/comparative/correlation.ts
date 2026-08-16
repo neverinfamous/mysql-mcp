@@ -71,14 +71,14 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
               ? row["COLUMN_NAME"]
               : undefined;
           if (type && colName && NUMERIC_TYPES.has(type.toLowerCase())) {
-            validCols.add(colName);
+            validCols.add(colName.toLowerCase());
           }
         }
 
-        const missingCols = [column1, column2].filter((c) => !validCols.has(c));
+        const missingCols = [column1, column2].filter((c) => !validCols.has(c.toLowerCase()));
         if (missingCols.length > 0) {
           const notFound = missingCols.filter(
-            (c) => !(colCheck.rows ?? []).some((r) => r["COLUMN_NAME"] === c),
+            (c) => !(colCheck.rows ?? []).some((r) => String(r["COLUMN_NAME"]).toLowerCase() === c.toLowerCase()),
           );
           if (notFound.length > 0) {
             throw new ValidationError(`Column(s) not found: ${notFound.join(", ")}`);

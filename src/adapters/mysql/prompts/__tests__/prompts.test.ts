@@ -21,8 +21,8 @@ describe("getMySQLPrompts", () => {
     prompts = getMySQLPrompts(mockAdapter);
   });
 
-  it("should return 19 prompts", () => {
-    expect(prompts).toHaveLength(19);
+  it("should return 20 prompts", () => {
+    expect(prompts).toHaveLength(20);
   });
 
   it("should have handler functions for all prompts", () => {
@@ -344,6 +344,17 @@ describe("Prompt Handler Execution", () => {
       const result = await prompt!.handler({}, mockContext);
       expect(typeof result).toBe("string");
       expect(result).toContain("document");
+    });
+  });
+
+  describe("mysql_mcp_heal", () => {
+    it("should return healing guidance", async () => {
+      const prompt = findPrompt("mysql_mcp_heal");
+      expect(prompt).toBeDefined();
+
+      const result = await prompt!.handler({}, mockContext);
+      expect(typeof result).toBe("string");
+      expect(result).toContain("mysql-mcp");
     });
   });
 });

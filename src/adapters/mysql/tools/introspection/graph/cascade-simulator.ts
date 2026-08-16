@@ -12,7 +12,7 @@ import {
   CascadeSimulatorSchema,
   CascadeSimulatorOutputSchema,
 } from "../../../schemas/index.js";
-import { MySQLMcpError, ValidationError } from "../../../../../types/modules/errors.js";
+import { MySQLMcpError } from "../../../../../types/modules/errors.js";
 import { ErrorCategory } from "../../../../../types/modules/error-types.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import type { FkEdge } from "../helpers.js";
@@ -43,9 +43,7 @@ export function createCascadeSimulatorTool(
           operation?: "DELETE" | "DROP" | "TRUNCATE";
         };
         
-        if (!parsed.table) {
-          throw new ValidationError("table parameter is required");
-        }
+
         
         let schema = parsed.schema;
 
@@ -128,7 +126,7 @@ export function createCascadeSimulatorTool(
             const isAlreadyVisited = visited.has(refQName);
             visited.add(refQName);
 
-            const action = operation === "DELETE" ? ref.onDelete : "CASCADE";
+            const action = operation === "DELETE" ? ref.onDelete : "RESTRICT";
             const tableInfo = tableMap.get(refQName);
 
             if (action === "CASCADE") {
@@ -178,9 +176,7 @@ export function createCascadeSimulatorTool(
         // Severity assessment
         let severity: "low" | "medium" | "high" | "critical";
         if (blockingActions > 0) {
-          severity = operation === "DELETE" ? "high" : "critical"; // DELETE fail gracefully, DROP force-cascades
-        } else if (operation !== "DELETE" && cascadeActions > 0) {
-          severity = "critical"; // DROP/TRUNCATE force-cascades everything
+          severity = operation === "DELETE" ? "high" : "critical"; // DELETE fail gracefully, DROP/TRUNCATE are blocked
         } else if (cascadeActions > 5 || maxDepth > 3) {
           severity = "high";
         } else if (cascadeActions > 0) {

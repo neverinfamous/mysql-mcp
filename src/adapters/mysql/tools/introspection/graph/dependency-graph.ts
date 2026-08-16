@@ -3,7 +3,6 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { ValidationError } from "../../../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -48,10 +47,6 @@ export function createDependencyGraphTool(
           limit?: number;
           maxDepth?: number;
         };
-
-        if (!parsed.schema) {
-          throw new ValidationError("schema parameter is required (e.g., { schema: 'my_database' })");
-        }
 
         // Validate schema existence when filtering by schema
         await checkSchemaExists(adapter, parsed.schema);
@@ -117,6 +112,46 @@ export function createDependencyGraphTool(
 
         const limit = Math.min(Math.max(parsed.limit ?? 100, 1), 500);
         const originalNodeCount = allNodes.size;
+
+        if (parsed.table) {
+          const targetName = qualifiedName(parsed.schema, parsed.table);
+          const connected = new Set<string>();
+          const queue = [targetName];
+          connected.add(targetName);
+          
+          // Build reverse adjacency for backward traversal
+          const reverseAdjacency = new Map<string, string[]>();
+          for (const [from, tos] of adjacency) {
+            for (const to of tos) {
+              const existing = reverseAdjacency.get(to) ?? [];
+              existing.push(from);
+              reverseAdjacency.set(to, existing);
+            }
+          }
+
+          // BFS to find all reachable nodes (both directions)
+          let head = 0;
+          while (head < queue.length) {
+            const current = queue[head++];
+            if (current === undefined) continue;
+            const forward = adjacency.get(current) ?? [];
+            const backward = reverseAdjacency.get(current) ?? [];
+            
+            for (const neighbor of [...forward, ...backward]) {
+              if (!connected.has(neighbor)) {
+                connected.add(neighbor);
+                queue.push(neighbor);
+              }
+            }
+          }
+
+          // Filter allNodes
+          for (const node of [...allNodes]) {
+            if (!connected.has(node)) {
+              allNodes.delete(node);
+            }
+          }
+        }
 
         // Filter by maxDepth if specified
         if (parsed.maxDepth !== undefined && parsed.maxDepth >= 0) {

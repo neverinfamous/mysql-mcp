@@ -29,10 +29,12 @@ export const ShellLoadDumpInputSchemaBase = z
       .array(z.string())
       .optional()
       .describe("Schemas to include"),
+    includeSchema: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for includeSchemas"),
     excludeSchemas: z
       .array(z.string())
       .optional()
       .describe("Schemas to exclude"),
+    excludeSchema: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for excludeSchemas"),
     includeTables: z
       .array(z.string())
       .optional()
@@ -64,7 +66,7 @@ export const ShellLoadDumpInputSchemaBase = z
 export const ShellLoadDumpInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { inputDir?: unknown; inputUrl?: unknown; dumpDir?: unknown; url?: unknown; path?: unknown; file?: unknown; filepath?: unknown; includeTables?: unknown; includeTable?: unknown; excludeTables?: unknown; excludeTable?: unknown };
+    const obj = val as { inputDir?: unknown; inputUrl?: unknown; dumpDir?: unknown; url?: unknown; path?: unknown; file?: unknown; filepath?: unknown; includeTables?: unknown; includeTable?: unknown; excludeTables?: unknown; excludeTable?: unknown; includeSchemas?: unknown; includeSchema?: unknown; excludeSchemas?: unknown; excludeSchema?: unknown };
     
     const rawIncludeTables = obj.includeTables ?? obj.includeTable;
     const includeTablesArray = Array.isArray(rawIncludeTables) 
@@ -79,12 +81,28 @@ export const ShellLoadDumpInputSchema = z.preprocess(
       : typeof rawExcludeTables === "string" 
         ? [rawExcludeTables] 
         : undefined;
+        
+    const rawIncludeSchemas = obj.includeSchemas ?? obj.includeSchema;
+    const includeSchemasArray = Array.isArray(rawIncludeSchemas) 
+      ? rawIncludeSchemas.map(String) 
+      : typeof rawIncludeSchemas === "string" 
+        ? [rawIncludeSchemas] 
+        : undefined;
+
+    const rawExcludeSchemas = obj.excludeSchemas ?? obj.excludeSchema;
+    const excludeSchemasArray = Array.isArray(rawExcludeSchemas) 
+      ? rawExcludeSchemas.map(String) 
+      : typeof rawExcludeSchemas === "string" 
+        ? [rawExcludeSchemas] 
+        : undefined;
 
     return {
       ...obj,
       inputDir: obj.inputDir ?? obj.inputUrl ?? obj.dumpDir ?? obj.url ?? obj.path ?? obj.file ?? obj.filepath,
       includeTables: includeTablesArray,
       excludeTables: excludeTablesArray,
+      includeSchemas: includeSchemasArray,
+      excludeSchemas: excludeSchemasArray,
     };
   },
   ShellLoadDumpInputSchemaBase

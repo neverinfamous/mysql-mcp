@@ -42,7 +42,7 @@ export function createBufferPoolStatsTool(
 
         const response = {
           success: true,
-          data: { bufferPoolStats: result.rows },
+          data: { bufferPoolStats: result.rows ?? [] },
         };
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,

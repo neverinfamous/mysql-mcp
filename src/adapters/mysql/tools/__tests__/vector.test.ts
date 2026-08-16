@@ -31,12 +31,12 @@ describe("Vector Tools", () => {
     adapter = createMockMySQLAdapter();
     
     adapter.executeQuery.mockImplementation(async (query: string) => {
-      if (query.includes("VERSION()")) {
-        return { rows: [{ version: "9.1.0" }] };
+      if (query.includes("@@version") || query.includes("SHOW VARIABLES LIKE 'version'")) {
+        return { rows: [{ "@@version": "9.1.0", Value: "9.1.0" }] };
       }
-      if (query.includes("INFORMATION_SCHEMA.COLUMNS")) {
+      if (query.includes("SHOW COLUMNS")) {
         return { rows: [
-          { COLUMN_NAME: "vec", COLUMN_TYPE: "vector(1536)", IS_NULLABLE: "YES", COLUMN_DEFAULT: null, EXTRA: "", DATA_TYPE: "vector" }
+          { Field: "vec", Type: "vector(1536)", Null: "YES", Default: null, Extra: "" }
         ] };
       }
       if (query.includes("count(*)") || query.includes("COUNT(*)")) {
@@ -66,6 +66,14 @@ describe("Vector Tools", () => {
     });
 
     adapter.rawQuery.mockImplementation(async (query: string) => {
+      if (query.includes("@@version") || query.includes("SHOW VARIABLES LIKE 'version'")) {
+        return { rows: [{ "@@version": "9.1.0", Value: "9.1.0" }] };
+      }
+      if (query.includes("SHOW COLUMNS")) {
+        return { rows: [
+          { Field: "vec", Type: "vector(1536)", Null: "YES", Default: null, Extra: "" }
+        ] };
+      }
       if (query.includes("ANALYZE TABLE")) {
         return { rows: [{ Msg_type: "status", Msg_text: "OK" }] };
       }
@@ -74,6 +82,16 @@ describe("Vector Tools", () => {
 
     adapter.transaction = vi.fn().mockImplementation(async (cb: any) => {
       return cb(adapter);
+    });
+
+    adapter.describeTable.mockResolvedValue({
+      name: "my_table",
+      type: "table",
+      columns: [
+        { name: "vec", type: "vector(1536)", nullable: true, primaryKey: false },
+        { name: "id", type: "int", nullable: false, primaryKey: true }
+      ],
+      rowCount: 10
     });
   });
 
@@ -88,7 +106,7 @@ describe("Vector Tools", () => {
   describe("mysql_vector_info", () => {
     it("should return vector column info", async () => {
       const tool = createVectorInfoTool(adapter);
-      const result = await tool.handler({ table: "my_table" }, context) as any;
+      const result = await tool.handler({ table: "my_table" }, context) as Record<string, unknown>;
       if (!result.success) console.error("info error:", result.error);
       expect(result.success).toBe(true);
       expect(result.data.columns[0].dimensions).toBe(1536);
@@ -96,8 +114,8 @@ describe("Vector Tools", () => {
 
     it("should handle error", async () => {
       const tool = createVectorInfoTool(adapter);
-      adapter.executeQuery.mockRejectedValueOnce(new Error("DB Error"));
-      const result = await tool.handler({ table: "my_table" }, context) as any;
+      adapter.describeTable.mockRejectedValueOnce(new Error("DB Error"));
+      const result = await tool.handler({ table: "my_table" }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
     });
   });
@@ -105,7 +123,7 @@ describe("Vector Tools", () => {
   describe("mysql_vector_create_index", () => {
     it("should create index", async () => {
       const tool = createVectorCreateIndexTool(adapter);
-      const result = await tool.handler({ table: "my_table", column: "vec", indexName: "idx_vec" }, context) as any;
+      const result = await tool.handler({ table: "my_table", column: "vec", indexName: "idx_vec" }, context) as Record<string, unknown>;
       if (!result.success) console.error("create index error:", result.error);
       expect(result.success).toBe(true);
     });
@@ -114,7 +132,7 @@ describe("Vector Tools", () => {
   describe("mysql_vector_optimize", () => {
     it("should optimize table", async () => {
       const tool = createVectorOptimizeTool(adapter);
-      const result = await tool.handler({ table: "my_table" }, context) as any;
+      const result = await tool.handler({ table: "my_table" }, context) as Record<string, unknown>;
       if (!result.success) console.error("optimize error:", result.error);
       expect(result.success).toBe(true);
     });
@@ -123,7 +141,7 @@ describe("Vector Tools", () => {
   describe("mysql_vector_stats", () => {
     it("should retrieve stats", async () => {
       const tool = createVectorStatsTool(adapter);
-      const result = await tool.handler({ table: "my_table", column: "vec" }, context) as any;
+      const result = await tool.handler({ table: "my_table", column: "vec" }, context) as Record<string, unknown>;
       if (!result.success) console.error("stats error:", result.error);
       expect(result.success).toBe(true);
       expect(result.data.totalRows).toBe(10);
@@ -134,7 +152,7 @@ describe("Vector Tools", () => {
   describe("mysql_vector_store", () => {
     it("should store a vector", async () => {
       const tool = createVectorStoreTool(adapter);
-      const result = await tool.handler({ table: "my_table", column: "vec", idColumn: "id", id: 1, vector: [0.1, 0.2] }, context) as any;
+      const result = await tool.handler({ table: "my_table", column: "vec", idColumn: "id", id: 1, vector: [0.1, 0.2] }, context) as Record<string, unknown>;
       if (!result.success) console.error("store error:", result.error);
       expect(result.success).toBe(true);
     });
@@ -148,7 +166,7 @@ describe("Vector Tools", () => {
         column: "vec",
         idColumn: "id",
         items: [{ id: 1, vector: [0.1, 0.2] }]
-      }, context) as any;
+      }, context) as Record<string, unknown>;
       if (!result.success) console.error("batch store error:", result.error);
       expect(result.success).toBe(true);
     });
@@ -157,7 +175,7 @@ describe("Vector Tools", () => {
   describe("mysql_vector_delete", () => {
     it("should delete vector", async () => {
       const tool = createVectorDeleteTool(adapter);
-      const result = await tool.handler({ table: "my_table", column: "vec", idColumn: "id", id: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", column: "vec", idColumn: "id", id: 1 }, context) as Record<string, unknown>;
       if (!result.success) console.error("delete error:", result.error);
       expect(result.success).toBe(true);
     });
@@ -166,7 +184,7 @@ describe("Vector Tools", () => {
   describe("mysql_vector_get", () => {
     it("should get vector", async () => {
       const tool = createVectorGetTool(adapter);
-      const result = await tool.handler({ table: "my_table", column: "vec", idColumn: "id", id: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", column: "vec", idColumn: "id", id: 1 }, context) as Record<string, unknown>;
       if (!result.success) console.error("get error:", result.error);
       expect(result.success).toBe(true);
       expect(result.data.vector).toEqual([0.1, 0.2]);
@@ -181,7 +199,7 @@ describe("Vector Tools", () => {
         column: "vec",
         queryVector: [0.1, 0.2],
         limit: 10
-      }, context) as any;
+      }, context) as Record<string, unknown>;
       if (!result.success) console.error("search error:", result.error);
       expect(result.success).toBe(true);
       expect(result.data.results).toHaveLength(1);
@@ -196,7 +214,7 @@ describe("Vector Tools", () => {
         column: "vec",
         queryVector: [0.1, 0.2],
         maxDistance: 0.5
-      }, context) as any;
+      }, context) as Record<string, unknown>;
       if (!result.success) console.error("range search error:", result.error);
       expect(result.success).toBe(true);
       expect(result.data.results).toHaveLength(1);
@@ -213,7 +231,7 @@ describe("Vector Tools", () => {
         queryVector: [0.1, 0.2],
         queryText: "hello",
         filter: "status = 'active'"
-      }, context) as any;
+      }, context) as Record<string, unknown>;
       if (!result.success) console.error("hybrid search error:", result.error);
       expect(result.success).toBe(true);
       expect(result.data.results).toHaveLength(1);

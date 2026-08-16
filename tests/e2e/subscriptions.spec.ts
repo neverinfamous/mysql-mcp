@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
-import { ResourceUpdatedNotificationSchema } from "@modelcontextprotocol/sdk/types.js";
+import { setTimeout as delay } from "node:timers/promises";
+import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { randomUUID } from "node:crypto";
+import { BASE_URL, skipIfSuperReadOnly } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -11,15 +11,15 @@ test.describe("E2E MCP Subscriptions", () => {
   let receivedNotifications: string[] = [];
 
   test.beforeAll(async () => {
-    const transport = new SSEClientTransport(
-      new URL("http://localhost:3000/sse"),
+    const transport = new StreamableHTTPClientTransport(
+      new URL(`${BASE_URL}/mcp`),
     );
     client = new Client(
       { name: "playwright-subscription-test", version: "1.0.0" },
       { capabilities: {} },
     );
     
-    client.setNotificationHandler(ResourceUpdatedNotificationSchema, (notification) => {
+    client.setNotificationHandler('notifications/resources/updated', (notification) => {
       if (notification.params.uri) {
         receivedNotifications.push(notification.params.uri);
       }
@@ -46,6 +46,7 @@ test.describe("E2E MCP Subscriptions", () => {
   });
 
   test("should receive resource update notification on schema change", async () => {
+    await skipIfSuperReadOnly(client);
     // We are subscribed to mysql://schema. Let's trigger a schema change.
     const tableName = `test_e2e_sub_${randomUUID().replace(/-/g, "").slice(0, 10)}`;
     
@@ -58,7 +59,7 @@ test.describe("E2E MCP Subscriptions", () => {
     });
 
     // Wait briefly for notification to arrive
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await delay(500);
 
     expect(receivedNotifications).toContain("mysql://schema");
 
@@ -83,7 +84,7 @@ test.describe("E2E MCP Subscriptions", () => {
       },
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await delay(500);
 
     // Should NOT receive notification
     expect(receivedNotifications).not.toContain("mysql://schema");

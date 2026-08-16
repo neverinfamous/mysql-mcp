@@ -9,83 +9,99 @@ import { BaseOutputSchema } from "../output-schemas.js";
  */
 export const MigrationInitSchemaBase = z.object({
   database: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Database to create the tracking table in (default: active database)"),
-  db: z.string().optional().describe("Alias for database"),
-  schema: z.string().optional().describe("Alias for database"),
+  db: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
+  schema: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
 });
 
 export const MigrationInitSchema = z.preprocess((input: unknown) => {
   if (typeof input === "object" && input !== null) {
     const obj = input as Record<string, unknown>;
     const out = { ...obj };
+    
+    const stringFields = ["database", "db", "schema"];
+    for (const field of stringFields) {
+      if (typeof out[field] === "boolean") out[field] = undefined;
+      if (typeof out[field] === "number") out[field] = String(out[field]);
+    }
+    
     if (out["db"] !== undefined && out["database"] === undefined) out["database"] = out["db"];
     if (out["schema"] !== undefined && out["database"] === undefined) out["database"] = out["schema"];
     return out;
   }
   return input;
-}, MigrationInitSchemaBase.default({}));
+}, z.object({
+  database: z.string().regex(/^[a-zA-Z0-9_]+$/, "Invalid database name").max(64, "Database name cannot exceed 64 characters").optional()
+}).default({}));
 
 /**
  * mysql_migration_record input
  */
 export const MigrationRecordSchemaBase = z.object({
   version: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Version identifier (e.g., '1.0.0', '2024-01-15-add-users')"),
-  migrationName: z.string().optional().describe("Alias for version"),
-  migration: z.string().optional().describe("Alias for version"),
+  migrationName: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for version"),
+  migration: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for version"),
   description: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Human-readable description of the migration"),
-  name: z.string().optional().describe("Alias for description"),
+  name: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for description"),
   migrationSql: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("The DDL/SQL statements applied"),
-  sql: z.string().optional().describe("Alias for migrationSql"),
-  query: z.string().optional().describe("Alias for migrationSql"),
-  rollbackSql: z.string().optional().describe("SQL to reverse this migration"),
+  sql: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for migrationSql"),
+  query: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for migrationSql"),
+  rollbackSql: z.union([z.string(), z.boolean(), z.number()]).optional().describe("SQL to reverse this migration (Note: MySQL DDL statements cannot be rolled back, they commit implicitly)"),
   sourceSystem: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Origin system (e.g., 'mysql', 'sqlite', 'manual', 'agent')"),
   appliedBy: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Who/what applied this migration (e.g., agent name, user)"),
   database: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Database to apply the migration in (default: active database)"),
-  db: z.string().optional().describe("Alias for database"),
-  schema: z.string().optional().describe("Alias for database"),
+  db: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
+  schema: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
 });
 
 // Internal parse schema — version and migrationSql are required
 const MigrationRecordParseSchema = z.object({
   version: z
     .string()
+    .trim()
+    .min(1, "Version cannot be empty")
+    .max(50, "Version cannot exceed 50 characters")
     .describe("Version identifier (e.g., '1.0.0', '2024-01-15-add-users')"),
   description: z
     .string()
     .optional()
     .describe("Human-readable description of the migration"),
-  migrationSql: z.string().describe("The DDL/SQL statements applied"),
+  migrationSql: z.string().trim().min(1, "Migration SQL cannot be empty").describe("The DDL/SQL statements applied"),
   rollbackSql: z.string().optional().describe("SQL to reverse this migration"),
   sourceSystem: z
     .string()
+    .max(50, "Origin system cannot exceed 50 characters")
     .optional()
     .describe("Origin system (e.g., 'mysql', 'sqlite', 'manual', 'agent')"),
   appliedBy: z
     .string()
+    .max(255, "Applied by cannot exceed 255 characters")
     .optional()
     .describe("Who/what applied this migration (e.g., agent name, user)"),
   database: z
     .string()
+    .regex(/^[a-zA-Z0-9_]+$/, "Invalid database name")
+    .max(64, "Database name cannot exceed 64 characters")
     .optional()
     .describe("Database to apply the migration in (default: active database)"),
 });
@@ -94,6 +110,13 @@ export const MigrationRecordSchema = z.preprocess((input: unknown) => {
   if (typeof input === "object" && input !== null) {
     const obj = input as Record<string, unknown>;
     const out = { ...obj };
+
+    const stringFields = ["version", "migrationName", "migration", "description", "name", "migrationSql", "sql", "query", "rollbackSql", "sourceSystem", "appliedBy", "database", "db", "schema"];
+    for (const field of stringFields) {
+      if (typeof out[field] === "boolean") out[field] = undefined;
+      if (typeof out[field] === "number") out[field] = String(out[field]);
+    }
+
     if (out["migrationSql"] === undefined) {
       if (out["sql"] !== undefined) out["migrationSql"] = out["sql"];
       else if (out["query"] !== undefined) out["migrationSql"] = out["query"];
@@ -130,11 +153,11 @@ export const MigrationRollbackSchemaBase = z.object({
   id: z
     .union([z.number(), z.string()])
     .optional()
-    .describe("Migration ID to roll back"),
+    .describe("Migration ID to roll back (Required if version is not provided)"),
   version: z
     .string()
     .optional()
-    .describe("Migration version to roll back (alternative to id)"),
+    .describe("Migration version to roll back (alternative to id, required if id not provided)"),
   dryRun: z
     .boolean()
     .optional()
@@ -188,15 +211,18 @@ export const MigrationRollbackSchema = z.preprocess((input: unknown) => {
     .optional(),
   version: z.string().optional(),
   dryRun: z.boolean().optional(),
-  database: z.string().optional(),
+  database: z.string().regex(/^[a-zA-Z0-9_]+$/, "Invalid database name").optional(),
 }));
 
 /**
  * mysql_migration_history input
  */
 export const MigrationHistorySchemaBase = z.object({
-  status: z.string().optional().describe("Filter by status"),
-  sourceSystem: z.string().optional().describe("Filter by source system"),
+  status: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Filter by status"),
+  state: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for status"),
+  filter: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for status"),
+  sourceSystem: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Filter by source system"),
+  source: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for sourceSystem"),
   limit: z
     .union([z.number(), z.string()])
     .optional()
@@ -205,15 +231,17 @@ export const MigrationHistorySchemaBase = z.object({
     .union([z.number(), z.string()])
     .optional()
     .describe("Offset for pagination (default: 0)"),
+  skip: z.union([z.number(), z.string()]).optional().describe("Alias for offset"),
   database: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Database to read the migration history from (default: active database)"),
-  system: z.string().optional().describe("Alias for sourceSystem"),
+  system: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for sourceSystem"),
   count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
   max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
-  db: z.string().optional().describe("Alias for database"),
-  schema: z.string().optional().describe("Alias for database"),
+  take: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  db: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
+  schema: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
 });
 
 export const MigrationHistorySchema = z.preprocess((input: unknown) => {
@@ -221,9 +249,25 @@ export const MigrationHistorySchema = z.preprocess((input: unknown) => {
     const obj = input as Record<string, unknown>;
     const out = { ...obj };
 
+    const stringFields = ["database", "db", "schema", "status", "state", "filter", "sourceSystem", "source", "system"];
+    for (const field of stringFields) {
+      if (typeof out[field] === "boolean") out[field] = undefined;
+      if (typeof out[field] === "number") out[field] = String(out[field]);
+    }
+
+    const numberFields = ["limit", "offset", "skip", "count", "max", "take"];
+    for (const field of numberFields) {
+      if (typeof out[field] === "boolean") out[field] = undefined;
+    }
+
+    if (out["state"] !== undefined && out["status"] === undefined) out["status"] = out["state"];
+    if (out["filter"] !== undefined && out["status"] === undefined) out["status"] = out["filter"];
+    if (out["source"] !== undefined && out["sourceSystem"] === undefined) out["sourceSystem"] = out["source"];
     if (out["system"] !== undefined && out["sourceSystem"] === undefined) out["sourceSystem"] = out["system"];
     if (out["count"] !== undefined && out["limit"] === undefined) out["limit"] = out["count"];
     if (out["max"] !== undefined && out["limit"] === undefined) out["limit"] = out["max"];
+    if (out["take"] !== undefined && out["limit"] === undefined) out["limit"] = out["take"];
+    if (out["skip"] !== undefined && out["offset"] === undefined) out["offset"] = out["skip"];
     if (out["db"] !== undefined && out["database"] === undefined) out["database"] = out["db"];
     if (out["schema"] !== undefined && out["database"] === undefined) out["database"] = out["schema"];
 
@@ -244,15 +288,15 @@ export const MigrationHistorySchema = z.preprocess((input: unknown) => {
       .preprocess((val) => {
         if (typeof val === "string") return parseInt(val, 10);
         return val;
-      }, z.number().optional())
+      }, z.number().int().min(1).optional())
       .optional(),
     offset: z
       .preprocess((val) => {
         if (typeof val === "string") return parseInt(val, 10);
         return val;
-      }, z.number().optional())
+      }, z.number().int().min(0).optional())
       .optional(),
-    database: z.string().optional(),
+    database: z.string().regex(/^[a-zA-Z0-9_]+$/, "Invalid database name").optional(),
   })
   .default({}));
 
@@ -261,27 +305,30 @@ export const MigrationHistorySchema = z.preprocess((input: unknown) => {
  */
 export const MigrationStatusSchemaBase = z.object({
   database: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Database where the tracking table lives (default: active database)"),
-  db: z.string().optional().describe("Alias for database"),
-  schema: z.string().optional().describe("Alias for database"),
+  db: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
+  schema: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
 });
 
 export const MigrationStatusSchema = z.preprocess((input: unknown) => {
   if (typeof input === "object" && input !== null) {
     const obj = input as Record<string, unknown>;
     const out = { ...obj };
-    // Gracefully ignore boolean arguments hallucinated by agents (e.g. status(true))
-    if (typeof out["database"] === "boolean") {
-      delete out["database"];
+    const stringFields = ["database", "db", "schema"];
+    for (const field of stringFields) {
+      if (typeof out[field] === "boolean") out[field] = undefined;
+      if (typeof out[field] === "number") out[field] = String(out[field]);
     }
     if (out["db"] !== undefined && out["database"] === undefined) out["database"] = out["db"];
     if (out["schema"] !== undefined && out["database"] === undefined) out["database"] = out["schema"];
     return out;
   }
   return input;
-}, MigrationStatusSchemaBase.default({}));
+}, z.object({
+  database: z.string().regex(/^[a-zA-Z0-9_]+$/, "Invalid database name").optional()
+}).default({}));
 
 // Output Schemas
 // =============================================================================

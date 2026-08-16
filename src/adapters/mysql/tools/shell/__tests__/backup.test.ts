@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as child_process from "child_process";
-import * as path from "path";
 import {
   createMockRequestContext,
   createMockMySQLAdapter,
@@ -79,8 +78,7 @@ describe("Shell Backup Tools", () => {
       expect(result.data.dryRun).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      const expectedPath = path.resolve("/backup/full").replace(/\\/g, "\\\\");
-      expect(jsArg).toContain(`util.dumpInstance("${expectedPath}"`);
+      expect(jsArg).toContain(`util.dumpInstance("/backup/full"`);
       expect(jsArg).toContain("dryRun: true");
       expect(jsArg).toContain("threads: 8");
     });
@@ -178,11 +176,8 @@ describe("Shell Backup Tools", () => {
       expect(result.data.schemas).toEqual(["db1", "db2"]);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      const expectedPath = path
-        .resolve("/backup/schemas")
-        .replace(/\\/g, "\\\\");
       expect(jsArg).toContain(
-        `util.dumpSchemas(["db1","db2"], "${expectedPath}"`,
+        `util.dumpSchemas(["db1","db2"], "/backup/schemas"`,
       );
       expect(jsArg).toContain("threads: 4");
       expect(jsArg).toContain('compression: "gzip"');
@@ -343,13 +338,10 @@ describe("Shell Backup Tools", () => {
       expect(result.success).toBe(true);
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      const expectedPath = path
-        .resolve("/backup/tables")
-        .replace(/\\/g, "\\\\");
       expect(jsArg).toContain(
-        `util.dumpTables("db1", ["t1"], "${expectedPath}"`,
+        `util.dumpTables("db1", ["t1"], "/backup/tables"`,
       );
-      expect(jsArg).toContain('where: { "t1": "id > 100" }');
+      expect(jsArg).toContain('where: { "db1.t1": "id > 100" }');
     });
 
     it("should support compression option", async () => {

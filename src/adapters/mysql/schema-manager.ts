@@ -5,6 +5,7 @@ import type {
   IndexInfo,
   ColumnInfo,
 } from "../../types/index.js";
+import { metrics } from "../../observability/metrics.js";
 import { ValidationError } from "../../types/index.js";
 
 export interface QueryExecutor {
@@ -35,11 +36,16 @@ export class SchemaManager {
    */
   private getCached(key: string): unknown {
     const entry = this.metadataCache.get(key);
-    if (!entry) return undefined;
-    if (Date.now() - entry.timestamp > this.cacheTtlMs) {
-      this.metadataCache.delete(key);
+    if (!entry) {
+      metrics.recordCacheMiss();
       return undefined;
     }
+    if (Date.now() - entry.timestamp > this.cacheTtlMs) {
+      this.metadataCache.delete(key);
+      metrics.recordCacheMiss();
+      return undefined;
+    }
+    metrics.recordCacheHit();
     return entry.data;
   }
 
@@ -259,69 +265,37 @@ export class SchemaManager {
       shortTableName = tableName;
     }
 
-    const schemaClause = schemaName
-      ? "TABLE_SCHEMA = ?"
-      : "TABLE_SCHEMA = DATABASE()";
-    const params = schemaName ? [schemaName, shortTableName] : [shortTableName];
-
     // Performance optimization: run column and table queries in parallel
+    const escapedSchema = schemaName ? `\`${schemaName.replace(/`/g, "``")}\`` : undefined;
+    const escapedTable = `\`${shortTableName.replace(/`/g, "``")}\``;
+    const qualifiedTable = escapedSchema ? `${escapedSchema}.${escapedTable}` : escapedTable;
+
     const [columnsResult, tableResult] = await Promise.all([
-      this.executor.executeQuery(
-        `
-            SELECT 
-                COLUMN_NAME as name,
-                DATA_TYPE as type,
-                IS_NULLABLE as nullable,
-                COLUMN_KEY as columnKey,
-                COLUMN_DEFAULT as defaultValue,
-                EXTRA as extra,
-                CHARACTER_SET_NAME as characterSet,
-                COLLATION_NAME as collation,
-                COLUMN_COMMENT as comment
-            FROM information_schema.COLUMNS
-            WHERE ${schemaClause}
-              AND TABLE_NAME = ?
-            ORDER BY ORDINAL_POSITION
-        `,
-        params,
-      ),
-      this.executor.executeQuery(
-        `
-            SELECT 
-                TABLE_TYPE as type,
-                ENGINE as engine,
-                TABLE_ROWS as rowCount,
-                TABLE_COLLATION as collation,
-                TABLE_COMMENT as comment
-            FROM information_schema.TABLES
-            WHERE ${schemaClause}
-              AND TABLE_NAME = ?
-        `,
-        params,
-      ),
+      this.executor.executeQuery(`SHOW FULL COLUMNS FROM ${qualifiedTable}`),
+      this.executor.executeQuery(`SHOW TABLE STATUS ${escapedSchema ? `FROM ${escapedSchema} ` : ''}LIKE '${shortTableName.replace(/'/g, "''").replace(/\\/g, "\\\\")}'`),
     ]);
 
     const columns: ColumnInfo[] = (columnsResult.rows ?? []).map((row) => ({
-      name: row["name"] as string,
-      type: row["type"] as string,
-      nullable: row["nullable"] === "YES",
-      primaryKey: row["columnKey"] === "PRI",
-      defaultValue: row["defaultValue"],
-      autoIncrement: (row["extra"] as string)?.includes("auto_increment"),
-      characterSet: row["characterSet"] as string | undefined,
-      collation: row["collation"] as string | undefined,
-      comment: row["comment"] as string | undefined,
+      name: row["Field"] as string,
+      type: row["Type"] as string,
+      nullable: row["Null"] === "YES",
+      primaryKey: row["Key"] === "PRI",
+      defaultValue: row["Default"],
+      autoIncrement: (row["Extra"] as string)?.includes("auto_increment"),
+      characterSet: (row["Collation"] as string)?.split("_")[0],
+      collation: row["Collation"] as string | undefined,
+      comment: row["Comment"] as string | undefined,
     }));
 
     const tableRow = tableResult.rows?.[0];
 
     const result: TableInfo = {
       name: tableName,
-      type: tableRow?.["type"] === "VIEW" ? "view" : "table",
-      engine: tableRow?.["engine"] as string | undefined,
-      rowCount: tableRow?.["rowCount"] != null ? Number(tableRow["rowCount"]) : undefined,
-      collation: tableRow?.["collation"] as string | undefined,
-      comment: tableRow?.["comment"] as string | undefined,
+      type: tableRow?.["Comment"] === "VIEW" || (tableRow && tableRow["Engine"] == null) ? "view" : "table",
+      engine: tableRow?.["Engine"] as string | undefined,
+      rowCount: tableRow?.["Rows"] != null ? Number(tableRow["Rows"]) : undefined,
+      collation: tableRow?.["Collation"] as string | undefined,
+      comment: tableRow?.["Comment"] as string | undefined,
       columns,
     };
 
@@ -357,44 +331,29 @@ export class SchemaManager {
       shortTableName = tableName;
     }
 
-    const schemaClause = schemaName
-      ? "TABLE_SCHEMA = ?"
-      : "TABLE_SCHEMA = DATABASE()";
-    const params = schemaName ? [schemaName, shortTableName] : [shortTableName];
+    const targetTable = schemaName 
+      ? `\`${schemaName}\`.\`${shortTableName}\`` 
+      : `\`${shortTableName}\``;
 
-    const result = await this.executor.executeQuery(
-      `
-            SELECT 
-                INDEX_NAME as name,
-                NON_UNIQUE as nonUnique,
-                COLUMN_NAME as columnName,
-                INDEX_TYPE as type,
-                CARDINALITY as cardinality
-            FROM information_schema.STATISTICS
-            WHERE ${schemaClause}
-              AND TABLE_NAME = ?
-            ORDER BY INDEX_NAME, SEQ_IN_INDEX
-        `,
-      params,
-    );
+    const result = await this.executor.executeQuery(`SHOW KEYS FROM ${targetTable}`);
 
     // Group columns by index name
     const indexMap = new Map<string, IndexInfo>();
 
     for (const row of result.rows ?? []) {
-      const name = row["name"] as string;
+      const name = row["Key_name"] as string;
       const existing = indexMap.get(name);
 
       if (existing) {
-        existing.columns.push(row["columnName"] as string);
+        existing.columns.push(row["Column_name"] as string);
       } else {
         indexMap.set(name, {
           name,
           tableName,
-          columns: [row["columnName"] as string],
-          unique: row["nonUnique"] === 0,
-          type: row["type"] as "BTREE" | "HASH" | "FULLTEXT" | "SPATIAL",
-          cardinality: row["cardinality"] != null ? Number(row["cardinality"]) : undefined,
+          columns: [row["Column_name"] as string],
+          unique: row["Non_unique"] === 0,
+          type: row["Index_type"] as "BTREE" | "HASH" | "FULLTEXT" | "SPATIAL",
+          cardinality: row["Cardinality"] != null ? Number(row["Cardinality"]) : undefined,
         });
       }
     }

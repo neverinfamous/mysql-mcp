@@ -14,6 +14,7 @@ import type {
 } from "./types/index.js";
 import { parseArgs } from "./cli/args/index.js";
 import { logger } from "./utils/logger.js";
+import { cliError, cliInfo, cliFatal } from "./cli/output.js";
 
 /**
  * Tool groups that don't require a MySQL database connection.
@@ -132,17 +133,13 @@ export async function main(args?: {
   const skipMySQLConnection = canSkipMySQLConnection(config.toolFilter);
 
   if (databases.length === 0 && !skipMySQLConnection) {
-    console.error("Error: No database connection specified");
-    console.error(
-      "Use --mysql or environment variables to configure connection",
-    );
-    console.error("Run with --help for usage information");
+    cliError("No database connection specified", "Use --mysql or environment variables. Run with --help for usage information.");
     process.exit(1);
   }
 
   // Log OAuth status (without exposing sensitive configuration)
   if (oauth?.enabled) {
-    console.error("OAuth authentication enabled");
+    cliInfo("OAuth authentication enabled");
   }
 
   // Create server
@@ -154,13 +151,23 @@ export async function main(args?: {
 
   // Handle graceful shutdown
   const shutdown = async (): Promise<never> => {
-    console.error("\nShutting down...");
+    cliInfo("Shutting down...");
     await server.stop();
     process.exit(0);
   };
 
   process.on("SIGINT", () => void shutdown());
   process.on("SIGTERM", () => void shutdown());
+
+  process.on("unhandledRejection", (err: unknown) => {
+    if (err instanceof Error && err.message === "Script execution timed out.") {
+      logger.warn("Caught unhandled isolated-vm timeout rejection to prevent server crash", {
+        error: err.message,
+      });
+      return;
+    }
+    logger.error("Unhandled promise rejection", { error: String(err) });
+  });
 
   try {
     // Create and connect adapters
@@ -210,8 +217,7 @@ export async function main(args?: {
     // Start server
     await server.start();
   } catch (error) {
-    console.error("Fatal error:", error);
-    process.exit(1);
+    cliFatal("Server startup failed", error);
   }
 }
 
@@ -232,7 +238,6 @@ const isMainModule = (() => {
 
 if (isMainModule) {
   main().catch((error: unknown) => {
-    console.error("Unhandled fatal error:", error);
-    process.exit(1);
+    cliFatal("Unhandled fatal error", error);
   });
 }

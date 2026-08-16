@@ -1,17 +1,14 @@
-# mysql-mcp Code Map
+# MySQL MCP Code Map
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-[![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
-[![Resources](https://img.shields.io/badge/Resources-22-green?style=for-the-badge)](#)
-[![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
+[![Tools](https://img.shields.io/badge/Tools-Available-blue?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-Available-green?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-Available-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
-## 💎 Value Proposition
-
-MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
 > **Agent-optimized navigation reference.** Read this before searching the codebase. It covers directory layout, tool mapping, and error hierarchy.
 
@@ -41,18 +38,18 @@ src/
 │       │                           #   ConstraintInfo, RoutineInfo, TriggerInfo
 │       ├── server.ts               # TransportType, McpServerConfig (port, host, toolFilter, metricsExport, name, allowedIoRoots, stateless, enableHSTS, trustProxy, authToken, auditConfig)
 │       ├── oauth.ts                # OAuthConfig, OAuthScope, TokenClaims, RequestContext
-│       ├── errors.ts               # MySQLMcpError base + 12 subclasses (see § Error Classes)
-│       ├── error-types.ts          # ErrorCategory enum (9 categories), ErrorResponse interface, ErrorContext
+│       ├── errors.ts               # MySQLMcpError base + 11 subclasses (see § Error Classes)
+│       ├── error-types.ts          # ErrorCategory enum (Multiple categories), ErrorResponse interface, ErrorContext
 │       └── tools.ts                # ToolGroup, MetaGroup, RouterConfig, MySQLShellConfig,
 │                                   #   ToolFilterConfig, AdapterCapabilities, ToolDefinition,
 │                                   #   ResourceDefinition, PromptDefinition
 │
 ├── constants/
 │   ├── server-instructions.ts      # Generated: slim INSTRUCTIONS constant (~634 chars) + HELP_CONTENT map (per-group help)
-│   └── server-instructions/        # Source .md files for each help resource (30 files: overview, gotchas, core, json, etc.)
+│   └── instructions/markdown/      # Source .md files for each help resource (Multiple files: overview, gotchas, core, json, etc.)
 │
 ├── filtering/
-│   ├── tool-constants.ts            # TOOL_GROUPS arrays, META_GROUPS shortcuts (16 Shortcuts), group→tools map
+│   ├── tool-constants.ts            # TOOL_GROUPS arrays, META_GROUPS shortcuts (Multiple Shortcuts), group→tools map
 │   └── tool-filter.ts               # ToolFilter class — parse/apply --tool-filter expressions
 │
 ├── utils/
@@ -81,7 +78,7 @@ src/
 │   ├── logger.ts                   # AuditLogger — JSONL file I/O, buffered flush, rotation, recent()
 │   └── backup-manager/             # BackupManager — pre-mutation DDL/data snapshots, diff, restore
 │
-├── auth/                           # OAuth 2.1 implementation (10 files)
+├── auth/                           # OAuth 2.1 implementation (Multiple files)
 │   ├── middleware.ts               # Express-style OAuth middleware
 │   ├── token-validator.ts           # JWT/JWKS token validation
 │   ├── scopes.ts                   # Scope parsing, enforcement
@@ -98,7 +95,7 @@ src/
 │   └── http/
 │       ├── server.ts               # HTTP/SSE transport (Streamable HTTP + legacy SSE + bearer auth + stateless mode
 │       │                           #   + OAuth scope enforcement on tools/call for both transports)
-│       ├── handlers.ts             # Route handlers (POST /mcp, GET /sse, health, etc.)
+│       ├── handlers.ts             # Route handlers (POST /mcp, GET /sse, health, metrics, etc.)
 │       ├── security.ts             # Security headers, rate limiting, CORS, body parsing
 │       ├── types.ts                # HTTP transport types (authToken, stateless)
 │       └── index.ts                # Barrel
@@ -124,8 +121,8 @@ src/
 │       ├── schema-manager.ts        # Schema cache + metadata (TTL-based)
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
-│       ├── prompts/                # 19 AI-Powered Prompts (see § below)
-│       ├── resources/              # 22 Core Observability Resources (see § below)
+│       ├── prompts/                # AI-Powered Prompts (see § below)
+│       ├── resources/              # Core Observability Resources (see § below)
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
 
@@ -133,7 +130,7 @@ src/
 
 ## Map Handlers to Tools
 
-200+ tools across groups. Each handler file registers tools with `group` labels.
+Available tools across groups. Each handler file registers tools with `group` labels.
 
 
 | Group | Tools |
@@ -156,7 +153,7 @@ src/
 | **replication** | `mysql_master_status`, `mysql_slave_status`, `mysql_binlog_events`, `mysql_gtid_status`, `mysql_replication_lag` |
 | **roles** | `mysql_role_assign`, `mysql_role_revoke`, `mysql_user_roles`, `mysql_role_create`, `mysql_role_drop`, `mysql_role_grants`, `mysql_role_grant`, `mysql_role_list` |
 | **router** | `mysql_router_metadata_status`, `mysql_router_pool_status`, `mysql_router_route_status`, `mysql_router_route_health`, `mysql_router_route_connections`, `mysql_router_route_destinations`, `mysql_router_route_blocked_hosts`, `mysql_router_status`, `mysql_router_routes` |
-| **schema** | `mysql_list_constraints`, `mysql_list_schemas`, `mysql_create_schema`, `mysql_drop_schema`, `mysql_list_stored_procedures`, `mysql_list_functions`, `mysql_list_events`, `mysql_list_triggers`, `mysql_list_views`, `mysql_create_view`, `mysql_drop_view` |
+| **schema** | `mysql_list_constraints`, `mysql_list_schemas`, `mysql_create_schema`, `mysql_drop_schema`, `mysql_list_stored_procedures`, `mysql_list_functions`, `mysql_list_triggers`, `mysql_create_trigger`, `mysql_drop_trigger`, `mysql_list_views`, `mysql_create_view`, `mysql_drop_view` |
 | **security** | `mysql_security_audit`, `mysql_security_firewall_status`, `mysql_security_firewall_rules`, `mysql_security_mask_data`, `mysql_security_user_privileges`, `mysql_security_sensitive_tables`, `mysql_security_ssl_status`, `mysql_security_encryption_status`, `mysql_security_password_validate` |
 | **shell** | `mysqlsh_dump_instance`, `mysqlsh_dump_schemas`, `mysqlsh_dump_tables`, `mysqlsh_export_table`, `mysqlsh_import_table`, `mysqlsh_import_json`, `mysqlsh_version`, `mysqlsh_load_dump`, `mysqlsh_run_script`, `mysqlsh_check_upgrade` |
 | **spatial** | `mysql_spatial_point`, `mysql_spatial_polygon`, `mysql_spatial_intersection`, `mysql_spatial_buffer`, `mysql_spatial_transform`, `mysql_spatial_geojson`, `mysql_spatial_distance`, `mysql_spatial_distance_sphere`, `mysql_spatial_contains`, `mysql_spatial_within`, `mysql_spatial_create_column`, `mysql_spatial_create_index` |
@@ -183,11 +180,12 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Utilize Prompts (`src/adapters/mysql/prompts/`)
 
-19 AI-Powered Prompts across specialized workflow files:
+AI-Powered Prompts across specialized workflow files:
 
 
 | Prompt | Description |
 | ------ | ----------- |
+| `mysql_mcp_heal` | Diagnose and heal tool connection or execution issues |
 | `mysql_tool_index` | Show all available MySQL tools organized by category |
 | `mysql_quick_query` | Quickly run a SQL query - shortcut for mysql_read_query or mysql_write_query |
 | `mysql_quick_schema` | Quickly explore database schema - lists tables or describes a specific table |
@@ -214,7 +212,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Leverage Resources (`src/adapters/mysql/resources/` & `src/server/mcp-server/resources.ts`)
 
-22 Observability Resources + 28 help resources providing read-only metadata and agent guidance:
+Core Observability Resources + multiple help resources providing read-only metadata and agent guidance:
 
 ### Data Resources
 
@@ -248,7 +246,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 | URI | Content |
 | --- | ------- |
-| `mysql://audit-log` | Parses and streams the configured `--audit-log` JSONL file to agents. |
+| `mysql://audit` | Recent forensic audit trail and pre-mutation snapshot stats. |
 | `mysql://metrics` | In-memory streaming telemetry (p50/p95/p99 latency). |
 | `mysql://help` | Critical gotchas, parameter aliases, and API reference. |
 
@@ -257,9 +255,9 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 | URI                    | Source                                           | Content                                                |
 | ---------------------- | ------------------------------------------------ | ------------------------------------------------------ |
 | `mysql://help`         | `gotchas.md`                                     | Critical gotchas, parameter aliases, and API reference |
-| `mysql://help/{group}` | `server-instructions/{group}.md`                 | Per-group tool reference — filtered by `--tool-filter` |
+| `mysql://help/{group}` | `instructions/markdown/{group}.md`               | Per-group tool reference — filtered by `--tool-filter` |
 
-28 group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
+Multiple group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
 
 ---
 
@@ -279,11 +277,10 @@ MySQLMcpError (modules/errors.ts)         code: string, category: ErrorCategory,
 ├── TimeoutError          code: TIMEOUT_ERROR        category: CONNECTION
 ├── RateLimitError        code: RATE_LIMIT_ERROR     category: CONNECTION
 ├── ConflictError         code: CONFLICT_ERROR       category: QUERY
-├── SecurityError         code: SECURITY_ERROR       category: PERMISSION
 └── ExtensionNotAvailableError  code: EXTENSION_MISSING  category: CONFIGURATION
 ```
 
-**ErrorCategory object** (9 categories) — `src/types/modules/error-types.ts`:
+**ErrorCategory object** (Multiple categories) — `src/types/modules/error-types.ts`:
 
 ```typescript
 const ErrorCategory = {
@@ -342,9 +339,9 @@ try {
 
 | What                               | Where                                     | Notes                                                                                                           |
 | ---------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Server instructions (agent prompt) | `src/constants/server-instructions.ts`    | Generated: slim `INSTRUCTIONS` (~634 chars) + `HELP_CONTENT` map. Source: `server-instructions/*.md` (30 files) |
+| Server instructions (agent prompt) | `src/constants/server-instructions.ts`    | Generated: slim `INSTRUCTIONS` (~634 chars) + `HELP_CONTENT` map. Source: `instructions/markdown/*.md` (Multiple files) |
 | Generator script                   | `scripts/generate-server-instructions.ts` | Reads per-group `.md` files → produces `server-instructions.ts`                                                 |
-| Tool group arrays                  | `src/filtering/tool-constants.ts`         | `TOOL_GROUPS` map, `META_GROUPS` shortcuts (16 predefined shortcuts)                                                                      |
+| Tool group arrays                  | `src/filtering/tool-constants.ts`         | `TOOL_GROUPS` map, `META_GROUPS` shortcuts (Multiple predefined shortcuts)                                                                      |
 | Tool filter logic                  | `src/filtering/tool-filter.ts`            | `ToolFilter` class                                                                                              |
 | Connection pool                    | `src/pool/connection-pool.ts`             | mysql2/promise pool wrapper                                                                                     |
 | Progress reporter                  | `src/progress/progress-reporter.ts`       | MCP progress notification helpers                                                                               |
@@ -357,7 +354,7 @@ try {
 
 | Pattern                     | Description                                                                                                                                                                                                                                                                                                                                                                            |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Structured Errors**       | Every tool returns enriched `ErrorResponse` via `formatHandlerError()` — never raw exceptions. Uses `ErrorCategory` enum (9 categories) and `ErrorResponse` interface from `error-types.ts`. All tools explicitly trap errors to return `{ success: false }`. This prevents leaking MCP exceptions even for complex domain tools. |
+| **Structured Errors**       | Every tool returns enriched `ErrorResponse` via `formatHandlerError()` — never raw exceptions. Uses `ErrorCategory` enum (Multiple categories) and `ErrorResponse` interface from `error-types.ts`. All tools explicitly trap errors to return `{ success: false }`. This prevents leaking MCP exceptions even for complex domain tools. |
 | **Adapter Pattern**         | `DatabaseAdapter` (abstract) → `MySQLAdapter`. Single adapter (no WASM/Native split).                                                                                                                                                                                                                                                                                                  |
 | **Schema Cache**            | `SchemaManager` caches table/column metadata with configurable TTL. Auto-invalidates on DDL.                                                                                                                                                                                                                                                                                           |
 | **Trace Pruning**           | `mysql_optimizer_trace` uses recursive `deepClean` to aggressively prune AST trace outputs, protecting the LLM from token exhaustion during complex query analysis.                                                                                                                                                                                                           |
@@ -366,13 +363,20 @@ try {
 | **Tool Filtering**          | `ToolFilter` parses `--tool-filter` string → whitelist/blacklist. `codemode` auto-injected. Supports meta-groups (`starter`, `dba-monitor`, etc.).                                                                                                                                                                                                                                     |
 | **Modular Schemas**         | All Zod schemas live in `adapters/mysql/schemas/` to keep bundle sizes optimized and isolate group dependencies.                                                                                                                                                                                                                                                                       |
 | **Dual-Schema Pattern**     | Tools use a plain `z.object()` Base schema for MCP parameter visibility. A `z.preprocess()` wrapper handles parsing. This supports aliases without breaking JSON Schema generation. |
-| **Help Resources**          | Slim `INSTRUCTIONS` (~634 chars) + on-demand `mysql://help` resources replace old 53KB monolith. `mysql://help/{group}` filtered by `--tool-filter`.                                                                                                                                                                                                                                   |
+| **Dynamic Schema Extractor**| Help resources use the Zod 4 `~standard` StandardSchemaV1 interface to dynamically extract JSON schemas at runtime. This guarantees 1:1 parameter documentation parity without manual syncing. |
+| **O(1) Tool Filtering**     | Tool filter maps use pre-computed cached lookup tables (`getToolGroup`) instead of `O(N*M)` scans, guaranteeing instantaneous payload generation for massive resource endpoints. |
+| **Help Resources**          | Slim `INSTRUCTIONS` (~634 chars) + on-demand `mysql://help` resources replace old 53KB monolith. `mysql://help/{group}` filtered by `--tool-filter`. |
 | **Barrel Re-exports**       | Import from `./module/index.js` (with `.js` extension for ESM).                                                                                                                                                                                                                                                                                                                        |
 | **Ecosystem Tools**         | Router, ProxySQL, Shell, and Cluster tools connect to external services on alternate ports (cluster: 3307).                                                                                                                                                                                                                                                                                                |
 | **OAuth Scope Enforcement** | Per-tool scope enforcement on `tools/call` JSON-RPC requests. Both Streamable HTTP (`/mcp`) and Legacy SSE (`/messages`) transports intercept and validate `requireToolScope`. Uses `scope-map.ts` for O(1) tool→scope lookup.                                                                                                                                                         |
 | **Admin Maintenance**       | `optimize_table`, `analyze_table`, `check_table`, `repair_table` use `rawQuery` (not `executeQuery`) to avoid prepared-statement corruption of multi-result-set DDL responses. `extractMaintenanceError()` parses domain errors from multi-row results.                                                                                                                                |
+| **Shell Escaping**          | When executing JavaScript snippets via `mysqlsh` using `-f -` via stdin, Windows paths must be quadruple-escaped (`\\\\\\\\`) because Node.js parsing and the `mysqlsh` JS engine each consume a layer of escaping. `escapeForJS()` handles this automatically. Additionally, when passing host paths into Linux-based Docker containers (like `mysqlsh`), Windows backslashes must first be converted to forward slashes (`.replace(/\\\\/g, "/")`) so the container path resolution does not mistake them for escape characters. However, when `MYSQLSH_DOCKER_CONTAINER` is defined, `mysqlsh` executes entirely inside the container and cannot read/write files directly to the Windows host filesystem without a file transfer bridge. |
 | **Audit Observability**     | `AuditInterceptor` wraps all tool handlers (scope-based filtering, tokenEstimate, redaction). `AuditLogger` writes JSONL with buffered flush + rotation. `BackupManager` captures DDL/data snapshots before destructive ops. `getAuditInterceptor()` exposes interceptor to Code Mode bridge for 100% sandbox audit coverage. Activated via `--audit-log`, `--audit-backup` CLI flags. |
 | **Skill Injection**         | AI prompts generating SQL dynamically inject a directive. This references the `mysql` agent skill via the `MYSQL_SKILL_PATH` environment variable. This ensures consuming agents strictly adhere to production rules (e.g., parameterization, connection pooling). |
+| **ProxySQL Compatibility**  | Queries against `information_schema` and `sys` can trigger ProxySQL hostgroup locking errors (`ProxySQL Error: connection is locked to hostgroup 1`). Tools should use `SHOW TABLES`, `SHOW SCHEMAS`, `SHOW COLUMNS`, and `SHOW KEYS` where possible for metadata discovery. If a `SELECT` on `sys` is required, wrap the query in parentheses `(SELECT ...)` to bypass ProxySQL's `^SELECT` regex matching and avoid incorrect reader routing. |
+| **Vector Tool Resilience** | Vector tools avoid unnecessary try-catch wrappers around table existence checks (e.g., `describeTable`). This allows native Node.js network and connection errors to bubble up correctly instead of hallucinating `TABLE_NOT_FOUND` errors. |
+| **Dual-Package Error Typing** | `isMySQLMcpError` uses duck-typing (`"toResponse" in err`) instead of `instanceof MySQLMcpError` to reliably identify domain errors across multiple package contexts where class references may differ due to dual-package hazards. |
+| **Docstore Validations**    | `mysql_doc_add` and `mysql_doc_modify` natively parse, transform, and stringify nested objects for JSON insertion. Invalid paths or empty updates throw `VALIDATION_ERROR`, and non-existent collections fallback to `TABLE_NOT_FOUND`. `crypto.randomUUID()` safely generates `_id` strings if omitted during inserts. |
 
 ---
 
@@ -386,46 +390,24 @@ try {
 
 ## Utilize Test Infrastructure
 
-| File / Directory                            | Purpose                                                              |
-| ------------------------------------------- | -------------------------------------------------------------------- |
-| `test-server/README.md`                     | Agent testing orchestration doc                                      |
+| Location | Purpose |
+| -------- | ------- |
 | `test-server/code-map.md`                   | This file — agent-optimized codebase navigation reference            |
-| `test-server/test-seed.sql`                 | Primary seed DDL+DML (11 tables, ~400+ rows)                         |
-| `test-server/tool-reference.md`             | Categorized tool inventory                                           |
+| `test-server/test-seed.sql`                 | Primary seed DDL+DML for test data                                   |
+| `test-server/tool-reference.md`             | Pointer to the Single Source of Truth for tool inventory             |
 | `test-server/test-preflight.md`             | Pre-flight test setup checklist                                      |
-| `test-server/test-resources.sql`            | Seed SQL for resource testing                                        |
 | `infrastructure/`                           | Docker Compose and infrastructure config                             |
-| `scripts/reset-database.mjs`                | Reset script - drops + re-seeds `testdb`                             |
-| `test-server/test-tools.md`                 | Entry-point protocol for manual agent testing                        |
-| `test-server/test-tool-groups/`             | Basic functionality tests for all tool groups                     |
-| `test-server/test-codemode/`                | Code Mode functionality tests for all tool groups                    |
+| `test-server/test-tool-groups/`             | Basic functionality tests for all tool groups                        |
 | `test-server/test-usability/`               | Usability, hallucination fuzzing, and prompt tuning via Code Mode    |
+| `test-server/test-usability-direct/`        | Direct tool invocation usability and schema fuzzing                  |
 | `test-server/test-advanced/`                | Advanced stress tests using Code Mode (nesting, security, etc.)      |
-| `test-server/test-advanced/test-codemode-sandbox.md`| Sandbox security testing for `isolated-vm` execution boundary            |
-| `test-server/test-advanced/test-codemode-advanced-concurrency.md`| Code Mode connection pool and Promise.all() saturation stress tests      |
-| `test-server/test-advanced/test-codemode-advanced-json-helpers.md` | Code Mode Advanced - JSON Helpers (`mysql.json.*`) |
-| `test-server/test-advanced/test-codemode-advanced-router-routes.md` | Code Mode Advanced - Router Routes (`mysql.router.*`) |
-| `test-server/test-advanced/test-codemode-advanced-json-core-part2.md` | Code Mode Advanced - JSON Core Part 2 |
-| `test-server/test-advanced/test-codemode-advanced-shell-utils-part1.md`| Code Mode Advanced - Shell Utils Part 1 |
-| `test-server/test-advanced/test-codemode-advanced-types-json.md`  | Code Mode JSON data type stress testing                              |
-| `test-server/test-advanced/test-codemode-advanced-types-binary.md`| Code Mode binary data type stress testing                            |
-| `test-server/test-advanced/test-codemode-advanced-types-date.md`  | Code Mode date and time data type stress testing                     |
-| `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |
-| `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
-| `test-server/scripts/standardize-prompts.js`| Script to rebuild all test prompts from the test directories         |
-| `test-server/test-prompts-notes.md`         | Prompt testing plan                                                  |
-| `test-server/test-prompts.sql`              | Seed SQL for prompt testing (19 AI-Powered Prompts)                  |
-| `test-server/test-resources.md`             | Resource testing plan (22 Observability Resources)                           |
-| `scripts/README.md`                         | Agent-optimized cluster management reference                         |
-| `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |
-| `scripts/generate-server-instructions.ts`   | Generates `server-instructions.ts` from source `.md` files           |
+| `test-server/scripts/generate-tests.ts`     | Orchestrator that auto-generates all tests into the test directories from test-manifest.ts and partials |
+| `test-server/scripts/test-manifest.ts`      | Single Source of Truth (SSoT) tracking tools → test files mapping    |
+| `test-server/scripts/lib/`                  | Rendering templates and boilerplate                                  |
+| `test-server/scripts/content/`              | Organic custom prompt partials injected into the tests               |
+| `test-server/scripts/AGENT_README.md`       | Agent-optimized test generation engine reference                     |
 | `src/__tests__/`                            | Vitest unit tests (top-level)                                        |
-| `src/audit/audit-interceptor.test.ts`       | AuditInterceptor unit tests (13 tests)                               |
-| `src/audit/audit-logger.test.ts`            | AuditLogger unit tests (15 tests)                                    |
-| `src/audit/backup-manager.test.ts`          | BackupManager unit tests (23 tests)                                  |
 | `src/adapters/mysql/tools/*/___tests__/`    | Per-group Vitest unit tests                                          |
 | `tests/e2e/`                                | Playwright E2E tests (payload contracts, auth, stateless)            |
-| `tests/e2e/audit-log.spec.ts`               | Audit log E2E tests (write/read scope, redact, resource, corruption) |
-| `tests/e2e/audit-backup.spec.ts`            | Audit backup E2E tests (snapshot, diff, restore dryRun, disabled)    |
-| `tests/e2e/audit-token-summary.spec.ts`     | Audit token summary E2E tests (aggregation accuracy)                 |
-| `tests/e2e/audit-rotation-stress.spec.ts`   | Audit log rotation stress test (40 iterations, 5-file retention)     |
+
+> 🛑 **CRITICAL RULE:** `scripts/test-manifest.ts` is the single source of truth generating all markdown tests via `scripts/content/*.content.md` partials. Manual editing of the generated markdown files in `test-usability/`, `test-usability-direct/`, `test-advanced/`, and `test-tool-groups/` is **STRICTLY FORBIDDEN** as they will be overwritten by the generator.

@@ -29,7 +29,6 @@ import {
 } from "../../schemas/index.js";
 import {
   TRACKING_TABLE,
-  ensureTrackingTable,
   formatRecord,
 } from "./helpers.js";
 import { DESTRUCTIVE, READ_ONLY } from "../../../../utils/annotations.js";
@@ -63,7 +62,52 @@ export function createMigrationRollbackTool(
           ).rows?.[0];
           targetSchema = (dbRow?.["db"] as string) || "mysql";
         }
-        await ensureTrackingTable(adapter, targetSchema);
+        if (typeof parsed.database === "string") {
+          const schemaCheck = await adapter.executeReadQuery(
+            `SELECT EXISTS(SELECT 1 FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?) AS schema_exists`,
+            [parsed.database]
+          );
+          const schemaRow = (schemaCheck.rows ?? [])[0];
+          const schemaExists = schemaRow?.["schema_exists"] === 1 || schemaRow?.["schema_exists"] === true;
+          
+          if (!schemaExists) {
+            const errorResponse = {
+              success: false as const,
+              error: `Database '${parsed.database}' does not exist.`,
+              code: "DATABASE_NOT_FOUND",
+              category: "resource",
+              suggestion: "Database not found. Use mysql_list_schemas to see available databases.",
+              recoverable: true,
+            };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+            return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
+          }
+        }
+
+        const check = await adapter.executeReadQuery(
+          `SELECT EXISTS (
+          SELECT 1 FROM information_schema.TABLES
+          WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
+        ) AS table_exists`,
+          [targetSchema, TRACKING_TABLE],
+        );
+        const firstRow = (check.rows ?? [])[0];
+        const tableExists =
+          firstRow?.["table_exists"] === 1 || firstRow?.["table_exists"] === true;
+          
+        if (!tableExists) {
+          const errorResponse = {
+            success: false as const,
+            error: `Migration tracking table not found in database '${targetSchema}'. No migrations to roll back.`,
+            code: "NOT_FOUND",
+            category: "resource",
+            recoverable: true,
+          };
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
+          );
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
+        }
 
         if (parsed.id === undefined && parsed.version === undefined) {
           const errorResponse = {
@@ -100,7 +144,7 @@ export function createMigrationRollbackTool(
           coercedId = num;
         }
 
-        const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+        const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
 
         // Find the migration
         const whereClause = coercedId !== undefined ? "id = ?" : "version = ?";
@@ -250,9 +294,58 @@ export function createMigrationHistoryTool(
           ).rows?.[0];
           targetSchema = (dbRow?.["db"] as string) || "mysql";
         }
-        const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+        const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
 
-        await ensureTrackingTable(adapter, targetSchema);
+        if (typeof parsed.database === "string") {
+          const schemaCheck = await adapter.executeReadQuery(
+            `SELECT EXISTS(SELECT 1 FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?) AS schema_exists`,
+            [parsed.database]
+          );
+          const schemaRow = (schemaCheck.rows ?? [])[0];
+          const schemaExists = schemaRow?.["schema_exists"] === 1 || schemaRow?.["schema_exists"] === true;
+          
+          if (!schemaExists) {
+            const errorResponse = {
+              success: false as const,
+              error: `Database '${parsed.database}' does not exist.`,
+              code: "DATABASE_NOT_FOUND",
+              category: "resource",
+              suggestion: "Database not found. Use mysql_list_schemas to see available databases.",
+              recoverable: true,
+            };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+            return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
+          }
+        }
+
+        const check = await adapter.executeReadQuery(
+          `SELECT EXISTS (
+          SELECT 1 FROM information_schema.TABLES
+          WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
+        ) AS table_exists`,
+          [targetSchema, TRACKING_TABLE],
+        );
+        const firstRow = (check.rows ?? [])[0];
+        const tableExists =
+          firstRow?.["table_exists"] === 1 || firstRow?.["table_exists"] === true;
+
+        if (!tableExists) {
+          const limit = parsed.limit ?? 50;
+          const offset = parsed.offset ?? 0;
+          const response = {
+            success: true as const,
+            data: {
+              records: [],
+              total: 0,
+              limit,
+              offset,
+            },
+          };
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
+        }
 
         // Coerce limit/offset: wrong-type values silently default
         const limit = parsed.limit ?? 50;
@@ -338,7 +431,7 @@ export function createMigrationStatusTool(
         const parsed = MigrationStatusSchema.parse(params);
         let targetSchema = parsed.database;
 
-        if (!targetSchema) {
+        if (typeof targetSchema !== "string") {
           const dbRow = (
             await adapter.executeReadQuery("SELECT DATABASE() as db")
           ).rows?.[0];
@@ -353,7 +446,7 @@ export function createMigrationStatusTool(
           [targetSchema, TRACKING_TABLE],
         );
 
-        if (parsed.database) {
+        if (typeof parsed.database === "string") {
           const schemaCheck = await adapter.executeReadQuery(
             `SELECT EXISTS(SELECT 1 FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?) AS schema_exists`,
             [parsed.database]
@@ -365,8 +458,9 @@ export function createMigrationStatusTool(
             const errorResponse = {
               success: false as const,
               error: `Database '${parsed.database}' does not exist.`,
-              code: "NOT_FOUND",
-              category: "validation",
+              code: "DATABASE_NOT_FOUND",
+              category: "resource",
+              suggestion: "Database not found. Use mysql_list_schemas to see available databases.",
               recoverable: true,
             };
             const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
@@ -401,7 +495,7 @@ export function createMigrationStatusTool(
           return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         }
 
-        const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+        const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
 
         // Get aggregate status
         const statsResult = await adapter.executeReadQuery(

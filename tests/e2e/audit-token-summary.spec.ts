@@ -7,9 +7,8 @@
  */
 
 
-import { join } from "node:path";
-import { tmpdir } from "node:os";
 
+import { setTimeout as delay } from "node:timers/promises";
 import { test, expect } from "@playwright/test";
 import {
   startServer,
@@ -17,22 +16,21 @@ import {
   createClient,
   callToolAndParse,
   cleanupAuditFiles,
+  auditLogPath,
 } from "./helpers.js";
-import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Client } from "@modelcontextprotocol/client";
 
 const AUDIT_PORT_BASE = 3180;
 const AUDIT_FILTER = "core,transactions,monitoring";
 
-function auditLogPath(suffix: string): string {
-  return join(tmpdir(), `mysql-audit-summary-${suffix}-${Date.now()}.jsonl`);
-}
+import { TIMEOUTS, HEALTH_QUERY } from "./helpers.js";
 
-test.describe.configure({ mode: "serial", timeout: 120_000 });
+test.describe.configure({ mode: "serial", timeout: TIMEOUTS.LONG });
 
 test.describe("Audit Token Summary Accuracy", () => {
   test("mysql://audit summary accurately aggregates tool token estimates", async () => {
     const port = AUDIT_PORT_BASE + 1;
-    const logPath = auditLogPath("accuracy");
+    const logPath = auditLogPath("audit-summary", "accuracy");
 
     // Enable audit reads so read-scoped tools are also logged
     await startServer(
@@ -43,14 +41,14 @@ test.describe("Audit Token Summary Accuracy", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       const toolsToCall: Array<{
         name: string;
         args: Record<string, unknown>;
       }> = [
         { name: "mysql_transaction_begin", args: {} },
-        { name: "mysql_read_query", args: { sql: "SELECT 1 AS test_val" } },
+        { name: "mysql_read_query", args: { query: "SELECT 1 AS test_val" } },
         { name: "mysql_list_tables", args: { limit: 2 } },
       ];
 
@@ -76,7 +74,7 @@ test.describe("Audit Token Summary Accuracy", () => {
           (expectedTokensByTool[t.name] ?? 0) + tokens;
 
         // Brief delay to ensure async audit log write
-        await new Promise((r) => setTimeout(r, 100));
+        await delay(100);
       }
 
       // Rollback the transaction
@@ -85,7 +83,7 @@ test.describe("Audit Token Summary Accuracy", () => {
           transactionId: currentTxId,
         });
         // Brief delay for audit flush
-        await new Promise((r) => setTimeout(r, 100));
+        await delay(100);
       }
 
       // Read the audit resource
@@ -121,7 +119,7 @@ test.describe("Audit Token Summary Accuracy", () => {
 
   test("high-cost operations reflect accurately in summary total and rank top", async () => {
     const port = AUDIT_PORT_BASE + 2;
-    const logPath = auditLogPath("highcost");
+    const logPath = auditLogPath("audit-summary", "highcost");
 
     // Enable audit reads
     await startServer(
@@ -132,11 +130,11 @@ test.describe("Audit Token Summary Accuracy", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Call low cost tools
-      await callToolAndParse(client, "mysql_read_query", { sql: "SELECT 1" });
-      await callToolAndParse(client, "mysql_read_query", { sql: "SELECT 2" });
+      await callToolAndParse(client, "mysql_read_query", { query: HEALTH_QUERY });
+      await callToolAndParse(client, "mysql_read_query", { query: "SELECT 2" });
 
       // Call a tool that returns more data (list_tables with full schema)
       const largePayload = await callToolAndParse(
@@ -149,7 +147,7 @@ test.describe("Audit Token Summary Accuracy", () => {
       expect(highCostEstimate).toBeGreaterThan(0);
 
       // Flush delay
-      await new Promise((r) => setTimeout(r, 600));
+      await delay(600);
 
       const resource = await client.readResource({ uri: "mysql://audit" });
       const body = JSON.parse(

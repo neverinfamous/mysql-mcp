@@ -122,7 +122,7 @@ describe("TokenValidator Validation", () => {
   it("should return TOKEN_EXPIRED error for expired token", async () => {
     const expiredError = new jose.errors.JWTExpired(
       "Token has expired",
-      {} as jose.JWTPayload,
+      {},
     );
     mockJwtVerify.mockRejectedValue(expiredError);
 
@@ -149,7 +149,7 @@ describe("TokenValidator Validation", () => {
   it("should return INVALID_CLAIMS error for claim validation failure", async () => {
     const claimError = new jose.errors.JWTClaimValidationFailed(
       "audience mismatch",
-      {} as jose.JWTPayload,
+      {},
       "aud",
       "mismatch",
     );
@@ -308,7 +308,7 @@ describe("OAuth Security Edge Cases", () => {
     // Token not yet valid - nbf is in the future
     const claimError = new jose.errors.JWTClaimValidationFailed(
       "Token is not yet valid (nbf)",
-      { nbf: Math.floor(Date.now() / 1000) + 3600 } as jose.JWTPayload,
+      { nbf: Math.floor(Date.now() / 1000) + 3600 },
       "nbf",
       "check_failed",
     );
@@ -324,7 +324,7 @@ describe("OAuth Security Edge Cases", () => {
     // Token expired way beyond any reasonable clock tolerance
     const expiredError = new jose.errors.JWTExpired(
       "Token expired 24 hours ago",
-      {} as jose.JWTPayload,
+      {},
     );
     mockJwtVerify.mockRejectedValue(expiredError);
 
@@ -348,7 +348,7 @@ describe("OAuth Security Edge Cases", () => {
   it("should not leak issuer details in claim mismatch errors", async () => {
     const claimError = new jose.errors.JWTClaimValidationFailed(
       'unexpected "iss" claim value',
-      { iss: "https://attacker.com" } as jose.JWTPayload,
+      { iss: "https://attacker.com" },
       "iss",
       "mismatch",
     );

@@ -1,11 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createStatsHypothesisTool } from "../hypothesis.js";
-import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
-  createMockRequestContext,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 
 describe("Hypothesis Tool", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -25,7 +23,8 @@ describe("Hypothesis Tool", () => {
     });
 
     it("should perform t-test", async () => {
-      mockAdapter.executeQuery.mockImplementation(async () => {
+      mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         return createMockQueryResult([{ n: 100, mean: 5.5, stddev: 2.0 }]);
       });
 
@@ -34,13 +33,12 @@ describe("Hypothesis Tool", () => {
           table: "data",
           column: "val",
           testType: "t_test",
-          hypothesizedMean: 5.0,
-        },
+          hypothesizedMean: 5.0 },
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.testType).toBe("t_test");
       expect(data.results.sampleSize).toBe(100);
       expect(data.results.testStatistic).toBeCloseTo(2.5, 1);
@@ -49,7 +47,8 @@ describe("Hypothesis Tool", () => {
     });
 
     it("should perform z-test with population stddev", async () => {
-      mockAdapter.executeQuery.mockImplementation(async () => {
+      mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         return createMockQueryResult([{ n: 100, mean: 5.5, stddev: 2.0 }]);
       });
 
@@ -59,13 +58,12 @@ describe("Hypothesis Tool", () => {
           column: "val",
           testType: "z_test",
           hypothesizedMean: 5.0,
-          populationStdDev: 1.5,
-        },
+          populationStdDev: 1.5 },
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.testType).toBe("z_test");
       expect(data.results.populationStdDev).toBe(1.5);
       expect(data.results.testStatistic).toBeCloseTo(3.33, 1); // (5.5 - 5.0) / (1.5 / 10)
@@ -73,7 +71,8 @@ describe("Hypothesis Tool", () => {
     });
 
     it("should handle grouped hypothesis tests", async () => {
-      mockAdapter.executeQuery.mockImplementation(async () => {
+      mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         return createMockQueryResult([
           { group_key: "A", n: 50, mean: 6.0, stddev: 1.5 },
           { group_key: "B", n: 50, mean: 5.2, stddev: 1.5 },
@@ -86,13 +85,12 @@ describe("Hypothesis Tool", () => {
           column: "val",
           testType: "t_test",
           hypothesizedMean: 5.0,
-          groupBy: "category",
-        },
+          groupBy: "category" },
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.count).toBe(2);
       expect(data.groups[0].groupKey).toBe("A");
       expect(data.groups[0].results.sampleMean).toBe(6.0);
@@ -101,7 +99,8 @@ describe("Hypothesis Tool", () => {
     });
 
     it("should handle insufficient data", async () => {
-      mockAdapter.executeQuery.mockImplementation(async () => {
+      mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         return createMockQueryResult([{ n: 1, mean: 5.5, stddev: 0 }]);
       });
 
@@ -110,13 +109,12 @@ describe("Hypothesis Tool", () => {
           table: "data",
           column: "val",
           testType: "t_test",
-          hypothesizedMean: 5.0,
-        },
+          hypothesizedMean: 5.0 },
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(false);
-      expect(Reflect.get(result || {}, "error")).toContain("Insufficient data");
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain("Insufficient data");
     });
   });
 });

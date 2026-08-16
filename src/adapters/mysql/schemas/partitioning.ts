@@ -85,6 +85,15 @@ export const AddPartitionSchema = z
           else if (obj["expression"] !== undefined) obj["value"] = obj["expression"];
           else if (obj["definition"] !== undefined) obj["value"] = obj["definition"];
         }
+
+        if (typeof obj["value"] === "string") {
+          let valStr = obj["value"].trim();
+          valStr = valStr.replace(/^(?:VALUES\s+)?(?:LESS\s+THAN|IN)\s*/i, "").trim();
+          if (valStr.startsWith("(") && valStr.endsWith(")")) {
+            valStr = valStr.substring(1, valStr.length - 1).trim();
+          }
+          obj["value"] = valStr;
+        }
       }
       return v;
     },
@@ -104,7 +113,7 @@ export const AddPartitionSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     database: data.database,
     partitionName: data.partitionName ?? "",
-    partitionType: data.partitionType ? data.partitionType : "RANGE",
+    partitionType: data.partitionType,
     value: data.value ?? "",
   }))
   .refine((data) => data.table !== "", {
@@ -123,9 +132,9 @@ export const DropPartitionSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   database: z.string().optional().describe("Database name"),
-  partitionName: z.string().optional().describe("Partition name to drop"),
-  partition: z.string().optional().describe("Alias for partitionName"),
-  partitions: z.string().optional().describe("Alias for partitionName"),
+  partitionName: z.union([z.string(), z.array(z.string())]).optional().describe("Partition name(s) to drop. Can be a comma-separated string or array."),
+  partition: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for partitionName"),
+  partitions: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for partitionName"),
 });
 
 export const DropPartitionSchema = z
@@ -141,6 +150,19 @@ export const DropPartitionSchema = z
           else if (obj["partitions"] !== undefined) obj["partitionName"] = obj["partitions"];
           else if (obj["name"] !== undefined && obj["table"] !== obj["name"]) obj["partitionName"] = obj["name"];
         }
+
+        if (typeof obj["partitionName"] === "string") {
+          const partStr = obj["partitionName"];
+          try {
+            const parsed = JSON.parse(partStr) as unknown;
+            obj["partitionName"] = Array.isArray(parsed) ? parsed : [parsed];
+          } catch {
+            obj["partitionName"] = partStr
+              .split(",")
+              .map((s) => s.trim())
+              .filter((s) => s !== "");
+          }
+        }
       }
       return v;
     },
@@ -149,19 +171,18 @@ export const DropPartitionSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       database: z.string().optional(),
-      partitionName: z.string().optional(),
-      partition: z.string().optional(),
+      partitionName: z.array(z.string()).optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     database: data.database,
-    partitionName: data.partitionName ?? data.partition ?? "",
+    partitionName: data.partitionName ?? [],
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
   })
-  .refine((data) => data.partitionName !== "", {
+  .refine((data) => data.partitionName.length > 0, {
     message: "partitionName (or partition alias) is required",
   });
 
@@ -172,30 +193,33 @@ export const ReorganizePartitionSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   database: z.string().optional().describe("Database name"),
   fromPartitions: z
-    .array(z.string())
+    .union([z.string(), z.array(z.string())])
     .optional()
     .describe("Source partition names. If passing a string, use a comma-separated list."),
   partitions: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for fromPartitions"),
   from: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for fromPartitions"),
   sourcePartitions: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for fromPartitions"),
   partitionType: z
-    .enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"])
+    .enum(["RANGE", "LIST", "RANGE COLUMNS", "LIST COLUMNS"])
     .optional()
     .describe(
       "Partition type (RANGE, LIST, RANGE COLUMNS, LIST COLUMNS). HASH/KEY partitions cannot be reorganized.",
     ),
   type: z.string().optional().describe("Alias for partitionType"),
   toPartitions: z
-    .array(
-      z.object({
-        name: z.string().describe("New partition name"),
-        value: z
-          .string()
-          .describe(
-            'Partition boundary value only - e.g., "2024" for RANGE, "1,2,3" for LIST. Do NOT include "LESS THAN" or "VALUES IN" keywords.',
-          ),
-      }),
-    )
+    .union([
+      z.string(),
+      z.array(
+        z.object({
+          name: z.string().describe("New partition name"),
+          value: z
+            .string()
+            .describe(
+              'Partition boundary value only - e.g., "2024" for RANGE, "1,2,3" for LIST. Do NOT include "LESS THAN" or "VALUES IN" keywords.',
+            ),
+        }),
+      )
+    ])
     .optional()
     .describe("Array of new partition definitions. MUST be an array of objects: [{ name: 'p1', value: '2024' }]"),
   into: z.unknown().optional().describe("Alias for toPartitions"),
@@ -254,6 +278,20 @@ export const ReorganizePartitionSchema = z
               .map((s) => s.trim());
           }
         }
+        
+        if (Array.isArray(obj["toPartitions"])) {
+          obj["toPartitions"] = obj["toPartitions"].map((p: unknown) => {
+            if (p !== null && typeof p === "object" && "value" in p && typeof p.value === "string") {
+              let valStr = p.value.trim();
+              valStr = valStr.replace(/^(?:VALUES\s+)?(?:LESS\s+THAN|IN)\s*/i, "").trim();
+              if (valStr.startsWith("(") && valStr.endsWith(")")) {
+                valStr = valStr.substring(1, valStr.length - 1).trim();
+              }
+              return { ...p, value: valStr };
+            }
+            return p;
+          });
+        }
       }
       return v;
     },
@@ -280,7 +318,7 @@ export const ReorganizePartitionSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     database: data.database,
     fromPartitions: data.fromPartitions ?? [],
-    partitionType: data.partitionType ? data.partitionType : "RANGE",
+    partitionType: data.partitionType,
     toPartitions: data.toPartitions ?? [],
   }))
   .refine((data) => data.table !== "", {
@@ -319,7 +357,7 @@ export const AddPartitionOutputSchema = BaseOutputSchema.extend({
 export const DropPartitionOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     table: z.string(),
-    partitionName: z.string(),
+    partitionName: z.union([z.string(), z.array(z.string())]),
     warning: z.string().optional(),
   }).loose().optional(),
 });

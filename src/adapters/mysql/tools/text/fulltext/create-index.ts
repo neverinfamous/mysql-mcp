@@ -1,8 +1,8 @@
 import { ZodError } from "zod";
 import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
-import type {
-  ToolDefinition,
-  RequestContext,
+import {
+  type ToolDefinition,
+  type RequestContext,
 } from "../../../../../types/index.js";
 import {
   FulltextCreateSchema,
@@ -15,6 +15,12 @@ import {
 } from "../../core/error-helpers.js";
 import { WRITE } from "../../../../../utils/annotations.js";
 import { isDuplicateKeyError } from "./helpers.js";
+import {
+  validateIdentifier,
+  validateQualifiedIdentifier,
+  escapeIdentifier,
+  escapeQualifiedTable,
+} from "../../../../../utils/validators.js";
 
 export function createFulltextCreateTool(
   adapter: MySQLAdapter,
@@ -34,10 +40,15 @@ export function createFulltextCreateTool(
         const { table, columns, indexName } =
           FulltextCreateSchema.parse(params);
 
-        const name = indexName ?? `ft_${table}_${columns.join("_")}`;
-        const columnList = columns.map((c) => `\`${c}\``).join(", ");
+        validateQualifiedIdentifier(table, "table");
+        columns.forEach((c) => validateIdentifier(c, "column"));
 
-        const sql = `CREATE FULLTEXT INDEX \`${name}\` ON \`${table}\` (${columnList})`;
+        const name = indexName ?? `ft_${table.split('.').pop()}_${columns.join("_")}`;
+        validateIdentifier(name, "index");
+
+        const columnList = columns.map((c) => `\`${escapeIdentifier(c)}\``).join(", ");
+
+        const sql = `CREATE FULLTEXT INDEX \`${escapeIdentifier(name)}\` ON ${escapeQualifiedTable(table)} (${columnList})`;
 
         try {
           await adapter.executeQuery(sql);
@@ -54,7 +65,7 @@ export function createFulltextCreateTool(
             msg.includes("Key column") ||
             msg.includes("Column '")
           ) {
-            return formatHandlerErrorResponse(new Error(msg));
+            return formatHandlerErrorResponse(err);
           }
           if (msg.includes("does not exist")) {
             return formatHandlerErrorResponse(

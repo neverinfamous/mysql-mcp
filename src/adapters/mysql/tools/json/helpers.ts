@@ -55,16 +55,25 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE ${where} LIMIT 1`;
-        const result = await adapter.executeReadQuery(sql, [path]);
+        const checkSql = `SELECT JSON_VALID(\`${column}\`) as is_valid FROM ${escapeQualifiedTable(table)} WHERE ${where} LIMIT 1`;
+        const checkResult = await adapter.executeReadQuery(checkSql);
 
         let response;
-        if (!result.rows || result.rows.length === 0) {
+        if (!checkResult.rows || checkResult.rows.length === 0) {
           response = {
             success: true as const,
             data: { value: null, rowFound: false },
           };
         } else {
+          const isValid = checkResult.rows[0]?.["is_valid"];
+          // Handle cases where driver returns 0, false, "0", etc.
+          if (isValid === 0 || isValid === "0" || isValid === false) {
+            const err = new Error(`Invalid JSON text in column \`${column}\`.`);
+            err.name = "ValidationError";
+            throw err;
+          }
+          const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE ${where} LIMIT 1`;
+          const result = await adapter.executeReadQuery(sql, [path]);
           const rawValue = result.rows?.[0]?.["value"];
           if (rawValue === null || rawValue === undefined) {
             response = { success: true as const, data: { value: null } };
@@ -73,10 +82,14 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
           } else if (typeof rawValue === "string") {
             try {
               const parsed: unknown = JSON.parse(rawValue);
-              response = {
-                success: true as const,
-                data: { value: parsed },
-              };
+              if (parsed !== null && typeof parsed === "object") {
+                response = {
+                  success: true as const,
+                  data: { value: parsed },
+                };
+              } else {
+                response = { success: true as const, data: { value: rawValue } };
+              }
             } catch {
               response = { success: true as const, data: { value: rawValue } };
             }
@@ -87,10 +100,10 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_get" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_get" });
       }
     },
   };
@@ -115,12 +128,17 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Normalize value to valid JSON (bare strings get wrapped automatically)
         let jsonValue: string;
         if (typeof value === "string") {
           try {
-            JSON.parse(value);
-            jsonValue = value;
+            const parsed: unknown = JSON.parse(value);
+            // Only treat as pre-stringified JSON if it parses to an object or array.
+            // This prevents strings like "123" or "true" from being incorrectly coerced to number/boolean.
+            if (parsed !== null && typeof parsed === "object") {
+              jsonValue = value;
+            } else {
+              jsonValue = JSON.stringify(value);
+            }
           } catch {
             // Bare string - wrap it as a JSON string
             jsonValue = JSON.stringify(value);
@@ -129,21 +147,31 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
           jsonValue = JSON.stringify(value);
         }
 
+        // Pre-flight check: ensure the column contains valid JSON or is null
+        const checkSql = `SELECT JSON_VALID(\`${column}\`) as is_valid FROM ${escapeQualifiedTable(table)} WHERE ${where} LIMIT 1`;
+        const checkResult = await adapter.executeReadQuery(checkSql);
+        if (checkResult.rows && checkResult.rows.length > 0) {
+          const isValid = checkResult.rows[0]?.["is_valid"];
+          // 0, false, "0" mean invalid JSON. null means the column is null (which is valid to update if it can hold JSON, but if it's an INT it would fail. Actually, JSON_SET on a NULL JSON column might not work, but we only protect against the crash which happens on non-JSON scalar types like INT).
+          if (isValid === 0 || isValid === "0" || isValid === false) {
+            const err = new Error(`Invalid JSON text in column \`${column}\`.`);
+            err.name = "ValidationError";
+            throw err;
+          }
+        }
+
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(COALESCE(\`${column}\`, '{}'), ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
         if (result.rowsAffected === 0) {
-          const response = {
-            success: false as const,
-            error: `No row found matching WHERE ${where}`,
-            code: "NOT_FOUND",
-            category: "resource" as const,
-            recoverable: false,
-            suggestion: undefined,
-            details: undefined
-          };
-          return withTokenEstimate(response);
+          // Verify if row actually exists but value was identical
+          const checkSql = `SELECT 1 FROM ${escapeQualifiedTable(table)} WHERE ${where} LIMIT 1`;
+          const checkResult = await adapter.executeReadQuery(checkSql, []);
+          
+          if (!checkResult.rows || checkResult.rows.length === 0) {
+            throw new Error(`No row found matching WHERE ${where}`);
+          }
         }
         const response = {
           success: true as const,
@@ -152,10 +180,10 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_update" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_update" });
       }
     },
   };
@@ -174,7 +202,7 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, searchValue, mode, limit, path, escapeChar, where } =
+        const { table, column, searchValue, mode, limit, path, escapeChar, where, select } =
           JsonSearchSchema.parse(params);
 
         validateQualifiedIdentifier(table, "table");
@@ -191,22 +219,26 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
         const sqlParams = [];
         
         const hasEscape = escapeChar !== undefined && escapeChar !== null;
-        if (hasEscape && typeof escapeChar === 'string' && escapeChar.length > 1) {
-          throw new Error("escapeChar must be empty or one character");
-        }
         // MySQL requires escape_char in JSON_SEARCH to be a literal, not a parameter
-        const escapeSql = hasEscape ? (escapeChar === '' ? "''" : `'${escapeChar.replace(/'/g, "''")}'`) : 'NULL';
+        const escapeSql = hasEscape ? (escapeChar === '' ? "''" : `'${escapeChar.replace(/\\/g, "\\\\").replace(/'/g, "''")}'`) : 'NULL';
         
+        // Use select columns or default to *
+        const selectCols = select ? select.split(",").map(c => {
+          const trimmed = c.trim();
+          if (trimmed === "*") return "*";
+          return trimmed.split(".").map(part => `\`${part.replace(/`/g, "``")}\``).join(".");
+        }).join(", ") : "*";
+
         if (path) {
-          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) IS NOT NULL${userWhere}${limitClause}`;
+          sql = `SELECT ${selectCols}, CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) ELSE NULL END as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_VALID(\`${column}\`) = 1 AND JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) IS NOT NULL${userWhere}${limitClause}`;
           
           const paramsList = [mode, searchValue, path];
           sqlParams.push(...paramsList, ...paramsList);
         } else if (hasEscape) {
-          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) IS NOT NULL${userWhere}${limitClause}`;
+          sql = `SELECT ${selectCols}, CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) ELSE NULL END as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_VALID(\`${column}\`) = 1 AND JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) IS NOT NULL${userWhere}${limitClause}`;
           sqlParams.push(mode, searchValue, mode, searchValue);
         } else {
-          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
+          sql = `SELECT ${selectCols}, CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_SEARCH(\`${column}\`, ?, ?) ELSE NULL END as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_VALID(\`${column}\`) = 1 AND JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
           sqlParams.push(mode, searchValue, mode, searchValue);
         }
 
@@ -220,10 +252,10 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_search" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_search" });
       }
     },
   };
@@ -243,20 +275,37 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { value } = JsonValidateSchema.parse(params);
 
+        let stringValue: string;
+        if (typeof value !== "string") {
+          try {
+            stringValue = JSON.stringify(value);
+          } catch {
+            return withTokenEstimate({ success: true, data: { valid: false } });
+          }
+        } else {
+          stringValue = value;
+        }
+
+        try {
+          JSON.parse(stringValue);
+        } catch {
+          return withTokenEstimate({ success: true, data: { valid: false } });
+        }
+
         const sql = `SELECT JSON_VALID(?) as is_valid`;
-        const result = await adapter.executeReadQuery(sql, [value]);
+        const result = await adapter.executeReadQuery(sql, [stringValue]);
 
         const isValid = result.rows?.[0]?.["is_valid"] === 1;
         return withTokenEstimate({ success: true, data: { valid: isValid } });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_validate" });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("Invalid JSON text")) {
           return withTokenEstimate({ success: true, data: { valid: false } });
         }
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_validate" });
       }
     },
   };

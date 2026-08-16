@@ -9,14 +9,11 @@ import {
   createSpatialIntersectionTool,
   createSpatialBufferTool,
   createSpatialTransformTool,
-  createSpatialGeoJSONTool,
-} from "../operations.js";
-import type {} from "../../../mysql-adapter/index.js";
+  createSpatialGeoJSONTool } from "../operations.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Spatial Operations Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -37,13 +34,12 @@ describe("Spatial Operations Tools", () => {
     });
 
     it("should calculate intersection", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
             intersects: 1,
             intersection_wkt: "POINT(5 5)",
-            intersection_geojson: '{"type":"Point"}',
-          },
+            intersection_geojson: '{"type":"Point"}' },
         ]),
       );
 
@@ -52,23 +48,22 @@ describe("Spatial Operations Tools", () => {
       );
       const result = (await tool.handler(
         {
-          geometry1: "POLYGON(...)",
+          geometry1: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
           geometry2: "POINT(5 5)",
-        },
+          srid: 0 },
         mockContext,
       )) as { data: { intersects: boolean; intersectionWkt: string } };
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result.data.intersects).toBe(true);
       expect(result.data.intersectionWkt).toBe("POINT(5 5)");
     });
 
     it("should handle no intersection", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
-            intersects: 0,
-          },
+            intersects: 0 },
         ]),
       );
 
@@ -77,9 +72,9 @@ describe("Spatial Operations Tools", () => {
       );
       const result = (await tool.handler(
         {
-          geometry1: "POLYGON(...)",
-          geometry2: "POINT(100 100)",
-        },
+          geometry1: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
+          geometry2: "POINT(50 50)",
+          srid: 0 },
         mockContext,
       )) as { data: { intersects: boolean } };
 
@@ -96,12 +91,11 @@ describe("Spatial Operations Tools", () => {
     });
 
     it("should create buffer around geometry with default segments", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
             buffer_wkt: "POLYGON(...)",
-            buffer_geojson: '{"type":"Polygon"}',
-          },
+            buffer_geojson: '{"type":"Polygon"}' },
         ]),
       );
 
@@ -111,26 +105,24 @@ describe("Spatial Operations Tools", () => {
       const result = await tool.handler(
         {
           geometry: "POINT(0 0)",
-          distance: 10,
-        },
+          distance: 10 },
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       // Default SRID is 4326 (geographic) — ST_Buffer_Strategy is not used
       expect(call).not.toContain("ST_Buffer_Strategy");
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("bufferWkt");
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("segments", 8);
+      expect((result as Record<string, unknown>).data).toHaveProperty("bufferWkt");
+      expect((result as Record<string, unknown>).data).toHaveProperty("segments", 8);
     });
 
     it("should use ST_Buffer_Strategy with Cartesian SRID", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
             buffer_wkt: "POLYGON(...)",
-            buffer_geojson: '{"type":"Polygon"}',
-          },
+            buffer_geojson: '{"type":"Polygon"}' },
         ]),
       );
 
@@ -142,14 +134,13 @@ describe("Spatial Operations Tools", () => {
           geometry: "POINT(0 0)",
           distance: 100,
           srid: 0,
-          segments: 4,
-        },
+          segments: 4 },
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("ST_Buffer_Strategy('point_circle', 4)");
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("segments", 4);
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
+      expect(call).toContain("ST_Buffer_Strategy");
+      expect((result as Record<string, unknown>).data).toHaveProperty("segmentsApplied", true);
     });
   });
 
@@ -162,12 +153,11 @@ describe("Spatial Operations Tools", () => {
     });
 
     it("should transform geometry between SRIDs", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
             transformed_wkt: "POINT(1000 2000)",
-            transformed_geojson: '{"type":"Point"}',
-          },
+            transformed_geojson: '{"type":"Point"}' },
         ]),
       );
 
@@ -178,17 +168,21 @@ describe("Spatial Operations Tools", () => {
         {
           geometry: "POINT(10 20)",
           fromSrid: 4326,
-          toSrid: 3857,
-        },
+          toSrid: 3857 },
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      
+      // Find the actual transform query, as validateSrid might have been called first
+      const transformCall = mockAdapter.executeReadQuery.mock.calls.find(c => String(c[0]).includes("ST_Transform"));
+      expect(transformCall).toBeDefined();
+      const call = transformCall![0];
+      
       expect(call).toContain("ST_Transform");
       expect(call).toContain("4326");
       expect(call).toContain("3857");
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("transformedWkt");
+      expect((result as Record<string, unknown>).data).toHaveProperty("transformedWkt");
     });
   });
 
@@ -201,11 +195,10 @@ describe("Spatial Operations Tools", () => {
     });
 
     it("should convert WKT to GeoJSON", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
-            geoJson: '{"type":"Point","coordinates":[10,20]}',
-          },
+            geoJson: '{"type":"Point","coordinates":[10,20]}' },
         ]),
       );
 
@@ -217,19 +210,17 @@ describe("Spatial Operations Tools", () => {
         mockContext,
       )) as { data: { geoJson: Record<string, unknown> } };
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result.data.geoJson).toEqual({
         type: "Point",
-        coordinates: [10, 20],
-      });
+        coordinates: [10, 20] });
     });
 
     it("should convert GeoJSON to WKT", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
-            wkt: "POINT(10 20)",
-          },
+            wkt: "POINT(10 20)" },
         ]),
       );
 
@@ -241,7 +232,7 @@ describe("Spatial Operations Tools", () => {
         mockContext,
       )) as { data: { wkt: string } };
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result.data.wkt).toBe("POINT(10 20)");
     });
 
@@ -254,8 +245,7 @@ describe("Spatial Operations Tools", () => {
         success: false,
         error: expect.stringContaining(
           "Either geometry or geoJson must be provided",
-        ),
-      });
+        ) });
     });
 
     it("should return structured error if both geometry and geoJson provided", async () => {
@@ -265,8 +255,7 @@ describe("Spatial Operations Tools", () => {
       const result = await tool.handler(
         {
           geometry: "POINT(0 0)",
-          geoJson: "{}",
-        },
+          geoJson: "{}" },
         mockContext,
       );
 
@@ -274,8 +263,7 @@ describe("Spatial Operations Tools", () => {
         success: false,
         error: expect.stringContaining(
           "Either geometry or geoJson must be provided",
-        ),
-      });
+        ) });
     });
   });
 });

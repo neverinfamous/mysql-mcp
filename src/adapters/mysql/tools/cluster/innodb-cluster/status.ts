@@ -13,7 +13,6 @@ import {
   ClusterStatusOutputSchema,
 } from "../../../schemas/cluster.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { SummarySchema } from "./schemas.js";
 
 export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -28,12 +27,12 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { summary } = SummarySchema.parse(params);
+        const { summary } = SummarySchemaBase.parse(params);
         // Check for cluster metadata schema
-        const schemaCheck = await adapter.executeQuery(`
-                    SELECT SCHEMA_NAME
+        const schemaCheck = await adapter.executeQuery(`/* readonly */
+                    (SELECT SCHEMA_NAME
                     FROM information_schema.SCHEMATA
-                    WHERE SCHEMA_NAME = 'mysql_innodb_cluster_metadata'
+                    WHERE SCHEMA_NAME = 'mysql_innodb_cluster_metadata')
                 `);
 
         if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
@@ -43,30 +42,30 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Get cluster info
-        const clusterResult = await adapter.executeQuery(`
-                    SELECT cluster_id, cluster_name, description, cluster_type, primary_mode
+        const clusterResult = await adapter.executeQuery(`/* readonly */
+                    (SELECT cluster_id, cluster_name, description, cluster_type, primary_mode
                     FROM mysql_innodb_cluster_metadata.clusters
-                    LIMIT 1
+                    LIMIT 1)
                 `);
 
         const clusterBasic = clusterResult.rows?.[0];
 
         // Get instance count
-        const instanceResult = await adapter.executeQuery(`
-                    SELECT COUNT(*) as count
-                    FROM mysql_innodb_cluster_metadata.instances
+        const instanceResult = await adapter.executeQuery(`/* readonly */
+                    (SELECT COUNT(*) as count
+                    FROM mysql_innodb_cluster_metadata.instances)
                 `);
 
         // Get router count
-        const routerResult = await adapter.executeQuery(`
-                    SELECT COUNT(*) as count
-                    FROM mysql_innodb_cluster_metadata.routers
+        const routerResult = await adapter.executeQuery(`/* readonly */
+                    (SELECT COUNT(*) as count
+                    FROM mysql_innodb_cluster_metadata.routers)
                 `);
 
         // Compute status and topology
-        const grResult = await adapter.executeQuery(`
-            SELECT MEMBER_HOST as host, MEMBER_PORT as port, MEMBER_STATE as state, MEMBER_ROLE as role
-            FROM performance_schema.replication_group_members
+        const grResult = await adapter.executeQuery(`/* readonly */
+            (SELECT MEMBER_HOST as host, MEMBER_PORT as port, MEMBER_STATE as state, MEMBER_ROLE as role
+            FROM performance_schema.replication_group_members)
         `);
         const members = grResult.rows ?? [];
         const isOnline =
@@ -87,10 +86,10 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         // Summary mode: return only essential metadata
         if (summary) {
           const data = {
-            isInnoDBCluster: true,
+            isInnoDBCluster: clusterBasic?.["cluster_type"] === "gr",
             cluster: clusterBasic ?? null,
-            instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
-            routerCount: routerResult.rows?.[0]?.["count"] ?? 0,
+            instanceCount: Number(instanceResult.rows?.[0]?.["count"] ?? 0),
+            routerCount: Number(routerResult.rows?.[0]?.["count"] ?? 0),
             status,
             topology,
           };
@@ -98,7 +97,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Full mode: include all cluster metadata including options/attributes
-        const fullClusterResult = await adapter.executeQuery(`
+        const fullClusterResult = await adapter.executeQuery(`/* readonly */
                     SELECT *
                     FROM mysql_innodb_cluster_metadata.clusters
                     LIMIT 1
@@ -123,10 +122,10 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const data = {
-          isInnoDBCluster: true,
+          isInnoDBCluster: clusterBasic?.["cluster_type"] === "gr",
           cluster,
-          instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
-          routerCount: routerResult.rows?.[0]?.["count"] ?? 0,
+          instanceCount: Number(instanceResult.rows?.[0]?.["count"] ?? 0),
+          routerCount: Number(routerResult.rows?.[0]?.["count"] ?? 0),
           status,
           topology,
         };

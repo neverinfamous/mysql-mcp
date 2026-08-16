@@ -1,0 +1,135 @@
+services:
+  mysql-server:
+    image: mysql:9.7.1
+    container_name: example-basic-mysql
+    restart: unless-stopped
+    ports:
+      - "3316:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
+      MYSQL_DATABASE: testdb
+    volumes:
+      - mysql-data:/var/lib/mysql
+    stop_grace_period: 30s
+    mem_limit: 1024m
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --performance_schema=ON
+      --relay-log=mysql-server-relay-bin
+    labels:
+      com.datadoghq.ad.check_names: '["mysql"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "reported_hostname": "adamic-wsl2", "options": {"replication": false, "extra_status_metrics": true, "extra_innodb_metrics": true, "extra_performance_metrics": false}}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql","service":"mysql"}]'
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  example-basic-datadog:
+    image: gcr.io/datadoghq/agent:7.82.1
+    container_name: example-basic-datadog
+    restart: unless-stopped
+    pid: host
+    cgroup: host
+    stop_grace_period: 30s
+    mem_limit: 1536m
+    depends_on:
+      mysql-server:
+        condition: service_healthy
+    environment:
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_SITE=${DD_SITE:-datadoghq.com}
+      - DD_HOSTNAME=adamic-wsl2
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_APM_ENABLED=true
+      - DD_PROCESS_AGENT_ENABLED=true
+      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+      - DD_SYSTEM_PROBE_ENABLED=true
+      - DD_EXTRA_PERFORMANCE_METRICS=false
+      - DD_DOCKER_LABELS_AS_TAGS={"com.docker.compose.service":"service_name"}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - /sys/kernel/debug:/sys/kernel/debug
+      - /etc/os-release:/host/etc/os-release:ro
+      - ../../logs:/var/log/mysql-mcp:ro
+    security_opt:
+      - apparmor:unconfined
+    cap_add:
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - SYS_PTRACE
+      - NET_ADMIN
+      - NET_BROADCAST
+      - NET_RAW
+      - IPC_LOCK
+      - CHOWN
+    labels:
+      com.datadoghq.ad.logs: '[{"source":"example-basic-datadog","service":"example-basic-datadog"}]'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD-SHELL", "agent health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mysql-mcp-exporter:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: mysql-mcp-exporter:1.0.0
+    container_name: example-basic-exporter
+    restart: unless-stopped
+    depends_on:
+      mysql-server:
+        condition: service_healthy
+    command: >
+      --transport http --server-host 0.0.0.0 --tool-filter none 
+      --metrics-export prometheus --port 3000
+      --audit-log /var/log/mysql-mcp/exporter-audit.jsonl
+      --audit-reads --mysql mysql://root:${MYSQL_ROOT_PASSWORD:-mysqlmcp}@mysql-server:3306/testdb
+    tty: true
+    stdin_open: true
+    environment:
+      - ALLOWED_IO_ROOTS=/var/log/mysql-mcp
+      - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY:-<your_secure_encryption_key>}
+      - AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl
+      - LOG_LEVEL=warning
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../logs:/var/log/mysql-mcp
+    stop_grace_period: 30s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/metrics" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    labels:
+      com.datadoghq.ad.check_names: '["openmetrics"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": [".*"], "max_returned_metrics": 10000, "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "reported_hostname": "adamic-wsl2", "tags": ["service:mysql_mcp", "env:development"]}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql-mcp-exporter","service":"mysql-mcp-exporter"}]'
+
+volumes:
+  mysql-data:

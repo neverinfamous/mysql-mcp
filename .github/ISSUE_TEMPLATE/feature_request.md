@@ -5,13 +5,7 @@ title: "[FEATURE] "
 labels: enhancement
 ---
 
-## 💎 Value Proposition
-
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
+Thank you for suggesting a feature for MySQL MCP—the production-ready integration engineered for AI agents!
 
 ## ✨ Feature Description
 

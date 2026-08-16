@@ -1,12 +1,6 @@
-## 💎 Value Proposition
+Thank you for contributing to MySQL MCP—the production-ready integration engineered for AI agents!
 
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
-
-## Describe Your Changes
+## Detail Your Value-Adding Changes
 
 Provide a brief, clear description of the changes.
 
@@ -14,30 +8,38 @@ Provide a brief, clear description of the changes.
 
 Closes #
 
-## Select Type of Change
+## Categorize Your Contribution
 
 - [ ] Bug fix (non-breaking change that fixes an issue)
 - [ ] New feature (non-breaking change that adds functionality)
 - [ ] Breaking change (fix or feature changing existing functionality)
 - [ ] Documentation update
 
-## Detail How You Tested
+## Confirm Operational Integrity
 
 Detail the specific tests you ran. Ensure thorough validation.
 
-## Complete the Checklist
+## Verify Quality Standards
 
-- [ ] My code follows all project style guidelines (kebab-case filenames).
-- [ ] I performed a rigorous self-review of my code.
-- [ ] No `eslint-disable`, `@ts-ignore`, or `as any` used (always forbidden).
-- [ ] Source files are under ~500 lines (split if necessary).
-- [ ] Structured error responses used in tool handlers (never raw exceptions).
-- [ ] Dual-Schema Pattern enforced (with Zod schemas for all new tool inputs).
-- [ ] New tools added to tool filtering configuration.
-- [ ] Missing barrel exports added to `src/types/index.ts` if new types were created.
-- [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables.
-- [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`.
-- [ ] No `continue-on-error: true` in workflow files (excluding Agentic Workflow `.lock.yml` files).
-- [ ] All new and existing tests pass locally (`pnpm run check`).
-- [ ] I ensured marketing compliance (prominent Value Proposition, active voice, <15 words).
-- [ ] Docker readme <= 25,000 chars.
+- [ ] I have exported any new types in `src/types/index.ts`
+- [ ] I have not used `eslint-disable` (always forbidden)
+- [ ] I have not used `@ts-ignore`, `@ts-expect-error`, or `as` assertions (use `satisfies` or type guards).
+- [ ] I have ensured tool handlers return structured error responses, not raw exceptions
+- [ ] I have referenced `gh copilot` instead of the deprecated `github-copilot-cli`
+- [ ] I have split files approaching 500 lines
+- [ ] I have added new tools to the tool filtering configuration
+- [ ] I have added Zod schemas to all new tools
+- [ ] I have used kebab-case for new filenames (except for .github templates)
+- [ ] I have avoided `continue-on-error: true` in workflow files (except Agentic .lock.yml files).
+- [ ] I have run tests locally (e.g., via `pnpm run test` and `pnpm run test:e2e`)
+- [ ] I have enforced the Dual-Schema Pattern
+- [ ] I have ensured Docker instructions use `:latest` tag for user-facing pulls in `DOCKER_README.md` (infrastructure files must use explicit version tags) and use exact account names (Docker Hub uses 'writenotenow' and GitHub uses 'neverinfamous')
+- [ ] I have avoided using 'any' (used 'unknown' instead) and preferred union types over enums.
+- [ ] I have added a prominent Value Proposition at the top to the standard README.md and Wikis. I used active voice, benefit-driven headers, and concise sentences (<15 words).
+- [ ] I have not added any marketing tone to AGENT_README.md or SKILL.md files
+- [ ] I have ensured the Docker readme is <= 25,000 chars and dynamically updated test badges are preserved.
+- [ ] I have ensured table-querying tools return `{exists: false, table}` for nonexistent tables
+- [ ] I have correctly configured the file system sandbox to enforce `ALLOWED_IO_ROOTS` (if applicable)
+- [ ] I have ensured schema examples reflect the comprehensive toolset and current configuration flags.
+- [ ] I have ensured version-agnostic text (no exact tool/resource counts)
+- [ ] I have verified performance benchmark throughput (via pnpm run bench) for any hot-path modifications

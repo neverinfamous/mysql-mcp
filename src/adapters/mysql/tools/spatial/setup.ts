@@ -126,7 +126,7 @@ export function createSpatialCreateColumnTool(
           });
         }
         if (msg.includes("Duplicate column name")) {
-          const col = paramStr(params, "column") || paramStr(params, "col") || paramStr(params, "spatialColumn") || paramStr(params, "geometryColumn");
+          const col = paramStr(params, "column") || paramStr(params, "columnName") || paramStr(params, "col") || paramStr(params, "spatialColumn") || paramStr(params, "geometryColumn");
           const tbl = paramStr(params, "table") || paramStr(params, "tableName") || paramStr(params, "name");
           return withTokenEstimate({
             success: false, error: `Column '${col}' already exists on table '${tbl}'`, code: "QUERY_ERROR", category: "query", recoverable: false,
@@ -166,12 +166,9 @@ export function createSpatialCreateIndexTool(
           });
         }
 
-        // For qualified names (schema.table), split for information_schema queries
+        // For qualified names (schema.table), split for index naming
         const parts = table.split(".");
         const bareTable = parts.length > 1 ? parts[1] : parts[0];
-        const schemaClause =
-          parts.length > 1 ? "TABLE_SCHEMA = ?" : "TABLE_SCHEMA = DATABASE()";
-        const schemaParams = parts.length > 1 ? [parts[0]] : [];
 
         const idxName = indexName ?? `idx_spatial_${bareTable}_${column}`;
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(idxName)) {
@@ -182,15 +179,14 @@ export function createSpatialCreateIndexTool(
 
         // Check if column is nullable - SPATIAL indexes require NOT NULL
         const colInfo = await adapter.executeQuery(
-          `SELECT IS_NULLABLE, DATA_TYPE FROM information_schema.COLUMNS
-           WHERE ${schemaClause} AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
-          [...schemaParams, bareTable, column],
+          `/* write */ SHOW COLUMNS FROM ${escapeQualifiedTable(table)} WHERE Field = ?`,
+          [column],
         );
 
         const colRow = colInfo.rows?.[0];
         if (colRow) {
-          const isNullable = colRow["IS_NULLABLE"] === "YES";
-          const dataType = String(colRow["DATA_TYPE"]).toUpperCase();
+          const isNullable = colRow["Null"] === "YES";
+          const dataType = String(colRow["Type"]).toUpperCase();
           if (isNullable) {
             return withTokenEstimate({
               success: false, code: "QUERY_ERROR", category: "query", recoverable: false, error: `Cannot create SPATIAL index on nullable column '${column}'. ` +
@@ -202,15 +198,13 @@ export function createSpatialCreateIndexTool(
 
         // Check if a SPATIAL index already exists on this column (any name)
         const existingIdx = await adapter.executeQuery(
-          `SELECT INDEX_NAME FROM information_schema.STATISTICS
-           WHERE ${schemaClause} AND TABLE_NAME = ? AND COLUMN_NAME = ? AND INDEX_TYPE = 'SPATIAL'
-           LIMIT 1`,
-          [...schemaParams, bareTable, column],
+          `/* write */ SHOW INDEX FROM ${escapeQualifiedTable(table)} WHERE Column_name = ? AND Index_type = 'SPATIAL'`,
+          [column],
         );
 
         const existingRow = existingIdx.rows?.[0];
         if (existingRow) {
-          const existingName = String(existingRow["INDEX_NAME"]);
+          const existingName = String(existingRow["Key_name"]);
           return withTokenEstimate({
             success: false, error: `Spatial index '${existingName}' already exists on column '${column}' of table '${table}'`, code: "QUERY_ERROR", category: "query", recoverable: false,
           });
@@ -245,7 +239,7 @@ export function createSpatialCreateIndexTool(
           msg.includes("Key column") &&
           (msg.includes("does not exist in table") || msg.includes("doesn't exist in table"))
         ) {
-          const col = paramStr(params, "column") || paramStr(params, "col") || paramStr(params, "spatialColumn") || paramStr(params, "geometryColumn") || paramStr(params, "columns");
+          const col = paramStr(params, "column") || paramStr(params, "columnName") || paramStr(params, "col") || paramStr(params, "spatialColumn") || paramStr(params, "geometryColumn") || paramStr(params, "columns");
           return withTokenEstimate({
             success: false, error: `Column '${col}' does not exist on table '${tbl}'`, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false,
           });
@@ -254,7 +248,7 @@ export function createSpatialCreateIndexTool(
           return formatHandlerErrorResponse(error);
         }
         const idxFromParams = paramStr(params, "indexName");
-        const colForIdx = paramStr(params, "column") || paramStr(params, "col") || paramStr(params, "spatialColumn") || paramStr(params, "geometryColumn") || paramStr(params, "columns");
+        const colForIdx = paramStr(params, "column") || paramStr(params, "columnName") || paramStr(params, "col") || paramStr(params, "spatialColumn") || paramStr(params, "geometryColumn") || paramStr(params, "columns");
         const idx =
           idxFromParams || `idx_spatial_${tbl}_${colForIdx}`;
         if (msg.includes("Duplicate key name")) {

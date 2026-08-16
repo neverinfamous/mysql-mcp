@@ -102,7 +102,9 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({ user: "root" }, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Connect error");
+      expect(result.error).toBe(
+        "[ERROR] [security] [UNKNOWN_ERROR] Connect error (context: mysql_security_audit)",
+      );
     });
 
     it("should include error field in access-denied response", async () => {
@@ -112,14 +114,14 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({ user: "root" }, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Audit logging is not enabled");
+      expect(result.error).toContain("is not installed or enabled");
     });
   });
 
   describe("mysql_security_firewall_rules", () => {
     it("should list firewall rules", async () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ PLUGIN_NAME: "MYSQL_FIREWALL", PLUGIN_STATUS: "ACTIVE" }])
+        createMockQueryResult([{ Name: "MYSQL_FIREWALL", Status: "ACTIVE" }])
       );
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
@@ -147,7 +149,7 @@ describe("Security Tools", () => {
 
     it("should filter by mode", async () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ PLUGIN_NAME: "MYSQL_FIREWALL", PLUGIN_STATUS: "ACTIVE" }])
+        createMockQueryResult([{ Name: "MYSQL_FIREWALL", Status: "ACTIVE" }])
       );
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
@@ -170,7 +172,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Firewall tables not accessible");
+      expect(result.error).toContain("is not installed or enabled");
     });
   });
 
@@ -178,7 +180,7 @@ describe("Security Tools", () => {
     it("should return installed status if plugin found", async () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
-          { PLUGIN_NAME: "mysql_firewall", PLUGIN_STATUS: "ACTIVE" },
+          { Name: "mysql_firewall", Status: "ACTIVE" },
         ]),
       );
 
@@ -221,7 +223,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Firewall plugin check failed");
+      expect(result.error).toContain("DB Error");
     });
   });
 
@@ -258,7 +260,7 @@ describe("Security Tools", () => {
 
       // SSN
       const resSSN = (await tool?.handler(
-        { value: "123456789", type: "ssn" },
+        { value: "123-45-6789", type: "ssn" },
         mockContext,
       ));
       expect(resSSN.data.masked).toBe("***-**-6789");
@@ -294,7 +296,7 @@ describe("Security Tools", () => {
         mockContext,
       ));
 
-      expect(result.data.masked).toBe("1234********3456");
+      expect(result.data.masked).toBe("1234-****-****-3456");
     });
 
     it("should fully mask short credit card values with warning", async () => {
@@ -374,7 +376,7 @@ describe("Security Tools", () => {
       expect(result.data.strength).toBe(100);
       expect(result.data.interpretation).toBe("Very Strong");
       expect(result.data.policy).toHaveProperty(
-        "validate_password.policy",
+        ["validate_password.policy"],
         "STRONG",
       );
     });
@@ -480,7 +482,7 @@ describe("Security Tools", () => {
       ));
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("failed");
+      expect(result.error).toContain("is not installed or enabled");
     });
   });
 
@@ -548,10 +550,10 @@ describe("Security Tools", () => {
     it("should return comprehensive user report", async () => {
       // mysql.user
       // P154: User existence pre-check
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([{ User: "root" }]),
       );
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
             User: "root",
@@ -561,8 +563,10 @@ describe("Security Tools", () => {
           },
         ]),
       );
+      // Role edges
+      mockAdapter.rawQuery.mockResolvedValueOnce(createMockQueryResult([]));
       // SHOW GRANTS
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
             "Grants for root@localhost":
@@ -570,8 +574,6 @@ describe("Security Tools", () => {
           },
         ]),
       );
-      // Role edges
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find(
         (t) => t.name === "mysql_security_user_privileges",
@@ -585,17 +587,17 @@ describe("Security Tools", () => {
 
     it("should include roles if requested", async () => {
       // P154: User existence pre-check
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([{ User: "root" }]),
       );
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([{ User: "root", Host: "localhost" }]),
       );
-      mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ Grants: "GRANT..." }]),
+      mockAdapter.rawQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ FROM_USER: "app_role", FROM_HOST: "%", TO_USER: "root", TO_HOST: "localhost" }]),
       );
-      mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ FROM_USER: "app_role", FROM_HOST: "%" }]),
+      mockAdapter.rawQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ Grants: "GRANT..." }]),
       );
 
       const tool = tools.find(
@@ -611,26 +613,26 @@ describe("Security Tools", () => {
 
     it("should filter by specific host", async () => {
       // P154 pre-check
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([{ User: "root" }]),
       );
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find(
         (t) => t.name === "mysql_security_user_privileges",
       );
       await tool?.handler({ user: "root", host: "127.0.0.1" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[1][0];
-      expect(call).toContain("Host = ?");
+      const call = mockAdapter.rawQuery.mock.calls[1][0];
+      expect(call).toContain("Host = '127.0.0.1'");
     });
 
     it("should return condensed summary when summary=true", async () => {
       // P154 pre-check
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([{ User: "root" }]),
       );
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
             User: "root",
@@ -640,16 +642,16 @@ describe("Security Tools", () => {
           },
         ]),
       );
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ FROM_USER: "dba_role", FROM_HOST: "%", TO_USER: "root", TO_HOST: "localhost" }]),
+      );
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
             "Grants for root@localhost":
               "GRANT ALL PRIVILEGES ON *.* TO `root`@`localhost` WITH GRANT OPTION",
           },
         ]),
-      );
-      mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ FROM_USER: "dba_role", FROM_HOST: "%" }]),
       );
 
       const tool = tools.find(
@@ -671,7 +673,7 @@ describe("Security Tools", () => {
 
     it("should return ErrorResponse for nonexistent user (P154)", async () => {
       // P154 pre-check returns empty
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find(
         (t) => t.name === "mysql_security_user_privileges",
@@ -690,11 +692,11 @@ describe("Security Tools", () => {
   describe("mysql_security_sensitive_tables", () => {
     it("should find sensitive columns based on patterns", async () => {
       // P154: Schema existence pre-check
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([{ SCHEMA_NAME: "test" }]),
       );
       // COLUMNS query
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
             tableName: "users",
@@ -720,7 +722,7 @@ describe("Security Tools", () => {
 
     it("should return ErrorResponse for nonexistent schema (P154)", async () => {
       // P154 pre-check returns empty
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find(
         (t) => t.name === "mysql_security_sensitive_tables",
@@ -741,23 +743,22 @@ describe("Security Tools", () => {
       // Keyring
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
-          { PLUGIN_NAME: "keyring_file", PLUGIN_STATUS: "ACTIVE" },
+          { Name: "keyring_file", Status: "ACTIVE" },
         ]),
       );
       // Tablespaces
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ NAME: "mysql", ENCRYPTION: "Y" }]),
       );
+      // Tablespaces COUNT
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ cnt: 1 }]),
+      );
       // Variables
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
           { Variable_name: "innodb_encryption_threads", Value: "4" },
-        ]),
-      );
-      // InnoDB Vars
-      mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([
-          { Variable_name: "innodb_redo_log_encrypt", Value: "ON" },
+          { Variable_name: "innodb_redo_log_encrypt", Value: "ON" }
         ]),
       );
 
@@ -772,6 +773,7 @@ describe("Security Tools", () => {
     });
 
     it("should handle missing keyring", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
@@ -822,6 +824,10 @@ describe("Security Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce({
         rows: undefined,
       });
+      // Tablespaces COUNT
+      mockAdapter.executeQuery.mockResolvedValueOnce({
+        rows: undefined,
+      });
       // Variables with invalid names
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ Variable_name: 123, Value: "invalid" }]),
@@ -850,7 +856,9 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Access denied");
+      expect(result.error).toBe(
+        "[ERROR] [security] [UNKNOWN_ERROR] Access denied (context: mysql_security_ssl_status)",
+      );
     });
 
     it("mysql_security_encryption_status should return structured error on query failure", async () => {
@@ -864,11 +872,13 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Access denied");
+      expect(result.error).toBe(
+        "[ERROR] [security] [UNKNOWN_ERROR] Access denied (context: mysql_security_encryption_status)",
+      );
     });
 
     it("mysql_security_user_privileges should return structured error on query failure", async () => {
-      mockAdapter.executeQuery.mockRejectedValue(
+      mockAdapter.rawQuery.mockRejectedValueOnce(
         new Error("Query failed: Access denied to mysql.user"),
       );
 
@@ -878,11 +888,13 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({ user: "root" }, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Access denied to mysql.user");
+      expect(result.error).toBe(
+        "[ERROR] [security] [UNKNOWN_ERROR] Access denied to mysql.user (context: mysql_security_user_privileges)",
+      );
     });
 
     it("mysql_security_sensitive_tables should return structured error on query failure", async () => {
-      mockAdapter.executeQuery.mockRejectedValue(
+      mockAdapter.rawQuery.mockRejectedValueOnce(
         new Error("Execute failed: Connection lost"),
       );
 
@@ -892,16 +904,18 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({ schema: "test" }, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Connection lost");
+      expect(result.error).toBe(
+        "[ERROR] [security] [CONNECTION_ERROR] Connection lost (context: mysql_security_sensitive_tables)",
+      );
     });
 
     it("mysql_security_user_privileges should use backtick-quoted identifiers in SHOW GRANTS", async () => {
       // P154 pre-check
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([{ User: "test_user" }]),
       );
       // Setup: one user returned
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
             User: "test_user",
@@ -912,7 +926,7 @@ describe("Security Tools", () => {
         ]),
       );
       // SHOW GRANTS
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
             "Grants for test_user@localhost":
@@ -921,15 +935,15 @@ describe("Security Tools", () => {
         ]),
       );
       // Role edges
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+      mockAdapter.rawQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find(
         (t) => t.name === "mysql_security_user_privileges",
       );
       await tool?.handler({ user: "test_user" }, mockContext);
 
-      // The SHOW GRANTS call is the third call (index 2)
-      const grantsCall = mockAdapter.executeQuery.mock.calls[2][0];
+      // The SHOW GRANTS call is the fourth call (index 3)
+      const grantsCall = mockAdapter.rawQuery.mock.calls[3][0];
       expect(grantsCall).toContain("`test_user`@`localhost`");
       expect(grantsCall).not.toContain("'test_user'@'localhost'");
     });

@@ -50,7 +50,7 @@ proc.stdout.on("data", (chunk) => {
       const msg = JSON.parse(trimmed);
 
       // Handle notifications
-      if (msg.method === "notifications/progress") {
+      if (msg.method === "notifications/progress" || msg.method === "$/progress") {
         const isStream =
           msg.params.progressToken === "test-token-mysql_read_query";
         const prefix = isStream ? "[STREAM] Chunk" : "[PROGRESS] Step";

@@ -1,0 +1,277 @@
+{
+  "description": "Isolated log streams and diagnostics. Consumes high memory by design.",
+  "layout_type": "ordered",
+  "notify_list": [],
+  "pause_auto_refresh": null,
+  "reflow_type": "fixed",
+  "template_variables": [
+    {
+      "available_values": [],
+      "default": "*",
+      "name": "tool",
+      "prefix": "tool"
+    }
+  ],
+  "title": "datadog-logs.json",
+  "widgets": [
+    {
+      "definition": {
+        "description": "Note: This captures all audited tools executed by the AI agent.",
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "@tool",
+                "width": "auto"
+              },
+              {
+                "field": "@category",
+                "width": "auto"
+              },
+              {
+                "field": "@success",
+                "width": "compact"
+              },
+              {
+                "field": "@durationMs",
+                "width": "compact"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "indexes": [],
+              "query_string": "source:mysql_mcp log_type:mcp_audit",
+              "sort": {
+                "column": "timestamp",
+                "order": "desc"
+              },
+              "storage": "hot"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "MySQL-MCP Audit Log",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "list_stream"
+      },
+      "id": 8706701828007376,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "status_line",
+                "width": "auto"
+              },
+              {
+                "field": "timestamp",
+                "width": "auto"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "query_string": "source:mysqlrouter"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "MySQL Router Logs",
+        "type": "list_stream"
+      },
+      "id": 8829397236877308,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 4,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
+        "description": "Note: The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with theÃ‚Â `--audit-reads`Ã‚Â flag.\"",
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "status_line",
+                "width": "auto"
+              },
+              {
+                "field": "timestamp",
+                "width": "auto"
+              },
+              {
+                "field": "host",
+                "width": "auto"
+              },
+              {
+                "field": "service",
+                "width": "auto"
+              },
+              {
+                "field": "message",
+                "width": "auto"
+              },
+              {
+                "field": "content",
+                "width": "compact"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "indexes": [],
+              "query_string": "source:mysql_mcp status:error OR log_type:agent_issues",
+              "sort": {
+                "column": "timestamp",
+                "order": "desc"
+              },
+              "storage": "hot"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "MySQL-MCP Error Log",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "list_stream"
+      },
+      "id": 2516024086793335,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 8,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
+        "description": "Note: This captures operational stdout/stderr logs from the mysql-mcp-exporter container.",
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "host",
+                "width": "compact"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "indexes": [],
+              "query_string": "service:mysql-mcp-exporter OR container_name:mysql-mcp-exporter",
+              "sort": {
+                "column": "timestamp",
+                "order": "desc"
+              },
+              "storage": "hot"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "MySQL-MCP Exporter Logs",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "list_stream"
+      },
+      "id": 8706701828007377,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 0,
+        "y": 4
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "status_line",
+                "width": "auto"
+              },
+              {
+                "field": "timestamp",
+                "width": "auto"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "query_string": "source:proxysql (status:error OR status:warn OR \"error\" OR \"failed\")"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "ProxySQL Error Logs",
+        "type": "list_stream"
+      },
+      "id": 7992432021567240,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 4,
+        "y": 4
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "status_line",
+                "width": "auto"
+              },
+              {
+                "field": "timestamp",
+                "width": "auto"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "query_string": "container_name:datadog-unified (status:error OR status:warn)"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "Datadog Agent Logs (Warnings \u0026 Errors)",
+        "type": "list_stream"
+      },
+      "id": 1785645640121,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 8,
+        "y": 4
+      }
+    }
+  ]
+}

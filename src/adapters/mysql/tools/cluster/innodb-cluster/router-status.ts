@@ -10,11 +10,10 @@ import {
   withTokenEstimate,
 } from "../../core/error-helpers.js";
 import {
-  SummarySchemaBase,
   ClusterRouterStatusOutputSchema,
+  SummarySchemaBase,
 } from "../../../schemas/cluster.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { SummarySchema } from "./schemas.js";
 
 export function createClusterRouterStatusTool(
   adapter: MySQLAdapter,
@@ -32,14 +31,21 @@ export function createClusterRouterStatusTool(
       // Compute staleness: null lastCheckIn or >1 hour old
       const computeStale = (lastCheckIn: unknown): boolean => {
         if (lastCheckIn == null) return true;
-        const checkInTime = new Date(typeof lastCheckIn === "string" || typeof lastCheckIn === "number" ? lastCheckIn : 0).getTime();
+        let checkInTime: number;
+        if (lastCheckIn instanceof Date) {
+          checkInTime = lastCheckIn.getTime();
+        } else if (typeof lastCheckIn === "string" || typeof lastCheckIn === "number") {
+          checkInTime = new Date(lastCheckIn).getTime();
+        } else {
+          return true;
+        }
         if (isNaN(checkInTime)) return true;
         return Date.now() - checkInTime > 3_600_000; // 1 hour
       };
 
       let summary: boolean | undefined;
       try {
-        ({ summary } = SummarySchema.parse(params));
+        ({ summary } = SummarySchemaBase.parse(params));
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -66,12 +72,15 @@ export function createClusterRouterStatusTool(
           }));
           const staleCount = routers.filter((r) => r.isStale).length;
 
-          const data = {
-            routers,
-            count: routers.length,
-            staleCount,
-          };
-          return withTokenEstimate({ success: true, data });
+          const parsed = ClusterRouterStatusOutputSchema.parse({
+            success: true,
+            data: {
+              routers,
+              count: routers.length,
+              staleCount,
+            }
+          });
+          return withTokenEstimate(parsed);
         }
 
         // Full mode: include attributes but strip bulky Configuration blob
@@ -107,12 +116,15 @@ export function createClusterRouterStatusTool(
         });
         const staleCount = routers.filter((r) => r.isStale).length;
 
-        const data = {
-          routers,
-          count: routers.length,
-          staleCount,
-        };
-        return withTokenEstimate({ success: true, data });
+        const parsed = ClusterRouterStatusOutputSchema.parse({
+          success: true,
+          data: {
+            routers,
+            count: routers.length,
+            staleCount,
+          }
+        });
+        return withTokenEstimate(parsed);
       } catch (error) {
         const baseError = formatMysqlError(error);
         return formatHandlerErrorResponse(

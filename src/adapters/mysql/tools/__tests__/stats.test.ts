@@ -6,12 +6,10 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getStatsTools } from "../stats/index.js";
-import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../__tests__/mocks/index.js";
 
 describe("getStatsTools", () => {
   let tools: ReturnType<typeof getStatsTools>;
@@ -89,12 +87,12 @@ describe("Handler Execution", () => {
             range: 99,
             stddev: 10,
             variance: 100,
-            sum: 5050,
-          },
+            sum: 5050 },
         ]);
       });
 
-      const tool = tools.find((t) => t.name === "mysql_stats_descriptive")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_descriptive");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { table: "orders", column: "total" },
         mockContext,
@@ -120,7 +118,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ count: 10 }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_stats_descriptive")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_descriptive");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { table: "orders", column: "total", where: 'status = "completed"' },
         mockContext,
@@ -149,7 +148,8 @@ describe("Handler Execution", () => {
         return createMockQueryResult([]);
       });
 
-      const tool = tools.find((t) => t.name === "mysql_stats_descriptive")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_descriptive");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { table: "orders", column: "total" },
         mockContext,
@@ -170,7 +170,8 @@ describe("Handler Execution", () => {
         return createMockQueryResult([{ cnt: 100 }]);
       });
 
-      const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_percentiles");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { table: "orders", column: "total" },
         mockContext,
@@ -190,13 +191,13 @@ describe("Handler Execution", () => {
         return createMockQueryResult([{ cnt: 100 }]);
       });
 
-      const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_percentiles");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "orders",
           column: "total",
-          percentiles: [10, 50, 90, 99],
-        },
+          percentiles: [10, 50, 90, 99] },
         mockContext,
       );
 
@@ -226,19 +227,18 @@ describe("Handler Execution", () => {
               mean_x: 50,
               mean_y: 60,
               std_x: 10,
-              std_y: 12,
-            },
+              std_y: 12 },
           ]);
         },
       );
 
-      const tool = tools.find((t) => t.name === "mysql_stats_correlation")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_correlation");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "data",
           column1: "height",
-          column2: "weight",
-        },
+          column2: "weight" },
         mockContext,
       );
 
@@ -260,19 +260,19 @@ describe("Handler Execution", () => {
             return createMockQueryResult([{ DATA_TYPE: "int" }]);
           }
           if (typeof query === "string" && query.includes("min_val")) {
-            return createMockQueryResult([{ min_val: 0, max_val: 100 }]);
+            return createMockQueryResult([{ min_val: 0, max_val: 100, total_count: 10 }]);
           }
           return createMockQueryResult([{ bucket: 0, count: 10 }]);
         },
       );
 
-      const tool = tools.find((t) => t.name === "mysql_stats_distribution")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_distribution");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "orders",
           column: "amount",
-          buckets: 10,
-        },
+          buckets: 10 },
         mockContext,
       );
 
@@ -283,18 +283,24 @@ describe("Handler Execution", () => {
 
   describe("mysql_stats_time_series", () => {
     it("should compute time series with moving average", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ period: "2024-01", value: 100 }]),
-      );
+      mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("information_schema.COLUMNS")) {
+          return createMockQueryResult([
+            { COLUMN_NAME: "sale_date", DATA_TYPE: "date" },
+            { COLUMN_NAME: "amount", DATA_TYPE: "decimal" },
+          ]);
+        }
+        return createMockQueryResult([{ period: "2024-01", value: 100 }]);
+      });
 
-      const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_time_series");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "sales",
           timeColumn: "sale_date",
           valueColumn: "amount",
-          interval: "month",
-        },
+          interval: "month" },
         mockContext,
       );
 
@@ -327,19 +333,18 @@ describe("Handler Execution", () => {
               sum_y: 6000,
               sum_xy: 310000,
               sum_x2: 260000,
-              sum_y2: 370000,
-            },
+              sum_y2: 370000 },
           ]);
         },
       );
 
-      const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_regression");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "data",
           xColumn: "x",
-          yColumn: "y",
-        },
+          yColumn: "y" },
         mockContext,
       );
 
@@ -355,12 +360,12 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ id: 1 }, { id: 5 }, { id: 10 }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_stats_sampling")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_sampling");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "users",
-          sampleSize: 100,
-        },
+          sampleSize: 100 },
         mockContext,
       );
 
@@ -373,13 +378,13 @@ describe("Handler Execution", () => {
     it("should accept specific columns", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_stats_sampling")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_sampling");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "users",
           sampleSize: 10,
-          columns: ["id", "name"],
-        },
+          columns: ["id", "name"] },
         mockContext,
       );
 
@@ -393,12 +398,12 @@ describe("Handler Execution", () => {
     it("should query histogram data", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_histogram");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "orders",
-          column: "total",
-        },
+          column: "total" },
         mockContext,
       );
 
@@ -411,14 +416,14 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ TABLE_NAME: "orders" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_histogram");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "orders",
           column: "total",
           update: true,
-          buckets: 32,
-        },
+          buckets: 32 },
         mockContext,
       );
 
@@ -434,7 +439,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ TABLE_NAME: "orders" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_histogram");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { table: "orders", column: "total", update: true, buckets: 2000 },
         mockContext,
@@ -459,17 +465,16 @@ describe("Handler Execution", () => {
             schemaName: "test",
             tableName: "orders",
             columnName: "total",
-            histogramType: "singleton",
-          },
+            histogramType: "singleton" },
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_histogram");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "orders",
-          column: "total",
-        },
+          column: "total" },
         mockContext,
       )) as { data: { exists: boolean } };
 
@@ -492,12 +497,12 @@ describe("Stats Validation Errors", () => {
 
   describe("mysql_stats_descriptive", () => {
     it("should reject invalid table name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_descriptive")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_descriptive");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "123-invalid",
-          column: "total",
-        },
+          column: "total" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -506,12 +511,12 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should reject invalid column name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_descriptive")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_descriptive");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "orders",
-          column: "123-bad",
-        },
+          column: "123-bad" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -522,12 +527,12 @@ describe("Stats Validation Errors", () => {
 
   describe("mysql_stats_percentiles", () => {
     it("should reject invalid table name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_percentiles");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "123-invalid",
-          column: "amount",
-        },
+          column: "amount" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -536,12 +541,12 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should reject invalid column name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_percentiles");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "orders",
-          column: "bad-col",
-        },
+          column: "bad-col" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -557,12 +562,12 @@ describe("Stats Validation Errors", () => {
         return createMockQueryResult([{ cnt: 0 }]);
       });
 
-      const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_percentiles");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "empty_table",
-          column: "value",
-        },
+          column: "value" },
         mockContext,
       )) as { data: { totalCount: number } };
 
@@ -572,13 +577,13 @@ describe("Stats Validation Errors", () => {
 
   describe("mysql_stats_correlation", () => {
     it("should reject invalid table name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_correlation")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_correlation");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "123-bad",
           column1: "x",
-          column2: "y",
-        },
+          column2: "y" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -587,13 +592,13 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should reject invalid column names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_correlation")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_correlation");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "data",
           column1: "bad-col",
-          column2: "y",
-        },
+          column2: "y" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -604,12 +609,12 @@ describe("Stats Validation Errors", () => {
 
   describe("mysql_stats_distribution", () => {
     it("should reject invalid table name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_distribution")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_distribution");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "123-bad",
-          column: "amount",
-        },
+          column: "amount" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -618,12 +623,12 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should reject invalid column name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_distribution")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_distribution");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "orders",
-          column: "bad-col",
-        },
+          column: "bad-col" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -641,18 +646,18 @@ describe("Stats Validation Errors", () => {
             return createMockQueryResult([{ DATA_TYPE: "int" }]);
           }
           if (typeof query === "string" && query.includes("min_val")) {
-            return createMockQueryResult([{ min_val: 50, max_val: 50 }]);
+            return createMockQueryResult([{ min_val: 50, max_val: 50, total_count: 10 }]);
           }
           return createMockQueryResult([]);
         },
       );
 
-      const tool = tools.find((t) => t.name === "mysql_stats_distribution")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_distribution");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "constant",
-          column: "val",
-        },
+          column: "val" },
         mockContext,
       )) as { data: { bucketCount: number } };
 
@@ -662,13 +667,13 @@ describe("Stats Validation Errors", () => {
 
   describe("mysql_stats_time_series", () => {
     it("should reject invalid table name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_time_series");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "123-bad",
           valueColumn: "amount",
-          timeColumn: "created_at",
-        },
+          timeColumn: "created_at" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -677,13 +682,13 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should reject invalid column names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_time_series");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "sales",
           valueColumn: "bad-col",
-          timeColumn: "created_at",
-        },
+          timeColumn: "created_at" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -692,34 +697,42 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should use different interval formats", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("information_schema.COLUMNS")) {
+          return createMockQueryResult([
+            { COLUMN_NAME: "ts", DATA_TYPE: "datetime" },
+            { COLUMN_NAME: "value", DATA_TYPE: "int" },
+          ]);
+        }
+        return createMockQueryResult([]);
+      });
 
-      const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_time_series");
+      if (!tool) throw new Error('Tool not found');;
 
       await tool.handler(
         {
           table: "metrics",
           valueColumn: "value",
           timeColumn: "ts",
-          interval: "minute",
-        },
+          interval: "minute" },
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("%H:%i");
+      const calls = mockAdapter.executeQuery.mock.calls.map(c => c[0] as string);
+      expect(calls.some(c => c.includes("%H:%i"))).toBe(true);
     });
   });
 
   describe("mysql_stats_regression", () => {
     it("should reject invalid table name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_regression");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "123-bad",
           xColumn: "x",
-          yColumn: "y",
-        },
+          yColumn: "y" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -728,13 +741,13 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should reject invalid column names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_regression");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "data",
           xColumn: "bad-x",
-          yColumn: "y",
-        },
+          yColumn: "y" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -760,19 +773,18 @@ describe("Stats Validation Errors", () => {
             {
               n: 1,
               sum_x: 1,
-              sum_y: 1,
-            },
+              sum_y: 1 },
           ]);
         },
       );
 
-      const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_regression");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "small_data",
           xColumn: "x",
-          yColumn: "y",
-        },
+          yColumn: "y" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -783,12 +795,12 @@ describe("Stats Validation Errors", () => {
 
   describe("mysql_stats_sampling", () => {
     it("should reject invalid table name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_sampling")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_sampling");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "123-bad",
-          sampleSize: 10,
-        },
+          sampleSize: 10 },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -797,13 +809,13 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should reject invalid column names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_sampling")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_sampling");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "users",
           sampleSize: 10,
-          columns: ["valid", "bad-column"],
-        },
+          columns: ["valid", "bad-column"] },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -814,13 +826,13 @@ describe("Stats Validation Errors", () => {
     it("should use seed for reproducibility", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_stats_sampling")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_sampling");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "users",
           sampleSize: 10,
-          seed: 42,
-        },
+          seed: 42 },
         mockContext,
       );
 
@@ -831,12 +843,12 @@ describe("Stats Validation Errors", () => {
 
   describe("mysql_stats_histogram", () => {
     it("should reject invalid table name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_histogram");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "123-bad",
-          column: "amount",
-        },
+          column: "amount" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -845,12 +857,12 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should reject invalid column name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
+      const tool = tools.find((t) => t.name === "mysql_stats_histogram");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "orders",
-          column: "bad-col",
-        },
+          column: "bad-col" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -879,7 +891,8 @@ describe("Stats Nonexistent Table Handling", () => {
   it("mysql_stats_descriptive returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
-    const tool = tools.find((t) => t.name === "mysql_stats_descriptive")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_descriptive");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler(
       { table: "nonexistent", column: "val" },
       mockContext,
@@ -892,7 +905,8 @@ describe("Stats Nonexistent Table Handling", () => {
   it("mysql_stats_percentiles returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
-    const tool = tools.find((t) => t.name === "mysql_stats_percentiles")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_percentiles");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler(
       { table: "nonexistent", column: "val" },
       mockContext,
@@ -905,7 +919,8 @@ describe("Stats Nonexistent Table Handling", () => {
   it("mysql_stats_correlation returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
-    const tool = tools.find((t) => t.name === "mysql_stats_correlation")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_correlation");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler(
       { table: "nonexistent", column1: "x", column2: "y" },
       mockContext,
@@ -918,7 +933,8 @@ describe("Stats Nonexistent Table Handling", () => {
   it("mysql_stats_distribution returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
-    const tool = tools.find((t) => t.name === "mysql_stats_distribution")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_distribution");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler(
       { table: "nonexistent", column: "val" },
       mockContext,
@@ -931,13 +947,13 @@ describe("Stats Nonexistent Table Handling", () => {
   it("mysql_stats_time_series returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
-    const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_time_series");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler(
       {
         table: "nonexistent",
         valueColumn: "val",
-        timeColumn: "ts",
-      },
+        timeColumn: "ts" },
       mockContext,
     )) as { success: boolean; error: string };
 
@@ -948,7 +964,8 @@ describe("Stats Nonexistent Table Handling", () => {
   it("mysql_stats_regression returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
-    const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_regression");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler(
       { table: "nonexistent", xColumn: "x", yColumn: "y" },
       mockContext,
@@ -961,7 +978,8 @@ describe("Stats Nonexistent Table Handling", () => {
   it("mysql_stats_sampling returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
-    const tool = tools.find((t) => t.name === "mysql_stats_sampling")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_sampling");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler(
       { table: "nonexistent", sampleSize: 10 },
       mockContext,
@@ -974,7 +992,8 @@ describe("Stats Nonexistent Table Handling", () => {
   it("mysql_stats_histogram returns success:false for nonexistent table", async () => {
     mockAdapter.executeQuery.mockRejectedValue(tableDoesNotExistError);
 
-    const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_histogram");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler(
       { table: "nonexistent", column: "val" },
       mockContext,
@@ -989,7 +1008,8 @@ describe("Stats Nonexistent Table Handling", () => {
       new Error("Unknown column 'bad_col' in 'field list'"),
     );
 
-    const tool = tools.find((t) => t.name === "mysql_stats_descriptive")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_descriptive");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler(
       { table: "orders", column: "bad_col" },
       mockContext,
@@ -1003,23 +1023,33 @@ describe("Stats Nonexistent Table Handling", () => {
 describe("Stats Zod Validation Guards", () => {
   let tools: ReturnType<typeof getStatsTools>;
   let mockContext: ReturnType<typeof createMockRequestContext>;
+  let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    const mockAdapter = createMockMySQLAdapter();
+    mockAdapter = createMockMySQLAdapter();
     tools = getStatsTools(mockAdapter);
     mockContext = createMockRequestContext();
+    mockAdapter.executeQuery.mockImplementation(async (query) => {
+      if (query.includes("information_schema.COLUMNS")) {
+        return createMockQueryResult([
+          { COLUMN_NAME: "amount", DATA_TYPE: "decimal" },
+          { COLUMN_NAME: "created_at", DATA_TYPE: "datetime" },
+        ]);
+      }
+      return createMockQueryResult([]);
+    });
   });
 
   it("mysql_stats_time_series returns structured error for invalid interval", async () => {
-    const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_time_series");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler(
       {
         table: "sales",
         valueColumn: "amount",
         timeColumn: "created_at",
-        interval: "invalid_interval",
-      },
+        interval: "invalid_interval" },
       mockContext,
     )) as { success: boolean; error: string };
 
@@ -1029,14 +1059,14 @@ describe("Stats Zod Validation Guards", () => {
   });
 
   it("mysql_stats_time_series returns structured error for invalid aggregation", async () => {
-    const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_time_series");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler(
       {
         table: "sales",
         valueColumn: "amount",
         timeColumn: "created_at",
-        aggregation: "invalid_agg",
-      },
+        aggregation: "invalid_agg" },
       mockContext,
     )) as { success: boolean; error: string };
 
@@ -1046,12 +1076,12 @@ describe("Stats Zod Validation Guards", () => {
   });
 
   it("mysql_stats_sampling returns structured error for negative sampleSize", async () => {
-    const tool = tools.find((t) => t.name === "mysql_stats_sampling")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_sampling");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler(
       {
         table: "users",
-        sampleSize: -1,
-      },
+        sampleSize: -1 },
       mockContext,
     )) as { success: boolean; error: string };
 
@@ -1060,7 +1090,8 @@ describe("Stats Zod Validation Guards", () => {
   });
 
   it("mysql_stats_correlation returns structured error for missing required fields", async () => {
-    const tool = tools.find((t) => t.name === "mysql_stats_correlation")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_correlation");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler({}, mockContext)) as {
       success: boolean;
       error: string;
@@ -1071,7 +1102,8 @@ describe("Stats Zod Validation Guards", () => {
   });
 
   it("mysql_stats_regression returns structured error for missing required fields", async () => {
-    const tool = tools.find((t) => t.name === "mysql_stats_regression")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_regression");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler({}, mockContext)) as {
       success: boolean;
       error: string;
@@ -1082,7 +1114,8 @@ describe("Stats Zod Validation Guards", () => {
   });
 
   it("mysql_stats_histogram returns structured error for missing required fields", async () => {
-    const tool = tools.find((t) => t.name === "mysql_stats_histogram")!;
+    const tool = tools.find((t) => t.name === "mysql_stats_histogram");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler({}, mockContext)) as {
       success: boolean;
       error: string;

@@ -35,6 +35,7 @@ docs/
 !.env.example
 .dev.vars
 *.log
+logs/
 
 # Local config files with secrets
 config/*.local.json
@@ -50,10 +51,10 @@ config/secrets/
 # Local Server & Cluster Setup
 mysqlrouter.conf
 router-cluster.conf
-router-data/
-cluster-config/
-innodb-cluster.yml
-proxysql.cnf
+test-server/infrastructure/router-data/
+test-server/infrastructure/cluster-config/
+test-server/infrastructure/innodb-cluster.yml
+test-server/infrastructure/proxysql.cnf
 test-server/
 scripts/
 
@@ -89,6 +90,7 @@ __tests__/
 *.spec.ts
 coverage/
 test-results.json
+.test-output/
 eslint.config.js
 vitest.config.ts
 
@@ -104,3 +106,13 @@ history.json
 
 # Assets
 social-preview.png
+
+# Observability Configurations
+grafana/
+prometheus/
+
+# Data mounts
+data/
+
+# Adamic Workflows Copies
+.agents/

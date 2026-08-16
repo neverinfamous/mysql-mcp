@@ -1,0 +1,31 @@
+{
+    "name": "@adamic/datadog-skills",
+    "version": "1.0.0",
+    "description": "Datadog agent skills for the Adamic ecosystem.",
+    "type": "module",
+    "main": "README.md",
+    "files": [
+        "README.md",
+        "SKILL.md",
+        "dd-apm/",
+        "dd-apps/",
+        "dd-audit/",
+        "dd-browser-sdk/",
+        "dd-docs/",
+        "agent-observability/",
+        "dd-logs/",
+        "dd-monitors/",
+        "dd-pup/",
+        "dd-security/",
+        "dd-software-delivery/",
+        "src/"
+    ],
+    "keywords": [
+        "agent",
+        "skills",
+        "datadog",
+        "observability"
+    ],
+    "author": "Adamic.tech",
+    "license": "MIT"
+}

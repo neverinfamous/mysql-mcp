@@ -5,6 +5,7 @@
  */
 
 import { logger } from "../utils/logger.js";
+import { metrics } from "../observability/metrics.js";
 import {
   DEFAULT_SECURITY_CONFIG,
   type SecurityConfig,
@@ -27,16 +28,34 @@ export class CodeModeSecurityManager {
     { count: number; resetTime: number }
   >();
   private redisClient?: RedisClientType;
+  private readonly windowMs: number;
 
-  constructor(config?: Partial<SecurityConfig>) {
+  private intervalHandle?: NodeJS.Timeout;
+
+  constructor(config?: Partial<SecurityConfig> & { redisUrl?: string; windowMs?: number }) {
     this.config = { ...DEFAULT_SECURITY_CONFIG, ...config };
-    setInterval(() => this.cleanupRateLimits(), 5 * 60 * 1000).unref();
-    if (process.env["REDIS_URL"]) {
-      this.redisClient = createClient({ url: process.env["REDIS_URL"] });
+    this.windowMs = config?.windowMs ?? 60000;
+    const redisUrl = config?.redisUrl ?? process.env["REDIS_URL"];
+    
+    this.intervalHandle = setInterval(() => this.cleanupRateLimits(), 5 * 60 * 1000).unref();
+    if (redisUrl) {
+      this.redisClient = createClient({ 
+        url: redisUrl,
+        disableOfflineQueue: true
+      });
       this.redisClient.connect().catch((err: unknown) => {
         logger.error("Redis connection failed in CodeModeSecurityManager", {
           error: err instanceof Error ? err : new Error(String(err)),
         });
+      });
+      this.redisClient.on('ready', () => {
+        metrics.setRedisConnected(true);
+      });
+      this.redisClient.on('error', () => {
+        metrics.setRedisConnected(false);
+      });
+      this.redisClient.on('end', () => {
+        metrics.setRedisConnected(false);
       });
     }
   }
@@ -95,22 +114,35 @@ export class CodeModeSecurityManager {
   async checkRateLimit(clientId: string): Promise<boolean> {
     if (this.redisClient?.isOpen) {
       try {
-        const windowMs = 60000;
         const key = `codemode:rl:${clientId}`;
-        const current = await this.redisClient.incr(key);
-        if (current === 1) {
-          await this.redisClient.pExpire(key, windowMs);
+        const luaScript = `
+local current = redis.call('INCR', KEYS[1])
+if current == 1 then
+  redis.call('PEXPIRE', KEYS[1], ARGV[1])
+end
+return current
+`;
+        const evalStart = performance.now();
+        const current = await this.redisClient.eval(luaScript, {
+          keys: [key],
+          arguments: [this.windowMs.toString()],
+        }) as number;
+        
+        metrics.recordRedisLuaEvalLatency(performance.now() - evalStart);
+        const allowed = current <= this.config.maxExecutionsPerMinute;
+        if (!allowed) {
+          metrics.recordRedisRateLimitExceeded();
         }
-        return current <= this.config.maxExecutionsPerMinute;
+        return allowed;
       } catch (err) {
         logger.error("Redis rate limit error, falling back to memory", {
           error: err instanceof Error ? err : new Error(String(err)),
         });
+        metrics.recordRedisFallback();
       }
     }
 
     const now = Date.now();
-    const windowMs = 60000; // 1 minute window
 
     const existing = this.rateLimitMap.get(clientId);
 
@@ -122,12 +154,13 @@ export class CodeModeSecurityManager {
       }
       this.rateLimitMap.set(clientId, {
         count: 1,
-        resetTime: now + windowMs,
+        resetTime: now + this.windowMs,
       });
       return true;
     }
 
     if (existing.count >= this.config.maxExecutionsPerMinute) {
+      metrics.recordRedisRateLimitExceeded();
       return false;
     }
 
@@ -252,6 +285,17 @@ export class CodeModeSecurityManager {
       if (now >= entry.resetTime) {
         this.rateLimitMap.delete(clientId);
       }
+    }
+  }
+
+  destroy(): void {
+    if (this.intervalHandle) {
+      clearInterval(this.intervalHandle);
+      this.intervalHandle = undefined;
+    }
+    if (this.redisClient?.isOpen) {
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
+      void this.redisClient.disconnect();
     }
   }
 }

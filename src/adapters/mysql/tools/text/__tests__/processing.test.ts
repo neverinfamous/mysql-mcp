@@ -11,14 +11,11 @@ import {
   createSoundexTool,
   createSubstringTool,
   createConcatTool,
-  createCollationConvertTool,
-} from "../processing.js";
-import type {} from "../../../mysql-adapter/index.js";
+  createCollationConvertTool } from "../processing.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Text Processing Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -43,8 +40,7 @@ describe("Text Processing Tools", () => {
         {
           table: "users",
           column: "email",
-          pattern: "^admin",
-        },
+          pattern: "^admin" },
         mockContext,
       )) as { data: { rows: unknown[] } };
 
@@ -64,8 +60,7 @@ describe("Text Processing Tools", () => {
         {
           table: "users",
           column: "name",
-          pattern: "John%",
-        },
+          pattern: "John%" },
         mockContext,
       );
 
@@ -83,8 +78,7 @@ describe("Text Processing Tools", () => {
         {
           table: "users",
           column: "name",
-          value: "Jon",
-        },
+          value: "Jon" },
         mockContext,
       );
 
@@ -105,8 +99,7 @@ describe("Text Processing Tools", () => {
           table: "logs",
           column: "message",
           start: 1,
-          length: 3,
-        },
+          length: 3 },
         mockContext,
       );
 
@@ -122,8 +115,7 @@ describe("Text Processing Tools", () => {
         {
           table: "logs",
           column: "message",
-          start: 5,
-        },
+          start: 5 },
         mockContext,
       );
 
@@ -139,8 +131,7 @@ describe("Text Processing Tools", () => {
           table: "logs",
           column: "message",
           start: 1,
-          where: "id > 100",
-        },
+          where: "id > 100" },
         mockContext,
       );
 
@@ -161,8 +152,7 @@ describe("Text Processing Tools", () => {
           table: "users",
           columns: ["first_name", "last_name"],
           separator: " ",
-          alias: "full_name",
-        },
+          alias: "full_name" },
         mockContext,
       );
 
@@ -180,8 +170,7 @@ describe("Text Processing Tools", () => {
         {
           table: "users",
           columns: ["first_name", "last_name"],
-          where: "active = 1",
-        },
+          where: "active = 1" },
         mockContext,
       );
 
@@ -201,8 +190,7 @@ describe("Text Processing Tools", () => {
         {
           table: "legacy",
           column: "text_col",
-          charset: "utf8mb4",
-        },
+          charset: "utf8mb4" },
         mockContext,
       );
 
@@ -222,8 +210,7 @@ describe("Text Processing Tools", () => {
           table: "legacy",
           column: "text_col",
           charset: "utf8mb4",
-          collation: "utf8mb4_bin",
-        },
+          collation: "utf8mb4_bin" },
         mockContext,
       );
 
@@ -244,8 +231,7 @@ describe("Text Processing Tools", () => {
           table: "legacy",
           column: "text_col",
           charset: "utf8mb4",
-          where: "id < 1000",
-        },
+          where: "id < 1000" },
         mockContext,
       );
 
@@ -291,6 +277,23 @@ describe("Text Processing Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("not found");
+    });
+
+    it("should return success: false for invalid regular expression pattern", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Got error 'unmatched parentheses' from regexp")
+      );
+      const tool = createRegexpMatchTool(
+        mockAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "users", column: "email", pattern: "[" },
+        mockContext,
+      )) as { success: boolean; error: string; code: string };
+
+      expect(result.success).toBe(false);
+      expect(result.code).toBe("VALIDATION_ERROR");
+      expect(result.error).toBeDefined();
     });
   });
 

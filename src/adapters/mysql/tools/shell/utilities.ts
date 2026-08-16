@@ -34,6 +34,7 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
       openWorldHint: true,
       destructiveHint: false,
       sensitiveHint: false,
+      idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -48,7 +49,7 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
         // Force JSON output format to ensure parseable results
         const options: string[] = ['outputFormat: "JSON"'];
         if (targetVersion) {
-          options.push(`targetVersion: "${targetVersion}"`);
+          options.push(`targetVersion: ${JSON.stringify(targetVersion)}`);
         }
 
         const jsCode = `util.checkForServerUpgrade("${escapedUri}", { ${options.join(", ")} });`;
@@ -60,9 +61,20 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
             { timeout: 120000 }
           );
           if (rawResult.exitCode !== 0) {
+            const escapeChar = String.fromCharCode(27);
             const errorMsg = (rawResult.stderr || rawResult.stdout || "MySQL Shell command failed")
+              // Strip ANSI color codes
+              .replace(new RegExp(`${escapeChar}\\[[0-9;]*m`, "g"), "")
               .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
+              .replace(/Cannot set LC_ALL to locale [^\n]+\n/gi, "")
               .trim() || "MySQL Shell command failed";
+              
+            if (errorMsg.includes("(ArgumentError)")) {
+              const cleanMsg = errorMsg.replace(/\n\s*at\s+\(command line\):\d+.*$/s, '').trim();
+              const err = new Error(cleanMsg);
+              err.name = "ValidationError";
+              throw err;
+            }
             throw new Error(errorMsg);
           }
         } catch (error) {
@@ -123,10 +135,7 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
               warningCount: typedResult.warningCount ?? 0,
               noticeCount: typedResult.noticeCount ?? 0,
               checksPerformed: typedResult.checksPerformed?.length ?? 0,
-              upgradeCheck:
-                outputFormat === "TEXT"
-                  ? "Use outputFormat: JSON for detailed results"
-                  : typedResult,
+              upgradeCheck: typedResult,
             },
           });
         }

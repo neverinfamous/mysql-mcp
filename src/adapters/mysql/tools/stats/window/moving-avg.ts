@@ -9,6 +9,7 @@ import {
 } from "../../core/error-helpers.js";
 import { WindowFunctionOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
+import { validateWhereClause } from "../../../../../utils/validators.js";
 import { StatsMovingAvgSchemaBase, StatsMovingAvgSchema } from "./schemas.js";
 import { selectList, partitionClause, whereClause } from "./helpers.js";
 
@@ -33,30 +34,45 @@ export function createStatsMovingAvgTool(
       try {
         const parsed = StatsMovingAvgSchema.parse(params);
 
-        if (!/^[a-zA-Z0-9_.]+$/.test(parsed.table)) {
+        const { parseQualifiedTable, validateQualifiedIdentifier, escapeQualifiedTable } = await import("../../../../../utils/validators.js");
+        const cleanTable = parseQualifiedTable(parsed.table);
+        const tableNameToValidate = cleanTable.schema ? `${cleanTable.schema}.${cleanTable.table}` : cleanTable.table;
+        try {
+          validateQualifiedIdentifier(tableNameToValidate);
+        } catch (e: unknown) {
           return withTokenEstimate({
             success: false,
-            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid table name",
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: e instanceof Error ? e.message : "Invalid table name",
           });
         }
         
         const fullTableName = parsed.database 
-          ? `\`${parsed.database}\`.\`${parsed.table}\`` 
-          : (parsed.table.includes('.') ? parsed.table.split('.').map(p => `\`${p}\``).join('.') : `\`${parsed.table}\``);
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.column)) {
+          ? `\`${parsed.database}\`.${escapeQualifiedTable(parsed.table)}` 
+          : escapeQualifiedTable(parsed.table);
+
+        const cleanColumn = parseQualifiedTable(parsed.column);
+        const columnToValidate = cleanColumn.schema ? `${cleanColumn.schema}.${cleanColumn.table}` : cleanColumn.table;
+        try {
+          validateQualifiedIdentifier(columnToValidate, "column");
+        } catch (e: unknown) {
           return withTokenEstimate({
             success: false,
-            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid column name",
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: e instanceof Error ? e.message : "Invalid column name",
           });
         }
+
+        validateWhereClause(parsed.where);
+        validateWhereClause(parsed.orderBy);
+        validateWhereClause(parsed.partitionBy);
 
         const windowSize = parsed.windowSize;
         const partition = partitionClause(parsed.partitionBy);
         const preceding = windowSize - 1;
-        const windowExpr = `AVG(\`${parsed.column}\`) OVER(${partition} ORDER BY ${parsed.orderBy} ROWS BETWEEN ${String(preceding)} PRECEDING AND CURRENT ROW)`;
+        const escapedColumn = escapeQualifiedTable(parsed.column);
+        const windowExpr = `AVG(${escapedColumn}) OVER(${partition} ORDER BY ${parsed.orderBy} ROWS BETWEEN ${String(preceding)} PRECEDING AND CURRENT ROW)`;
 
         const sql = `
-          SELECT ${selectList(parsed.selectColumns, windowExpr, "moving_avg")}
+          SELECT ${selectList(parsed.selectColumns, windowExpr, parsed.asColumn)}
           FROM ${fullTableName}
           ${whereClause(parsed.where)}
           ORDER BY ${parsed.orderBy}

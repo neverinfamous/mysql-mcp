@@ -43,6 +43,9 @@ export interface AuditEntry {
   /** Whether the tool executed successfully */
   success: boolean;
 
+  /** Status field for Datadog log pipeline severity mapping */
+  status?: "error" | "info" | undefined;
+
   /** Error message when success is false */
   error?: string | undefined;
 

@@ -9,12 +9,12 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { startServer, stopServer } from "./helpers.js";
+import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 
-const OAUTH_PORT = 3131;
 
-test.describe.serial("OAuth 2.1 Discovery", () => {
-  test.describe.serial("Without OAuth enabled (default)", () => {
+
+test.describe("OAuth 2.1 Discovery", () => {
+  test.describe("Without OAuth enabled (default)", () => {
     test("/.well-known/oauth-protected-resource should return 404", async ({
       request,
     }) => {
@@ -28,10 +28,12 @@ test.describe.serial("OAuth 2.1 Discovery", () => {
     });
   });
 
-  test.describe.serial("With OAuth enabled", () => {
+  test.describe("With OAuth enabled", () => {
+    let oauthPort: number;
     test.beforeAll(async () => {
+      oauthPort = 3131 + test.info().workerIndex;
       await startServer(
-        OAUTH_PORT,
+        oauthPort,
         [
           "--oauth-enabled",
           "--oauth-issuer",
@@ -48,12 +50,12 @@ test.describe.serial("OAuth 2.1 Discovery", () => {
     });
 
     test.afterAll(() => {
-      stopServer(OAUTH_PORT);
+      stopServer(oauthPort);
     });
 
     test("/.well-known/oauth-protected-resource should return RFC 9728 metadata", async () => {
       const response = await fetch(
-        `http://127.0.0.1:${OAUTH_PORT}/.well-known/oauth-protected-resource`,
+        `http://127.0.0.1:${oauthPort}/.well-known/oauth-protected-resource`,
       );
 
       expect(response.status).toBe(200);
@@ -75,7 +77,7 @@ test.describe.serial("OAuth 2.1 Discovery", () => {
 
     test("/.well-known/oauth-protected-resource should include scopes", async () => {
       const response = await fetch(
-        `http://127.0.0.1:${OAUTH_PORT}/.well-known/oauth-protected-resource`,
+        `http://127.0.0.1:${oauthPort}/.well-known/oauth-protected-resource`,
       );
 
       const body = (await response.json()) as Record<string, unknown>;
@@ -91,7 +93,7 @@ test.describe.serial("OAuth 2.1 Discovery", () => {
 
     test("MCP endpoints should require authentication with OAuth enabled", async () => {
       // POST to /mcp without a token should be rejected
-      const response = await fetch(`http://127.0.0.1:${OAUTH_PORT}/mcp`, {
+      const response = await fetch(`http://127.0.0.1:${oauthPort}/mcp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -102,7 +104,7 @@ test.describe.serial("OAuth 2.1 Discovery", () => {
           id: 1,
           method: "initialize",
           params: {
-            protocolVersion: "2025-03-26",
+            protocolVersion: MCP_PROTOCOL_STREAMABLE,
             capabilities: {},
             clientInfo: { name: "oauth-test", version: "1.0" },
           },

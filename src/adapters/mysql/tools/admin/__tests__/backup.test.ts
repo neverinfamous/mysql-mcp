@@ -622,6 +622,7 @@ describe("Admin Backup Tools", () => {
         createMockQueryResult([
           { SCHEMA_NAME: "mydb" },
           { TABLE_NAME: "users" },
+          { TABLE_NAME: "orders" },
         ]),
       );
       const tool = createCreateDumpTool(mockAdapter);

@@ -85,7 +85,7 @@ describe("SchemaManager", () => {
       (mockExecutor.executeQuery as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({ rows: [] }) // columns
         .mockResolvedValueOnce({
-          rows: [{ type: "VIEW", engine: null, rowCount: null }],
+          rows: [{ Comment: "VIEW", Engine: null, Rows: null }],
         }); // table info
 
       const result = await manager.describeTable("my_view");
@@ -110,10 +110,8 @@ describe("SchemaManager", () => {
 
       await manager.describeTable("schema.table");
 
-      expect(mockExecutor.executeQuery).toHaveBeenCalledWith(
-        expect.stringContaining("TABLE_SCHEMA = ?"),
-        ["schema", "table"],
-      );
+      expect(mockExecutor.executeQuery).toHaveBeenCalledWith("SHOW FULL COLUMNS FROM `schema`.`table`");
+      expect(mockExecutor.executeQuery).toHaveBeenCalledWith("SHOW TABLE STATUS FROM `schema` LIKE 'table'");
     });
   });
 
@@ -132,11 +130,11 @@ describe("SchemaManager", () => {
         {
           rows: [
             {
-              name: "PRIMARY",
-              nonUnique: 0,
-              columnName: "id",
-              type: "BTREE",
-              cardinality: 100,
+              Key_name: "PRIMARY",
+              Non_unique: 0,
+              Column_name: "id",
+              Index_type: "BTREE",
+              Cardinality: 100,
             },
           ],
         },
@@ -145,8 +143,7 @@ describe("SchemaManager", () => {
       const indexes = await manager.getTableIndexes("mydb.users");
 
       expect(mockExecutor.executeQuery).toHaveBeenCalledWith(
-        expect.stringContaining("TABLE_SCHEMA = ?"),
-        ["mydb", "users"],
+        "SHOW KEYS FROM `mydb`.`users`"
       );
       expect(indexes).toHaveLength(1);
     });
@@ -156,18 +153,18 @@ describe("SchemaManager", () => {
         {
           rows: [
             {
-              name: "idx_composite",
-              nonUnique: 1,
-              columnName: "col1",
-              type: "BTREE",
-              cardinality: 100,
+              Key_name: "idx_composite",
+              Non_unique: 1,
+              Column_name: "col1",
+              Index_type: "BTREE",
+              Cardinality: 100,
             },
             {
-              name: "idx_composite",
-              nonUnique: 1,
-              columnName: "col2",
-              type: "BTREE",
-              cardinality: 100,
+              Key_name: "idx_composite",
+              Non_unique: 1,
+              Column_name: "col2",
+              Index_type: "BTREE",
+              Cardinality: 100,
             },
           ],
         },
@@ -185,12 +182,12 @@ describe("SchemaManager", () => {
       (mockExecutor.executeQuery as ReturnType<typeof vi.fn>).mockResolvedValue(
         {
           rows: [
-            { name: "PRIMARY", nonUnique: 0, columnName: "id", type: "BTREE" },
+            { Key_name: "PRIMARY", Non_unique: 0, Column_name: "id", Index_type: "BTREE" },
             {
-              name: "idx_fulltext",
-              nonUnique: 1,
-              columnName: "bio",
-              type: "FULLTEXT",
+              Key_name: "idx_fulltext",
+              Non_unique: 1,
+              Column_name: "bio",
+              Index_type: "FULLTEXT",
             },
           ],
         },

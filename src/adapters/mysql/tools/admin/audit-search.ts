@@ -11,6 +11,7 @@ import {
 } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
+import { ExtensionNotAvailableError } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 import { hasScope, SCOPES } from "../../../../auth/scopes.js";
 import { getAuthContext } from "../../../../auth/auth-context.js";
@@ -39,10 +40,7 @@ export function createAuditSearchTool(adapter: MySQLAdapter): ToolDefinition {
 
         const auditLogger = adapter.getAuditLogger();
         if (!auditLogger) {
-          return withTokenEstimate({
-            success: false,
-            error: "Audit Logger is not enabled or available",
-          });
+          throw new ExtensionNotAvailableError("Audit Logger is not enabled or available (requires --audit-log flag)");
         }
 
         const { entries, totalCount } = await auditLogger.search(parsed);

@@ -7,6 +7,7 @@ import {
   ProxySQLStatusInputSchema,
   ProxySQLStatusInputSchemaBase,
   ProxySQLBaseInputSchema,
+  ProxySQLBaseInputSchemaBase,
   ProxySQLStatusOutputSchema,
   ProxySQLRuntimeStatusOutputSchema,
   ProxySQLMemoryStatsOutputSchema,
@@ -62,6 +63,11 @@ export function createProxySQLStatusTool(): ToolDefinition {
             "Server_Connections_created",
             "Query_Cache_Entries",
             "Query_Cache_Memory_bytes",
+            "Query_Cache_count_GET",
+            "Query_Cache_count_GET_OK",
+            "Query_Cache_count_SET",
+            "Query_Cache_bytes_IN",
+            "Query_Cache_bytes_OUT",
             "mysql_backend_buffers_bytes",
             "mysql_frontend_buffers_bytes",
           ];
@@ -175,7 +181,7 @@ export function createProxySQLMemoryStatsTool(): ToolDefinition {
     description:
       "Get ProxySQL memory usage metrics from stats_memory_metrics. Shows memory for SQLite, auth, query digests, and more.",
     group: "proxysql",
-    inputSchema: ProxySQLBaseInputSchema,
+    inputSchema: ProxySQLBaseInputSchemaBase,
     outputSchema: ProxySQLMemoryStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: {
@@ -185,8 +191,9 @@ export function createProxySQLMemoryStatsTool(): ToolDefinition {
       destructiveHint: false,
       sensitiveHint: false,
     },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        ProxySQLBaseInputSchema.parse(params);
         const rows = await proxySQLQuery("SELECT * FROM stats_memory_metrics");
         return withTokenEstimate({
           success: true,

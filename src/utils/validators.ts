@@ -75,7 +75,9 @@ export function validateIdentifier(
     | "event"
     | "procedure"
     | "function"
-    | "role" = "table",
+    | "role"
+    | "charset"
+    | "collation" = "table",
 ): void {
   if (!name || typeof name !== "string") {
     throw new ValidationError(`${type} name must be a non-empty string`, type);
@@ -117,15 +119,16 @@ const MYSQL_USER_HOST_PATTERN = /^[a-zA-Z0-9_%.\-@]+$/;
  */
 export function validateMySQLUserHost(
   value: string,
-  type: "user" | "host" = "user",
+  type: "user" | "host" | "role" = "user",
 ): void {
   if (!value || typeof value !== "string") {
     throw new ValidationError(`${type} must be a non-empty string`, type);
   }
 
-  if (value.length > 255) {
+  const maxLength = type === "host" ? 255 : 32;
+  if (value.length > maxLength) {
     throw new ValidationError(
-      `${type} exceeds maximum length of 255 characters`,
+      `${type} exceeds maximum length of ${maxLength} characters`,
       type,
     );
   }
@@ -147,7 +150,7 @@ export function validateMySQLUserHost(
  */
 export function validateQualifiedIdentifier(
   name: string,
-  type: "table" | "column" | "view" = "table",
+  type: "table" | "column" | "view" | "trigger" = "table",
 ): void {
   if (!name || typeof name !== "string") {
     throw new ValidationError(`${type} name must be a non-empty string`, type);

@@ -10,10 +10,10 @@ import { BaseOutputSchema } from "./output-schemas.js";
 // =============================================================================
 
 export const MemberSchemaBase = z.object({
-  memberId: z.string().optional().describe("Filter by specific member UUID"),
-  id: z.string().optional().describe("Alias for memberId"),
-  member: z.string().optional().describe("Alias for memberId"),
-  uuid: z.string().optional().describe("Alias for memberId"),
+  memberId: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid UUID format").optional().describe("Filter by specific member UUID"),
+  id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid UUID format").optional().describe("Alias for memberId"),
+  member: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid UUID format").optional().describe("Alias for memberId"),
+  uuid: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid UUID format").optional().describe("Alias for memberId"),
 }).strict();
 
 export const MemberSchema = z.preprocess(
@@ -21,26 +21,42 @@ export const MemberSchema = z.preprocess(
     if (typeof val === "string") {
       return { memberId: val };
     }
-    if (val !== null && typeof val === "object" && !("memberId" in val)) {
+    if (val !== null && typeof val === "object") {
       const v = val as Record<string, unknown>;
-      if ("id" in v) return { ...val, memberId: v["id"] };
-      if ("member" in v) return { ...val, memberId: v["member"] };
-      if ("uuid" in v) return { ...val, memberId: v["uuid"] };
+      let resultMemberId = v["memberId"];
+      if (resultMemberId === undefined || resultMemberId === null || resultMemberId === "") {
+        if ("id" in v) resultMemberId = v["id"];
+        else if ("member" in v) resultMemberId = v["member"];
+        else if ("uuid" in v) resultMemberId = v["uuid"];
+      }
+      const rest = { ...v };
+      delete rest["id"];
+      delete rest["member"];
+      delete rest["uuid"];
+      if (resultMemberId !== undefined && resultMemberId !== null && resultMemberId !== "") {
+        return { ...rest, memberId: resultMemberId };
+      }
+      return rest;
     }
     return val;
   },
-  MemberSchemaBase
+  z.object({
+    memberId: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid UUID format").optional().describe("Filter by specific member UUID"),
+  }).strict()
 );
 
 export const LimitSchemaBase = z.object({
-  limit: z.number().optional().describe("Maximum number of results"),
+  limit: z.any().optional().describe("Maximum number of results"),
+  count: z.any().optional().describe("Alias for limit"),
 }).strict();
 
 export const SummarySchemaBase = z.object({
-  summary: z
-    .boolean()
-    .optional()
-    .describe("If true, return condensed output without configuration blobs"),
+  summary: z.preprocess((val) => {
+    if (typeof val === 'boolean') return val;
+    if (val === 'true') return true;
+    if (val === 'false') return false;
+    return val;
+  }, z.boolean().optional()).describe("If true, return condensed output without configuration blobs"),
 }).strict();
 
 // =============================================================================
@@ -68,7 +84,13 @@ export const GRMembersOutputSchema = BaseOutputSchema.extend({
 
 export const GRPrimaryOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    primary: z.record(z.string(), z.unknown()).nullable().optional(),
+    primary: z.object({
+      memberId: z.string(),
+      host: z.string(),
+      port: z.number(),
+      state: z.string(),
+      version: z.string(),
+    }).nullable().optional(),
     hasPrimary: z.boolean(),
     isLocalPrimary: z.boolean(),
   }).loose().optional(),

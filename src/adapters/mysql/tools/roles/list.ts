@@ -9,19 +9,17 @@ import type { ToolDefinition, RequestContext } from "../../../../types/index.js"
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 export const RoleListSchemaBase = z.object({
-  pattern: z.string().optional().describe("Filter pattern (LIKE syntax)"),
-  limit: z.number().int().min(1).max(100).default(50).describe("Max results"),
+  pattern: z.coerce.string().optional().describe("Filter pattern (LIKE syntax)"),
+  name: z.coerce.string().optional().describe("Alias for pattern"),
+  role: z.coerce.string().optional().describe("Alias for pattern"),
+  roleName: z.coerce.string().optional().describe("Alias for pattern"),
+  limit: z.coerce.number().int().min(1).max(100).default(50).describe("Max results"),
 });
 
-export const RoleListSchema = z.preprocess((val: unknown) => {
-  if (typeof val !== "object" || val === null) return val;
-  const res = { ...(val as Record<string, unknown>) };
-  if ("limit" in res && typeof res["limit"] !== "number") {
-    const parsed = Number(res["limit"]);
-    res["limit"] = isNaN(parsed) ? res["limit"] : parsed;
-  }
-  return res;
-}, RoleListSchemaBase);
+export const RoleListSchema = RoleListSchemaBase.transform((val) => {
+  const pattern = val.pattern || val.name || val.role || val.roleName;
+  return { ...val, pattern };
+});
 
 export function getRoleListTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -36,8 +34,8 @@ export function getRoleListTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { pattern, limit } = RoleListSchema.parse(params);
-        let query = `SELECT u.User as roleName, u.Host FROM mysql.user u
-                    WHERE u.account_locked='Y' AND u.password_expired='Y' AND u.authentication_string=''`;
+        let query = `WITH _dummy AS (SELECT 1) SELECT u.User as roleName, u.Host FROM mysql.user u
+                    WHERE u.account_locked='Y' AND u.password_expired='Y' AND (u.authentication_string='' OR u.authentication_string IS NULL)`;
         const args: unknown[] = [];
         if (pattern) {
           query += ` AND u.User LIKE ?`;

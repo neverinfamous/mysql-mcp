@@ -3,7 +3,7 @@ import { createGroupApi, toolNameToMethodName } from "../generator.js";
 import { z } from "zod";
 
 vi.mock("../../adapters/mysql/tools/core/error-helpers.js", () => ({
-  formatHandlerErrorResponse: vi.fn((err) => ({ success: false, error: err.message || err })),
+  formatHandlerErrorResponse: vi.fn((err: Error | string) => ({ success: false, error: typeof err === "string" ? err : err.message })),
 }));
 
 describe("generator", () => {
@@ -27,7 +27,7 @@ describe("generator", () => {
   });
 
   describe("createGroupApi", () => {
-    let mockAdapter: any;
+    let mockAdapter: { createContext: ReturnType<typeof vi.fn> };
     
     beforeEach(() => {
       mockAdapter = {
@@ -43,7 +43,7 @@ describe("generator", () => {
           inputSchema: z.object({ query: z.string() }),
           handler: mockHandler,
         }
-      ] as any;
+      ] as unknown[];
 
       const api = createGroupApi(mockAdapter, "core", tools);
       
@@ -70,11 +70,11 @@ describe("generator", () => {
           inputSchema: z.object({ id: z.number() }),
           handler: mockHandler,
         }
-      ] as any;
+      ] as unknown[];
 
       const api = createGroupApi(mockAdapter, "test", tools);
       
-      const result: any = await api.tool({ id: "not-a-number" });
+      const result = (await api.tool({ id: "not-a-number" })) as { success: boolean; error?: string };
       expect(result.success).toBe(false);
       expect(mockHandler).not.toHaveBeenCalled();
     });
@@ -87,11 +87,11 @@ describe("generator", () => {
           inputSchema: z.object({}),
           handler: mockHandler,
         }
-      ] as any;
+      ] as unknown[];
 
       const api = createGroupApi(mockAdapter, "test", tools);
       
-      const result: any = await api.tool({});
+      const result = (await api.tool({})) as { success: boolean; error?: string };
       expect(result.success).toBe(false);
       expect(result.error).toBe("Handler error");
     });
@@ -104,13 +104,13 @@ describe("generator", () => {
           inputSchema: z.object({}),
           handler: mockHandler,
         }
-      ] as any;
+      ] as unknown[];
 
       const mockInterceptor = {
-        around: vi.fn().mockImplementation(async (name, data, reqId, cb) => cb())
+        around: vi.fn().mockImplementation((name: string, data: unknown, reqId: string, cb: () => Promise<unknown>) => cb())
       };
 
-      const api = createGroupApi(mockAdapter, "test", tools, mockInterceptor as any);
+      const api = createGroupApi(mockAdapter, "test", tools, mockInterceptor as Parameters<typeof createGroupApi>[3]);
       
       await api.tool({});
       
@@ -133,11 +133,11 @@ describe("generator", () => {
           inputSchema: { id: z.number() },
           handler: mockHandler,
         }
-      ] as any;
+      ] as unknown[];
 
       const api = createGroupApi(mockAdapter, "test", tools);
       
-      const result: any = await api.tool({ id: 1 });
+      const result = (await api.tool({ id: 1 })) as { success: boolean; error?: string };
       expect(result.success).toBe(true);
       expect(mockHandler).toHaveBeenCalledWith({ id: 1 }, expect.any(Object));
     });

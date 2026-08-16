@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { MCP_PROTOCOL_LEGACY } from "./helpers.js";
 
 test.describe("MCP HTTP Server API", () => {
   test("should return 200 OK from /health endpoint", async ({ request }) => {
@@ -21,7 +22,7 @@ test.describe("MCP HTTP Server API", () => {
         id: 1,
         method: "initialize",
         params: {
-          protocolVersion: "2024-11-05",
+          protocolVersion: MCP_PROTOCOL_LEGACY,
           capabilities: {},
           clientInfo: {
             name: "playwright-test",

@@ -73,6 +73,7 @@ export function assertSafeIoPath(
       ".tsv",
       ".json",
       ".jsonl",
+      ".ndjson",
       ".txt",
       ".log",
       ".dump",

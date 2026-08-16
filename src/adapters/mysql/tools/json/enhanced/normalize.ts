@@ -14,6 +14,7 @@ import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
   validateIdentifier,
+  validateWhereClause,
 } from "../../../../../utils/validators.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 
@@ -36,37 +37,40 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
+        if (where) {
+          validateWhereClause(where);
+        }
 
         const whereClause = where ? `WHERE ${where}` : "";
 
-        // Get all unique top-level keys
+        const sampleSubquery = `(SELECT \`${column}\` FROM ${escapeQualifiedTable(table)} ${whereClause} LIMIT ${String(limit)})`;
+
+        // Get all unique top-level keys from the sample
         const keysQuery = `
                 SELECT DISTINCT jt.key_name
-                FROM ${escapeQualifiedTable(table)},
+                FROM ${sampleSubquery} as sample,
                 JSON_TABLE(
-                    JSON_KEYS(\`${column}\`),
+                    JSON_KEYS(CASE WHEN JSON_VALID(sample.\`${column}\`) THEN sample.\`${column}\` ELSE '{}' END),
                     '$[*]' COLUMNS (key_name VARCHAR(255) PATH '$')
                 ) as jt
-                ${whereClause}
-                LIMIT ${String(limit)}
             `;
 
         const keysResult = await adapter.executeQuery(keysQuery);
-        const uniqueKeys = (keysResult.rows ?? []).map((r) => r["key_name"]);
+        const uniqueKeys = (keysResult.rows ?? []).map((r) => String(r["key_name"]));
 
         // Get type distribution for each key
         const keyStats: Record<string, unknown>[] = [];
         for (const key of uniqueKeys.slice(0, 20)) {
           // Limit to 20 keys
+          const jsonPath = '$."' + key.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
           const typeQuery = `
                     SELECT 
-                        JSON_TYPE(JSON_EXTRACT(\`${column}\`, CONCAT('$.', ?))) as value_type,
+                        JSON_TYPE(JSON_EXTRACT(CASE WHEN JSON_VALID(sample.\`${column}\`) THEN sample.\`${column}\` ELSE '{}' END, ?)) as value_type,
                         COUNT(*) as count
-                    FROM ${escapeQualifiedTable(table)}
-                    ${whereClause}
+                    FROM ${sampleSubquery} as sample
                     GROUP BY value_type
                 `;
-          const typeResult = await adapter.executeQuery(typeQuery, [key]);
+          const typeResult = await adapter.executeQuery(typeQuery, [jsonPath]);
           keyStats.push({
             key,
             types: typeResult.rows ?? [],
@@ -76,7 +80,7 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate({
           success: true,
           data: {
-            uniqueKeys,
+            uniqueKeys: uniqueKeys.slice(0, 100),
             keyCount: uniqueKeys.length,
             keyStats,
             truncated: uniqueKeys.length > 20,

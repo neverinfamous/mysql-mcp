@@ -24,11 +24,14 @@ import {
   createListFunctionsTool,
 } from "./routines.js";
 
-import { createListTriggersTool } from "./triggers.js";
+import {
+  createListTriggersTool,
+  createCreateTriggerTool,
+  createDropTriggerTool,
+} from "./triggers.js";
 
 import { createListConstraintsTool } from "./constraints.js";
 
-import { createListEventsTool } from "./scheduled_events.js";
 
 /**
  * Get all schema management tools
@@ -44,7 +47,8 @@ export function getSchemaTools(adapter: MySQLAdapter): ToolDefinition[] {
     createListStoredProceduresTool(adapter),
     createListFunctionsTool(adapter),
     createListTriggersTool(adapter),
+    createCreateTriggerTool(adapter),
+    createDropTriggerTool(adapter),
     createListConstraintsTool(adapter),
-    createListEventsTool(adapter),
   ];
 }

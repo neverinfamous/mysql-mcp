@@ -6,7 +6,6 @@
 
 import { z, ZodError } from "zod";
 import {
-  stripErrorPrefix,
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
@@ -20,8 +19,8 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { ValidationError } from "../../../../types/modules/errors.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js";
 
 // =============================================================================
 // Helpers
@@ -32,66 +31,99 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // ============================================================================
 
 const AuditLogSchemaBase = z.object({
-  limit: z.number().optional().describe("Maximum number of records"),
-  count: z.number().optional().describe("Alias for limit"),
-  user: z.string().optional().describe("Filter by username"),
-  userName: z.string().optional().describe("Alias for user"),
-  username: z.string().optional().describe("Alias for user"),
-  eventType: z
-    .string()
+  limit: z.unknown().optional().describe("Maximum number of records"),
+  count: z.unknown().optional().describe("Alias for limit"),
+  user: z.unknown().optional().describe("Filter by username"),
+  userName: z.unknown().optional().describe("Alias for user"),
+  username: z.unknown().optional().describe("Alias for user"),
+  eventType: z.unknown()
     .optional()
     .describe(
       'Filter by event type (e.g., "Execute", "Ping", "begin"). Uses LIKE matching against performance_schema EVENT_NAME.',
     ),
-  event: z.string().optional().describe("Alias for eventType"),
-  startTime: z.string().optional().describe("Start time filter (ISO 8601)"),
-  time: z.string().optional().describe("Alias for startTime"),
-});
+  event: z.unknown().optional().describe("Alias for eventType"),
+  startTime: z.unknown().optional().describe("Start time filter (ISO 8601)"),
+  time: z.unknown().optional().describe("Alias for startTime"),
+}).loose();
 
 const AuditLogSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
-      const v = val as Record<string, unknown>;
-      if (v["count"] !== undefined && v["limit"] === undefined) v["limit"] = v["count"];
-      if (v["username"] !== undefined && v["user"] === undefined) v["user"] = v["username"];
-      if (v["userName"] !== undefined && v["user"] === undefined) v["user"] = v["userName"];
-      if (v["event"] !== undefined && v["eventType"] === undefined) v["eventType"] = v["event"];
-      if (v["time"] !== undefined && v["startTime"] === undefined) v["startTime"] = v["time"];
+      const v = { ...(val as Record<string, unknown>) };
+      if (v["count"] !== undefined) {
+        if (v["limit"] === undefined) v["limit"] = v["count"];
+        delete v["count"];
+      }
+      if (v["username"] !== undefined) {
+        if (v["user"] === undefined) v["user"] = v["username"];
+        delete v["username"];
+      }
+      if (v["userName"] !== undefined) {
+        if (v["user"] === undefined) v["user"] = v["userName"];
+        delete v["userName"];
+      }
+      if (v["event"] !== undefined) {
+        if (v["eventType"] === undefined) v["eventType"] = v["event"];
+        delete v["event"];
+      }
+      if (v["time"] !== undefined) {
+        if (v["startTime"] === undefined) v["startTime"] = v["time"];
+        delete v["time"];
+      }
+      return v;
     }
     return val;
   },
   z.object({
-    limit: z.number().default(5),
+    limit: z.coerce.number().int().min(1).max(1000).default(5),
     user: z.string().optional(),
     eventType: z.string().optional(),
-    startTime: z.string().optional(),
-  })
+    startTime: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid date format").optional(),
+  }).strip()
 );
 
 const FirewallRulesSchemaBase = z.object({
-  limit: z.number().optional().describe("Maximum number of records to return"),
-  count: z.number().optional().describe("Alias for limit"),
-  user: z.string().optional().describe("Filter by username"),
-  userName: z.string().optional().describe("Alias for user"),
-  username: z.string().optional().describe("Alias for user"),
-  mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional().describe("Filter by mode"),
-});
+  limit: z.unknown().optional().describe("Maximum number of records to return"),
+  count: z.unknown().optional().describe("Alias for limit"),
+  user: z.unknown().optional().describe("Filter by username"),
+  userName: z.unknown().optional().describe("Alias for user"),
+  username: z.unknown().optional().describe("Alias for user"),
+  mode: z.unknown().optional().describe("Filter by mode"),
+}).loose();
 
 const FirewallRulesSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
-      const v = val as Record<string, unknown>;
-      if (v["count"] !== undefined && v["limit"] === undefined) v["limit"] = v["count"];
-      if (v["username"] !== undefined && v["user"] === undefined) v["user"] = v["username"];
-      if (v["userName"] !== undefined && v["user"] === undefined) v["user"] = v["userName"];
+      const v = { ...(val as Record<string, unknown>) };
+      if (v["count"] !== undefined) {
+        if (v["limit"] === undefined) v["limit"] = v["count"];
+        delete v["count"];
+      }
+      if (v["username"] !== undefined) {
+        if (v["user"] === undefined) v["user"] = v["username"];
+        delete v["username"];
+      }
+      if (v["userName"] !== undefined) {
+        if (v["user"] === undefined) v["user"] = v["userName"];
+        delete v["userName"];
+      }
+      if (typeof v["mode"] === "string") {
+        let m = v["mode"].toUpperCase();
+        if (m === "BLOCK" || m === "DENY" || m === "ON") m = "PROTECTING";
+        else if (m === "LOG" || m === "WARN" || m === "WARNING") m = "DETECTING";
+        else if (m === "LEARNING" || m === "RECORD") m = "RECORDING";
+        else if (m === "DISABLED" || m === "NONE") m = "OFF";
+        v["mode"] = m;
+      }
+      return v;
     }
     return val;
   },
   z.object({
-    limit: z.number().default(50),
+    limit: z.coerce.number().int().min(1).max(1000).default(50),
     user: z.string().optional(),
     mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional(),
-  })
+  }).strip()
 );
 
 // =============================================================================
@@ -118,17 +150,9 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         const { limit, user, eventType, startTime } =
           AuditLogSchema.parse(params);
           
-        if (!user && !eventType && !startTime) {
-          return formatHandlerErrorResponse(
-            new ValidationError("At least one filter ('user', 'eventType', or 'startTime') is required.")
-          );
-        }
         
         const checkResult = await adapter.executeQuery(`
-                    SELECT TABLE_NAME
-                    FROM information_schema.TABLES
-                    WHERE TABLE_SCHEMA = 'mysql'
-                      AND TABLE_NAME = 'audit_log'
+                    SHOW TABLES IN mysql LIKE 'audit_log'
                 `);
 
         if (!checkResult.rows || checkResult.rows.length === 0) {
@@ -151,13 +175,13 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           const filtersIgnored: string[] = [];
 
           if (user) {
-            // Safe: escape single quotes in user input for LIKE clause
-            const escaped = user.replace(/'/g, "''");
+            // Safe: escape backslashes and single quotes in user input for LIKE clause
+            const escaped = user.replace(/\\/g, "\\\\").replace(/'/g, "''");
             conditions.push(`t.PROCESSLIST_USER LIKE '%${escaped}%'`);
             filtersApplied.push("user");
           }
           if (eventType) {
-            const escaped = eventType.replace(/'/g, "''");
+            const escaped = eventType.replace(/\\/g, "\\\\").replace(/'/g, "''");
             conditions.push(`e.EVENT_NAME LIKE '%${escaped}%'`);
             filtersApplied.push("eventType");
           }
@@ -178,7 +202,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           const result = await adapter.executeQuery(query, []);
           const data: Record<string, unknown> = {
             source: "performance_schema",
-            message: "Using performance_schema AS audit log is not available",
+            message: "Using performance_schema as fallback because audit_log is not available",
             events: result.rows ?? [],
             count: result.rows?.length ?? 0,
           };
@@ -216,8 +240,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           query += " WHERE " + conditions.join(" AND ");
         }
 
-        query += " ORDER BY timestamp DESC LIMIT ?";
-        queryParams.push(limit);
+        query += ` ORDER BY timestamp DESC LIMIT ${limit}`;
 
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
@@ -230,22 +253,23 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_audit" });
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        const stripped = stripErrorPrefix(msg);
-        const lower = stripped.toLowerCase();
-        if (
-          lower.includes("does not exist") ||
-          lower.includes("access denied")
-        ) {
-          return formatHandlerErrorResponse(
-            new Error(
-              "Audit logging is not enabled. Install MySQL Enterprise Audit or Percona Audit plugin.",
-            ),
-          );
+        if (error instanceof Error) {
+          const lower = error.message.toLowerCase();
+          if (
+            lower.includes("does not exist") ||
+            lower.includes("access denied") ||
+            lower.includes("er_no_such_table") ||
+            lower.includes("proxysql error")
+          ) {
+            return formatHandlerErrorResponse(
+              new ExtensionNotAvailableError("audit_log", { plugin: "MySQL Enterprise Audit or Percona Audit plugin" }),
+              { module: "security", tool: "mysql_security_audit" }
+            );
+          }
         }
-        return formatHandlerErrorResponse(new Error(stripped));
+        return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_audit" });
       }
     },
   };
@@ -262,20 +286,26 @@ export function createSecurityFirewallStatusTool(
     title: "MySQL Firewall Status",
     description: "Get MySQL Enterprise Firewall plugin status.",
     group: "security",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).loose(),
     outputSchema: SecurityFirewallStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
-        // Check if firewall plugin is installed
-        const pluginResult = await adapter.executeQuery(`
-                    SELECT PLUGIN_NAME, PLUGIN_STATUS
-                    FROM information_schema.PLUGINS
-                    WHERE PLUGIN_NAME LIKE '%firewall%'
-                `);
+        z.object({}).strip().parse(params);
 
-        if (!pluginResult.rows || pluginResult.rows.length === 0) {
+        // Check if firewall plugin is installed
+        const pluginResult = await adapter.executeQuery(
+          "SELECT PLUGIN_NAME as Name, PLUGIN_STATUS as Status FROM information_schema.PLUGINS WHERE PLUGIN_NAME LIKE ?",
+          ["%firewall%"]
+        );
+
+        const plugins = (pluginResult.rows ?? []).filter(row => {
+          const r = row;
+          return typeof r['Name'] === 'string' && !!r['Name'] && r['Name'].toLowerCase().includes('firewall');
+        });
+
+        if (plugins.length === 0) {
           return withTokenEstimate({
             success: true,
             data: {
@@ -311,14 +341,29 @@ export function createSecurityFirewallStatusTool(
         });
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_status" });
         }
-        const message = error instanceof Error ? error.message : String(error);
-        return formatHandlerErrorResponse(
-          new Error(
-            `Firewall plugin check failed: ${stripErrorPrefix(message)}`,
-          ),
-        );
+        if (
+          error !== null &&
+          typeof error === "object" &&
+          "message" in error &&
+          typeof (error).message === "string"
+        ) {
+          const messageStr = (error as { message: string }).message;
+          const lower = messageStr.toLowerCase();
+          if (
+            lower.includes("does not exist") ||
+            lower.includes("access denied") ||
+            lower.includes("er_no_such_table") ||
+            lower.includes("proxysql error")
+          ) {
+            return formatHandlerErrorResponse(
+              new ExtensionNotAvailableError("firewall", { plugin: "MySQL Enterprise Firewall" }),
+              { module: "security", tool: "mysql_security_firewall_status" }
+            );
+          }
+        }
+        return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_status" });
       }
     },
   };
@@ -344,23 +389,21 @@ export function createSecurityFirewallRulesTool(
         const { limit, user, mode } = FirewallRulesSchema.parse(params);
 
         // Check if firewall plugin is installed
-        const pluginResult = await adapter.executeQuery(`
-                    SELECT PLUGIN_NAME, PLUGIN_STATUS
-                    FROM information_schema.PLUGINS
-                    WHERE PLUGIN_NAME LIKE '%firewall%'
-                `);
+        const pluginResult = await adapter.executeQuery(
+          "SELECT PLUGIN_NAME as Name, PLUGIN_STATUS as Status FROM information_schema.PLUGINS WHERE PLUGIN_NAME LIKE ?",
+          ["%firewall%"]
+        );
 
-        if (!pluginResult.rows || pluginResult.rows.length === 0) {
-          return withTokenEstimate({
-            success: true,
-            data: {
-              users: [],
-              rules: [],
-              userCount: 0,
-              ruleCount: 0,
-              message: "MySQL Enterprise Firewall is not installed",
-            },
-          });
+        const plugins = (pluginResult.rows ?? []).filter(row => {
+          const r = row;
+          return typeof r['Name'] === 'string' && !!r['Name'] && r['Name'].toLowerCase().includes('firewall');
+        });
+
+        if (plugins.length === 0) {
+          return formatHandlerErrorResponse(
+            new ExtensionNotAvailableError("firewall", { plugin: "MySQL Enterprise Firewall" }),
+            { module: "security", tool: "mysql_security_firewall_rules" }
+          );
         }
 
         // Get firewall users
@@ -385,25 +428,35 @@ export function createSecurityFirewallRulesTool(
           usersQuery += " WHERE " + conditions.join(" AND ");
         }
         
-        usersQuery += " LIMIT ?";
-        queryParams.push(limit);
+        usersQuery += ` LIMIT ${limit}`;
 
         const usersResult = await adapter.executeQuery(usersQuery, queryParams);
 
         // Get firewall whitelist
         let rulesQuery = `
-                    SELECT USERHOST, RULE
-                    FROM mysql.firewall_whitelist
+                    SELECT w.USERHOST, w.RULE
+                    FROM mysql.firewall_whitelist w
                 `;
 
         const rulesParams: unknown[] = [];
+        const rulesConditions: string[] = [];
+
+        if (mode) {
+          rulesQuery += " JOIN mysql.firewall_users u ON w.USERHOST = u.USERHOST";
+          rulesConditions.push("u.MODE = ?");
+          rulesParams.push(mode);
+        }
+
         if (user) {
-          rulesQuery += " WHERE USERHOST LIKE ?";
+          rulesConditions.push("w.USERHOST LIKE ?");
           rulesParams.push(`%${user}%`);
         }
+
+        if (rulesConditions.length > 0) {
+          rulesQuery += " WHERE " + rulesConditions.join(" AND ");
+        }
         
-        rulesQuery += " LIMIT ?";
-        rulesParams.push(limit);
+        rulesQuery += ` LIMIT ${limit}`;
 
         const rulesResult = await adapter.executeQuery(
           rulesQuery,
@@ -419,16 +472,32 @@ export function createSecurityFirewallRulesTool(
             ruleCount: rulesResult.rows?.length ?? 0,
           },
         });
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+        } catch (error) {
+          if (error instanceof ZodError) {
+            return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_rules" });
+          }
+          if (
+            error !== null &&
+            typeof error === "object" &&
+            "message" in error &&
+            typeof (error).message === "string"
+          ) {
+            const messageStr = (error as { message: string }).message;
+            const lower = messageStr.toLowerCase();
+            if (
+              lower.includes("does not exist") ||
+              lower.includes("access denied") ||
+              lower.includes("er_no_such_table") ||
+              lower.includes("proxysql error")
+            ) {
+              return formatHandlerErrorResponse(
+                new ExtensionNotAvailableError("firewall", { plugin: "MySQL Enterprise Firewall" }),
+                { module: "security", tool: "mysql_security_firewall_rules" }
+              );
+            }
+          }
+          return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_rules" });
         }
-        return formatHandlerErrorResponse(
-          new Error(
-            "Firewall tables not accessible. Ensure MySQL Enterprise Firewall is installed and you have appropriate privileges.",
-          ),
-        );
-      }
     },
   };
 }

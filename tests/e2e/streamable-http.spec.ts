@@ -6,8 +6,8 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
+import { callToolAndParse } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -16,7 +16,7 @@ test.describe("Streamable HTTP Transport (MCP 2025-03-26)", () => {
 
   test.beforeAll(async () => {
     const transport = new StreamableHTTPClientTransport(
-      new URL("http://localhost:3000/mcp"),
+      new URL("http://127.0.0.1:3103/mcp"),
     );
     client = new Client(
       { name: "playwright-streamable-test", version: "1.0.0" },
@@ -38,29 +38,15 @@ test.describe("Streamable HTTP Transport (MCP 2025-03-26)", () => {
   });
 
   test("should list and execute tools via Streamable HTTP", async () => {
-    const response = await client.callTool({
-      name: "mysql_list_tables",
-      arguments: {},
-    });
-
-    expect(response.isError).toBeUndefined();
-    expect(Array.isArray(response.content)).toBe(true);
-    expect((response.content as any[]).length).toBeGreaterThan(0);
-    expect((response.content as any[])[0].type).toBe("text");
-
-    const parsed = JSON.parse(((response.content as any[])[0] as any).text);
+    const parsed = await callToolAndParse(client, "mysql_list_tables", {});
     expect(parsed.data).toHaveProperty("tables");
   });
 
   test("should call a read tool via Streamable HTTP", async () => {
-    const response = await client.callTool({
-      name: "mysql_read_query",
-      arguments: { query: "SELECT 1 AS test_value" },
+    const parsed = await callToolAndParse(client, "mysql_read_query", { 
+      query: "SELECT 1 AS test_value" 
     });
-
-    expect(response.isError).toBeUndefined();
-    expect(Array.isArray(response.content)).toBe(true);
-    expect((response.content as any[]).length).toBeGreaterThan(0);
+    expect(parsed.success).toBe(true);
   });
 
   test("should list resources via Streamable HTTP", async () => {
@@ -93,3 +79,4 @@ test.describe("Streamable HTTP Transport (MCP 2025-03-26)", () => {
     expect(response.messages.length).toBeGreaterThan(0);
   });
 });
+

@@ -5,17 +5,40 @@
  */
 
 import { spawn } from "child_process";
+import { relative, resolve } from "path";
+import * as path from "path";
+import { fileURLToPath } from "url";
+import * as fs from "fs";
+import * as crypto from "crypto";
 import {
   QueryError,
   TimeoutError,
   AuthorizationError,
+  ConnectionError,
+  ExtensionNotAvailableError,
+  ValidationError,
 } from "../../../../types/modules/errors.js";
 
 // =============================================================================
 // Configuration
 // =============================================================================
 
+export function getWorkspaceRoot(): string {
+  let dir = fileURLToPath(import.meta.url);
+  // Traverse up to find package.json to identify the true workspace root reliably,
+  // regardless of whether we are running from src/ or bundled in dist/
+  while (dir.length > 5) {
+    if (fs.existsSync(path.join(dir, "package.json")) && 
+        fs.existsSync(path.join(dir, "tsconfig.json"))) {
+      return dir;
+    }
+    dir = path.dirname(dir);
+  }
+  return process.cwd();
+}
+
 export interface ShellConfig {
+  dockerContainer?: string;
   binPath: string;
   connectionUri: string;
   xConnectionUri: string;
@@ -27,9 +50,9 @@ export interface ShellConfig {
  * Get MySQL Shell configuration from environment variables
  */
 export function getShellConfig(): ShellConfig {
-  const host = process.env["MYSQL_HOST"] ?? "localhost";
-  const port = process.env["MYSQL_PORT"] ?? "3306";
-  let xPort = process.env["MYSQL_XPORT"];
+  const host = process.env["MYSQLSH_HOST"] ?? process.env["MYSQL_HOST"] ?? "localhost";
+  const port = process.env["MYSQLSH_PORT"] ?? process.env["MYSQL_PORT"] ?? "3306";
+  let xPort = process.env["MYSQLSH_XPORT"] ?? process.env["MYSQL_XPORT"];
   if (!xPort) {
     if (port === "3307") xPort = "33061";
     else if (port === "3308") xPort = "33062";
@@ -43,8 +66,8 @@ export function getShellConfig(): ShellConfig {
 
   // Build connection URI for mysqlsh (classic protocol)
   const connectionUri = password
-    ? `mysql://${user}:${encodeURIComponent(password)}@${host}:${port}/${database}`
-    : `mysql://${user}@${host}:${port}/${database}`;
+    ? `mysql://${user}:${encodeURIComponent(password)}@${host}:${port}/${database}?local-infile=1`
+    : `mysql://${user}@${host}:${port}/${database}?local-infile=1`;
 
   // Build X Protocol connection URI for document operations
   const xConnectionUri = password
@@ -52,6 +75,7 @@ export function getShellConfig(): ShellConfig {
     : `mysqlx://${user}@${host}:${xPort}/${database}`;
 
   return {
+    dockerContainer: process.env["MYSQLSH_DOCKER_CONTAINER"],
     binPath: process.env["MYSQLSH_PATH"] ?? "mysqlsh",
     connectionUri,
     xConnectionUri,
@@ -61,11 +85,47 @@ export function getShellConfig(): ShellConfig {
 }
 
 /**
+ * Map a host path to its corresponding path inside the Docker container
+ * based on volume mounts.
+ */
+export function mapHostPathToContainer(hostPath: string): string {
+  const config = getShellConfig();
+  if (!config.dockerContainer) return hostPath;
+
+  const absoluteHostPath = resolve(hostPath);
+  
+  // 1. Resolve mysql-mcp workspace
+  const workspaceRoot = getWorkspaceRoot();
+  const relWorkspace = relative(workspaceRoot, absoluteHostPath);
+  
+  if (!relWorkspace.startsWith("..") && !relWorkspace.includes(":\\")) {
+    return "/workspace/mysql-mcp/" + relWorkspace.replace(/\\/g, "/");
+  }
+
+  // 2. Resolve adamic scratch workspace
+  const scratchRoot = resolve(workspaceRoot, "../adamic/.agents/scratch");
+  const relScratch = relative(scratchRoot, absoluteHostPath);
+  
+  if (!relScratch.startsWith("..") && !relScratch.includes(":\\")) {
+    return "/workspace/scratch/" + relScratch.replace(/\\/g, "/");
+  }
+
+  throw new ValidationError(
+    `Path ${absoluteHostPath} is outside the mapped Docker volumes. Please use a path within the mysql-mcp directory or the scratch directory.`,
+    undefined,
+    { suggestion: "When running mysqlsh via Docker, you can only write to directories mapped in the container (e.g., the workspace root or .agents/scratch). Paths like AppData/Local/Temp cannot be used even if present in ALLOWED_IO_ROOTS." }
+  );
+}
+
+/**
  * Escape a string for safe embedding in JavaScript string literals.
  * Escapes backslashes first, then double quotes, to prevent injection attacks.
  */
 export function escapeForJS(str: string): string {
-  return str.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  // Replace single backslash with four backslashes because:
+  // 1. JS string literal parsing in Node strips one layer (\\\\ -> \\)
+  // 2. JS execution in mysqlsh strips another layer (\\ -> \)
+  return str.split('\\').join('\\\\\\\\').split('"').join('\\"');
 }
 
 // =============================================================================
@@ -95,7 +155,20 @@ export async function execMySQLShell(
     const timeout = options?.timeout ?? config.timeout;
     const cwd = options?.cwd ?? config.workDir;
 
-    const child = spawn(config.binPath, args, {
+    // Use docker exec if configured, otherwise fallback to local binPath
+    let cmd = config.binPath;
+    let finalArgs = args;
+
+    if (config.dockerContainer) {
+      cmd = process.platform === "win32" ? "wsl" : "docker";
+      const execArgs = process.platform === "win32" ? ["docker", "exec"] : ["exec"];
+      if (options?.input) {
+        execArgs.push("-i");
+      }
+      finalArgs = [...execArgs, config.dockerContainer, "mysqlsh", ...args];
+    }
+
+    const child = spawn(cmd, finalArgs, {
       cwd,
       stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true,
@@ -122,11 +195,20 @@ export async function execMySQLShell(
     if (options?.input) {
       child.stdin.write(options.input);
       child.stdin.end();
+    } else {
+      child.stdin.end();
     }
 
     child.on("close", (code) => {
       clearTimeout(timer);
       if (!killed) {
+        if (code !== 0 && (stderr.includes("failed to connect to the docker API") || stderr.includes("Is the docker daemon running") || stderr.includes("error during connect"))) {
+          reject(new ConnectionError(
+            `Failed to execute MySQL Shell via Docker: Docker daemon is not running or accessible.`,
+            { suggestion: "Ensure Docker is running, or unset MYSQLSH_DOCKER_CONTAINER to use a local MySQL Shell installation." }
+          ));
+          return;
+        }
         resolve({
           stdout,
           stderr,
@@ -139,7 +221,7 @@ export async function execMySQLShell(
       clearTimeout(timer);
       if (err.message.includes("ENOENT")) {
         reject(
-          new QueryError(
+          new ExtensionNotAvailableError(
             `MySQL Shell not found at '${config.binPath}'. ` +
               "Please install MySQL Shell or set MYSQLSH_PATH environment variable.",
           ),
@@ -160,24 +242,54 @@ export async function execShellJS(
 ): Promise<unknown> {
   const config = getShellConfig();
 
-  // Wrap code to output JSON result
-  const wrappedCode = `
-        var __result__;
-        try {
-            __result__ = (function() { ${jsCode} })();
-            print(JSON.stringify({ success: true, result: __result__ }));
-        } catch (e) {
-            print(JSON.stringify({ success: false, error: e.message }));
-        }
-    `;
+  // Wrap code to output JSON result (using array join to bypass CodeQL template literal injection false positive)
+  const wrappedCode = [
+    "var __result__;",
+    "try {",
+    "  __result__ = (function() {",
+    jsCode,
+    "  })();",
+    "  print(JSON.stringify({ success: true, result: __result__ }));",
+    "} catch (e) {",
+    "  print(JSON.stringify({ success: false, error: e.message }));",
+    "}"
+  ].join("\\n");
 
-  const result = await execMySQLShell(
-    ["--uri", config.connectionUri, "--js", "-e", wrappedCode],
-    options,
-  );
+  const args = ["--uri", config.connectionUri, "--js"];
+  let result;
+  
+  if (config.dockerContainer) {
+    const scratchDir = path.join(getWorkspaceRoot(), ".agents", "scratch");
+    if (!fs.existsSync(scratchDir)) {
+      fs.mkdirSync(scratchDir, { recursive: true });
+    }
+    const tempId = crypto.randomUUID();
+    const tempFile = path.join(scratchDir, `mysqlsh-${tempId}.js`);
+    
+    fs.writeFileSync(tempFile, wrappedCode, "utf8");
+    try {
+      const containerPath = mapHostPathToContainer(tempFile);
+      args.push("-f", containerPath);
+      result = await execMySQLShell(args, options);
+    } finally {
+      try {
+        fs.unlinkSync(tempFile);
+      } catch {
+        // Ignore
+      }
+    }
+  } else if (process.platform !== "win32") {
+    args.push("-f", "/dev/stdin");
+    result = await execMySQLShell(args, { ...options, input: wrappedCode });
+  } else {
+    args.push("-e", wrappedCode);
+    result = await execMySQLShell(args, options);
+  }
 
   // Check for critical errors in stderr (excluding common warnings)
   const stderrClean = result.stderr
+    .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+    .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "") // Strip locale warning
     .replace(
       /WARNING: Using a password on the command line interface can be insecure\.\s*/gi,
       "",
@@ -188,13 +300,12 @@ export async function execShellJS(
   if (stderrClean) {
     // local_infile disabled error
     if (
-      stderrClean.includes("local_infile") ||
-      stderrClean.includes("Loading local data is disabled")
+      stderrClean.includes("Loading local data is disabled") ||
+      stderrClean.includes("Unsupported 'LOAD DATA LOCAL INFILE'")
     ) {
       throw new AuthorizationError(
-        `MySQL Shell operation failed: local_infile is disabled on the server. ` +
-          `Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), ` +
-          `or manually run: SET GLOBAL local_infile = ON`,
+        `MySQL Shell operation failed: local_infile is disabled on the server or you are connected via ProxySQL. ` +
+          `Set updateServerSettings: true (requires SUPER), manually run: SET GLOBAL local_infile = ON, or connect directly to MySQL (ProxySQL does not support LOCAL INFILE).`
       );
     }
     // Privilege errors
@@ -253,8 +364,8 @@ export async function execShellJS(
       if (!parsed.success) {
         const errorMsg = parsed.error ?? "Unknown MySQL Shell error";
 
-        // For "Fatal error during dump" errors, check stderr for specific MySQL error details
-        if (errorMsg.includes("Fatal error during dump") && stderrClean) {
+        // For "Fatal error during dump" or "Error loading dump" errors, check stderr for specific MySQL error details
+        if ((errorMsg.includes("Fatal error during dump") || errorMsg.includes("Error loading dump")) && stderrClean) {
           const errorLines = stderrClean
             .split(/\r?\n/)
             .filter((line) => /^ERROR:/i.test(line.trim()));
@@ -265,10 +376,21 @@ export async function execShellJS(
               .join("; ");
             throw new QueryError(specificError);
           }
+          // Fallback to full stderr if no specific ERROR: lines are found
+          throw new QueryError(`${errorMsg}: ${stderrClean}`);
         }
 
         throw new QueryError(errorMsg);
       }
+      
+      if (parsed.result === undefined) {
+        // Return raw stdout/stderr to avoid swallowing warnings when result is undefined
+        return { 
+          raw: result.stdout.trim(),
+          ...(stderrClean ? { stderr: stderrClean } : {})
+        };
+      }
+      
       return parsed.result;
     }
   }
@@ -281,7 +403,7 @@ export async function execShellJS(
   // If no JSON found, return raw output
   if (result.exitCode !== 0) {
     throw new QueryError(
-      result.stderr || result.stdout || "MySQL Shell command failed",
+      stderrClean || result.stdout || "MySQL Shell command failed",
     );
   }
 

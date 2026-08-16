@@ -10,14 +10,11 @@ import {
   createFulltextDropTool,
   createFulltextSearchTool,
   createFulltextBooleanTool,
-  createFulltextExpandTool,
-} from "../fulltext/index.js";
-import type {} from "../../../mysql-adapter/index.js";
+  createFulltextExpandTool } from "../fulltext/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Text Fulltext Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -45,8 +42,7 @@ describe("Text Fulltext Tools", () => {
         {
           table: "articles",
           columns: ["title", "content"],
-          indexName: "ft_idx",
-        },
+          indexName: "ft_idx" },
         mockContext,
       )) as { data: { indexName: string } };
 
@@ -65,8 +61,7 @@ describe("Text Fulltext Tools", () => {
       const result = (await tool.handler(
         {
           table: "articles",
-          columns: ["title", "content"],
-        },
+          columns: ["title", "content"] },
         mockContext,
       )) as { data: { indexName: string } };
 
@@ -90,8 +85,7 @@ describe("Text Fulltext Tools", () => {
         {
           table: "articles",
           columns: ["title"],
-          indexName: "ft_idx",
-        },
+          indexName: "ft_idx" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -131,8 +125,7 @@ describe("Text Fulltext Tools", () => {
         {
           table: "articles",
           columns: ["nonexistent_col"],
-          indexName: "ft_idx",
-        },
+          indexName: "ft_idx" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -159,6 +152,12 @@ describe("Text Fulltext Tools", () => {
   });
 
   describe("createFulltextDropTool", () => {
+    beforeEach(() => {
+      mockAdapter.getTableIndexes.mockResolvedValue([
+        { name: "ft_idx", type: "FULLTEXT" }
+      ]);
+    });
+
     it("should create tool with correct definition", () => {
       const tool = createFulltextDropTool(
         mockAdapter,
@@ -254,8 +253,7 @@ describe("Text Fulltext Tools", () => {
         {
           table: "articles",
           columns: ["title", "content"],
-          query: "database",
-        },
+          query: "database" },
         mockContext,
       );
 
@@ -276,8 +274,7 @@ describe("Text Fulltext Tools", () => {
           table: "articles",
           columns: ["title"],
           query: "+mysql -oracle",
-          mode: "BOOLEAN",
-        },
+          mode: "BOOLEAN" },
         mockContext,
       );
 
@@ -296,8 +293,7 @@ describe("Text Fulltext Tools", () => {
           table: "articles",
           columns: ["title"],
           query: "database",
-          mode: "EXPANSION",
-        },
+          mode: "EXPANSION" },
         mockContext,
       );
 
@@ -321,8 +317,7 @@ describe("Text Fulltext Tools", () => {
           table: "articles",
           columns: ["body"],
           query: "test",
-          maxLength: 50,
-        },
+          maxLength: 50 },
         mockContext,
       )) as { data: { rows: Record<string, unknown>[] } };
 
@@ -345,8 +340,7 @@ describe("Text Fulltext Tools", () => {
         {
           table: "articles",
           columns: ["body"],
-          query: "test",
-        },
+          query: "test" },
         mockContext,
       )) as { data: { rows: Record<string, unknown>[] } };
 
@@ -407,8 +401,7 @@ describe("Text Fulltext Tools", () => {
         {
           table: "articles",
           columns: ["title"],
-          query: "+mysql",
-        },
+          query: "+mysql" },
         mockContext,
       );
 
@@ -431,8 +424,7 @@ describe("Text Fulltext Tools", () => {
           table: "articles",
           columns: ["content"],
           query: "+test",
-          maxLength: 100,
-        },
+          maxLength: 100 },
         mockContext,
       )) as { data: { rows: Record<string, unknown>[] } };
 
@@ -495,8 +487,7 @@ describe("Text Fulltext Tools", () => {
         {
           table: "articles",
           columns: ["title"],
-          query: "database",
-        },
+          query: "database" },
         mockContext,
       );
 
@@ -519,8 +510,7 @@ describe("Text Fulltext Tools", () => {
           table: "articles",
           columns: ["body"],
           query: "test",
-          maxLength: 80,
-        },
+          maxLength: 80 },
         mockContext,
       )) as { data: { rows: Record<string, unknown>[] } };
 

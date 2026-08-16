@@ -287,6 +287,12 @@ export interface ResourceDefinition {
   /** Size in bytes (if known) */
   size?: number;
 
+  /** Time-to-Live for the resource in milliseconds (0 means do not cache) */
+  ttlMs?: number;
+
+  /** Cache scope ('public' for shared cache, 'private' for user-specific) */
+  cacheScope?: "public" | "private";
+
   /** Resource metadata annotations */
   annotations?: ResourceAnnotations;
 }

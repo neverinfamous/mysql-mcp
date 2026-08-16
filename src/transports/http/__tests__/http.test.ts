@@ -24,14 +24,12 @@ import {
 import type { HttpTransportConfig, RateLimitEntry } from "../types.js";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { createServer } from "node:http";
-import { PassThrough } from "node:stream";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 
 // Mock node:http
 vi.mock("node:http", () => {
   const mockServer = {
     listen: vi.fn((_port: number, _host: string, cb: () => void) => cb()),
-    close: vi.fn((cb?: () => void) => cb && cb()),
+    close: vi.fn((cb?: () => void) => cb?.()),
     on: vi.fn(),
     setTimeout: vi.fn(),
     keepAliveTimeout: 0,
@@ -45,9 +43,9 @@ vi.mock("node:http", () => {
 });
 
 // Mock SDK StreamableHTTPServerTransport
-vi.mock("@modelcontextprotocol/sdk/server/streamableHttp.js", () => {
+vi.mock("@modelcontextprotocol/node", () => {
   return {
-    StreamableHTTPServerTransport: vi.fn(function () {
+    NodeStreamableHTTPServerTransport: vi.fn(function () {
       return {
         handleRequest: vi.fn().mockResolvedValue(undefined),
         close: vi.fn().mockResolvedValue(undefined),
@@ -58,22 +56,8 @@ vi.mock("@modelcontextprotocol/sdk/server/streamableHttp.js", () => {
   };
 });
 
-vi.mock("@modelcontextprotocol/sdk/server/sse.js", () => {
-  return {
-    SSEServerTransport: vi.fn(function (
-      this: any,
-      _path: string,
-      _res: ServerResponse,
-    ) {
-      this.handlePostMessage = vi.fn().mockResolvedValue(undefined);
-      this.close = vi.fn().mockResolvedValue(undefined);
-      this.sessionId = `sse-session-${Date.now()}`;
-    }),
-  };
-});
-
 // Mock SDK types
-vi.mock("@modelcontextprotocol/sdk/types.js", () => {
+vi.mock("@modelcontextprotocol/server", () => {
   return {
     isInitializeRequest: vi.fn((body: unknown) => {
       if (body && typeof body === "object" && "method" in body) {
@@ -211,15 +195,15 @@ describe("checkRateLimit()", () => {
     
     const mockRedisClient = {
       isOpen: true,
-      incr: vi.fn().mockResolvedValue(1),
-      pExpire: vi.fn().mockResolvedValue(true),
-      pTTL: vi.fn().mockResolvedValue(50000),
+      eval: vi.fn().mockResolvedValue(1),
     };
 
-    const r1 = await checkRateLimit(req, config, map, mockRedisClient as any);
+    const r1 = await checkRateLimit(req, config, map, mockRedisClient as Record<string, unknown>);
     expect(r1.allowed).toBe(true);
-    expect(mockRedisClient.incr).toHaveBeenCalledWith("http:rl:127.0.0.1");
-    expect(mockRedisClient.pExpire).toHaveBeenCalledWith("http:rl:127.0.0.1", 60000);
+    expect(mockRedisClient.eval).toHaveBeenCalledWith(expect.any(String), {
+      keys: ["http:rl:127.0.0.1"],
+      arguments: ["60000"]
+    });
   });
 
   it("should fallback to memory when Redis fails", async () => {
@@ -234,12 +218,10 @@ describe("checkRateLimit()", () => {
     
     const mockRedisClient = {
       isOpen: true,
-      incr: vi.fn().mockRejectedValue(new Error("Redis error")),
-      pExpire: vi.fn(),
-      pTTL: vi.fn(),
+      eval: vi.fn().mockRejectedValue(new Error("Redis error")),
     };
 
-    const r1 = await checkRateLimit(req, config, map, mockRedisClient as any);
+    const r1 = await checkRateLimit(req, config, map, mockRedisClient as Record<string, unknown>);
     expect(r1.allowed).toBe(true); // Should fallback to memory map (which is empty) and allow
   });
 
@@ -255,12 +237,10 @@ describe("checkRateLimit()", () => {
     
     const mockRedisClient = {
       isOpen: true,
-      incr: vi.fn().mockRejectedValue("Redis string error"),
-      pExpire: vi.fn(),
-      pTTL: vi.fn(),
+      eval: vi.fn().mockRejectedValue("Redis string error"),
     };
 
-    const r1 = await checkRateLimit(req, config, map, mockRedisClient as any);
+    const r1 = await checkRateLimit(req, config, map, mockRedisClient as Record<string, unknown>);
     expect(r1.allowed).toBe(true);
   });
 });
@@ -420,7 +400,7 @@ describe("readBody()", () => {
       mockReq.emit("data", Buffer.from('{"test": true}'));
       mockReq.emit("end");
     }, 10);
-    const result = await readBody(mockReq as any);
+    const result = await readBody(mockReq as Record<string, unknown>);
     expect(result).toEqual({ test: true });
   });
 
@@ -431,7 +411,7 @@ describe("readBody()", () => {
       mockReq.emit("data", Buffer.from('invalid json'));
       mockReq.emit("end");
     }, 10);
-    await expect(readBody(mockReq as any)).rejects.toThrow("Invalid JSON");
+    await expect(readBody(mockReq as Record<string, unknown>)).rejects.toThrow("Invalid JSON");
   });
 
   it("should return undefined if body is empty", async () => {
@@ -440,7 +420,7 @@ describe("readBody()", () => {
     setTimeout(() => {
       mockReq.emit("end");
     }, 10);
-    const result = await readBody(mockReq as any);
+    const result = await readBody(mockReq as Record<string, unknown>);
     expect(result).toBeUndefined();
   });
 
@@ -450,7 +430,7 @@ describe("readBody()", () => {
     setTimeout(() => {
       mockReq.emit("error", new Error("Req error"));
     }, 10);
-    await expect(readBody(mockReq as any)).rejects.toThrow("Req error");
+    await expect(readBody(mockReq as Record<string, unknown>)).rejects.toThrow("Req error");
   });
 });
 
@@ -578,24 +558,24 @@ describe("HttpTransport", () => {
     it("should close all transports on stop()", async () => {
       const mockT1 = { close: vi.fn().mockResolvedValue(undefined) };
       const mockT2 = { close: vi.fn().mockResolvedValue(undefined) };
-      (transport as any).sessionManager.register("session-1", mockT1 as never);
-      (transport as any).sessionManager.register("session-2", mockT2 as never);
+      (transport as Record<string, unknown>).sessionManager.register("session-1", mockT1);
+      (transport as Record<string, unknown>).sessionManager.register("session-2", mockT2);
 
       await transport.stop();
 
       expect(mockT1.close).toHaveBeenCalled();
       expect(mockT2.close).toHaveBeenCalled();
-      expect((transport as any).sessionManager.size).toBe(0);
+      expect((transport as Record<string, unknown>).sessionManager.size).toBe(0);
     });
 
     it("should handle close errors gracefully during stop()", async () => {
       const mockT = {
         close: vi.fn().mockRejectedValue(new Error("close error")),
       };
-      (transport as any).sessionManager.register("session-err", mockT as never);
+      (transport as Record<string, unknown>).sessionManager.register("session-err", mockT);
 
       await transport.stop();
-      expect((transport as any).sessionManager.size).toBe(0);
+      expect((transport as Record<string, unknown>).sessionManager.size).toBe(0);
     });
   });
 
@@ -900,190 +880,7 @@ describe("handleRequest()", () => {
     });
   });
 
-  it("should dispatch to /sse for Legacy SSE", async () => {
-    const onConnect = vi.fn();
-    const t = new HttpTransport({ port: 3000 }, onConnect);
 
-    const mockReq = createMockRequest({ method: "GET", url: "/sse" });
-    const mockRes = createMockResponse();
-
-    await (
-      t as unknown as {
-        handleRequest: (
-          req: IncomingMessage,
-          res: ServerResponse,
-        ) => Promise<void>;
-      }
-    ).handleRequest(mockReq, mockRes);
-
-    expect(onConnect).toHaveBeenCalled();
-    expect(t.getTransports().size).toBe(1);
-  });
-
-  it("should dispatch to /messages for legacy message routing", async () => {
-    const mockReq = createMockRequest({
-      method: "POST",
-      url: "/messages?sessionId=nonexistent",
-    });
-    const mockRes = createMockResponse();
-
-    await (
-      transport as unknown as {
-        handleRequest: (
-          req: IncomingMessage,
-          res: ServerResponse,
-        ) => Promise<void>;
-      }
-    ).handleRequest(mockReq, mockRes);
-
-    // No transport for this session → 404
-    expect(mockRes.writeHead).toHaveBeenCalledWith(404, {
-      "Content-Type": "application/json",
-    });
-  });
-
-  it("should return 400 for /messages without sessionId", async () => {
-    const mockReq = createMockRequest({
-      method: "POST",
-      url: "/messages",
-    });
-    const mockRes = createMockResponse();
-
-    await (
-      transport as unknown as {
-        handleRequest: (
-          req: IncomingMessage,
-          res: ServerResponse,
-        ) => Promise<void>;
-      }
-    ).handleRequest(mockReq, mockRes);
-
-    expect(mockRes.writeHead).toHaveBeenCalledWith(400, {
-      "Content-Type": "application/json",
-    });
-    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
-    expect(JSON.parse(endCall as string)).toHaveProperty(
-      "error",
-      "Missing sessionId parameter",
-    );
-  });
-
-  describe("OAuth Scope Enforcement", () => {
-    it("should allow tools/call if auth context has required scope", async () => {
-      const mockTokenValidator = {
-        validate: vi.fn().mockResolvedValue({
-          valid: true,
-          claims: { scopes: ["write"] }, // mysql_write_query requires 'write'
-        }),
-      };
-      const mockResourceServer = {
-        getMetadata: vi.fn().mockReturnValue({ resource: "test" }),
-      };
-
-      const t = new HttpTransport({
-        port: 3000,
-        resourceServer: mockResourceServer as never,
-        tokenValidator: mockTokenValidator as never,
-      });
-
-      const mockTransport = new SSEServerTransport(
-        "/messages",
-        createMockResponse(),
-      );
-      (t as any).sessionManager.register("mock-session", mockTransport as never);
-
-      const mockReqStream = new PassThrough();
-      const mockReq = mockReqStream as unknown as IncomingMessage;
-      mockReq.method = "POST";
-      mockReq.url = "/messages?sessionId=mock-session";
-      mockReq.headers = {
-        host: "localhost:3000",
-        authorization: "Bearer token",
-      };
-      (mockReq as any).socket = { remoteAddress: "127.0.0.1" };
-
-      mockReqStream.write(
-        JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "tools/call",
-          params: { name: "mysql_write_query", arguments: { sql: "SELECT 1" } },
-        }),
-      );
-      mockReqStream.end();
-
-      const mockRes = createMockResponse();
-
-      await (t as any).handleRequest(mockReq, mockRes);
-
-      expect(mockRes.writeHead).not.toHaveBeenCalled();
-      expect(mockTransport.handlePostMessage).toHaveBeenCalled();
-    });
-
-    it("should block tools/call with 403 if missing required scope", async () => {
-      const mockTokenValidator = {
-        validate: vi.fn().mockResolvedValue({
-          valid: true,
-          claims: { scopes: ["read"] }, // Missing 'write' scope
-        }),
-      };
-      const mockResourceServer = {
-        getMetadata: vi.fn().mockReturnValue({ resource: "test" }),
-      };
-
-      const t = new HttpTransport({
-        port: 3000,
-        resourceServer: mockResourceServer as never,
-        tokenValidator: mockTokenValidator as never,
-      });
-
-      const mockTransport = new SSEServerTransport(
-        "/messages",
-        createMockResponse(),
-      );
-      (t as any).sessionManager.register("mock-session", mockTransport as never);
-
-      const mockReqStream = new PassThrough();
-      const mockReq = mockReqStream as unknown as IncomingMessage;
-      mockReq.method = "POST";
-      mockReq.url = "/messages?sessionId=mock-session";
-      mockReq.headers = {
-        host: "localhost:3000",
-        authorization: "Bearer token",
-      };
-      (mockReq as any).socket = { remoteAddress: "127.0.0.1" };
-
-      mockReqStream.write(
-        JSON.stringify({
-          jsonrpc: "2.0",
-          id: 2,
-          method: "tools/call",
-          params: { name: "mysql_write_query", arguments: { sql: "SELECT 1" } },
-        }),
-      );
-      mockReqStream.end();
-
-      const mockRes = createMockResponse();
-
-      await (t as any).handleRequest(mockReq, mockRes);
-
-      expect(mockRes.writeHead).toHaveBeenCalledWith(
-        403,
-        expect.objectContaining({
-          "Content-Type": "application/json",
-        }),
-      );
-      const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock
-        .calls[0][0];
-      const responseBody = JSON.parse(endCall as string);
-
-      expect(responseBody).toHaveProperty("error", "insufficient_scope");
-      expect(responseBody).toHaveProperty("error_description");
-      expect(responseBody.error_description).toContain("Insufficient scope");
-      expect(responseBody).toHaveProperty("tool", "mysql_write_query");
-      expect(mockTransport.handlePostMessage).not.toHaveBeenCalled();
-    });
-  });
 });
 
 // =============================================================================

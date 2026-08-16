@@ -14,31 +14,33 @@ describe("stream-utils", () => {
   });
 
   describe("streamResultRows", () => {
+    const mockCreate = progressFactory.create as import("vitest").Mock;
+
     it("should return 0 if rows array is empty", () => {
       const result = streamResultRows("token-1", []);
       expect(result).toBe(0);
-      expect(progressFactory.create).not.toHaveBeenCalled();
+      expect(mockCreate).not.toHaveBeenCalled();
     });
 
     it("should return 0 if progress reporter cannot be created", () => {
-      vi.mocked(progressFactory.create).mockReturnValue(null);
+      mockCreate.mockReturnValue(null);
       const rows = [{ id: 1 }];
       
       const result = streamResultRows("token-1", rows);
       expect(result).toBe(0);
-      expect(progressFactory.create).toHaveBeenCalledWith("token-1");
+      expect(mockCreate).toHaveBeenCalledWith("token-1");
     });
 
     it("should stream rows in chunks of STREAM_CHUNK_SIZE", () => {
       const mockReporter = { report: vi.fn() };
-      vi.mocked(progressFactory.create).mockReturnValue(mockReporter as any);
+      mockCreate.mockReturnValue(mockReporter as Record<string, unknown>);
       
       const rows = Array.from({ length: 25 }, (_, i) => ({ id: i }));
       
       const result = streamResultRows("token-1", rows);
       
       expect(result).toBe(3); // 25 rows / 10 = 3 chunks (10, 10, 5)
-      expect(progressFactory.create).toHaveBeenCalledWith("token-1");
+      expect(mockCreate).toHaveBeenCalledWith("token-1");
       expect(mockReporter.report).toHaveBeenCalledTimes(3);
       
       // First chunk
@@ -51,7 +53,7 @@ describe("stream-utils", () => {
 
     it("should handle custom chunk size", () => {
       const mockReporter = { report: vi.fn() };
-      vi.mocked(progressFactory.create).mockReturnValue(mockReporter as any);
+      mockCreate.mockReturnValue(mockReporter as Record<string, unknown>);
       
       const rows = Array.from({ length: 5 }, (_, i) => ({ id: i }));
       
@@ -63,7 +65,7 @@ describe("stream-utils", () => {
 
     it("should fallback to chunk size 1 if less than 1 is provided", () => {
       const mockReporter = { report: vi.fn() };
-      vi.mocked(progressFactory.create).mockReturnValue(mockReporter as any);
+      mockCreate.mockReturnValue(mockReporter as Record<string, unknown>);
       
       const rows = [{ id: 1 }, { id: 2 }];
       

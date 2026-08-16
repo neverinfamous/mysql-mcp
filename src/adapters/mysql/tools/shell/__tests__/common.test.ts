@@ -63,7 +63,7 @@ describe("String Escaping", () => {
     expect(escapeForJS("normal code")).toBe("normal code");
     expect(escapeForJS('code with "quotes"')).toBe('code with \\"quotes\\"');
     expect(escapeForJS("code with \\backslashes\\")).toBe(
-      "code with \\\\backslashes\\\\",
+      "code with \\\\\\\\backslashes\\\\\\\\",
     );
   });
 });
@@ -143,6 +143,7 @@ describe("execShellJS", () => {
     mockChild = new EventEmitter();
     mockChild.stdout = new EventEmitter();
     mockChild.stderr = new EventEmitter();
+    mockChild.stdin = { write: vi.fn(), end: vi.fn() };
     mockChild.kill = vi.fn();
     (spawn ).mockReturnValue(mockChild);
   });

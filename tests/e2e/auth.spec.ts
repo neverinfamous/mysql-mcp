@@ -1,57 +1,23 @@
 import { test, expect } from "@playwright/test";
-import { spawn, type ChildProcess } from "node:child_process";
-import { setTimeout as delay } from "node:timers/promises";
-import { tmpdir } from "node:os";
 
-const AUTH_PORT = 3101;
-const AUTH_BASE = `http://localhost:${String(AUTH_PORT)}`;
+import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE, SSE_CONNECT_TIMEOUT_MS } from "./helpers.js";
+
+const AUTH_PORT = 3155 + Number(process.env.TEST_WORKER_INDEX || 0);
+const AUTH_BASE = `http://127.0.0.1:${String(AUTH_PORT)}`;
 const AUTH_TOKEN = "test-secret-token-e2e";
-
-let authServer: ChildProcess;
 
 test.describe("Bearer Token Authentication", () => {
   test.beforeAll(async () => {
-    authServer = spawn(
-      "node",
-      [
-        "dist/cli.js",
-        "--transport",
-        "http",
-        "--port",
-        String(AUTH_PORT),
-        "--auth-token",
-        AUTH_TOKEN,
-        "--tool-filter",
-        "core",
-        "--mysql",
-        process.env["MYSQL_TEST_URL"] ??
-          "mysql://root:root@localhost:3307/testdb",
-      ],
-      {
-        cwd: process.cwd(),
-        env: {
-          ...process.env,
-          MCP_RATE_LIMIT_MAX: "10000",
-          ALLOWED_IO_ROOTS: `C:/temp,/tmp,${tmpdir()}`,
-        },
-      },
-    );
-
-    // Wait for server to become healthy
-    for (let i = 0; i < 30; i++) {
-      try {
-        const res = await fetch(`${AUTH_BASE}/health`);
-        if (res.ok) break;
-      } catch {
-        // Server not ready yet
-      }
-      await delay(500);
-    }
+    await startServer(AUTH_PORT, [
+      "--auth-token",
+      AUTH_TOKEN,
+      "--tool-filter",
+      "core",
+    ], "auth-server");
   });
 
-  test.afterAll(async () => {
-    authServer?.kill("SIGTERM");
-    await delay(500);
+  test.afterAll(() => {
+    stopServer(AUTH_PORT);
   });
 
   test("/health should be accessible without token", async () => {
@@ -78,7 +44,7 @@ test.describe("Bearer Token Authentication", () => {
         id: 1,
         method: "initialize",
         params: {
-          protocolVersion: "2025-03-26",
+          protocolVersion: MCP_PROTOCOL_STREAMABLE,
           capabilities: {},
           clientInfo: { name: "test", version: "1.0" },
         },
@@ -103,7 +69,7 @@ test.describe("Bearer Token Authentication", () => {
         id: 1,
         method: "initialize",
         params: {
-          protocolVersion: "2025-03-26",
+          protocolVersion: MCP_PROTOCOL_STREAMABLE,
           capabilities: {},
           clientInfo: { name: "test", version: "1.0" },
         },
@@ -128,7 +94,7 @@ test.describe("Bearer Token Authentication", () => {
         id: 1,
         method: "initialize",
         params: {
-          protocolVersion: "2025-03-26",
+          protocolVersion: MCP_PROTOCOL_STREAMABLE,
           capabilities: {},
           clientInfo: { name: "test", version: "1.0" },
         },
@@ -138,12 +104,12 @@ test.describe("Bearer Token Authentication", () => {
     expect(response.status).toBe(200);
   });
 
-  test("GET /sse without token should return 401", async () => {
+  test("GET /mcp without token should return 401", async () => {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000);
+    const timeout = setTimeout(() => controller.abort(), SSE_CONNECT_TIMEOUT_MS);
 
     try {
-      const response = await fetch(`${AUTH_BASE}/sse`, {
+      const response = await fetch(`${AUTH_BASE}/mcp`, {
         signal: controller.signal,
       });
       expect(response.status).toBe(401);

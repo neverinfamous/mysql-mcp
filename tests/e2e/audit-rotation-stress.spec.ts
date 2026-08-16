@@ -7,32 +7,29 @@
  */
 
 import { stat, rm } from "node:fs/promises";
-import { join } from "node:path";
-import { tmpdir } from "node:os";
-
 import { test, expect } from "@playwright/test";
+import { setTimeout as delay } from "node:timers/promises";
 import {
   startServer,
   stopServer,
   createClient,
   callToolAndParse,
   cleanupAuditFiles,
+  auditLogPath,
 } from "./helpers.js";
-import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Client } from "@modelcontextprotocol/client";
 
 const AUDIT_PORT_BASE = 3170;
 const AUDIT_FILTER = "transactions";
 
-function auditLogPath(suffix: string): string {
-  return join(tmpdir(), `mysql-audit-stress-${suffix}-${Date.now()}.jsonl`);
-}
+import { TIMEOUTS } from "./helpers.js";
 
-test.describe.configure({ mode: "serial", timeout: 60000 });
+test.describe.configure({ mode: "serial", timeout: TIMEOUTS.DEFAULT });
 
 test.describe("Audit Log Rotation Stress", () => {
   test("maintains 5 rotated files under high write throughput", async () => {
     const port = AUDIT_PORT_BASE + 1;
-    const logPath = auditLogPath("rotation-stress");
+    const logPath = auditLogPath("audit-stress", "rotation-stress");
 
     // Set max size extremely small to force rapid rotation
     await startServer(
@@ -50,7 +47,7 @@ test.describe("Audit Log Rotation Stress", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Rapidly fire off many write-scope tool calls to force multiple rotations.
       // We do this sequentially to avoid MCP protocol congestion, but fast enough
@@ -62,7 +59,7 @@ test.describe("Audit Log Rotation Stress", () => {
           "mysql_transaction_begin",
           {},
         );
-        const txId = (beginRes.data as any)?.transactionId as
+        const txId = (beginRes.data as Record<string, unknown>)?.transactionId as
           | string
           | undefined;
         if (txId) {
@@ -72,12 +69,12 @@ test.describe("Audit Log Rotation Stress", () => {
         }
         // Every few iterations, pause to let background disk writes complete and rotate
         if (i % 5 === 0) {
-          await new Promise((r) => setTimeout(r, 150));
+          await delay(150);
         }
       }
 
       // Wait for all async flushes and final rotations
-      await new Promise((r) => setTimeout(r, 1000));
+      await delay(1000);
 
       // Verify the file retention policy (keeps up to 5 rotations)
       // logPath.1, logPath.2, ..., logPath.5 should exist

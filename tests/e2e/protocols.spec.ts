@@ -6,6 +6,7 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 
 test.describe("HTTP Transport Protocols", () => {
   test("should return server metadata on GET /", async ({ request }) => {
@@ -16,10 +17,10 @@ test.describe("HTTP Transport Protocols", () => {
     expect(body).toHaveProperty("name", "mysql-mcp");
     expect(body).toHaveProperty("endpoints");
     expect(body.endpoints).toHaveProperty("POST /mcp");
-    expect(body.endpoints).toHaveProperty("GET /sse");
+    expect(body.endpoints).toHaveProperty("GET /mcp");
   });
 
-  test.describe("Streamable HTTP (MCP 2025-03-26)", () => {
+  test.describe(`Streamable HTTP (MCP ${MCP_PROTOCOL_STREAMABLE})`, () => {
     test("should reject generic payload on /mcp without a session ID", async ({
       request,
     }) => {
@@ -59,48 +60,6 @@ test.describe("HTTP Transport Protocols", () => {
       expect(response.status()).toBe(400);
       const body = await response.text();
       expect(body.length).toBeGreaterThan(0);
-    });
-  });
-
-  test.describe("Legacy SSE (MCP 2024-11-05)", () => {
-    test("should reject message POSTs without a sessionId parameter", async ({
-      request,
-    }) => {
-      const response = await request.post("/messages", {
-        data: {
-          jsonrpc: "2.0",
-          id: 1,
-          method: "initialize",
-          params: {
-            protocolVersion: "2024-11-05",
-            capabilities: {},
-            clientInfo: { name: "test", version: "1.0" },
-          },
-        },
-      });
-
-      expect(response.status()).toBe(400);
-      const body = await response.json();
-      expect(body).toHaveProperty("error", "Missing sessionId parameter");
-    });
-
-    test("should reject message POSTs for an unknown sessionId", async ({
-      request,
-    }) => {
-      const response = await request.post(
-        "/messages?sessionId=invalid-session-uuid",
-        {
-          data: {
-            jsonrpc: "2.0",
-            id: 1,
-            method: "ping",
-          },
-        },
-      );
-
-      expect(response.status()).toBe(404);
-      const body = await response.json();
-      expect(body).toHaveProperty("error", "No transport found for sessionId");
     });
   });
 });

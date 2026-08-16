@@ -80,7 +80,7 @@ test.describe("Payload Contracts: Security + Roles", () => {
       );
 
       expect(typeof payload).toBe("object");
-      const data = (payload as any).data;
+      const data = (payload as Record<string, unknown>).data;
       expect(typeof data.tableCount).toBe("number");
       expect(data.tableCount as number).toBeLessThanOrEqual(5);
     } finally {
@@ -107,7 +107,7 @@ test.describe("Payload Contracts: Security + Roles", () => {
         host: "localhost",
       });
 
-      const data = (payload as any).data;
+      const data = (payload as Record<string, unknown>).data;
       expect(typeof data).toBe("object");
       expect(typeof data.user).toBe("string");
     } finally {

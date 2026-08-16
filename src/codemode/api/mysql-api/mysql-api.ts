@@ -256,7 +256,7 @@ export class MysqlApi {
    * Get list of methods available in a group
    */
   getGroupMethods(groupName: string): string[] {
-    const groupApi = this[groupName as keyof MysqlApi];
+    const groupApi = Reflect.get(this, groupName);
     if (typeof groupApi === "object" && groupApi !== null) {
       return Object.keys(groupApi);
     }

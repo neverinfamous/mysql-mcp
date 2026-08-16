@@ -13,12 +13,14 @@ import {
   expectSuccess,
   expectHandlerError,
 } from "./helpers.js";
-import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Client } from "@modelcontextprotocol/client";
 
 // Force sequential execution
-test.describe.configure({ mode: "serial", timeout: 60_000 });
+import { TIMEOUTS } from "./helpers.js";
 
-const PORT = 3160;
+test.describe.configure({ mode: "serial", timeout: TIMEOUTS.DEFAULT });
+
+const PORT = 3161 + Number(process.env.TEST_WORKER_INDEX || 0);
 
 test.describe("Vector Tools", () => {
   let client: Client;
@@ -26,13 +28,19 @@ test.describe("Vector Tools", () => {
   test.beforeAll(async () => {
     // Start server with just the vector and core groups
     await startServer(PORT, ["--tool-filter", "vector,core"], "vector");
-    client = await createClient(`http://localhost:${PORT}`);
+    client = await createClient(`http://127.0.0.1:${PORT}`);
 
-    // Create a temporary test table
-    await callToolAndParse(client, "mysql_write_query", {
+    // Try to create a temporary test table
+    const result = await callToolAndParse(client, "mysql_write_query", {
       query:
         "CREATE TABLE IF NOT EXISTS temp_e2e_vectors (id INT PRIMARY KEY, text_content TEXT, embedding VECTOR(3))",
     });
+
+    if (result.success === false) {
+      test.skip(true, "Vector type not supported by this MySQL version");
+      return;
+    }
+
     // Add FULLTEXT index for hybrid search testing
     await callToolAndParse(client, "mysql_write_query", {
       query: "ALTER TABLE temp_e2e_vectors ADD FULLTEXT(text_content)",
@@ -54,10 +62,10 @@ test.describe("Vector Tools", () => {
       table: "temp_e2e_vectors",
     });
     expectSuccess(result);
-    const data = result.data as any;
+    const data = result.data as Record<string, unknown>;
     expect(data.columns).toBeInstanceOf(Array);
-    const embeddingCol = data.columns.find(
-      (c: any) => c.name === "embedding"
+    const embeddingCol = (data.columns as Array<{ name: string; dimensions?: number }>).find(
+      (c) => c.name === "embedding"
     );
     expect(embeddingCol).toBeDefined();
     expect(embeddingCol.dimensions).toBe(3);
@@ -74,7 +82,7 @@ test.describe("Vector Tools", () => {
       ],
     });
     expectSuccess(result);
-    expect((result.data as any).count).toBe(3);
+    expect(result.data?.count).toBe(3);
   });
 
   test("mysql_vector_store inserts a single vector", async () => {
@@ -103,7 +111,7 @@ test.describe("Vector Tools", () => {
       id: 1,
     });
     expectSuccess(result);
-    expect((result.data as any).vector).toEqual([0.1, 0.2, 0.3]);
+    expect(result.data?.vector).toEqual([0.1, 0.2, 0.3]);
   });
 
   test("mysql_vector_get returns P154 existence pattern if not found", async () => {
@@ -112,7 +120,7 @@ test.describe("Vector Tools", () => {
       id: 999,
     });
     expectSuccess(result);
-    expect((result.data as any).exists).toBe(false);
+    expect(result.data?.exists).toBe(false);
   });
 
   test("mysql_vector_search finds nearest neighbors", async () => {
@@ -130,8 +138,8 @@ test.describe("Vector Tools", () => {
       expect(result.code).toBe("EXTENSION_MISSING");
     } else {
       expectSuccess(result);
-      expect((result.data as any).count).toBeLessThanOrEqual(2);
-      expect((result.data as any).results[0].id).toBe(3);
+      expect(result.data?.count).toBeLessThanOrEqual(2);
+      expect(result.data?.results[0].id).toBe(3);
     }
   });
 
@@ -148,8 +156,8 @@ test.describe("Vector Tools", () => {
       expect(result.code).toBe("EXTENSION_MISSING");
     } else {
       expectSuccess(result);
-      expect((result.data as any).count).toBeGreaterThanOrEqual(1);
-      expect((result.data as any).results[0].id).toBe(1);
+      expect(result.data?.count).toBeGreaterThanOrEqual(1);
+      expect(result.data?.results[0].id).toBe(1);
     }
   });
 
@@ -171,8 +179,8 @@ test.describe("Vector Tools", () => {
       expect(result.code).toBe("EXTENSION_MISSING");
     } else {
       expectSuccess(result);
-      expect((result.data as any).count).toBeGreaterThanOrEqual(1);
-      expect(typeof (result.data as any).results[0].combined_score).toBe("number");
+      expect(result.data?.count).toBeGreaterThanOrEqual(1);
+      expect(typeof result.data?.results[0].combined_score).toBe("number");
     }
   });
 
@@ -182,8 +190,8 @@ test.describe("Vector Tools", () => {
       column: "embedding",
     });
     expectSuccess(result);
-    expect((result.data as any).totalRows).toBe(4);
-    expect(((result.data as any).stats as any).dimensions.max).toBe(3);
+    expect(result.data?.totalRows).toBe(4);
+    expect((result.data?.stats as Record<string, unknown>).dimensions.max).toBe(3);
   });
 
   test("mysql_vector_create_index works (or graceful fallback on 9.0+ CE)", async () => {
@@ -206,7 +214,7 @@ test.describe("Vector Tools", () => {
       }
     } else {
       expectSuccess(result);
-      expect((result.data as any).created).toBe(true);
+      expect(result.data?.created).toBe(true);
     }
   });
 
@@ -215,7 +223,7 @@ test.describe("Vector Tools", () => {
       table: "temp_e2e_vectors",
     });
     expectSuccess(result);
-    expect((result.data as any).optimized).toBe(true);
+    expect(result.data?.optimized).toBe(true);
   });
 
   test("mysql_vector_delete removes a vector", async () => {
@@ -230,6 +238,6 @@ test.describe("Vector Tools", () => {
       table: "temp_e2e_vectors",
       id: 4,
     });
-    expect((check.data as any).exists).toBe(false);
+    expect(check.data?.exists).toBe(false);
   });
 });

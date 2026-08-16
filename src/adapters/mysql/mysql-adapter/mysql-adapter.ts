@@ -24,6 +24,8 @@ import type {
 import { ConnectionError } from "../../../types/index.js";
 import { logger } from "../../../utils/logger.js";
 import { VERSION } from "../../../version.js";
+import { metrics } from "../../../observability/metrics.js";
+import { execSync } from "node:child_process";
 
 import { SchemaManager } from "../schema-manager.js";
 import { TransactionManager } from "./transactions.js";
@@ -41,6 +43,9 @@ export class MySQLAdapter extends DatabaseAdapter {
   public pool: ConnectionPool | null = null;
   public activeTransactions = new Map<string, PoolConnection>();
   public origIsolationLevels = new Map<string, string>();
+
+  private config: DatabaseConfig | null = null;
+  private isConnecting = false;
 
   private schemaManager = new SchemaManager(this);
   private transactions = new TransactionManager(this);
@@ -69,6 +74,8 @@ export class MySQLAdapter extends DatabaseAdapter {
       return;
     }
 
+    this.config = config;
+
     const poolConfig = {
       host: config.host ?? "localhost",
       port: config.port ?? 3306,
@@ -83,19 +90,88 @@ export class MySQLAdapter extends DatabaseAdapter {
       connectTimeout: config.options?.connectTimeout ?? 30000,
     };
 
-    this.pool = new ConnectionPool(poolConfig);
+    const attemptHosts = [poolConfig.host];
 
+    // Windows native WSL fallback: If host is localhost/127.0.0.1 and we are on Windows,
+    // we may encounter ECONNREFUSED due to WSL2 port forwarding issues.
+    if (
+      process.platform === "win32" &&
+      (poolConfig.host === "127.0.0.1" || poolConfig.host === "localhost")
+    ) {
+      try {
+        const output = execSync("wsl hostname -I", { encoding: "utf8" });
+        const ip = output.trim().split(/\s+/)[0];
+        if (ip && /^\d+\.\d+\.\d+\.\d+$/.test(ip)) {
+          attemptHosts.push(ip);
+          logger.debug(`Added WSL native fallback IP: ${ip}`);
+        }
+      } catch {
+        // Ignore error if wsl is not available
+      }
+    }
+
+    let lastError: unknown;
+
+    for (const host of attemptHosts) {
+      this.pool = new ConnectionPool({ ...poolConfig, host });
+
+      try {
+        await this.pool.initialize();
+        const pool = this.pool;
+        metrics.setPoolStatsProvider(() => {
+          if (pool === null) return { total: 0, active: 0, idle: 0, waiting: 0, totalQueries: 0 };
+          return pool.getStats();
+        });
+        this.connected = true;
+        
+        logger.info("MySQL adapter connected", {
+          host: host,
+          originalHost: poolConfig.host !== host ? poolConfig.host : undefined,
+          port: poolConfig.port,
+          database: poolConfig.database,
+        });
+        return; // Success
+      } catch (error) {
+        lastError = error;
+        this.pool = null; // Reset for next attempt
+        
+        // Only try the next host if it was a connection refusal
+        const errMessage = String(error);
+        if (!errMessage.includes("ECONNREFUSED") && !errMessage.includes("connect ETIMEDOUT")) {
+          break;
+        }
+      }
+    }
+
+    throw new ConnectionError(`Failed to connect: ${String(lastError)}`);
+  }
+
+  /**
+   * Lazily ensure the connection is established for resilient query execution.
+   */
+  async ensureConnection(): Promise<void> {
+    if (this.pool && this.connected) return;
+    if (!this.config) throw new ConnectionError("No configuration available for reconnection");
+
+    if (this.isConnecting) {
+      // Wait for the active connection attempt to finish
+      let attempts = 0;
+      while (this.isConnecting && attempts < 50) {
+        await new Promise((r) => setTimeout(r, 100));
+        attempts++;
+      }
+      if (this.pool && this.connected) return;
+      throw new ConnectionError("Reconnection failed");
+    }
+
+    this.isConnecting = true;
     try {
-      await this.pool.initialize();
-      this.connected = true;
-      logger.info("MySQL adapter connected", {
-        host: poolConfig.host,
-        port: poolConfig.port,
-        database: poolConfig.database,
-      });
-    } catch (error) {
-      this.pool = null;
-      throw new ConnectionError(`Failed to connect: ${String(error)}`);
+      await this.connect(this.config);
+    } catch (err) {
+      logger.error("Lazy reconnection failed", { error: String(err) });
+      throw err;
+    } finally {
+      this.isConnecting = false;
     }
   }
 
@@ -125,6 +201,7 @@ export class MySQLAdapter extends DatabaseAdapter {
     await this.pool.shutdown();
     this.pool = null;
     this.connected = false;
+    this.config = null;
     logger.info("MySQL adapter disconnected");
   }
 

@@ -26,9 +26,9 @@ const ERROR_SUGGESTIONS: {
   // Resource errors — table/column/schema/index not found
   // =========================================================================
   {
-    pattern: /Table '.*' (?:doesn't|does not) exist/i,
+    pattern: /(?:Table|Collection) '.*' (?:doesn't|does not) exist/i,
     suggestion:
-      "Table does not exist. Run mysql_list_tables to see available tables.",
+      "Table or collection does not exist. Run mysql_list_tables or mysql_doc_list_collections to see available objects.",
     category: ErrorCategory.RESOURCE,
     code: "TABLE_NOT_FOUND",
   },
@@ -47,18 +47,39 @@ const ERROR_SUGGESTIONS: {
     code: "TABLE_NOT_FOUND",
   },
   {
-    pattern: /Unknown column ['"].*['"]/i,
+    pattern: /(?:Unknown column ['"].*['"]|Column ['"].*['"] not found|Key column ['"].*['"] (?:doesn't|does not) exist)/i,
     suggestion:
       "Column not found. Use mysql_describe_table to see available columns.",
     category: ErrorCategory.RESOURCE,
     code: "COLUMN_NOT_FOUND",
   },
   {
-    pattern: /(?:Unknown database|Database (?:'.*?' )?(?:doesn't|does not) exist|Schema (?:'.*?' )?(?:doesn't|does not) exist)/i,
+    pattern: /(?:Unknown database|Database (?:'.*?' )?(?:doesn't|does not) exist)/i,
     suggestion:
-      "Database not found. Use mysql_list_schemas to see available databases.",
+      "Schema not found. Use mysql_list_schemas to see available databases.",
     category: ErrorCategory.RESOURCE,
-    code: "DATABASE_NOT_FOUND",
+    code: "SCHEMA_NOT_FOUND",
+  },
+  {
+    pattern: /Schema (?:'.*?' )?(?:doesn't|does not) exist/i,
+    suggestion:
+      "Schema not found. Use mysql_list_schemas to see available databases.",
+    category: ErrorCategory.RESOURCE,
+    code: "SCHEMA_NOT_FOUND",
+  },
+  {
+    pattern: /Event (?:'.*?' )?(?:doesn't|does not) exist/i,
+    suggestion:
+      "Event does not exist. Run mysql_event_list to see available events.",
+    category: ErrorCategory.RESOURCE,
+    code: "OBJECT_NOT_FOUND",
+  },
+  {
+    pattern: /No row found matching WHERE/i,
+    suggestion:
+      "No rows matched the provided WHERE clause. Verify the condition and ensure the row exists.",
+    category: ErrorCategory.RESOURCE,
+    code: "NOT_FOUND",
   },
   {
     pattern: /index ['"].*['"] (?:does not exist|not found)/i,
@@ -93,22 +114,39 @@ const ERROR_SUGGESTIONS: {
   // Validation errors
   // =========================================================================
   {
+    pattern: /Invalid search syntax/i,
+    suggestion:
+      "Check your search query syntax. Boolean mode has strict operator requirements (+, -, *, etc.).",
+    category: ErrorCategory.VALIDATION,
+    code: "INVALID_QUERY_SYNTAX",
+  },
+  {
     pattern: /invalid table name/i,
     suggestion:
       "Table names must follow MySQL identifier rules: 1-64 characters, alphanumeric or underscores.",
     category: ErrorCategory.VALIDATION,
+    code: "VALIDATION_ERROR",
   },
   {
     pattern: /invalid column name/i,
     suggestion:
       "Column names must follow MySQL identifier rules: 1-64 characters, alphanumeric or underscores.",
     category: ErrorCategory.VALIDATION,
+    code: "VALIDATION_ERROR",
   },
   {
-    pattern: /invalid (view|index|schema|database) name/i,
+    pattern: /invalid (view|index|schema|database|collection) name/i,
     suggestion:
       "Names must follow MySQL identifier rules: 1-64 characters, alphanumeric or underscores.",
     category: ErrorCategory.VALIDATION,
+    code: "VALIDATION_ERROR",
+  },
+  {
+    pattern: /Identifier name .* is too long/i,
+    suggestion:
+      "Identifier names (databases, tables, columns, events) must not exceed 64 characters.",
+    category: ErrorCategory.VALIDATION,
+    code: "VALIDATION_ERROR",
   },
   {
     pattern: /invalid name syntax/i,
@@ -116,6 +154,20 @@ const ERROR_SUGGESTIONS: {
       "Check that the identifier name follows proper syntax and does not contain unauthorized characters or empty strings.",
     category: ErrorCategory.VALIDATION,
     code: "INVALID_IDENTIFIER",
+  },
+  {
+    pattern: /is not VIEW/i,
+    suggestion:
+      "The specified object is not a view. Verify the object name or use the correct tool for the object type.",
+    category: ErrorCategory.VALIDATION,
+    code: "INVALID_OBJECT_TYPE",
+  },
+  {
+    pattern: /Invalid (?:charset|collation)/i,
+    suggestion:
+      "Check that the charset or collation is valid and contains only alphanumeric characters or underscores.",
+    category: ErrorCategory.VALIDATION,
+    code: "VALIDATION_ERROR",
   },
   {
     pattern: /Data too long for column/i,
@@ -148,6 +200,7 @@ const ERROR_SUGGESTIONS: {
     pattern: /^Missing required parameters:/i,
     suggestion: "Provide all required parameters in your request.",
     category: ErrorCategory.VALIDATION,
+    code: "VALIDATION_ERROR",
   },
   {
     pattern: /already exists/i,
@@ -161,16 +214,25 @@ const ERROR_SUGGESTIONS: {
   // Query errors — syntax, constraints, transactions
   // =========================================================================
   {
+    pattern: /Incorrect arguments to COM_STMT_EXECUTE/i,
+    suggestion:
+      "The number of parameters provided does not match the number of placeholders (?) in the SQL query.",
+    category: ErrorCategory.QUERY,
+    code: "PARAMETER_MISMATCH",
+  },
+  {
     pattern: /You have an error in your SQL syntax/i,
     suggestion:
       "Check SQL syntax. Common issues: missing quotes, commas, parentheses, or reserved word conflicts.",
     category: ErrorCategory.QUERY,
+    code: "SYNTAX_ERROR",
   },
   {
     pattern: /syntax error/i,
     suggestion:
       "Check SQL syntax. Common issues: missing quotes, commas, parentheses, or reserved word conflicts.",
     category: ErrorCategory.QUERY,
+    code: "SYNTAX_ERROR",
   },
   {
     pattern: /Duplicate entry .* for key/i,
@@ -184,24 +246,28 @@ const ERROR_SUGGESTIONS: {
     suggestion:
       "The referenced row does not exist. Ensure the parent record exists before inserting.",
     category: ErrorCategory.QUERY,
+    code: "CONSTRAINT_ERROR",
   },
   {
     pattern: /Cannot delete or update a parent row: a foreign key constraint/i,
     suggestion:
       "Child rows reference this record. Delete or update child rows first, or use CASCADE.",
     category: ErrorCategory.QUERY,
+    code: "CONSTRAINT_ERROR",
   },
   {
     pattern: /Column .* cannot be null/i,
     suggestion:
       "A required column is missing a value. Provide a value or set a DEFAULT.",
     category: ErrorCategory.QUERY,
+    code: "CONSTRAINT_ERROR",
   },
   {
     pattern: /Check constraint .* is violated/i,
     suggestion:
       "The value does not meet the column's check constraint requirements.",
     category: ErrorCategory.QUERY,
+    code: "CONSTRAINT_ERROR",
   },
   {
     pattern: /Deadlock found when trying to get lock/i,
@@ -224,39 +290,50 @@ const ERROR_SUGGESTIONS: {
     category: ErrorCategory.QUERY,
     code: "TRANSACTION_CONFLICT",
   },
+  {
+    pattern: /Transaction (?:not found|ID is invalid)/i,
+    suggestion: "Transaction ID is invalid or has already been committed/rolled back.",
+    category: ErrorCategory.QUERY,
+    code: "TRANSACTION_NOT_FOUND",
+  },
 
   // =========================================================================
   // Connection errors
   // =========================================================================
   {
-    pattern: /not connected/i,
+    pattern: /not connected|ENOTFOUND|ECONNRESET|ETIMEDOUT|EHOSTUNREACH/i,
     suggestion:
       "Database connection not established. Ensure MySQL is configured and connected.",
     category: ErrorCategory.CONNECTION,
+    code: "CONNECTION_ERROR",
   },
   {
-    pattern: /Connection refused/i,
+    pattern: /Connection refused|ECONNREFUSED/i,
     suggestion:
       "MySQL server is not accepting connections. Verify the host, port, and that the server is running.",
     category: ErrorCategory.CONNECTION,
+    code: "CONNECTION_ERROR",
   },
   {
     pattern: /Too many connections/i,
     suggestion:
       "Connection limit reached. Close unused connections or increase max_connections.",
     category: ErrorCategory.CONNECTION,
+    code: "CONNECTION_ERROR",
   },
   {
-    pattern: /Connection (?:lost|terminated|closed)/i,
+    pattern: /Connection (?:lost|terminated|closed|reset)/i,
     suggestion:
       "Database connection was closed unexpectedly. This may indicate a server restart or timeout.",
     category: ErrorCategory.CONNECTION,
+    code: "CONNECTION_ERROR",
   },
   {
     pattern: /Can't connect to (?:local )?MySQL server/i,
     suggestion:
       "Cannot reach MySQL server. Verify the host, port, and that mysqld is running.",
     category: ErrorCategory.CONNECTION,
+    code: "CONNECTION_ERROR",
   },
 
   // =========================================================================
@@ -267,12 +344,21 @@ const ERROR_SUGGESTIONS: {
     suggestion:
       "Insufficient privileges. Check the user's permissions on the target database object.",
     category: ErrorCategory.PERMISSION,
+    code: "PERMISSION_DENIED",
   },
   {
     pattern: /command denied to user/i,
     suggestion:
       "This command requires elevated privileges. Check GRANT statements for the user.",
     category: ErrorCategory.PERMISSION,
+    code: "PERMISSION_DENIED",
+  },
+  {
+    pattern: /needs to be performed by user with .* privileges/i,
+    suggestion:
+      "This command requires elevated privileges. Check GRANT statements for the user.",
+    category: ErrorCategory.PERMISSION,
+    code: "PERMISSION_DENIED",
   },
 
   // =========================================================================
@@ -308,6 +394,7 @@ const ERROR_SUGGESTIONS: {
     suggestion:
       "Check for blocked patterns: require(), process., eval(), Function(), import(). Use mysql.* API instead.",
     category: ErrorCategory.VALIDATION,
+    code: "SANDBOX_VALIDATION_ERROR",
   },
   {
     pattern: /rate limit exceeded/i,
@@ -327,6 +414,7 @@ const ERROR_SUGGESTIONS: {
     pattern: /sandbox.*not initialized/i,
     suggestion: "Internal sandbox error. Retry the operation.",
     category: ErrorCategory.INTERNAL,
+    code: "SANDBOX_ERROR",
   },
 ];
 
@@ -348,4 +436,28 @@ export function findSuggestion(message: string): {
     }
   }
   return null;
+}
+
+/**
+ * Heuristic fallback for unhandled error categorization.
+ * Ensures metrics never report 'unknown' categories for tool errors.
+ */
+export function heuristicCategorize(errorMsg: string): { type: string; category: string } {
+  const lower = errorMsg.toLowerCase();
+  if (lower.includes("invalid parameters") || lower.includes("validation") || lower.includes("zoderror")) {
+    return { type: "VALIDATION_ERROR", category: "validation" };
+  }
+  if (lower.includes("syntax")) {
+    return { type: "SYNTAX_ERROR", category: "query" };
+  }
+  if (lower.includes("denied") || lower.includes("privilege")) {
+    return { type: "PERMISSION_DENIED", category: "permission" };
+  }
+  if (lower.includes("timeout") || lower.includes("connect")) {
+    return { type: "CONNECTION_ERROR", category: "connection" };
+  }
+  if (lower.includes("not found") || lower.includes("doesn't exist") || lower.includes("does not exist")) {
+    return { type: "OBJECT_NOT_FOUND", category: "resource" };
+  }
+  return { type: "TOOL_ERROR", category: "internal" };
 }

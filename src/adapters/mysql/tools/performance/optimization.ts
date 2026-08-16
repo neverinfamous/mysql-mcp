@@ -25,6 +25,7 @@ import {
 } from "../core/error-helpers.js";
 import { ValidationError } from "../../../../types/modules/errors.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { escapeIdentifier } from "../../../../utils/validators.js";
 
 /** Trace summary decision type */
 interface TraceSummaryDecision {
@@ -91,6 +92,7 @@ function extractTraceSummary(
               rows?: number;
               cost?: number;
               table_type?: string;
+              table_scan?: { rows: number; cost: number };
               range_analysis?: {
                 table_scan?: { rows: number; cost: number };
                 chosen_range_access_summary?: {
@@ -162,6 +164,13 @@ function extractTraceSummary(
                   estimatedRows: rangeAnalysis.table_scan.rows,
                   estimatedCost: rangeAnalysis.table_scan.cost,
                 });
+              } else if (est.table_scan) {
+                decisions.push({
+                  type: "table_scan",
+                  table: est.table,
+                  estimatedRows: est.table_scan.rows,
+                  estimatedCost: est.table_scan.cost,
+                });
               }
             }
           }
@@ -209,21 +218,55 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
       .optional()
       .describe("SQL query to analyze for optimization"),
     sql: z.string().optional().describe("Alias for query"),
-  });
+    queries: z.array(z.string()).optional().describe("Anti-Hallucination Hint: Do NOT pass an array of queries. This tool expects a single query string in the `query` field."),
+    table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
+    tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
+    schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a schema name. This tool executes against the current database."),
+    database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
+    db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
+  }).strict();
 
   const schema = z
     .preprocess(
-      preprocessQueryOnlyParams,
+      (data: unknown) => {
+        const processed = preprocessQueryOnlyParams(data);
+        if (typeof processed !== "object" || processed === null) return processed;
+        const record = processed as Record<string, unknown>;
+        return {
+          ...record,
+          table: record["table"] ?? record["tableName"],
+        };
+      },
       z.object({
         query: z.string().optional(),
         sql: z.string().optional(),
+        queries: z.array(z.string()).optional(),
+        table: z.string().optional(),
+        tableName: z.string().optional(),
+        schema: z.string().optional(),
+        database: z.string().optional(),
+        db: z.string().optional(),
+      }).refine((data) => !data.schema && !data.database && !data.db, {
+        message: "Anti-Hallucination Hint: mysql_query_rewrite executes against the current database. It does NOT accept a schema, database, or db string.",
+      }).refine((data) => !data.queries, {
+        message: "Anti-Hallucination Hint: mysql_query_rewrite expects a single query string in the `query` field. It does NOT accept an array of queries.",
       }),
     )
     .transform((data) => ({
       query: data.query ?? data.sql ?? "",
+      table: data.table,
     }))
+    .refine((data) => !data.table, {
+      message: "Anti-Hallucination Hint: mysql_query_rewrite expects a query, not a table name.",
+    })
     .refine((data) => data.query !== "", {
       message: "query (or sql alias) is required",
+    })
+    .refine((data) => {
+      if (!data.query) return true;
+      return /^\s*(SELECT|WITH|UPDATE|DELETE|INSERT|REPLACE)\b/i.test(data.query);
+    }, {
+      message: "Anti-Hallucination Hint: Query rewrite only supports DML queries (SELECT, WITH, UPDATE, DELETE, INSERT, REPLACE).",
     });
 
   return {
@@ -300,12 +343,24 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Get EXPLAIN for the query
         let explainResult: unknown = null;
-        const explainSql = `EXPLAIN FORMAT=JSON ${query}`;
-        const result = await adapter.executeReadQuery(explainSql);
-        if (result.rows?.[0]) {
-          const explainStr = result.rows[0]["EXPLAIN"];
-          if (typeof explainStr === "string") {
-            explainResult = JSON.parse(explainStr);
+        const cleanQuery = query.replace(/^\s*EXPLAIN\s+(?:FORMAT=JSON\s+)?/i, "");
+        const explainSql = `EXPLAIN FORMAT=JSON ${cleanQuery}`;
+        try {
+          const result = await adapter.executeReadQuery(explainSql);
+          if (result.rows?.[0]) {
+            const explainStr = result.rows[0]["EXPLAIN"];
+            if (typeof explainStr === "string") {
+              explainResult = JSON.parse(explainStr);
+            }
+          }
+        } catch (err: unknown) {
+          const errMsg = err instanceof Error ? err.message : String(err);
+          if (errMsg.includes("--super-read-only")) {
+            suggestions.push(
+              "EXPLAIN for DML queries (UPDATE/DELETE/INSERT) is blocked by super_read_only. Query analysis is limited to heuristic suggestions."
+            );
+          } else {
+            throw err;
           }
         }
 
@@ -358,17 +413,22 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        // Simple replacement - insert FORCE INDEX after table name
-        const regex = new RegExp(`FROM\\s+\`?${table}\`?(?=\\s|,|$)`, "i");
+        // Support optional database prefix, optional table alias, and semicolon at the end of the query
+        const escapeRegExp = (string: string): string => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+        const escapedTable = escapeRegExp(table);
+        const regex = new RegExp(`((?:FROM|JOIN|UPDATE|,)\\s+(?:(?:[a-zA-Z0-9_$\`]+\\.)?)\`?${escapedTable}\`?(?:\\s+(?:AS\\s+)?(?!WHERE|JOIN|INNER|LEFT|RIGHT|CROSS|ON|GROUP|ORDER|HAVING|LIMIT|SET|FORCE|USE|IGNORE\\b)[a-zA-Z0-9_$\`]+)?)(?=\\s|,|;|\\)|$)`, "ig");
         if (!regex.test(query)) {
           throw new ValidationError(
-            `Table '${table}' not found in query FROM clause`,
+            `Table '${table}' not found in query FROM/JOIN/UPDATE clause`,
+            undefined,
+            { suggestion: `Ensure the table '${table}' is referenced in the query's FROM, JOIN, or UPDATE clause.` }
           );
         }
 
+        const escapedIndexName = escapeIdentifier(indexName);
         const rewritten = query.replace(
           regex,
-          `FROM \`${table}\` FORCE INDEX (\`${indexName}\`)`,
+          (_, p1) => `${p1} FORCE INDEX (\`${escapedIndexName}\`)`
         );
 
         const response = {
@@ -376,7 +436,7 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
           data: {
             originalQuery: query,
             rewrittenQuery: rewritten,
-            hint: `FORCE INDEX (\`${indexName}\`)`,
+            hint: `FORCE INDEX (\`${escapedIndexName}\`)`,
           },
         };
         const tokenEstimate = Math.ceil(
@@ -402,7 +462,12 @@ export function createOptimizerTraceTool(
       .describe(
         "If true (default), returns only key optimization decisions to save tokens. Set to false for the full trace.",
       ),
-  });
+    table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
+    tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
+    schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a schema name. This tool executes against the current database."),
+    database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
+    db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
+  }).strict();
 
   const schema = z
     .preprocess(
@@ -411,6 +476,13 @@ export function createOptimizerTraceTool(
         query: z.string().optional(),
         sql: z.string().optional(),
         summary: z.boolean().optional(),
+        table: z.string().optional(),
+        tableName: z.string().optional(),
+        schema: z.string().optional(),
+        database: z.string().optional(),
+        db: z.string().optional(),
+      }).strict().refine((data) => !data.table && !data.tableName && !data.schema && !data.database && !data.db, {
+        message: "Anti-Hallucination Hint: mysql_optimizer_trace executes against the current database and expects a query. It does NOT accept a table, schema, database, or db string.",
       }),
     )
     .transform((data) => ({
@@ -419,6 +491,12 @@ export function createOptimizerTraceTool(
     }))
     .refine((data) => data.query !== "", {
       message: "query (or sql alias) is required",
+    })
+    .refine((data) => {
+      if (!data.query) return true;
+      return /^\s*(SELECT|WITH)\b/i.test(data.query);
+    }, {
+      message: "Anti-Hallucination Hint: Optimizer trace actually executes the query and can mutate data. Only SELECT or WITH queries are permitted.",
     });
 
   return {
@@ -443,6 +521,9 @@ export function createOptimizerTraceTool(
 
         connection = await pool.getConnection();
 
+        // Wrap in transaction to prevent ProxySQL hostgroup routing mid-trace and block any mutating queries
+        await connection.query('START TRANSACTION READ ONLY');
+        
         // Enable optimizer trace
         await connection.query('SET optimizer_trace="enabled=on"');
         tracingEnabled = true;
@@ -454,9 +535,19 @@ export function createOptimizerTraceTool(
         }
 
         // Get the trace
-        const [rows] = await connection.query(
+        let [rows] = await connection.query(
           "SELECT * FROM information_schema.OPTIMIZER_TRACE",
         );
+
+        // Prevent cross-query trace leaking by verifying the trace matches our query
+        if (Array.isArray(rows) && rows.length > 0) {
+          const firstRow = rows[0] as Record<string, unknown>;
+          const queryVal = firstRow["QUERY"];
+          const traceQuery = typeof queryVal === "string" ? queryVal : "";
+          if (traceQuery.trim().replace(/;+$/, '') !== query.trim().replace(/;+$/, '')) {
+            rows = [];
+          }
+        }
 
         if (summary) {
           const traceRows: Record<string, unknown>[] = [];
@@ -517,6 +608,13 @@ export function createOptimizerTraceTool(
                           k === "table_dependencies" ||
                           k === "finalizing_table_conditions" ||
                           k === "analyzing_range_alternatives" ||
+                          k === "join_preparation" ||
+                          k === "join_execution" ||
+                          k === "potential_range_indexes" ||
+                          k === "best_covering_index_scan" ||
+                          k === "refine_plan" ||
+                          k === "rest_of_plan" ||
+                          k === "plan_prefix" ||
                           k === "considered_access_paths" && Array.isArray(v) && v.length === 0 ||
                           k === "chosen" && v === true ||
                           k === "usable" && v === true
@@ -582,8 +680,9 @@ export function createOptimizerTraceTool(
           // Disable optimizer trace
           try {
             await connection.query('SET optimizer_trace="enabled=off"');
+            await connection.query('ROLLBACK');
           } catch {
-            // ignore
+            try { await connection.query('ROLLBACK'); } catch { /* ignore rollback error */ }
           }
         }
         if (connection !== null) {

@@ -8,7 +8,9 @@ import {
   ProxySQLLimitInputSchemaBase,
   ProxySQLCommandInputSchema,
   ProxySQLCommandInputSchemaBase,
+  ProxySQLQueryRuleSchema,
   ProxySQLQueryRulesOutputSchema,
+  ProxySQLQueryDigestSchema,
   ProxySQLQueryDigestOutputSchema,
   ProxySQLCommandsOutputSchema,
 } from "../../schemas/proxysql.js";
@@ -38,11 +40,12 @@ export function createProxySQLQueryRulesTool(): ToolDefinition {
         const rows = await proxySQLQuery(
           `SELECT * FROM mysql_query_rules LIMIT ${maxRows}`,
         );
+        const parsedRows = rows.map(r => ProxySQLQueryRuleSchema.parse(r));
         return withTokenEstimate({
           success: true,
           data: {
-            queryRules: rows,
-            count: rows.length,
+            queryRules: parsedRows,
+            count: parsedRows.length,
           },
         });
       } catch (err) {
@@ -74,13 +77,14 @@ export function createProxySQLQueryDigestTool(): ToolDefinition {
         const { limit } = ProxySQLLimitInputSchema.parse(params);
         const maxRows = Math.max(0, Math.floor(limit ?? 20));
         const rows = await proxySQLQuery(
-          `SELECT hostgroup, schemaname, username, digest, digest_text, count_star, sum_time, min_time, max_time FROM stats_mysql_query_digest ORDER BY count_star DESC LIMIT ${maxRows}`,
+          `SELECT hostgroup, schemaname, username, digest, digest_text, count_star, first_seen, last_seen, sum_time, min_time, max_time FROM stats_mysql_query_digest ORDER BY count_star DESC LIMIT ${maxRows}`,
         );
+        const parsedRows = rows.map(r => ProxySQLQueryDigestSchema.parse(r));
         return withTokenEstimate({
           success: true,
           data: {
-            queryDigests: rows,
-            count: rows.length,
+            queryDigests: parsedRows,
+            count: parsedRows.length,
           },
         });
       } catch (err) {

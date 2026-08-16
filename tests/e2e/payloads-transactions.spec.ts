@@ -8,8 +8,13 @@
  */
 
 import { test, expect } from "@playwright/test";
-import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { createClient, callToolAndParse, expectSuccess } from "./helpers.js";
+import type { Client } from "@modelcontextprotocol/client";
+import {
+  createClient,
+  callToolAndParse,
+  expectSuccess,
+  skipIfSuperReadOnly,
+} from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -28,11 +33,7 @@ test.describe("Payload Contracts: Transactions (Extended)", () => {
     // Begin
     const begin = await callToolAndParse(client, "mysql_transaction_begin", {});
     expectSuccess(begin);
-    // Note: mysql-mcp typically returns transactionId inside the payload
-    // Adjusting based on standard conventions (which could put it at root or inside data object).
-    // The previous test in payloads-misc used: (beginPayload.data as any).transactionId
-    const data = begin.data as any;
-    const txnId = data?.transactionId || begin.transactionId;
+    const txnId = begin.data?.transactionId;
     expect(typeof txnId).toBe("string");
 
     // Savepoint
@@ -65,13 +66,14 @@ test.describe("Payload Contracts: Transactions (Extended)", () => {
   });
 
   test("begin → execute INSERT → rollback → verify row not inserted", async () => {
+    await skipIfSuperReadOnly(client);
     // Create a temp table for isolation (force InnoDB for transaction support)
     const dropRes = await callToolAndParse(client, "mysql_write_query", {
-      sql: "DROP TABLE IF EXISTS _e2e_txn_rollback_test",
+      query: "DROP TABLE IF EXISTS _e2e_txn_rollback_test",
     });
     expectSuccess(dropRes);
     const createRes = await callToolAndParse(client, "mysql_write_query", {
-      sql: "CREATE TABLE _e2e_txn_rollback_test (id INT AUTO_INCREMENT PRIMARY KEY, value TEXT) ENGINE=InnoDB",
+      query: "CREATE TABLE _e2e_txn_rollback_test (id INT AUTO_INCREMENT PRIMARY KEY, value TEXT) ENGINE=InnoDB",
     });
     expectSuccess(createRes);
 
@@ -79,8 +81,7 @@ test.describe("Payload Contracts: Transactions (Extended)", () => {
       // Begin
       const begin = await callToolAndParse(client, "mysql_transaction_begin", {});
       expectSuccess(begin);
-      const data = begin.data as any;
-      const txnId = data?.transactionId || begin.transactionId;
+      const txnId = begin.data?.transactionId;
 
       // Execute INSERT inside transaction
       const exec = await callToolAndParse(client, "mysql_write_query", {
@@ -106,13 +107,13 @@ test.describe("Payload Contracts: Transactions (Extended)", () => {
       });
       expectSuccess(check);
       // In mysql-mcp, rows are usually under data.rows or just rows depending on tool
-      const resData = check.data as any;
+      const resData = check.data as Record<string, unknown>;
       const rows = resData?.rows || check.rows;
       expect(Number(rows[0].cnt)).toBe(0);
     } finally {
       // Cleanup
       await callToolAndParse(client, "mysql_write_query", {
-        sql: "DROP TABLE IF EXISTS _e2e_txn_rollback_test",
+        query: "DROP TABLE IF EXISTS _e2e_txn_rollback_test",
       });
     }
   });

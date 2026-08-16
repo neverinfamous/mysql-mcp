@@ -7,6 +7,7 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -25,7 +26,7 @@ test.describe("Session Lifecycle", () => {
         id: 1,
         method: "initialize",
         params: {
-          protocolVersion: "2025-03-26",
+          protocolVersion: MCP_PROTOCOL_STREAMABLE,
           capabilities: {},
           clientInfo: {
             name: "playwright-session-test",
@@ -97,7 +98,7 @@ test.describe("Session Lifecycle", () => {
         id: 99,
         method: "initialize",
         params: {
-          protocolVersion: "2025-03-26",
+          protocolVersion: MCP_PROTOCOL_STREAMABLE,
           capabilities: {},
           clientInfo: {
             name: "playwright-delete-test",

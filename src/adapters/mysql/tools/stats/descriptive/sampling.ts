@@ -8,7 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
-import { validateQualifiedIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
+import { validateQualifiedIdentifier, escapeQualifiedTable, validateWhereClause } from "../../../../../utils/validators.js";
 import { SampleOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { SamplingSchemaBase, SamplingSchema } from "./schemas.js";
@@ -31,12 +31,12 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         const { table, sampleSize, columns, seed, where } =
           SamplingSchema.parse(params);
 
-        if (sampleSize < 0) {
-          throw new ValidationError("sampleSize must be >= 0");
-        }
-
         // Validate table name
         validateQualifiedIdentifier(table, "table");
+
+        if (where) {
+          validateWhereClause(where);
+        }
 
         // Validate column names if provided
         if (columns) {
@@ -56,7 +56,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
                 .join(", ")
             : "*";
 
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
         // If seed is provided, use it for reproducibility
         let query: string;

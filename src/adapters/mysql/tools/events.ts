@@ -74,20 +74,20 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
           ifNotExists,
         } = EventCreateSchema.parse(params);
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+        if (!/^[^`]+$/.test(name)) {
           return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
-        const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
-        if (!validOnCompletion.includes(onCompletion)) {
-          return formatHandlerErrorResponse(
-            new ValidationError(`Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`)
-          );
+        const SCHEDULE_PATTERN = /^(AT\s+.+|EVERY\s+\d+\s+(SECOND|MINUTE|HOUR|DAY|WEEK|MONTH|QUARTER|YEAR|YEAR_MONTH|DAY_HOUR|DAY_MINUTE|DAY_SECOND|HOUR_MINUTE|HOUR_SECOND|MINUTE_SECOND)S?(\s+STARTS\s+.+)?(\s+ENDS\s+.+)?)$/i;
+        if (!SCHEDULE_PATTERN.test(schedule)) {
+          return formatHandlerErrorResponse(new ValidationError("Invalid schedule format",));
         }
+
+
 
         if (ifNotExists) {
           const existsCheck = await adapter.executeQuery(
-            "SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = DATABASE() AND EVENT_NAME = ?",
+            "(SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = DATABASE() AND EVENT_NAME = ?)",
             [name],
           );
           if (existsCheck.rows && existsCheck.rows.length > 0) {
@@ -145,19 +145,16 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         const { name, newName, schedule, body, onCompletion, status, comment } =
           EventAlterSchema.parse(params);
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+        if (!/^[^`]+$/.test(name)) {
           return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
-        // Validate enum fields at handler level
-        if (onCompletion !== undefined) {
-          const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
-          if (!validOnCompletion.includes(onCompletion)) {
-            return formatHandlerErrorResponse(
-              new ValidationError(`Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`)
-            );
-          }
+        const SCHEDULE_PATTERN = /^(AT\s+.+|EVERY\s+\d+\s+(SECOND|MINUTE|HOUR|DAY|WEEK|MONTH|QUARTER|YEAR|YEAR_MONTH|DAY_HOUR|DAY_MINUTE|DAY_SECOND|HOUR_MINUTE|HOUR_SECOND|MINUTE_SECOND)S?(\s+STARTS\s+.+)?(\s+ENDS\s+.+)?)$/i;
+        if (schedule && !SCHEDULE_PATTERN.test(schedule)) {
+          return formatHandlerErrorResponse(new ValidationError("Invalid schedule format",));
         }
+
+
 
         let sql = `ALTER EVENT \`${name}\``;
         const clauses: string[] = [];
@@ -171,7 +168,10 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         if (newName) {
-          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(newName)) {
+          if (newName === name) {
+            return formatHandlerErrorResponse(new ValidationError("New event name cannot be the same as the current name",));
+          }
+          if (!/^[^`]+$/.test(newName)) {
             return formatHandlerErrorResponse(new ValidationError("Invalid new event name",));
           }
           clauses.push(`RENAME TO \`${newName}\``);
@@ -229,16 +229,27 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { name, ifExists } = EventDropSchema.parse(params);
+        const { name, ifExists, schema } = EventDropSchema.parse(params);
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+        if (!/^[^`]+$/.test(name)) {
           return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
+        }
+
+        // P154: Schema existence check when explicitly provided
+        if (schema !== undefined && schema !== "") {
+          const schemaCheck = await adapter.executeQuery(
+            "(SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?)",
+            [schema],
+          );
+          if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+            return formatHandlerErrorResponse(new QueryError(`Schema '${schema}' does not exist`));
+          }
         }
 
         if (ifExists) {
           const existsCheck = await adapter.executeQuery(
-            "SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = DATABASE() AND EVENT_NAME = ?",
-            [name],
+            "(SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = COALESCE(?, DATABASE()) AND EVENT_NAME = ?)",
+            [schema ?? null, name],
           );
           if (!existsCheck.rows || existsCheck.rows.length === 0) {
             return withTokenEstimate({
@@ -249,8 +260,10 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const ifExistsClause = ifExists ? "IF EXISTS " : "";
+        const escapedSchema = schema ? schema.replace(/`/g, '``') : undefined;
+        const targetEvent = escapedSchema ? `\`${escapedSchema}\`.\`${name}\`` : `\`${name}\``;
 
-        await adapter.executeQuery(`DROP EVENT ${ifExistsClause}\`${name}\``);
+        await adapter.executeQuery(`DROP EVENT ${ifExistsClause}${targetEvent}`);
         return withTokenEstimate({ success: true, data: { eventName: name } });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
@@ -282,24 +295,25 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, pattern, includeDisabled } = EventListSchema.parse(params);
+        const { schema, pattern, status, limit, offset } = EventListSchema.parse(params);
 
         // P154: Schema existence check when explicitly provided
-        if (schema) {
+        if (schema !== undefined && schema !== "") {
           const schemaCheck = await adapter.executeQuery(
-            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            "(SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?)",
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return formatHandlerErrorResponse(new QueryError("Schema does not exist",));
+            return formatHandlerErrorResponse(new QueryError(`Schema '${schema}' does not exist`));
           }
         }
 
         let query = `
-                SELECT
+                (SELECT
                     EVENT_NAME as name,
                     EVENT_SCHEMA as schemaName,
                     DEFINER as definer,
+                    TIME_ZONE as timeZone,
                     EVENT_TYPE as eventType,
                     EXECUTE_AT as executeAt,
                     INTERVAL_VALUE as intervalValue,
@@ -308,6 +322,8 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
                     ENDS as ends,
                     STATUS as status,
                     ON_COMPLETION as onCompletion,
+                    CREATED as created,
+                    LAST_ALTERED as lastAltered,
                     LAST_EXECUTED as lastExecuted,
                     EVENT_COMMENT as comment
                 FROM information_schema.EVENTS
@@ -316,16 +332,17 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
 
         const queryParams: unknown[] = [schema ?? null];
 
-        if (pattern) {
+        if (status !== undefined) {
+          query += " AND STATUS = ?";
+          queryParams.push(status);
+        }
+
+        if (pattern !== undefined) {
           query += " AND EVENT_NAME LIKE ?";
           queryParams.push(pattern);
         }
 
-        if (!includeDisabled) {
-          query += " AND STATUS = 'ENABLED'";
-        }
-
-        query += " ORDER BY EVENT_NAME";
+        query += ` ORDER BY EVENT_NAME LIMIT ${limit} OFFSET ${offset})`;
 
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
@@ -366,16 +383,16 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
         // P154: Schema existence check when explicitly provided
         if (schema) {
           const schemaCheck = await adapter.executeQuery(
-            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            "(SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?)",
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return formatHandlerErrorResponse(new QueryError("Schema does not exist",));
+            return formatHandlerErrorResponse(new QueryError(`Schema '${schema}' does not exist`));
           }
         }
 
         const query = `
-                SELECT
+                (SELECT
                     EVENT_NAME as name,
                     EVENT_SCHEMA as schemaName,
                     DEFINER as definer,
@@ -395,7 +412,7 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
                     EVENT_DEFINITION as definition
                 FROM information_schema.EVENTS
                 WHERE EVENT_SCHEMA = COALESCE(?, DATABASE())
-                  AND EVENT_NAME = ?
+                  AND EVENT_NAME = ?)
             `;
 
         const result = await adapter.executeQuery(query, [
@@ -443,23 +460,23 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Get event counts by status
         const countResult = await adapter.executeQuery(`
-                SELECT
+                (SELECT
                     STATUS as status,
                     COUNT(*) as count
                 FROM information_schema.EVENTS
-                GROUP BY STATUS
+                GROUP BY STATUS)
             `);
 
         // Get recently executed events
         const recentResult = await adapter.executeQuery(`
-                SELECT
+                (SELECT
                     EVENT_NAME as name,
                     EVENT_SCHEMA as schemaName,
                     LAST_EXECUTED as lastExecuted
                 FROM information_schema.EVENTS
                 WHERE LAST_EXECUTED IS NOT NULL
                 ORDER BY LAST_EXECUTED DESC
-                LIMIT 10
+                LIMIT 10)
             `);
 
         const schedulerStatus = statusResult.rows?.[0];

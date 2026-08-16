@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { SubscriptionManager } from "../subscription-manager.js";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+
 import { logger } from "../../utils/logger.js";
 
 // Mock logger
@@ -22,7 +22,7 @@ describe("SubscriptionManager", () => {
       server: {
         sendResourceUpdated: vi.fn().mockResolvedValue(undefined),
       },
-    } as unknown as McpServer;
+    };
 
     manager = new SubscriptionManager(mockServer);
   });

@@ -63,7 +63,7 @@ export async function ensureTrackingTable(
     firstRow?.["table_exists"] === 1 || firstRow?.["table_exists"] === true;
 
   if (!existed) {
-    const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+    const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
     await adapter.executeWriteQuery(
       buildCreateTrackingTableSql(qualifiedTable),
     );
@@ -101,7 +101,7 @@ export async function checkDuplicateHash(
       .rows?.[0];
     targetSchema = (dbRow?.["db"] as string) || "mysql";
   }
-  const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+  const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
 
   const migrationHash = hashMigrationSql(migrationSql);
 

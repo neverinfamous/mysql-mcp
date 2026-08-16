@@ -1,13 +1,16 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2024-11-05/server.schema.json",
   "name": "io.github.neverinfamous/mysql-mcp",
   "title": "MySQL MCP Server",
-  "description": "Connect AI agents to enterprise MySQL. Minimize tokens with Code Mode. Secure access via OAuth 2.1.",
-  "version": "4.0.0",
+  "description": "Streamline database operations with our Enterprise-grade MySQL MCP Server. Securely connect using OAuth 2.1. Boost token efficiency via Code Mode.",
+  "version": "VERSION",
   "packages": [
     {
       "registryType": "oci",
       "identifier": "docker.io/writenotenow/mysql-mcp:latest",
+      "args": [
+        "--transport",
+        "stdio"
+      ],
       "transport": {
         "type": "stdio"
       }
@@ -15,6 +18,10 @@
     {
       "registryType": "npm",
       "identifier": "@neverinfamous/mysql-mcp",
+      "args": [
+        "--transport",
+        "stdio"
+      ],
       "transport": {
         "type": "stdio"
       }
@@ -27,7 +34,12 @@
     "model-context-protocol",
     "oauth",
     "docker",
-    "codemode"
+    "codemode",
+    "ai",
+    "llm",
+    "claude",
+    "cursor",
+    "typescript"
   ],
   "author": {
     "name": "neverinfamous"
@@ -35,8 +47,7 @@
   "homepage": "https://github.com/neverinfamous/mysql-mcp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/neverinfamous/mysql-mcp.git",
-    "source": "github"
+    "url": "https://github.com/neverinfamous/mysql-mcp.git"
   },
   "license": "MIT"
 }

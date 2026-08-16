@@ -201,15 +201,18 @@ describe("JSON Enhanced Tools", () => {
               json2_length: 2,
               json1_keys: '["name", "age"]',
               json2_keys: '["name", "age"]',
+              json1_type: 'OBJECT',
+              json2_type: 'OBJECT',
             },
           ]),
         )
-        // name: same value
+        // Second call: batch comparison for both name and age
         .mockResolvedValueOnce(
-          createMockQueryResult([{ v1: '"Alice"', v2: '"Alice"' }]),
-        )
-        // age: different values
-        .mockResolvedValueOnce(createMockQueryResult([{ v1: "30", v2: "31" }]));
+          createMockQueryResult([{
+            v1_0: '"Alice"', v2_0: '"Alice"',
+            v1_1: 30, v2_1: 31
+          }]),
+        );
 
       const tool = createJsonDiffTool(mockAdapter);
       const result = (await tool.handler(
@@ -395,8 +398,8 @@ describe("JSON Enhanced Tools", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
       expect(result.data.suggestions).toHaveLength(2);
-      expect(result.data.suggestions[0].path).toBe("$.id"); // higher cardinality first
-      expect(result.data.suggestions[0].indexDdl).toContain("BIGINT");
+      expect(result.data.suggestions[0].path).toBe('$."id"'); // higher cardinality first
+      expect(result.data.suggestions[0].indexDdl).toContain("SIGNED");
     });
 
     it("should use DOUBLE for double value types", async () => {
@@ -438,7 +441,7 @@ describe("JSON Enhanced Tools", () => {
         mockContext,
       )) as { data: { suggestions: any[] } };
 
-      expect(result.data.suggestions[0].indexDdl).toContain("TINYINT(1)");
+      expect(result.data.suggestions[0].indexDdl).toContain("SIGNED");
     });
 
     it("should skip keys with cardinality <= 1", async () => {
@@ -481,7 +484,7 @@ describe("JSON Enhanced Tools", () => {
       )) as { data: { suggestions: any[] } };
 
       expect(result.data.suggestions[0].type).toBe("UNKNOWN");
-      expect(result.data.suggestions[0].indexDdl).toContain("VARCHAR(255)");
+      expect(result.data.suggestions[0].indexDdl).toContain("CHAR(255)");
     });
 
     it("should limit suggestions to top 5", async () => {
@@ -546,80 +549,38 @@ describe("JSON Enhanced Tools", () => {
     describe("P154 Graceful Error Handling", () => {
       const tableError = new Error("Table 'testdb.nonexistent' does not exist");
 
-      it("json_normalize should return exists: false for nonexistent table", async () => {
-        mockAdapter.executeQuery.mockRejectedValue(tableError);
-        const tool = createJsonNormalizeTool(
-          mockAdapter,
-        );
-        const result = await tool.handler(
-          { table: "nonexistent", column: "doc" },
-          mockContext,
-        );
-        expect(result).toMatchObject({
-          success: false,
-          error: "Table 'testdb.nonexistent' does not exist",
+      const tableTests = [
+        { name: "json_normalize", toolFn: createJsonNormalizeTool, args: { table: "nonexistent", column: "doc" } },
+        { name: "json_stats", toolFn: createJsonStatsTool, args: { table: "nonexistent", column: "doc" } },
+        { name: "json_index_suggest", toolFn: createJsonIndexSuggestTool, args: { table: "nonexistent", column: "doc" } }
+      ];
+
+      tableTests.forEach(({ name, toolFn, args }) => {
+        it(`${name} should return exists: false for nonexistent table`, async () => {
+          mockAdapter.executeQuery.mockRejectedValue(tableError);
+          const tool = toolFn(mockAdapter);
+          const result = await tool.handler(args as any, mockContext);
+          expect(result).toMatchObject({
+            success: false,
+            error: "Table 'testdb.nonexistent' does not exist",
+          });
         });
       });
 
-      it("json_stats should return exists: false for nonexistent table", async () => {
-        mockAdapter.executeQuery.mockRejectedValue(tableError);
-        const tool = createJsonStatsTool(
-          mockAdapter,
-        );
-        const result = await tool.handler(
-          { table: "nonexistent", column: "doc" },
-          mockContext,
-        );
-        expect(result).toMatchObject({
-          success: false,
-          error: "Table 'testdb.nonexistent' does not exist",
-        });
-      });
+      const invalidJsonTests = [
+        { name: "json_merge", toolFn: createJsonMergeTool, args: { json1: "not-json", json2: "{}" } },
+        { name: "json_diff", toolFn: createJsonDiffTool, args: { json1: "not-json", json2: "{}" } }
+      ];
 
-      it("json_index_suggest should return exists: false for nonexistent table", async () => {
-        mockAdapter.executeQuery.mockRejectedValue(tableError);
-        const tool = createJsonIndexSuggestTool(
-          mockAdapter,
-        );
-        const result = await tool.handler(
-          { table: "nonexistent", column: "doc" },
-          mockContext,
-        );
-        expect(result).toMatchObject({
-          success: false,
-          error: "Table 'testdb.nonexistent' does not exist",
-        });
-      });
-
-      it("json_merge should return success: false for invalid input", async () => {
-        mockAdapter.executeReadQuery.mockRejectedValue(
-          new Error("Invalid JSON text"),
-        );
-        const tool = createJsonMergeTool(
-          mockAdapter,
-        );
-        const result = await tool.handler(
-          { json1: "not-json", json2: "{}" },
-          mockContext,
-        );
-        expect(result).toMatchObject({
-          success: false,
-          error: "Invalid JSON text",
-        });
-      });
-
-      it("json_diff should return success: false for invalid input", async () => {
-        mockAdapter.executeReadQuery.mockRejectedValue(
-          new Error("Invalid JSON text"),
-        );
-        const tool = createJsonDiffTool(mockAdapter);
-        const result = await tool.handler(
-          { json1: "not-json", json2: "{}" },
-          mockContext,
-        );
-        expect(result).toMatchObject({
-          success: false,
-          error: "Invalid JSON text",
+      invalidJsonTests.forEach(({ name, toolFn, args }) => {
+        it(`${name} should return success: false for invalid input`, async () => {
+          mockAdapter.executeReadQuery.mockRejectedValue(new Error("Invalid JSON text"));
+          const tool = toolFn(mockAdapter);
+          const result = await tool.handler(args as any, mockContext);
+          expect(result).toMatchObject({
+            success: false,
+            error: expect.stringContaining("json1 must be a valid JSON string or object"),
+          });
         });
       });
     });

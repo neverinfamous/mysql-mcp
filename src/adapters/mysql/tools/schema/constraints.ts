@@ -9,6 +9,10 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
+import {
+  MySQLMcpError,
+  ErrorCategory,
+} from "../../../../types/index.js";
 import { BaseOutputSchema } from "../../schemas/output-schemas.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
@@ -21,14 +25,24 @@ const ListConstraintsSchemaBase = z.object({
   type: z.string().optional().describe("Filter by constraint type"),
 });
 
+const extractNestedString = (v: unknown): string | undefined => {
+  if (typeof v === "string") return v === "" ? undefined : v;
+  if (typeof v === "object" && v !== null) {
+    const inner = v as Record<string, unknown>;
+    const extracted = inner['name'] ?? inner['tableName'] ?? inner['table'] ?? inner['schema'] ?? inner['database'];
+    if (typeof extracted === "string" && extracted !== "") return extracted;
+  }
+  return undefined;
+};
+
 const ListConstraintsSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        table: obj['table'] ?? obj['tableName'] ?? obj['name'],
-        schema: obj['schema'] ?? obj['database'],
+        table: extractNestedString(obj['table']) ?? extractNestedString(obj['tableName']) ?? extractNestedString(obj['name']),
+        schema: extractNestedString(obj['schema']) ?? extractNestedString(obj['database']),
       };
     }
     return val;
@@ -41,7 +55,9 @@ const ListConstraintsSchema = z.preprocess(
       .optional()
       .describe("Filter by constraint type"),
   })
-);
+).refine((data) => data.table !== "", {
+  message: "table (or tableName/name alias) is required",
+});
 
 const ListConstraintsOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -87,7 +103,11 @@ export function createListConstraintsTool(
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Schema '${schemaName}' does not exist`),
+              new MySQLMcpError(
+                `Schema '${schemaName}' does not exist`,
+                "DATABASE_NOT_FOUND",
+                ErrorCategory.RESOURCE
+              )
             );
           }
         }
@@ -99,7 +119,11 @@ export function createListConstraintsTool(
         );
         if (existsResult.rows === undefined || existsResult.rows.length === 0) {
           return formatHandlerErrorResponse(
-            new Error(`Table '${tableName}' does not exist`),
+            new MySQLMcpError(
+              `Table '${tableName}' does not exist`,
+              "TABLE_NOT_FOUND",
+              ErrorCategory.RESOURCE
+            )
           );
         }
 

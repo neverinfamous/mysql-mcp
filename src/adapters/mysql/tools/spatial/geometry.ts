@@ -71,9 +71,23 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { longitude, latitude, srid } = PointSchema.parse(params);
 
+        const sridCheck = await adapter.executeReadQuery(
+          `WITH _proxy_bypass AS (SELECT 1) SELECT 1 FROM information_schema.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?`,
+          [srid],
+        );
+        if (sridCheck.rows === undefined || sridCheck.rows.length === 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `There's no spatial reference system with SRID ${srid}.`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
+          });
+        }
+
         const wkt = `POINT(${String(longitude)} ${String(latitude)})`;
-        const result = await adapter.executeQuery(
-          `SELECT ST_AsText(ST_GeomFromText(?, ?, 'axis-order=long-lat'), 'axis-order=long-lat') as wkt,
+        const result = await adapter.executeReadQuery(
+          `WITH _proxy_bypass AS (SELECT 1) SELECT ST_AsText(ST_GeomFromText(?, ?, 'axis-order=long-lat'), 'axis-order=long-lat') as wkt,
                         ST_AsGeoJSON(ST_GeomFromText(?, ?, 'axis-order=long-lat'), 5) as geoJson`,
           [wkt, srid, wkt, srid],
         );
@@ -135,8 +149,22 @@ export function createSpatialPolygonTool(
           });
         }
 
-        const result = await adapter.executeQuery(
-          `SELECT ST_AsText(ST_GeomFromText(?, ?, 'axis-order=long-lat'), 'axis-order=long-lat') as wkt,
+        const sridCheck = await adapter.executeReadQuery(
+          `WITH _proxy_bypass AS (SELECT 1) SELECT 1 FROM information_schema.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?`,
+          [srid],
+        );
+        if (sridCheck.rows === undefined || sridCheck.rows.length === 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `There's no spatial reference system with SRID ${srid}.`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
+          });
+        }
+
+        const result = await adapter.executeReadQuery(
+          `WITH _proxy_bypass AS (SELECT 1) SELECT ST_AsText(ST_GeomFromText(?, ?, 'axis-order=long-lat'), 'axis-order=long-lat') as wkt,
                         ST_AsGeoJSON(ST_GeomFromText(?, ?, 'axis-order=long-lat'), 5) as geoJson,
                         ST_Area(ST_GeomFromText(?, ?, 'axis-order=long-lat')) as area`,
           [wkt, srid, wkt, srid, wkt, srid],

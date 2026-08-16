@@ -7,6 +7,7 @@
 import { ZodError } from "zod";
 import * as path from "path";
 import * as fs from "fs";
+import * as crypto from "crypto";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -36,6 +37,8 @@ import {
   escapeForJS,
   execShellJS,
   execMySQLShell,
+  mapHostPathToContainer,
+  getWorkspaceRoot,
 } from "./common.js";
 
 /**
@@ -58,6 +61,7 @@ export function createShellExportTableTool(
       openWorldHint: true,
       destructiveHint: false,
       sensitiveHint: false,
+      idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -72,8 +76,19 @@ export function createShellExportTableTool(
         
         assertSafeIoPath(finalOutputPath, adapter.getAllowedIoRoots());
 
-        const resolvedPath = path.resolve(finalOutputPath);
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const hostResolvedPath = path.resolve(finalOutputPath);
+        const targetDir = path.dirname(hostResolvedPath);
+        if (!fs.existsSync(targetDir)) {
+          throw new MySQLMcpError(
+            `Output directory does not exist.`,
+            "VALIDATION_ERROR",
+            ErrorCategory.VALIDATION,
+            { suggestion: "Ensure the directory for the output file exists.", details: { outputDir: targetDir } }
+          );
+        }
+        
+        const resolvedPath = mapHostPathToContainer(finalOutputPath).replace(/\\/g, "/");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
         if (format === "csv") {
@@ -87,8 +102,8 @@ export function createShellExportTableTool(
 
         const optionsStr =
           options.length > 0 ? `, { ${options.join(", ")} }` : "";
-        const target = schema ? `${schema}.${table}` : table;
-        const jsCode = `return util.exportTable("${target}", "${escapedPath}"${optionsStr});`;
+        const target = schema ? JSON.stringify(`${schema}.${table}`) : JSON.stringify(table);
+        const jsCode = `return util.exportTable(${target}, "${escapedPath}"${optionsStr});`;
 
         const result = await execShellJS(jsCode);
 
@@ -160,8 +175,11 @@ export function createShellExportTableTool(
           );
         }
         if (errorMessage.includes("1064") || errorMessage.includes("syntax error")) {
+          const match = /MySQL Error \d+ \(\d+\): (.*)/i.exec(errorMessage) ?? /syntax error[^:]*:?(.*)/i.exec(errorMessage);
+          // eslint-disable-next-line no-control-regex
+          const msg = match?.[1] ? match[1].trim() : errorMessage.replace(/\u001b\[\d+m/g, "").substring(0, 200);
           return formatHandlerErrorResponse(
-            new MySQLMcpError(`SQL syntax error: ${errorMessage}`, "QUERY_ERROR", ErrorCategory.QUERY, {
+            new MySQLMcpError(`SQL syntax error: ${msg}`, "QUERY_ERROR", ErrorCategory.QUERY, {
               suggestion: "Check your SQL syntax.",
             })
           );
@@ -217,15 +235,25 @@ export function createShellImportTableTool(
 
         assertSafeIoPath(finalInputPath, adapter.getAllowedIoRoots(), false);
 
-        const resolvedPath = path.resolve(finalInputPath);
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const hostResolvedPath = path.resolve(finalInputPath);
+        if (!fs.existsSync(hostResolvedPath)) {
+          throw new MySQLMcpError(
+            `Input file does not exist.`,
+            "VALIDATION_ERROR",
+            ErrorCategory.VALIDATION,
+            { suggestion: "Ensure the input file exists and the path is correct.", details: { inputPath: finalInputPath } }
+          );
+        }
+
+        const resolvedPath = mapHostPathToContainer(finalInputPath).replace(/\\/g, "/");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
         if (schema) {
-          options.push(`schema: "${schema}"`);
+          options.push(`schema: ${JSON.stringify(schema)}`);
         }
-        options.push(`table: "${table}"`);
-        if (threads) {
+        options.push(`table: ${JSON.stringify(table)}`);
+        if (threads !== undefined) {
           options.push(`threads: ${threads}`);
         }
         if (skipRows !== undefined) {
@@ -252,13 +280,21 @@ export function createShellImportTableTool(
 
         // Build JavaScript code that optionally enables local_infile
         let jsCode: string;
+        const setLocalInfileClient = `
+          try { shell.options.set("localInfile", true); } catch(e) {}
+          try { shell.options['localInfile'] = true; } catch(e) {}
+        `;
         if (updateServerSettings) {
           jsCode = `
                       session.runSql("SET GLOBAL local_infile = ON");
+                      ${setLocalInfileClient}
                       return util.importTable("${escapedPath}", { ${options.join(", ")} });
                   `;
         } else {
-          jsCode = `return util.importTable("${escapedPath}", { ${options.join(", ")} });`;
+          jsCode = `
+                      ${setLocalInfileClient}
+                      return util.importTable("${escapedPath}", { ${options.join(", ")} });
+                  `;
         }
 
         const result = await execShellJS(jsCode);
@@ -294,15 +330,16 @@ export function createShellImportTableTool(
         }
 
         if (
-          errorMessage.includes("local_infile") ||
-          errorMessage.includes("Loading local data is disabled")
+          errorMessage.includes("Loading local data is disabled") ||
+          errorMessage.includes("Unsupported 'LOAD DATA LOCAL INFILE'") ||
+          errorMessage.includes("local_infile")
         ) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
-              "Import failed: local_infile is disabled on the server.",
+              "Import failed: local_infile is disabled on the server or client, or you are connected via ProxySQL.",
               "CONFIGURATION_ERROR",
               ErrorCategory.CONFIGURATION,
-              { suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON" }
+              { suggestion: "Set updateServerSettings: true (requires SUPER), manually run: SET GLOBAL local_infile = ON, or ensure you are connecting directly to MySQL (ProxySQL does not support LOAD DATA LOCAL INFILE)." }
             )
           );
         }
@@ -345,8 +382,11 @@ export function createShellImportTableTool(
           );
         }
         if (errorMessage.includes("1064") || errorMessage.includes("syntax error")) {
+          const match = /MySQL Error \d+ \(\d+\): (.*)/i.exec(errorMessage) ?? /syntax error[^:]*:?(.*)/i.exec(errorMessage);
+          // eslint-disable-next-line no-control-regex
+          const msg = match?.[1] ? match[1].trim() : errorMessage.replace(/\u001b\[\d+m/g, "").substring(0, 200);
           return formatHandlerErrorResponse(
-            new MySQLMcpError(`SQL syntax error: ${errorMessage}`, "QUERY_ERROR", ErrorCategory.QUERY, {
+            new MySQLMcpError(`SQL syntax error: ${msg}`, "QUERY_ERROR", ErrorCategory.QUERY, {
               suggestion: "Check your SQL syntax.",
             })
           );
@@ -398,31 +438,31 @@ export function createShellImportJSONTool(
 
         assertSafeIoPath(finalInputPath, adapter.getAllowedIoRoots());
 
-        const resolvedPath = path.resolve(finalInputPath);
-        
-        if (!fs.existsSync(resolvedPath)) {
+        const hostResolvedPath = path.resolve(finalInputPath);
+        if (!fs.existsSync(hostResolvedPath)) {
           throw new MySQLMcpError(
-            `Cannot open file '${resolvedPath}': No such file or directory`,
-            "QUERY_ERROR",
-            ErrorCategory.QUERY,
-            { details: { protocol: "X Protocol" } }
+            `Input file does not exist.`,
+            "VALIDATION_ERROR",
+            ErrorCategory.VALIDATION,
+            { suggestion: "Ensure the input file exists and the path is correct.", details: { protocol: "X Protocol", inputPath: finalInputPath } }
           );
         }
 
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const resolvedPath = mapHostPathToContainer(finalInputPath).replace(/\\/g, "/");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
         if (schema) {
-          options.push(`schema: "${schema}"`);
+          options.push(`schema: ${JSON.stringify(schema)}`);
         }
 
         if (tableColumn) {
           // Importing to a table column
-          options.push(`table: "${collection}"`);
-          options.push(`tableColumn: "${tableColumn}"`);
+          options.push(`table: ${JSON.stringify(collection)}`);
+          options.push(`tableColumn: ${JSON.stringify(tableColumn)}`);
         } else {
           // Importing to a collection
-          options.push(`collection: "${collection}"`);
+          options.push(`collection: ${JSON.stringify(collection)}`);
         }
 
         if (convertBsonTypes) {
@@ -431,15 +471,9 @@ export function createShellImportJSONTool(
 
         const jsCode = `return util.importJson("${escapedPath}", { ${options.join(", ")} });`;
 
-        // util.importJson() ALWAYS requires X Protocol (X DevAPI)
         let result;
         try {
-          result = await execMySQLShell([
-            "--uri",
-            config.xConnectionUri,
-            "--js",
-            "-e",
-            `
+          const wrappedCode = `
                           var __result__;
                           try {
                               __result__ = (function() { ${jsCode} })();
@@ -447,8 +481,35 @@ export function createShellImportJSONTool(
                           } catch (e) {
                               print(JSON.stringify({ success: false, error: e.message }));
                           }
-                      `,
-          ]);
+                      `;
+          const args = ["--uri", config.xConnectionUri, "--js"];
+          if (config.dockerContainer) {
+            const scratchDir = path.join(getWorkspaceRoot(), ".agents", "scratch");
+            if (!fs.existsSync(scratchDir)) {
+              fs.mkdirSync(scratchDir, { recursive: true });
+            }
+            const tempId = crypto.randomUUID();
+            const tempFile = path.join(scratchDir, `mysqlsh-${tempId}.js`);
+            fs.writeFileSync(tempFile, wrappedCode, "utf8");
+            
+            try {
+              const containerPath = mapHostPathToContainer(tempFile);
+              args.push("-f", containerPath);
+              result = await execMySQLShell(args);
+            } finally {
+              try {
+                fs.unlinkSync(tempFile);
+              } catch {
+                // Ignore
+              }
+            }
+          } else if (process.platform !== "win32") {
+            args.push("-f", "/dev/stdin");
+            result = await execMySQLShell(args, { input: wrappedCode });
+          } else {
+            args.push("-e", wrappedCode);
+            result = await execMySQLShell(args);
+          }
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
@@ -498,8 +559,17 @@ export function createShellImportJSONTool(
             }
 
             if (!parsed.success) {
+              const errorMsg = parsed.error ?? "Unknown MySQL Shell error";
+              if (errorMsg.includes("MySQL Error 2006") || errorMsg.includes("server has gone away") || errorMsg.includes("MySQL Error 2002") || errorMsg.includes("No connection could be made")) {
+                throw new MySQLMcpError(
+                  errorMsg,
+                  "CONNECTION_ERROR",
+                  ErrorCategory.CONNECTION,
+                  { details: { protocol: "X Protocol" }, recoverable: true }
+                );
+              }
               throw new MySQLMcpError(
-                parsed.error ?? "Unknown MySQL Shell error",
+                errorMsg,
                 "QUERY_ERROR",
                 ErrorCategory.QUERY,
                 { details: { protocol: "X Protocol" } }
@@ -512,7 +582,7 @@ export function createShellImportJSONTool(
                 schema,
                 collection,
                 protocol: "X Protocol",
-                result: parsed.result,
+                result: parsed.result ?? { raw: result.stdout, stderr: result.stderr },
               },
             });
           }
@@ -520,10 +590,12 @@ export function createShellImportJSONTool(
 
         if (result.exitCode !== 0) {
           const stderrText = (result.stderr || result.stdout || "MySQL Shell import failed")
+            .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+            .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "")
             .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
             .trim() || "MySQL Shell import failed";
           
-          if (stderrText.includes("MySQL Error 2006") || stderrText.includes("server has gone away")) {
+          if (stderrText.includes("MySQL Error 2006") || stderrText.includes("server has gone away") || stderrText.includes("MySQL Error 2002") || stderrText.includes("No connection could be made")) {
             throw new MySQLMcpError(
               stderrText,
               "CONNECTION_ERROR",
@@ -555,6 +627,36 @@ export function createShellImportJSONTool(
           return formatHandlerErrorResponse(error);
         }
         const errorMessage = error instanceof Error ? error.message : String(error);
+        
+        if (
+          errorMessage.includes("--super-read-only") ||
+          errorMessage.includes("--read-only")
+        ) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "The MySQL server is running in read-only mode (likely a replica). Switch to a primary node for write operations.",
+              "AUTHORIZATION_ERROR",
+              ErrorCategory.AUTHORIZATION,
+              { suggestion: "Execute writes against the primary node, or use the router's R/W port instead of the R/O port." }
+            )
+          );
+        }
+
+        if (
+          errorMessage.includes("contains invalid bytes") ||
+          errorMessage.includes("Document is missing a required field") ||
+          errorMessage.includes("Premature end of input stream")
+        ) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "JSON import failed: The input file is not valid NDJSON (e.g., it is a JSON array, plain text, or malformed JSON). util.importJson() requires NDJSON (one valid JSON object per line).",
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "Convert the file to NDJSON (JSON Lines) format where each valid JSON object is on a new line, and ensure there are no arrays or unclosed objects." }
+            )
+          );
+        }
+
         if (
           errorMessage.includes("1146") ||
           errorMessage.includes("doesn't exist") ||

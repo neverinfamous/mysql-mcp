@@ -3,6 +3,8 @@ import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-hel
 import {
   RouteNameInputSchema,
   RouteNameInputSchemaBase,
+  RouteNameWithLimitInputSchema,
+  RouteNameWithLimitInputSchemaBase,
   RouterRouteStatusOutputSchema,
   RouterRouteHealthOutputSchema,
   RouterRouteConnectionsOutputSchema,
@@ -98,7 +100,7 @@ export function createRouterRouteConnectionsTool(): ToolDefinition {
     description:
       "List active connections on a route including source/destination addresses, bytes transferred, and connection times.",
     group: "router",
-    inputSchema: RouteNameInputSchemaBase,
+    inputSchema: RouteNameWithLimitInputSchemaBase,
     outputSchema: RouterRouteConnectionsOutputSchema,
     requiredScopes: ["read"],
     annotations: {
@@ -110,18 +112,27 @@ export function createRouterRouteConnectionsTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { routeName } = RouteNameInputSchema.parse(params);
+        const { routeName, limit } = RouteNameWithLimitInputSchema.parse(params);
         const result = await safeRouterFetch(
           `/routes/${encodeURIComponent(routeName)}/connections`,
         );
         if (!result.success) {
           return result.response;
         }
+
+        const effectiveLimit = limit ?? 50;
+        const dataObj = (result.data ?? {}) as Record<string, unknown>;
+        const rawItems = Array.isArray(dataObj["items"]) ? (dataObj["items"] as unknown[]) : [];
+        const paginatedItems = rawItems.slice(0, effectiveLimit);
+
         return withTokenEstimate({
           success: true,
           data: {
             routeName,
-            connections: result.data,
+            connections: {
+              ...dataObj,
+              items: paginatedItems,
+            },
           },
         });
       } catch (err) {
@@ -138,7 +149,7 @@ export function createRouterRouteDestinationsTool(): ToolDefinition {
     description:
       "List backend MySQL server destinations for a route. Shows address and port of each destination server.",
     group: "router",
-    inputSchema: RouteNameInputSchemaBase,
+    inputSchema: RouteNameWithLimitInputSchemaBase,
     outputSchema: RouterRouteDestinationsOutputSchema,
     requiredScopes: ["read"],
     annotations: {
@@ -150,18 +161,27 @@ export function createRouterRouteDestinationsTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { routeName } = RouteNameInputSchema.parse(params);
+        const { routeName, limit } = RouteNameWithLimitInputSchema.parse(params);
         const result = await safeRouterFetch(
           `/routes/${encodeURIComponent(routeName)}/destinations`,
         );
         if (!result.success) {
           return result.response;
         }
+
+        const effectiveLimit = limit ?? 50;
+        const dataObj = (result.data ?? {}) as Record<string, unknown>;
+        const rawItems = Array.isArray(dataObj["items"]) ? (dataObj["items"] as unknown[]) : [];
+        const paginatedItems = rawItems.slice(0, effectiveLimit);
+
         return withTokenEstimate({
           success: true,
           data: {
             routeName,
-            destinations: result.data,
+            destinations: {
+              ...dataObj,
+              items: paginatedItems,
+            },
           },
         });
       } catch (err) {
@@ -178,7 +198,7 @@ export function createRouterRouteBlockedHostsTool(): ToolDefinition {
     description:
       "List IP addresses that have been blocked for a route due to too many failed connection attempts.",
     group: "router",
-    inputSchema: RouteNameInputSchemaBase,
+    inputSchema: RouteNameWithLimitInputSchemaBase,
     outputSchema: RouterRouteBlockedHostsOutputSchema,
     requiredScopes: ["read"],
     annotations: {
@@ -190,18 +210,27 @@ export function createRouterRouteBlockedHostsTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { routeName } = RouteNameInputSchema.parse(params);
+        const { routeName, limit } = RouteNameWithLimitInputSchema.parse(params);
         const result = await safeRouterFetch(
           `/routes/${encodeURIComponent(routeName)}/blockedHosts`,
         );
         if (!result.success) {
           return result.response;
         }
+
+        const effectiveLimit = limit ?? 50;
+        const dataObj = (result.data ?? {}) as Record<string, unknown>;
+        const rawItems = Array.isArray(dataObj["items"]) ? (dataObj["items"] as unknown[]) : [];
+        const paginatedItems = rawItems.slice(0, effectiveLimit);
+
         return withTokenEstimate({
           success: true,
           data: {
             routeName,
-            blockedHosts: result.data,
+            blockedHosts: {
+              ...dataObj,
+              items: paginatedItems,
+            },
           },
         });
       } catch (err) {

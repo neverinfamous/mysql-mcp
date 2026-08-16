@@ -3,9 +3,9 @@ import {
   type IncomingMessage,
   type ServerResponse,
 } from "node:http";
-import type { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import type { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
+import type { Transport } from "@modelcontextprotocol/server";
+
+import type { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { validateAuth, formatOAuthError } from "../../../auth/middleware.js";
 import type { AuthenticatedContext } from "../../../auth/middleware.js";
 import { logger } from "../../../utils/logger.js";
@@ -29,15 +29,13 @@ import {
 import { metrics } from "../../../observability/metrics.js";
 
 import { handleStreamableRequest, handleStatelessRequest } from "./streamable.js";
-import { handleLegacySSERequest, handleLegacyMessageRequest } from "./sse.js";
+
 import { isPublicPath } from "./utils.js";
 
 /**
  * HTTP Transport for MCP
  *
- * Supports two transport protocols simultaneously:
- * 1. Streamable HTTP (2025-03-26) via `/mcp` — preferred for modern clients
- * 2. Legacy SSE (2024-11-05) via `/sse` + `/messages` — backward compatibility
+ * Uses the Streamable HTTP transport (2025-03-26) via `/mcp`.
  */
 export class HttpTransport {
   private server: ReturnType<typeof createServer> | null = null;
@@ -71,7 +69,7 @@ export class HttpTransport {
       maxBodySize: config.maxBodySize ?? DEFAULT_MAX_BODY_SIZE,
       enableHSTS:
         config.enableHSTS ?? process.env["MCP_ENABLE_HSTS"] === "true",
-      trustProxy: config.trustProxy ?? false,
+      trustProxy: config.trustProxy ?? process.env["TRUST_PROXY"] === "true",
       stateless: config.stateless ?? false,
     };
     if (onConnect) {
@@ -128,30 +126,51 @@ export class HttpTransport {
         }
         
         if (process.env["REDIS_URL"]) {
-          this.redisClient = createClient({ url: process.env["REDIS_URL"] });
-          this.redisClient.connect().catch((err: unknown) => {
+          this.redisClient = createClient({ 
+            url: process.env["REDIS_URL"],
+            disableOfflineQueue: true
+          });
+          this.redisClient.on('error', (err: unknown) => {
+            logger.error("Redis Client Error", { error: err instanceof Error ? err : new Error(String(err)) });
+          });
+          this.redisClient.connect().then(() => resolve()).catch((err: unknown) => {
             logger.error("Redis connection failed in HttpTransport", {
               error: err instanceof Error ? err : new Error(String(err)),
             });
+            resolve();
           });
+        } else {
+          resolve();
         }
-        
-        resolve();
       });
     });
   }
+
+  private isStopping = false;
 
   /**
    * Stop the HTTP server
    */
   async stop(): Promise<void> {
+    if (this.isStopping) return;
+    this.isStopping = true;
+
     if (this.rateLimitCleanupInterval) {
       clearInterval(this.rateLimitCleanupInterval);
       this.rateLimitCleanupInterval = null;
     }
 
     if (this.redisClient?.isOpen) {
-      this.redisClient.destroy();
+      try {
+        await this.redisClient.quit();
+      } catch (e) {
+        logger.error("Error gracefully closing Redis client", { error: e });
+        try {
+          this.redisClient.destroy();
+        } catch (e2) {
+          logger.error("Error force disconnecting Redis client", { error: e2 });
+        }
+      }
     }
 
     await this.sessionManager.closeAll();
@@ -160,6 +179,7 @@ export class HttpTransport {
       if (this.server) {
         this.server.close(() => {
           logger.info("HTTP transport stopped");
+          this.server = null;
           resolve();
         });
       } else {
@@ -239,6 +259,7 @@ export class HttpTransport {
               error_description: "Bearer token required",
             }),
           );
+          metrics.recordHttpError(401);
           return;
         }
         const token = authHeader.slice(7);
@@ -254,6 +275,7 @@ export class HttpTransport {
               error_description: "Invalid bearer token",
             }),
           );
+          metrics.recordHttpError(401);
           return;
         }
       }
@@ -275,6 +297,7 @@ export class HttpTransport {
           error_description: "Too many requests. Please try again later.",
         }),
       );
+      metrics.recordHttpError(429);
       return;
     }
 
@@ -289,6 +312,7 @@ export class HttpTransport {
           error_description: `Request body exceeds maximum size of ${String(maxBodySize)} bytes.`,
         }),
       );
+      metrics.recordHttpError(413);
       return;
     }
 
@@ -310,6 +334,7 @@ export class HttpTransport {
             "Content-Type": "application/json",
             "WWW-Authenticate": "Bearer",
           });
+          metrics.recordHttpError(status);
           res.end(JSON.stringify(body));
           return;
         }
@@ -328,29 +353,9 @@ export class HttpTransport {
       return;
     }
 
-    // =========================================================================
-    // Legacy SSE Transport (Protocol 2024-11-05)
-    // =========================================================================
-    if (url.pathname === "/sse") {
-      if (this.config.stateless) {
-        res.writeHead(404, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Not found" }));
-        return;
-      }
-      await handleLegacySSERequest(req, res, this.sessionManager, this.onConnect);
-      return;
-    }
 
-    if (url.pathname === "/messages") {
-      if (this.config.stateless) {
-        res.writeHead(404, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Not found" }));
-        return;
-      }
-      await handleLegacyMessageRequest(req, res, url, this.sessionManager, authContext);
-      return;
-    }
 
+    metrics.recordHttpError(404);
     res.writeHead(404);
     res.end(JSON.stringify({ error: "Not found" }));
   }
@@ -362,12 +367,7 @@ export class HttpTransport {
   /**
    * Get all active transports (for testing/introspection)
    */
-  getTransports(): Map<
-    string,
-    StreamableHTTPServerTransport | 
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    SSEServerTransport
-  > {
+  getTransports(): Map<string, NodeStreamableHTTPServerTransport> {
     return this.sessionManager.getTransports();
   }
 }

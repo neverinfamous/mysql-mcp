@@ -16,7 +16,6 @@ import { findSuggestion } from "../../utils/error-suggestions.js";
  */
 const REFINABLE_CODES = new Set([
   "QUERY_ERROR",
-  "VALIDATION_ERROR",
   "RESOURCE_ERROR",
   "UNKNOWN_ERROR",
 ]);
@@ -182,9 +181,10 @@ export class ValidationError extends MySQLMcpError {
   constructor(
     message: string,
     details?: Record<string, unknown>,
-    options?: { cause?: Error },
+    options?: { cause?: Error; suggestion?: string },
   ) {
     super(message, "VALIDATION_ERROR", ErrorCategory.VALIDATION, {
+      suggestion: options?.suggestion,
       details,
       recoverable: false,
       cause: options?.cause,
@@ -199,11 +199,12 @@ export class TransactionError extends MySQLMcpError {
   constructor(
     message: string,
     details?: Record<string, unknown>,
-    options?: { cause?: Error },
+    options?: { cause?: Error; suggestion?: string },
   ) {
     super(message, "TRANSACTION_ERROR", ErrorCategory.QUERY, {
       suggestion:
-        "Use mysql_transaction_rollback to end the aborted transaction, or mysql_transaction_rollback_to to recover to a savepoint.",
+        options?.suggestion ??
+        "Verify the transaction ID and ensure the transaction is still active.",
       details,
       recoverable: true,
       cause: options?.cause,
@@ -253,10 +254,10 @@ export class ConflictError extends MySQLMcpError {
   constructor(
     message: string,
     details?: Record<string, unknown>,
-    options?: { cause?: Error },
+    options?: { cause?: Error; suggestion?: string },
   ) {
     super(message, "CONFLICT_ERROR", ErrorCategory.QUERY, {
-      suggestion: "The resource was modified by another request. Fetch the latest version and try again.",
+      suggestion: options?.suggestion ?? "The resource was modified by another request. Fetch the latest version and try again.",
       details,
       recoverable: true,
       cause: options?.cause,

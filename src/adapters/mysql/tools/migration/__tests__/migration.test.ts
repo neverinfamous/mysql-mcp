@@ -57,13 +57,13 @@ describe("Migration Core Tools", () => {
     it("should initialize the tracking table", async () => {
       const result = await tool.handler({ schema: "testdb" }, mockContext);
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
+      expect((result as Record<string, unknown>).success).toBe(true);
       expect(mockAdapter.executeWriteQuery).toHaveBeenCalled();
 
       const sqlCall = mockAdapter.executeWriteQuery.mock
         .calls[0]?.[0];
       expect(sqlCall).toContain(
-        "CREATE TABLE IF NOT EXISTS testdb._mcp_schema_versions",
+        "CREATE TABLE IF NOT EXISTS `testdb`.`_mcp_schema_versions`",
       );
     });
 
@@ -78,9 +78,9 @@ describe("Migration Core Tools", () => {
 
       const result = await tool.handler({ schema: "testdb" }, mockContext);
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      expect(Reflect.get(result || {}, "data").tableCreated).toBe(false);
-      expect(Reflect.get(result || {}, "data").existingRecords).toBe(5);
+      expect((result as Record<string, unknown>).success).toBe(true);
+      expect((result as Record<string, unknown>).data.tableCreated).toBe(false);
+      expect((result as Record<string, unknown>).data.existingRecords).toBe(5);
       expect(mockAdapter.executeWriteQuery).not.toHaveBeenCalled();
     });
   });
@@ -98,7 +98,7 @@ describe("Migration Core Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
+      expect((result as Record<string, unknown>).success).toBe(true);
 
       // Ensure tracking table check/create
       expect(mockAdapter.executeWriteQuery).toHaveBeenCalled();
@@ -109,7 +109,7 @@ describe("Migration Core Tools", () => {
 
       expect(
         executedQueries.some((q) =>
-          q.includes("INSERT INTO testdb._mcp_schema_versions"),
+          q.includes("INSERT INTO `testdb`.`_mcp_schema_versions`"),
         ),
       ).toBe(true);
       expect(executedQueries.some((q) => q === "CREATE TABLE a (id INT)")).toBe(
@@ -133,8 +133,8 @@ describe("Migration Core Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(false);
-      expect(Reflect.get(result || {}, "error")).toContain("already been applied");
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain("already been applied");
     });
   });
 
@@ -151,7 +151,7 @@ describe("Migration Core Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
+      expect((result as Record<string, unknown>).success).toBe(true);
 
       const calls = mockAdapter.executeWriteQuery.mock.calls;
       const executedQueries = calls.map((c) => c[0]);
@@ -161,7 +161,7 @@ describe("Migration Core Tools", () => {
       // Should insert into tracking table
       expect(
         executedQueries.some((q) =>
-          q.includes("INSERT INTO testdb._mcp_schema_versions"),
+          q.includes("INSERT INTO `testdb`.`_mcp_schema_versions`"),
         ),
       ).toBe(true);
     });
@@ -181,8 +181,8 @@ describe("Migration Core Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(false);
-      expect(Reflect.get(result || {}, "error")).toContain("Syntax error");
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain("Syntax error");
 
       // Should have attempted to record the failure
       const calls = mockAdapter.executeWriteQuery.mock.calls;

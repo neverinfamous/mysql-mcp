@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { McpServer } from "../mcp-server.js";
-import { DatabaseAdapter } from "../../../adapters/database-adapter/index.js";
+import { type DatabaseAdapter } from "../../../adapters/database-adapter/index.js";
 import { DEFAULT_CONFIG } from "../config.js";
 import { logger } from "../../../utils/logger.js";
 
@@ -66,10 +66,10 @@ describe("McpServer", () => {
   });
 
   it("should reject HTTP transport without allowedIoRoots", async () => {
-    const server = new McpServer({ transport: "http", allowedIoRoots: [] });
+    const server = new McpServer({ transport: "http", allowedIoRoots: [], port: 3333 });
     
     // We expect process.exit(1) to be called. We can mock it.
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any);
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as Record<string, unknown>);
     
     await server.start();
     

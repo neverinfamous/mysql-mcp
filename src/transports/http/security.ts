@@ -59,10 +59,17 @@ export async function checkRateLimit(
   if (redisClient?.isOpen) {
     try {
       const key = `http:rl:${clientIp}`;
-      const current = await redisClient.incr(key);
-      if (current === 1) {
-        await redisClient.pExpire(key, windowMs);
-      }
+      const luaScript = `
+local current = redis.call('INCR', KEYS[1])
+if current == 1 then
+  redis.call('PEXPIRE', KEYS[1], ARGV[1])
+end
+return current
+`;
+      const current = await redisClient.eval(luaScript, {
+        keys: [key],
+        arguments: [windowMs.toString()],
+      }) as number;
       
       if (current > maxRequests) {
         const ttl = await redisClient.pTTL(key);

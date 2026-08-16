@@ -11,7 +11,7 @@ describe("createFulltextSearchTool", () => {
       executeReadQuery: vi.fn(),
       executeWriteQuery: vi.fn(),
       // add other methods if needed
-    } as any;
+    } as Record<string, unknown>;
     tool = createFulltextSearchTool(mockAdapter as unknown as MySQLAdapter);
   });
 
@@ -22,13 +22,13 @@ describe("createFulltextSearchTool", () => {
 
     const result = await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL" },
-      {} as any
+      {} as Record<string, unknown>
     );
 
     expect(result.success).toBe(true);
     expect(result.data.rows).toEqual([{ title: "MySQL", relevance: 1.2 }]);
     expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-      "SELECT `title`, MATCH(`title`) AGAINST(? IN NATURAL LANGUAGE MODE) as relevance FROM `articles` WHERE MATCH(`title`) AGAINST(? IN NATURAL LANGUAGE MODE) ORDER BY relevance DESC LIMIT 5",
+      "WITH cte AS (SELECT *, MATCH(`title`) AGAINST(? IN NATURAL LANGUAGE MODE) as relevance FROM `articles` WHERE MATCH(`title`) AGAINST(? IN NATURAL LANGUAGE MODE)) SELECT * FROM cte ORDER BY relevance DESC LIMIT 5",
       ["MySQL", "MySQL"]
     );
   });
@@ -40,12 +40,12 @@ describe("createFulltextSearchTool", () => {
 
     const result = await tool.handler(
       { table: "articles", columns: ["title", "body"], query: "+MySQL", mode: "BOOLEAN" },
-      {} as any
+      {} as Record<string, unknown>
     );
 
     expect(result.success).toBe(true);
     expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-      "SELECT `title`, `body`, MATCH(`title`, `body`) AGAINST(? IN BOOLEAN MODE) as relevance FROM `articles` WHERE MATCH(`title`, `body`) AGAINST(? IN BOOLEAN MODE) ORDER BY relevance DESC LIMIT 5",
+      "WITH cte AS (SELECT *, MATCH(`title`, `body`) AGAINST(? IN BOOLEAN MODE) as relevance FROM `articles` WHERE MATCH(`title`, `body`) AGAINST(? IN BOOLEAN MODE)) SELECT * FROM cte ORDER BY relevance DESC LIMIT 5",
       ["+MySQL", "+MySQL"]
     );
   });
@@ -55,11 +55,11 @@ describe("createFulltextSearchTool", () => {
 
     await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL", mode: "EXPANSION", limit: 10 },
-      {} as any
+      {} as Record<string, unknown>
     );
 
     expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-      "SELECT `title`, MATCH(`title`) AGAINST(? WITH QUERY EXPANSION) as relevance FROM `articles` WHERE MATCH(`title`) AGAINST(? WITH QUERY EXPANSION) ORDER BY relevance DESC LIMIT 10",
+      "WITH cte AS (SELECT *, MATCH(`title`) AGAINST(? WITH QUERY EXPANSION) as relevance FROM `articles` WHERE MATCH(`title`) AGAINST(? WITH QUERY EXPANSION)) SELECT * FROM cte ORDER BY relevance DESC LIMIT 10",
       ["MySQL", "MySQL"]
     );
   });
@@ -67,11 +67,11 @@ describe("createFulltextSearchTool", () => {
   it("should handle empty query with no results", async () => {
     const result = await tool.handler(
       { table: "articles", columns: ["title"], query: "" },
-      {} as any
+      {} as Record<string, unknown>
     );
 
-    expect(result.success).toBe(true);
-    expect(result.data.rows).toEqual([]);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Validation error");
     expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
   });
 
@@ -84,7 +84,7 @@ describe("createFulltextSearchTool", () => {
     
     const result = await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL", cursor: cursorData },
-      {} as any
+      {} as Record<string, unknown>
     );
 
     expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
@@ -97,7 +97,7 @@ describe("createFulltextSearchTool", () => {
   it("should reject invalid cursor", async () => {
     const result = await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL", cursor: "invalid-base64-json" },
-      {} as any
+      {} as Record<string, unknown>
     );
 
     expect(result.success).toBe(false);
@@ -120,7 +120,7 @@ describe("createFulltextSearchTool", () => {
 
     const result = await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL", includeFacets: true },
-      {} as any
+      {} as Record<string, unknown>
     );
 
     expect(result.data.facets).toEqual({
@@ -145,7 +145,7 @@ describe("createFulltextSearchTool", () => {
 
     const result = await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL", includeFacets: true },
-      {} as any
+      {} as Record<string, unknown>
     );
 
     expect(result.data.facets).toEqual({ total: 100 });
@@ -159,7 +159,7 @@ describe("createFulltextSearchTool", () => {
 
     let result = await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL" },
-      {} as any
+      {} as Record<string, unknown>
     );
     expect(result.success).toBe(false);
     expect(result.error).toContain("does not exist");
@@ -170,7 +170,7 @@ describe("createFulltextSearchTool", () => {
 
     result = await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL" },
-      {} as any
+      {} as Record<string, unknown>
     );
     expect(result.success).toBe(false);
     expect(result.error).toContain("No FULLTEXT index found");
@@ -181,7 +181,7 @@ describe("createFulltextSearchTool", () => {
 
     result = await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL" },
-      {} as any
+      {} as Record<string, unknown>
     );
     expect(result.success).toBe(false);
     expect(result.error).toContain("Invalid search syntax");

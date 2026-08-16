@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated -- Intentional: SSEServerTransport provides backward compatibility */
 /**
  * mysql-mcp - HTTP Session Manager
  *
@@ -6,8 +5,8 @@
  * and in-flight request protection to prevent orphaned sessions.
  */
 
-import type { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import type { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import type { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
+
 import { logger } from "../../utils/logger.js";
 import {
   SESSION_IDLE_TIMEOUT_MS,
@@ -20,7 +19,7 @@ import {
  */
 export interface ManagedSession {
   sessionId: string;
-  transport: StreamableHTTPServerTransport | SSEServerTransport;
+  transport: NodeStreamableHTTPServerTransport;
   createdAt: number;
   lastActivity: number;
   inFlightRequests: number;
@@ -38,7 +37,7 @@ export class SessionManager {
    */
   register(
     sessionId: string,
-    transport: StreamableHTTPServerTransport | SSEServerTransport,
+    transport: NodeStreamableHTTPServerTransport,
   ): void {
     const now = Date.now();
     this.sessions.set(sessionId, {
@@ -181,8 +180,8 @@ export class SessionManager {
   /**
    * Get the underlying transports map (useful for backwards compatibility or tests)
    */
-  getTransports(): Map<string, StreamableHTTPServerTransport | SSEServerTransport> {
-    const map = new Map<string, StreamableHTTPServerTransport | SSEServerTransport>();
+  getTransports(): Map<string, NodeStreamableHTTPServerTransport> {
+    const map = new Map<string, NodeStreamableHTTPServerTransport>();
     for (const [id, session] of this.sessions) {
       map.set(id, session.transport);
     }

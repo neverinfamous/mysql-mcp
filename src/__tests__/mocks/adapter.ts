@@ -70,7 +70,7 @@ export function createMockHealthStatus(connected = true): HealthStatus {
   return {
     connected,
     latencyMs: 5,
-    version: "8.0.35",
+    version: "9.1.0",
     poolStats: {
       total: 10,
       active: 2,
@@ -88,7 +88,10 @@ export class MockMySQLAdapter extends MySQLAdapter {
   override isConnected: Mock<() => boolean> = vi.fn().mockReturnValue(true);
 
   override executeQuery: Mock<(sql: string, params?: unknown[], txId?: string) => Promise<QueryResult>> = vi.fn().mockResolvedValue(createMockQueryResult([{ id: 1, name: "test" }]));
-  override executeReadQuery: Mock<(sql: string, params?: unknown[]) => Promise<QueryResult>> = vi.fn().mockResolvedValue(createMockQueryResult([{ id: 1, name: "test" }]));
+  override executeReadQuery: Mock<(sql: string, params?: unknown[]) => Promise<QueryResult>> = vi.fn().mockImplementation(async (sql) => {
+    if (sql && sql.includes("INFORMATION_SCHEMA.COLUMNS")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]);
+    return createMockQueryResult([{ id: 1, name: "test" }]);
+  });
   override executeWriteQuery: Mock<(sql: string, params?: unknown[], txId?: string) => Promise<QueryResult>> = vi.fn().mockResolvedValue(createMockQueryResult([{ id: 1, name: "test" }]));
   override rawQuery: Mock<(sql: string) => Promise<QueryResult>> = vi.fn().mockResolvedValue(createMockQueryResult([{ id: 1, name: "test" }]));
 
@@ -138,7 +141,8 @@ export class MockMySQLAdapter extends MySQLAdapter {
     getConnection: vi.fn().mockResolvedValue({
       query: vi.fn().mockImplementation(async (...args: unknown[]) => {
         const sql = typeof args[0] === "string" ? args[0] : (args[0] && typeof args[0] === "object" && "sql" in args[0] ? String(Reflect.get(args[0], "sql")) : "");
-        if (sql.trim().toUpperCase().startsWith("SET")) {
+        const upperSql = sql.trim().toUpperCase();
+        if (upperSql.startsWith("SET") || upperSql.startsWith("START TRANSACTION") || upperSql.startsWith("COMMIT") || upperSql.startsWith("ROLLBACK")) {
           const res = await this.executeQuery(sql);
           return [res.rows ?? [], []];
         }

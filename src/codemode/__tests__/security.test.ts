@@ -135,7 +135,7 @@ describe("CodeModeSecurityManager", () => {
       expect(result.valid).toBe(false);
     });
 
-    it("should exit on first blocked pattern", async () => {
+    it("should exit on first blocked pattern", () => {
       const result = manager.validateCode(
         'require("fs"); process.exit(1); eval("x")',
       );
@@ -143,13 +143,13 @@ describe("CodeModeSecurityManager", () => {
       expect(result.errors.length).toBe(1);
     });
 
-    it("should respect custom maxCodeLength", async () => {
+    it("should respect custom maxCodeLength", () => {
       const small = new CodeModeSecurityManager({ maxCodeLength: 10 });
       const result = small.validateCode("a".repeat(11));
       expect(result.valid).toBe(false);
     });
 
-    it("should reject unicode escape sequences", async () => {
+    it("should reject unicode escape sequences", () => {
       const result = manager.validateCode("const \\u0061 = 1;");
       expect(result.valid).toBe(false);
       expect(result.errors[0]).toContain("Unicode escape sequences");
@@ -178,12 +178,12 @@ describe("CodeModeSecurityManager", () => {
   // ===========================================================================
   describe("checkRateLimit", () => {
     it("should allow first request", async () => {
-      expect(await await manager.checkRateLimit("client-1")).toBe(true);
+      expect(await manager.checkRateLimit("client-1")).toBe(true);
     });
 
     it("should allow requests within limit", async () => {
       for (let i = 0; i < 59; i++) {
-        expect(await await manager.checkRateLimit("client-2")).toBe(true);
+        expect(await manager.checkRateLimit("client-2")).toBe(true);
       }
     });
 
@@ -191,23 +191,23 @@ describe("CodeModeSecurityManager", () => {
       const smallLimit = new CodeModeSecurityManager({
         maxExecutionsPerMinute: 3,
       });
-      expect(await await smallLimit.checkRateLimit("c")).toBe(true);
-      expect(await await smallLimit.checkRateLimit("c")).toBe(true);
-      expect(await await smallLimit.checkRateLimit("c")).toBe(true);
-      expect(await await smallLimit.checkRateLimit("c")).toBe(false);
+      expect(await smallLimit.checkRateLimit("c")).toBe(true);
+      expect(await smallLimit.checkRateLimit("c")).toBe(true);
+      expect(await smallLimit.checkRateLimit("c")).toBe(true);
+      expect(await smallLimit.checkRateLimit("c")).toBe(false);
     });
 
     it("should reset after window expires", async () => {
       const smallLimit = new CodeModeSecurityManager({
         maxExecutionsPerMinute: 1,
       });
-      expect(await await smallLimit.checkRateLimit("c")).toBe(true);
-      expect(await await smallLimit.checkRateLimit("c")).toBe(false);
+      expect(await smallLimit.checkRateLimit("c")).toBe(true);
+      expect(await smallLimit.checkRateLimit("c")).toBe(false);
 
       // Simulate time passage by manipulating the internal map
       vi.useFakeTimers();
       vi.advanceTimersByTime(61_000);
-      expect(await await smallLimit.checkRateLimit("c")).toBe(true);
+      expect(await smallLimit.checkRateLimit("c")).toBe(true);
       vi.useRealTimers();
     });
 
@@ -215,9 +215,9 @@ describe("CodeModeSecurityManager", () => {
       const smallLimit = new CodeModeSecurityManager({
         maxExecutionsPerMinute: 1,
       });
-      expect(await await smallLimit.checkRateLimit("a")).toBe(true);
-      expect(await await smallLimit.checkRateLimit("a")).toBe(false);
-      expect(await await smallLimit.checkRateLimit("b")).toBe(true);
+      expect(await smallLimit.checkRateLimit("a")).toBe(true);
+      expect(await smallLimit.checkRateLimit("a")).toBe(false);
+      expect(await smallLimit.checkRateLimit("b")).toBe(true);
     });
 
     it("should evict oldest entry if map exceeds max size", async () => {
@@ -227,7 +227,7 @@ describe("CodeModeSecurityManager", () => {
       const fakeMap = new Map();
       Object.defineProperty(fakeMap, 'size', { get: () => 10000 });
       fakeMap.set("oldest-client", { count: 1, resetTime: now + 60000 });
-      (manager as any).rateLimitMap = fakeMap;
+      (manager as Record<string, unknown>).rateLimitMap = fakeMap;
       
       await manager.checkRateLimit("new-client");
       
@@ -271,7 +271,7 @@ describe("CodeModeSecurityManager", () => {
         isOpen: true,
         get: vi.fn().mockResolvedValue("5"),
       };
-      (manager as any).redisClient = mockRedis;
+      (manager as Record<string, unknown>).redisClient = mockRedis;
 
       const remaining = await manager.getRateLimitRemaining("client-redis");
       expect(remaining).toBe(55); // 60 - 5
@@ -283,7 +283,7 @@ describe("CodeModeSecurityManager", () => {
         isOpen: true,
         get: vi.fn().mockRejectedValue(new Error("Redis error")),
       };
-      (manager as any).redisClient = mockRedis;
+      (manager as Record<string, unknown>).redisClient = mockRedis;
 
       await manager.checkRateLimit("client-redis-err");
       const remaining = await manager.getRateLimitRemaining("client-redis-err");
@@ -301,33 +301,32 @@ describe("CodeModeSecurityManager", () => {
     beforeEach(() => {
       mockRedisClient = {
         isOpen: true,
-        incr: vi.fn(),
-        pExpire: vi.fn(),
-        pTTL: vi.fn(),
+        eval: vi.fn(),
       };
       // Inject mock client via private property bypass
-      (manager as any).redisClient = mockRedisClient;
+      (manager as Record<string, unknown>).redisClient = mockRedisClient;
     });
 
     it("should allow requests and expire on first request", async () => {
-      mockRedisClient.incr.mockResolvedValue(1);
+      mockRedisClient.eval.mockResolvedValue(1);
       
       const allowed = await manager.checkRateLimit("client-redis");
       expect(allowed).toBe(true);
-      expect(mockRedisClient.incr).toHaveBeenCalledWith("codemode:rl:client-redis");
-      expect(mockRedisClient.pExpire).toHaveBeenCalledWith("codemode:rl:client-redis", 60000);
+      expect(mockRedisClient.eval).toHaveBeenCalledWith(expect.any(String), {
+        keys: ["codemode:rl:client-redis"],
+        arguments: ["60000"]
+      });
     });
 
     it("should block request when limit exceeded", async () => {
-      mockRedisClient.incr.mockResolvedValue(61); // exceeds 60 limit
+      mockRedisClient.eval.mockResolvedValue(61); // exceeds 60 limit
       
       const allowed = await manager.checkRateLimit("client-redis");
       expect(allowed).toBe(false);
-      expect(mockRedisClient.pExpire).not.toHaveBeenCalled();
     });
 
     it("should fallback to memory if redis throws", async () => {
-      mockRedisClient.incr.mockRejectedValue(new Error("Redis disconnect"));
+      mockRedisClient.eval.mockRejectedValue(new Error("Redis disconnect"));
       
       const allowed = await manager.checkRateLimit("client-redis");
       expect(allowed).toBe(true); // Falls back to local map which is empty, so allowed = true
@@ -338,7 +337,7 @@ describe("CodeModeSecurityManager", () => {
   // sanitizeResult
   // ===========================================================================
   describe("sanitizeResult", () => {
-    it("should pass through small results", async () => {
+    it("should pass through small results", () => {
       const input = { foo: "bar" };
       expect(manager.sanitizeResult(input)).toEqual(input);
     });
@@ -382,7 +381,7 @@ describe("CodeModeSecurityManager", () => {
         "client-1",
       );
       manager.auditLog(record);
-      expect(logger.info).toHaveBeenCalled();
+      expect(vi.mocked(logger.info).mock.calls.length).toBeGreaterThan(0);
     });
 
     it("should log failed executions with warning", async () => {
@@ -393,7 +392,7 @@ describe("CodeModeSecurityManager", () => {
         true,
       );
       manager.auditLog(record);
-      expect(logger.warning).toHaveBeenCalled();
+      expect(vi.mocked(logger.warning).mock.calls.length).toBeGreaterThan(0);
     });
   });
 

@@ -26,6 +26,31 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // Helpers
 // =============================================================================
 
+function formatTime(picoseconds: number | string | null | undefined): string | null {
+  if (picoseconds == null) return null;
+  const p = Number(picoseconds);
+  if (isNaN(p)) return String(picoseconds);
+  if (p === 0) return "0 ps";
+  if (p < 1000) return `${p.toFixed(2)} ps`;
+  if (p < 1000000) return `${(p / 1000).toFixed(2)} ns`;
+  if (p < 1000000000) return `${(p / 1000000).toFixed(2)} us`;
+  if (p < 1000000000000) return `${(p / 1000000000).toFixed(2)} ms`;
+  if (p < 60000000000000) return `${(p / 1000000000000).toFixed(2)} s`;
+  if (p < 3600000000000000) return `${(p / 60000000000000).toFixed(2)} min`;
+  return `${(p / 3600000000000000).toFixed(2)} h`;
+}
+
+function formatBytes(bytes: number | string | null | undefined): string | null {
+  if (bytes == null) return null;
+  const b = Number(bytes);
+  if (isNaN(b)) return String(bytes);
+  if (b === 0) return "0 bytes";
+  if (b < 1024) return `${b.toFixed(2)} bytes`;
+  if (b < 1048576) return `${(b / 1024).toFixed(2)} KiB`;
+  if (b < 1073741824) return `${(b / 1048576).toFixed(2)} MiB`;
+  return `${(b / 1073741824).toFixed(2)} GiB`;
+}
+
 // =============================================================================
 // Zod Schemas
 // =============================================================================
@@ -43,29 +68,35 @@ const StatementSummarySchemaBase = z.object({
   order: z.string().optional().describe("Alias for orderBy"),
   sort: z.string().optional().describe("Alias for orderBy"),
   sortBy: z.string().optional().describe("Alias for orderBy"),
+  sort_by: z.string().optional().describe("Alias for orderBy"),
   order_by: z.string().optional().describe("Alias for orderBy"),
-  limit: z.number().optional().describe("Maximum number of results"),
-});
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+}).loose();
 
 const StatementSummarySchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { orderBy?: unknown; order?: unknown; sort?: unknown; sortBy?: unknown; order_by?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown> & { orderBy?: unknown; order?: unknown; sort?: unknown; sortBy?: unknown; sort_by?: unknown; order_by?: unknown; limit?: unknown; max?: unknown; count?: unknown };
     return {
-      ...val,
-      orderBy: v.orderBy ?? v.order_by ?? v.sortBy ?? v.order ?? v.sort,
-      limit: v.limit,
+      ...v,
+      orderBy: v.orderBy ?? v.order_by ?? v.sortBy ?? v.sort_by ?? v.order ?? v.sort,
+      limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
-    orderBy: z.string().default("total_latency"),
+    orderBy: z.string().toLowerCase().default("total_latency"),
     limit: z.coerce.number().int().positive().default(5),
     order: z.any().optional(),
     sort: z.any().optional(),
     sortBy: z.any().optional(),
+    sort_by: z.any().optional(),
     order_by: z.any().optional(),
+    max: z.any().optional(),
+    count: z.any().optional(),
   }).strict()
 );
 
@@ -79,25 +110,31 @@ const VALID_WAIT_TYPES: readonly string[] = [
 const WaitSummarySchemaBase = z.object({
   type: z.string().optional().describe("Type of wait summary. Anti-Hallucination: Valid values are 'global', 'by_host', 'by_user', 'by_instance'."),
   waitType: z.string().optional().describe("Alias for type"),
-  limit: z.number().optional().describe("Maximum number of results"),
-});
+  wait_type: z.string().optional().describe("Alias for type"),
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+}).loose();
 
 const WaitSummarySchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { type?: unknown; waitType?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown> & { type?: unknown; waitType?: unknown; wait_type?: unknown; limit?: unknown; max?: unknown; count?: unknown };
     return {
-      ...val,
-      type: v.type ?? v.waitType,
-      limit: v.limit,
+      ...v,
+      type: v.type ?? v.waitType ?? v.wait_type,
+      limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
-    type: z.string().default("global"),
+    type: z.string().toLowerCase().default("global"),
     limit: z.coerce.number().int().positive().default(5),
     waitType: z.any().optional(),
+    wait_type: z.any().optional(),
+    max: z.any().optional(),
+    count: z.any().optional(),
   }).strict()
 );
 
@@ -106,25 +143,31 @@ const VALID_IO_TYPES: readonly string[] = ["file", "table", "global"];
 const IOSummarySchemaBase = z.object({
   type: z.string().optional().describe("Type of I/O summary. Anti-Hallucination: Valid values are 'file', 'table', 'global'."),
   ioType: z.string().optional().describe("Alias for type"),
-  limit: z.number().optional().describe("Maximum number of results"),
-});
+  io_type: z.string().optional().describe("Alias for type"),
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+}).loose();
 
 const IOSummarySchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { type?: unknown; ioType?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown> & { type?: unknown; ioType?: unknown; io_type?: unknown; limit?: unknown; max?: unknown; count?: unknown };
     return {
-      ...val,
-      type: v.type ?? v.ioType,
-      limit: v.limit,
+      ...v,
+      type: v.type ?? v.ioType ?? v.io_type,
+      limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
-    type: z.string().default("table"),
+    type: z.string().toLowerCase().default("table"),
     limit: z.coerce.number().int().positive().default(5),
     ioType: z.any().optional(),
+    io_type: z.any().optional(),
+    max: z.any().optional(),
+    count: z.any().optional(),
   }).strict()
 );
 
@@ -162,27 +205,31 @@ export function createSysStatementSummaryTool(
         const actualLimit = Math.min(limit, 100);
 
         const query = `
-                SELECT
+                (SELECT
                     query,
                     db,
                     exec_count,
                     total_latency,
                     avg_latency,
                     rows_sent,
-                    rows_sent_avg,
+                    ROUND(rows_sent_avg) AS rows_sent_avg,
                     rows_examined,
-                    rows_examined_avg,
+                    ROUND(rows_examined_avg) AS rows_examined_avg,
                     full_scan
-                FROM sys.statement_analysis
+                FROM sys.x$statement_analysis
                 ORDER BY ${orderBy} DESC
-                LIMIT ${String(actualLimit)}
+                LIMIT ${String(actualLimit)})
             `;
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
             if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
-              cleaned[key] = value;
+              if (key === "total_latency" || key === "avg_latency") {
+                cleaned[key] = formatTime(value as string | number);
+              } else {
+                cleaned[key] = value;
+              }
             }
           }
           return cleaned;
@@ -243,54 +290,54 @@ export function createSysWaitSummaryTool(
         let query: string;
 
         switch (type) {
-          case "global":
+            case "global":
             query = `
-                        SELECT
-                            events,
+                        (SELECT
+                            events AS event,
                             total,
                             total_latency,
                             avg_latency
-                        FROM sys.waits_global_by_latency
+                        FROM sys.x$waits_global_by_latency
                         ORDER BY total_latency DESC
-                        LIMIT ${String(actualLimit)}
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           case "by_host":
             query = `
-                        SELECT
+                        (SELECT
                             host,
                             event,
                             total,
                             total_latency,
                             avg_latency
-                        FROM sys.waits_by_host_by_latency
+                        FROM sys.x$waits_by_host_by_latency
                         ORDER BY total_latency DESC
-                        LIMIT ${String(actualLimit)}
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           case "by_user":
             query = `
-                        SELECT
+                        (SELECT
                             user,
                             event,
                             total,
                             total_latency,
                             avg_latency
-                        FROM sys.waits_by_user_by_latency
+                        FROM sys.x$waits_by_user_by_latency
                         ORDER BY total_latency DESC
-                        LIMIT ${String(actualLimit)}
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           case "by_instance":
             query = `
-                        SELECT
+                        (SELECT
                             event_name AS event,
                             count_star AS total,
-                            FORMAT_PICO_TIME(sum_timer_wait) AS total_latency,
-                            FORMAT_PICO_TIME(sum_timer_wait / NULLIF(count_star, 0)) AS avg_latency
+                            sum_timer_wait AS total_latency,
+                            (sum_timer_wait / NULLIF(count_star, 0)) AS avg_latency
                         FROM performance_schema.events_waits_summary_by_instance
-                        ORDER BY sum_timer_wait DESC
-                        LIMIT ${String(actualLimit)}
+                        ORDER BY total_latency DESC
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           default:
@@ -301,7 +348,11 @@ export function createSysWaitSummaryTool(
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
             if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
-              cleaned[key] = value;
+              if (key === "total_latency" || key === "avg_latency") {
+                cleaned[key] = formatTime(value as string | number);
+              } else {
+                cleaned[key] = value;
+              }
             }
           }
           return cleaned;
@@ -360,7 +411,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         switch (type) {
           case "file":
             query = `
-                        SELECT
+                        (SELECT
                             file,
                             count_read,
                             total_read,
@@ -370,14 +421,14 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                             avg_write,
                             total,
                             write_pct
-                        FROM sys.io_global_by_file_by_bytes
+                        FROM sys.x$io_global_by_file_by_bytes
                         ORDER BY total DESC
-                        LIMIT ${String(actualLimit)}
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           case "table":
             query = `
-                        SELECT
+                        (SELECT
                             table_schema,
                             table_name,
                             rows_fetched,
@@ -388,21 +439,21 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                             update_latency,
                             rows_deleted,
                             delete_latency
-                        FROM sys.schema_table_statistics
+                        FROM sys.x$schema_table_statistics
                         ORDER BY (fetch_latency + insert_latency + update_latency + delete_latency) DESC
-                        LIMIT ${String(actualLimit)}
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           case "global":
             query = `
-                        SELECT
+                        (SELECT
                             event_name,
                             total,
                             total_latency,
                             avg_latency
-                        FROM sys.io_global_by_wait_by_latency
+                        FROM sys.x$io_global_by_wait_by_latency
                         ORDER BY total_latency DESC
-                        LIMIT ${String(actualLimit)}
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           default:
@@ -413,7 +464,13 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
             if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
-              cleaned[key] = value;
+              if (key.endsWith("_latency")) {
+                cleaned[key] = formatTime(value as string | number);
+              } else if (key === "total_read" || key === "avg_read" || key === "total_written" || key === "avg_write" || (type === "file" && key === "total")) {
+                cleaned[key] = formatBytes(value as string | number);
+              } else {
+                cleaned[key] = value;
+              }
             }
           }
           return cleaned;

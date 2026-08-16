@@ -4,14 +4,14 @@
  * Main MCP server implementation with adapter registration,
  * tool filtering, and transport handling.
  */
-
-import { McpServer as SdkMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
+import { McpServer as SdkMcpServer, ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
+import type { Transport } from "@modelcontextprotocol/server";
 import { INSTRUCTIONS } from "../../constants/server-instructions.js";
+import { CODEMODE_HELP } from "../../constants/instructions/codemode.js";
 import type { DatabaseAdapter } from "../../adapters/database-adapter/index.js";
-import { McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
-import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { SubscriptionManager } from "../subscription-manager.js";
+import * as http from "http";
 import type { McpServerConfig, TransportType, ToolFilterConfig } from "../../types/index.js";
 import { parseToolFilter, getFilterSummary } from "../../filtering/tool-filter.js";
 import { logger } from "../../utils/logger.js";
@@ -48,10 +48,17 @@ export class McpServer {
   private systemDbInitPromise: Promise<void> | null = null;
   public readonly subscriptionManager: SubscriptionManager;
   private healthInterval: NodeJS.Timeout | null = null;
+  private metricsHttpServer: http.Server | null = null;
 
   constructor(config: Partial<McpServerConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.toolFilter = parseToolFilter(this.config.toolFilter);
+
+    const hasCodeMode = this.toolFilter.enabledTools.has('mysql_execute_code');
+    const dynamicInstructions = [
+        INSTRUCTIONS,
+        hasCodeMode ? '\n\n' + CODEMODE_HELP : ''
+    ].filter(Boolean).join('');
 
     this.server = new SdkMcpServer(
       {
@@ -65,7 +72,7 @@ export class McpServer {
             subscribe: true,
           },
         },
-        instructions: INSTRUCTIONS,
+        instructions: dynamicInstructions,
       },
     );
 
@@ -81,7 +88,7 @@ export class McpServer {
     this.healthInterval.unref();
 
     // Register resources
-    registerHelpResources(this.server, this.toolFilter.enabledTools);
+    registerHelpResources(this);
     registerObservabilityResource(this.server);
 
     // Initialize MCP protocol logging
@@ -90,6 +97,7 @@ export class McpServer {
     // Initialize Audit Subsystem
     if (this.config.auditConfig?.enabled) {
       this.auditLogger = new AuditLogger(this.config.auditConfig);
+      metrics.setAuditLogger(this.auditLogger);
       if (this.config.auditConfig.backup?.enabled) {
         this.backupManager = new BackupManager(
           this.config.auditConfig.backup,
@@ -99,11 +107,12 @@ export class McpServer {
       registerAuditResource(this.server, this.auditLogger, this.backupManager);
 
       if (this.config.auditConfig.logPath !== "stderr") {
-        const dbPath = this.config.auditConfig.logPath.replace(/\.jsonl$/, '') + '.sqlite';
+        const isExporter = this.config.metricsExport === "prometheus";
+        const dbPath = isExporter ? ":memory:" : this.config.auditConfig.logPath.replace(/\.jsonl$/, '') + '.sqlite';
         const db = new SystemDb({ dbPath });
         this.systemDb = db;
+        metrics.setSystemDb(db);
         this.systemDbInitPromise = db.init().then(() => {
-          metrics.setSystemDb(db);
           this.auditLogger?.setSystemDb(db);
         }).catch((err: unknown) => {
           logger.error("Failed to initialize SystemDb", { error: String(err) });
@@ -214,7 +223,7 @@ export class McpServer {
       logger.error(
         "CRITICAL SECURITY ERROR: HTTP transport requires ALLOWED_IO_ROOTS to be configured.",
       );
-      process.exit(1);
+      return process.exit(1);
     }
 
     if (!this.config.allowedIoRoots || this.config.allowedIoRoots.length === 0) {
@@ -275,6 +284,14 @@ export class McpServer {
             }
             await server.connect(mcpTransport);
 
+            // Bust agent IDE caches (force tool/resource reload on reconnect)
+            try {
+              server.sendToolListChanged();
+              server.sendResourceListChanged();
+            } catch (e) {
+              logger.warn("Failed to notify list change", { error: String(e) });
+            }
+
             mcpLogger.setConnected(true);
             mcpLogger.info("MySQL MCP server ready", {
               transport: this.config.transport,
@@ -294,13 +311,51 @@ export class McpServer {
         break;
       }
       default:
-        throw new McpError(ErrorCode.InvalidRequest, `Unknown transport: ${String(transport)}`);
+        throw new ProtocolError(ProtocolErrorCode.InvalidRequest, `Unknown transport: ${String(transport)}`);
     }
   }
 
   private async startStdioTransport(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
+
+    // Bust agent IDE caches (force tool/resource reload on reconnect)
+    try {
+      this.server.sendToolListChanged();
+      this.server.sendResourceListChanged();
+    } catch (e) {
+      logger.warn("Failed to notify list change", { error: String(e) });
+    }
+
+    // If stdin closes, it means the client has disconnected.
+    // We must shut down gracefully to ensure metrics and audit logs are flushed.
+    process.stdin.on("close", () => {
+      logger.info("Stdio transport closed, triggering graceful shutdown");
+      void this.stop().finally(() => {
+        process.exit(0);
+      });
+    });
+
+    if (this.config.metricsExport === "prometheus") {
+      const port = this.config.port ?? 3000;
+      this.metricsHttpServer = http.createServer((req, res) => {
+        if (req.method === "GET" && req.url === "/metrics") {
+          res.writeHead(200, { "Content-Type": "text/plain" });
+          res.end(metrics.toPrometheus());
+        } else {
+          res.writeHead(404);
+          res.end("Not found");
+        }
+      });
+      
+      this.metricsHttpServer.listen(port, "0.0.0.0", () => {
+        logger.info(`Standalone Prometheus metrics server listening on port ${port} (stdio transport)`);
+      });
+      
+      this.metricsHttpServer.on("error", (error) => {
+        logger.error("Failed to start standalone metrics server", { error: String(error) });
+      });
+    }
   }
 
   async stop(): Promise<void> {
@@ -348,6 +403,13 @@ export class McpServer {
     if (this.healthInterval) {
       clearInterval(this.healthInterval);
       this.healthInterval = null;
+    }
+
+    if (this.metricsHttpServer) {
+      await new Promise<void>((resolve) => {
+        this.metricsHttpServer?.close(() => resolve());
+      });
+      this.metricsHttpServer = null;
     }
 
     await this.server.close();

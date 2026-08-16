@@ -33,19 +33,24 @@ const UserSummarySchemaBase = z.object({
   user: z.string().optional().describe("Filter by specific user. Anti-Hallucination: Pass 'user', not 'userName' or 'account'."),
   username: z.string().optional().describe("Alias for user"),
   userName: z.string().optional().describe("Alias for user"),
+  user_name: z.string().optional().describe("Alias for user"),
   account: z.string().optional().describe("Alias for user"),
-  limit: z.number().optional().describe("Maximum number of results"),
-});
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+}).loose();
 
 const UserSummarySchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { user?: unknown; username?: unknown; userName?: unknown; account?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown> & { user?: unknown; username?: unknown; userName?: unknown; user_name?: unknown; account?: unknown; limit?: unknown; max?: unknown; count?: unknown };
+    const resolvedUser = v.user ?? v.username ?? v.userName ?? v.user_name ?? v.account;
     return {
-      user: v.user ?? v.username ?? v.userName ?? v.account,
-      limit: v.limit,
+      ...v,
+      user: resolvedUser === "" ? undefined : resolvedUser,
+      limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
@@ -53,7 +58,10 @@ const UserSummarySchema = z.preprocess(
     limit: z.coerce.number().int().positive().default(5),
     username: z.any().optional(),
     userName: z.any().optional(),
+    user_name: z.any().optional(),
     account: z.any().optional(),
+    max: z.any().optional(),
+    count: z.any().optional(),
   }).strict()
 );
 
@@ -61,20 +69,25 @@ const HostSummarySchemaBase = z.object({
   host: z.string().optional().describe("Filter by specific host. Anti-Hallucination: Pass 'host', not 'hostName' or 'ip'."),
   hostname: z.string().optional().describe("Alias for host"),
   hostName: z.string().optional().describe("Alias for host"),
+  host_name: z.string().optional().describe("Alias for host"),
   ip: z.string().optional().describe("Alias for host"),
   address: z.string().optional().describe("Alias for host"),
-  limit: z.number().optional().describe("Maximum number of results"),
-});
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+}).loose();
 
 const HostSummarySchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { host?: unknown; hostname?: unknown; hostName?: unknown; ip?: unknown; address?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown> & { host?: unknown; hostname?: unknown; hostName?: unknown; host_name?: unknown; ip?: unknown; address?: unknown; limit?: unknown; max?: unknown; count?: unknown };
+    const resolvedHost = v.host ?? v.hostname ?? v.hostName ?? v.host_name ?? v.ip ?? v.address;
     return {
-      host: v.host ?? v.hostname ?? v.hostName ?? v.ip ?? v.address,
-      limit: v.limit,
+      ...v,
+      host: resolvedHost === "" ? undefined : resolvedHost,
+      limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
@@ -82,8 +95,11 @@ const HostSummarySchema = z.preprocess(
     limit: z.coerce.number().int().positive().default(5),
     hostname: z.any().optional(),
     hostName: z.any().optional(),
+    host_name: z.any().optional(),
     ip: z.any().optional(),
     address: z.any().optional(),
+    max: z.any().optional(),
+    count: z.any().optional(),
   }).strict()
 );
 
@@ -107,7 +123,10 @@ export function createSysUserSummaryTool(
       try {
         const { user, limit } = UserSummarySchema.parse(params);
 
+        const actualLimit = Math.min(limit, 100);
+
         let query = `
+                WITH sys_query AS (
                 SELECT
                     user,
                     statements,
@@ -119,20 +138,21 @@ export function createSysUserSummaryTool(
                     current_connections,
                     total_connections
                 FROM sys.user_summary
+                ) SELECT * FROM sys_query
             `;
 
         const queryParams: unknown[] = [];
-        if (user) {
+        if (user !== undefined) {
           query += " WHERE user = ?";
           queryParams.push(user);
         }
 
-        query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
+        query += ` LIMIT ${String(actualLimit)}`;
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
-            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+            if (value !== 0 && value !== "0" && value !== "0 ps" && value !== "  0 ps" && value !== "0 bytes" && value !== "   0 bytes" && value !== "" && value !== null) {
               cleaned[key] = value;
             }
           }
@@ -141,12 +161,13 @@ export function createSysUserSummaryTool(
 
         const result = await adapter.executeQuery(query, queryParams);
 
-        if (user && (!result.rows || result.rows.length === 0)) {
+        if (user !== undefined && (!result.rows || result.rows.length === 0)) {
           return withTokenEstimate({
             success: false,
             error: `User '${user}' not found`,
             code: "NOT_FOUND_ERROR",
-            category: "not_found",
+            category: "resource",
+            recoverable: false,
           });
         }
 
@@ -186,7 +207,10 @@ export function createSysHostSummaryTool(
       try {
         const { host, limit } = HostSummarySchema.parse(params);
 
+        const actualLimit = Math.min(limit, 100);
+
         let query = `
+                WITH sys_query AS (
                 SELECT
                     host,
                     statements,
@@ -198,20 +222,21 @@ export function createSysHostSummaryTool(
                     current_connections,
                     total_connections
                 FROM sys.host_summary
+                ) SELECT * FROM sys_query
             `;
 
         const queryParams: unknown[] = [];
-        if (host) {
+        if (host !== undefined) {
           query += " WHERE host = ?";
           queryParams.push(host);
         }
 
-        query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
+        query += ` LIMIT ${String(actualLimit)}`;
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
-            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+            if (value !== 0 && value !== "0" && value !== "0 ps" && value !== "  0 ps" && value !== "0 bytes" && value !== "   0 bytes" && value !== "" && value !== null) {
               cleaned[key] = value;
             }
           }
@@ -220,12 +245,13 @@ export function createSysHostSummaryTool(
 
         const result = await adapter.executeQuery(query, queryParams);
 
-        if (host && (!result.rows || result.rows.length === 0)) {
+        if (host !== undefined && (!result.rows || result.rows.length === 0)) {
           return withTokenEstimate({
             success: false,
             error: `Host '${host}' not found`,
             code: "NOT_FOUND_ERROR",
-            category: "not_found",
+            category: "resource",
+            recoverable: false,
           });
         }
 

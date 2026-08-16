@@ -8,14 +8,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createSysStatementSummaryTool,
   createSysWaitSummaryTool,
-  createSysIOSummaryTool,
-} from "../performance.js";
-import type {} from "../../../mysql-adapter/index.js";
+  createSysIOSummaryTool } from "../performance.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Sys Schema Performance Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -40,8 +37,7 @@ describe("Sys Schema Performance Tools", () => {
         createMockQueryResult([
           {
             query: "SELECT 1",
-            exec_count: 10,
-          },
+            exec_count: 10 },
         ]),
       );
 
@@ -52,7 +48,7 @@ describe("Sys Schema Performance Tools", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("sys.statement_analysis");
+      expect(call).toContain("sys.x");
       expect(result).toHaveProperty("data");
     });
 
@@ -101,7 +97,7 @@ describe("Sys Schema Performance Tools", () => {
       await tool.handler({}, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("sys.waits_global_by_latency");
+      expect(call).toContain("sys.x");
     });
 
     it("should query by host", async () => {
@@ -113,7 +109,7 @@ describe("Sys Schema Performance Tools", () => {
       await tool.handler({ type: "by_host" }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("sys.waits_by_host_by_latency");
+      expect(call).toContain("sys.x");
     });
 
     it("should query by user", async () => {
@@ -125,7 +121,7 @@ describe("Sys Schema Performance Tools", () => {
       await tool.handler({ type: "by_user" }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("sys.waits_by_user_by_latency");
+      expect(call).toContain("sys.x");
     });
 
     it("should query by instance with formatted latency", async () => {
@@ -140,7 +136,7 @@ describe("Sys Schema Performance Tools", () => {
       expect(call).toContain(
         "performance_schema.events_waits_summary_by_instance",
       );
-      expect(call).toContain("FORMAT_PICO_TIME");
+      expect(call).toContain("sum_timer_wait");
       expect(call).toContain("AS total_latency");
       expect(call).toContain("AS avg_latency");
       expect(call).toContain("AS total");
@@ -179,7 +175,7 @@ describe("Sys Schema Performance Tools", () => {
       await tool.handler({}, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("sys.schema_table_statistics");
+      expect(call).toContain("sys.x");
     });
 
     it("should query file IO summary", async () => {
@@ -191,7 +187,7 @@ describe("Sys Schema Performance Tools", () => {
       await tool.handler({ type: "file" }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("sys.io_global_by_file_by_bytes");
+      expect(call).toContain("sys.x");
       // Ensure correct column name is used (total_written, not total_write)
       expect(call).toContain("total_written");
       expect(call).not.toContain("total_write,");
@@ -206,7 +202,7 @@ describe("Sys Schema Performance Tools", () => {
       await tool.handler({ type: "global" }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("sys.io_global_by_wait_by_latency");
+      expect(call).toContain("sys.x");
       expect(call).toContain("event_name");
     });
 

@@ -4,14 +4,11 @@ import {
   createPercentilesTool,
   createDistributionTool,
   createTimeSeriesToolStats,
-  createSamplingTool,
-} from "../descriptive/index.js";
-import type {} from "../../../mysql-adapter/index.js";
+  createSamplingTool } from "../descriptive/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
-  createMockRequestContext,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 
 describe("Descriptive Stats Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -51,8 +48,7 @@ describe("Descriptive Stats Tools", () => {
               min: 1,
               max: 10,
               range: 9,
-              sum: 55,
-            },
+              sum: 55 },
           ]);
         }
         return createMockQueryResult([]);
@@ -63,8 +59,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.count).toBe(10);
       expect(data.mean).toBe(5.5);
       expect(data.median).toBe(5.5);
@@ -88,8 +84,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.count).toBe(0);
       expect(data.mean).toBeNull();
       expect(data.median).toBeNull();
@@ -100,8 +96,8 @@ describe("Descriptive Stats Tools", () => {
         { table: "invalid table", column: "age" },
         mockContext,
       );
-      expect(Reflect.get(result || {}, "success")).toBe(false);
-      expect(Reflect.get(result || {}, "error")).toContain("Invalid table name");
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain("Invalid table name");
     });
   });
 
@@ -131,8 +127,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.totalCount).toBe(100);
       expect(data.percentiles.p50).toBe(42);
       expect(data.percentiles.p90).toBe(42);
@@ -151,8 +147,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(false);
-      expect(Reflect.get(result || {}, "error")).toContain("is not a numeric column");
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain("is not a numeric column");
     });
   });
 
@@ -175,7 +171,7 @@ describe("Descriptive Stats Tools", () => {
           ]);
         }
         if (query.includes("MIN(")) {
-          return createMockQueryResult([{ min_val: 0, max_val: 100 }]);
+          return createMockQueryResult([{ min_val: 0, max_val: 100, total_count: 10 }]);
         }
         return createMockQueryResult([]);
       });
@@ -185,8 +181,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.bucketCount).toBe(10);
       expect(data.minValue).toBe(0);
       expect(data.maxValue).toBe(100);
@@ -204,15 +200,20 @@ describe("Descriptive Stats Tools", () => {
     });
 
     it("should aggregate time series data", async () => {
-      mockAdapter.executeQuery.mockImplementation(async () => {
+      mockAdapter.executeQuery.mockImplementation(async (query) => {
+        if (query.includes("information_schema.COLUMNS")) {
+          return createMockQueryResult([
+            { COLUMN_NAME: "amount", DATA_TYPE: "decimal" },
+            { COLUMN_NAME: "created_at", DATA_TYPE: "datetime" }
+          ]);
+        }
         return createMockQueryResult([
           {
             period: "2024-01-01",
             value: 100,
             data_points: 10,
             period_min: 5,
-            period_max: 15,
-          },
+            period_max: 15 },
         ]);
       });
 
@@ -222,13 +223,12 @@ describe("Descriptive Stats Tools", () => {
           valueColumn: "amount",
           timeColumn: "created_at",
           interval: "day",
-          aggregation: "sum",
-        },
+          aggregation: "sum" },
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.interval).toBe("day");
       expect(data.aggregation).toBe("sum");
       expect(data.dataPoints.length).toBe(1);
@@ -237,17 +237,25 @@ describe("Descriptive Stats Tools", () => {
     });
 
     it("should reject invalid intervals", async () => {
+      mockAdapter.executeQuery.mockImplementation(async (query) => {
+        if (query.includes("information_schema.COLUMNS")) {
+          return createMockQueryResult([
+            { COLUMN_NAME: "amount", DATA_TYPE: "decimal" },
+            { COLUMN_NAME: "created_at", DATA_TYPE: "datetime" }
+          ]);
+        }
+        return createMockQueryResult([]);
+      });
       const result = await tool.handler(
         {
           table: "sales",
           valueColumn: "amount",
           timeColumn: "created_at",
-          interval: "invalid",
-        },
+          interval: "invalid" },
         mockContext,
       );
-      expect(Reflect.get(result || {}, "success")).toBe(false);
-      expect(Reflect.get(result || {}, "error")).toContain("Invalid interval");
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain("Invalid interval");
     });
   });
 
@@ -271,8 +279,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.sampleSize).toBe(2);
       expect(data.sample.length).toBe(2);
       expect(data.sample[0].name).toBe("Alice");
@@ -290,7 +298,7 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
+      expect((result as Record<string, unknown>).success).toBe(true);
     });
   });
 });

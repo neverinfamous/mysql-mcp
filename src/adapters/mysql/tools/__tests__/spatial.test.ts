@@ -6,12 +6,10 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getSpatialTools } from "../spatial/index.js";
-import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../__tests__/mocks/index.js";
 
 describe("getSpatialTools", () => {
   let tools: ReturnType<typeof getSpatialTools>;
@@ -78,19 +76,19 @@ describe("Handler Execution", () => {
     it("should create a spatial column", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_create_column")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_column");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "locations",
           column: "geom",
           type: "POINT",
-          srid: 4326,
-        },
+          srid: 4326 },
         mockContext,
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeQuery.mock.calls[mockAdapter.executeQuery.mock.calls.length - 1][0];
       expect(call).toContain("ADD COLUMN");
       expect(result).toHaveProperty("success", true);
     });
@@ -98,17 +96,17 @@ describe("Handler Execution", () => {
     it("should create NOT NULL column", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_create_column")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_column");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "locations",
           column: "geom",
-          nullable: false,
-        },
+          nullable: false },
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeQuery.mock.calls[mockAdapter.executeQuery.mock.calls.length - 1][0];
       expect(call).toContain("NOT NULL");
     });
   });
@@ -118,18 +116,18 @@ describe("Handler Execution", () => {
       // First call: column info (NOT NULL), second: no existing index, third: CREATE
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
+          createMockQueryResult([{ Null: "NO", Type: "point" }]),
         )
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "locations",
           column: "geom",
-          indexName: "idx_locations_geom",
-        },
+          indexName: "idx_locations_geom" },
         mockContext,
       );
 
@@ -142,16 +140,16 @@ describe("Handler Execution", () => {
     it("should return structured error for nullable columns", async () => {
       // Column is nullable - should return { success: false, error }
       mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ IS_NULLABLE: "YES", DATA_TYPE: "point" }]),
+        createMockQueryResult([{ Null: "YES", Type: "point" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "locations",
           column: "geom",
-          indexName: "idx_locations_geom",
-        },
+          indexName: "idx_locations_geom" },
         mockContext,
       );
 
@@ -159,15 +157,14 @@ describe("Handler Execution", () => {
         success: false,
         error: expect.stringContaining(
           "Cannot create SPATIAL index on nullable column",
-        ),
-      });
+        ) });
     });
 
     it("should return structured error for duplicate index", async () => {
       // First call: column info, second: no existing index, third: fails with duplicate key
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
+          createMockQueryResult([{ Null: "NO", Type: "point" }]),
         )
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockRejectedValueOnce(
@@ -176,72 +173,70 @@ describe("Handler Execution", () => {
           ),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "locations",
           column: "geom",
-          indexName: "idx_locations_geom",
-        },
+          indexName: "idx_locations_geom" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Index 'idx_locations_geom' already exists on table 'locations'",
-      });
+        error: "Index 'idx_locations_geom' already exists on table 'locations'" });
     });
 
     it("should handle other index creation errors gracefully", async () => {
       // First call: column info, second: no existing index, third: fails with generic error
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
+          createMockQueryResult([{ Null: "NO", Type: "point" }]),
         )
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockRejectedValueOnce(new Error("Some other MySQL error"));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "locations",
           column: "geom",
-          indexName: "idx_locations_geom",
-        },
+          indexName: "idx_locations_geom" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Some other MySQL error",
-      });
+        error: "Some other MySQL error" });
     });
   });
 
   describe("mysql_spatial_point", () => {
     it("should create a POINT geometry", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ wkt: "POINT(-73.9857 40.7484)", srid: 4326 }]),
-      );
+      mockAdapter.executeReadQuery.mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }])).mockResolvedValue(createMockQueryResult([{ wkt: "POINT(-73.9857 40.7484)", srid: 4326 }]));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_point")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_point");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { longitude: -73.9857, latitude: 40.7484 },
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const args = mockAdapter.executeQuery.mock.calls[0][1];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const args = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][1];
       expect(args[0]).toContain("POINT");
       expect(result).toBeDefined();
     });
 
     it("should handle invalid coordinates gracefully", async () => {
-      mockAdapter.executeQuery.mockRejectedValue(
+      mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Invalid coordinate"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_point")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_point");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { longitude: -200, latitude: 40.7484 },
         mockContext,
@@ -249,18 +244,16 @@ describe("Handler Execution", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Invalid coordinate",
-      });
+        error: "Validation error: longitude must be between -180 and 180 degrees for SRID 4326" });
     });
   });
 
   describe("mysql_spatial_polygon", () => {
     it("should create a POLYGON geometry", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ wkt: "POLYGON((...))" }]),
-      );
+      mockAdapter.executeReadQuery.mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }])).mockResolvedValue(createMockQueryResult([{ wkt: "POLYGON((...))" }]));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_polygon")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_polygon");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           coordinates: [
@@ -272,43 +265,46 @@ describe("Handler Execution", () => {
               [0, 0],
             ],
           ],
-          srid: 4326,
-        },
+          srid: 4326 },
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result).toBeDefined();
     });
   });
 
   describe("mysql_spatial_distance", () => {
     it("should find points within distance", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ distance: 1000.5 }]),
-      );
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        return createMockQueryResult([{ distance: 1000.5 }]);
+      });
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_distance")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_distance");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "locations",
           spatialColumn: "geom",
-          point: { longitude: 0, latitude: 0 },
-        },
+          point: { longitude: 0, latitude: 0 } },
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][0];
       expect(call).toContain("ST_Distance");
     });
   });
 
   describe("mysql_spatial_distance_sphere", () => {
     it("should calculate spherical distance", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ id: 1, distance_meters: 5000 }]),
-      );
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        return createMockQueryResult([{ id: 1, distance_meters: 5000 }]);
+      });
 
       const tool = tools.find(
         (t) => t.name === "mysql_spatial_distance_sphere",
@@ -318,161 +314,174 @@ describe("Handler Execution", () => {
           table: "locations",
           spatialColumn: "geom",
           point: { longitude: -73.9857, latitude: 40.7484 },
-          maxDistance: 10000,
-        },
+          maxDistance: 10000 },
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][0];
       expect(call).toContain("ST_Distance_Sphere");
     });
   });
 
   describe("mysql_spatial_contains", () => {
     it("should find geometries within a polygon", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ id: 1 }, { id: 2 }]),
-      );
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        return createMockQueryResult([{ id: 1 }, { id: 2 }]);
+      });
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_contains")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_contains");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "locations",
           spatialColumn: "geom",
-          polygon: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
-        },
+          polygon: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))" },
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][0];
       expect(call).toContain("ST_Contains");
     });
   });
 
   describe("mysql_spatial_within", () => {
     it("should find geometries within another", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ id: 1 }]),
-      );
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        return createMockQueryResult([{ id: 1 }]);
+      });
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_within")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_within");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "locations",
           spatialColumn: "geom",
-          geometry: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
-        },
+          geometry: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))" },
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][0];
       expect(call).toContain("ST_Within");
     });
   });
 
   describe("mysql_spatial_intersection", () => {
     it("should calculate intersection of geometries", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           { intersects: 1, intersection_wkt: "POINT(5 5)" },
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_intersection")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_intersection");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           geometry1: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
           geometry2: "POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))",
-        },
+          srid: 0 },
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][0];
       expect(call).toContain("ST_Intersection");
     });
   });
 
   describe("mysql_spatial_buffer", () => {
     it("should create buffer around geometry", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([{ buffered: "POLYGON(...)" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_buffer")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_buffer");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { geometry: "POINT(0 0)", distance: 100 },
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][0];
       expect(call).toContain("ST_Buffer");
     });
   });
 
   describe("mysql_spatial_transform", () => {
     it("should transform geometry between SRIDs", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([{ transformed_wkt: "POINT(...)" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_transform")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_transform");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { geometry: "POINT(0 0)", fromSrid: 4326, toSrid: 3857 },
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      
+      // Find the actual transform query, as validateSrid might have been called first
+      const transformCall = mockAdapter.executeReadQuery.mock.calls.find(c => String(c[0]).includes("ST_Transform"));
+      expect(transformCall).toBeDefined();
+      const call = transformCall![0];
+      
       expect(call).toContain("ST_Transform");
     });
   });
 
   describe("mysql_spatial_geojson", () => {
     it("should convert WKT to GeoJSON", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           { geoJson: '{"type":"Point","coordinates":[0,0]}' },
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_geojson")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_geojson");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { geometry: "POINT(0 0)" },
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result).toBeDefined();
     });
 
     it("should convert GeoJSON to WKT", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([{ wkt: "POINT(0 0)" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_geojson")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_geojson");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { geoJson: '{"type":"Point","coordinates":[0,0]}' },
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result).toBeDefined();
     });
 
     it("should catch empty string in Zod validation", async () => {
-      const tool = tools.find((t) => t.name === "mysql_spatial_geojson")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_geojson");
+      if (!tool) throw new Error('Tool not found');;
       // geometry: "" is now caught by Zod refine
       const result = await tool.handler({ geometry: "" }, mockContext);
       expect(result).toMatchObject({
         success: false,
-        error: expect.stringContaining("Provided geometry or geoJson must not be an empty string"),
-      });
+        error: "Validation error: Provided geometry must be a valid WKT string, or geoJson must be a valid GeoJSON object" });
     });
   });
 });

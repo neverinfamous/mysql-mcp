@@ -31,10 +31,10 @@ describe("metrics", () => {
       }
 
       const summary = metrics.getSummary();
-      const toolSummary = (summary.tools as any)["test_tool"];
+      const toolSummary = (summary.tools as Record<string, unknown>)["test_tool"];
       
       expect(toolSummary.calls).toBe(100);
-      expect(toolSummary.errors).toBe(0);
+      expect(toolSummary.errors).toEqual({});
       expect(toolSummary.tokens).toBe(1000);
       
       // Check percentiles. 1 to 100 means p50 should be ~50, p95 ~95, p99 ~99
@@ -46,16 +46,16 @@ describe("metrics", () => {
     it("should handle error recordings", () => {
       metrics.recordToolCall("test_tool", 50, false, 5);
       
-      const summary = (metrics.getSummary().tools as any)["test_tool"];
+      const summary = (metrics.getSummary().tools as Record<string, unknown>)["test_tool"];
       expect(summary.calls).toBe(1);
-      expect(summary.errors).toBe(1);
+      expect(summary.errors).toEqual({ unknown: 1 });
       expect(summary.tokens).toBe(5);
     });
 
     it("should return zeros when no samples recorded", () => {
       // Create a new instance via reflection to access ToolMetric directly
       // Or just check that before recording it's empty (wait, it won't be in the map)
-      const emptySummary = (metrics.getSummary().tools as any)["non_existent"];
+      const emptySummary = (metrics.getSummary().tools as Record<string, unknown>)["non_existent"];
       expect(emptySummary).toBeUndefined();
     });
 
@@ -64,7 +64,7 @@ describe("metrics", () => {
         metrics.recordToolCall("test_tool", i, true);
       }
       
-      const summary = (metrics.getSummary().tools as any)["test_tool"];
+      const summary = (metrics.getSummary().tools as Record<string, unknown>)["test_tool"];
       expect(summary.calls).toBe(1500); // Calls keeps incrementing
       // The buffer only holds the latest 1000 items (501 to 1500)
       // p50 of 501-1500 is ~1000
@@ -77,7 +77,7 @@ describe("metrics", () => {
       metrics.recordResourceRead("test_uri");
       metrics.recordResourceRead("test_uri");
       
-      const summary = (metrics.getSummary().resources as any)["test_uri"];
+      const summary = (metrics.getSummary().resources as Record<string, unknown>)["test_uri"];
       expect(summary.reads).toBe(2);
     });
   });
@@ -90,10 +90,47 @@ describe("metrics", () => {
       const prom = metrics.toPrometheus();
       
       expect(prom).toContain('mysql_mcp_tool_calls_total{tool="test_tool"} 1');
-      expect(prom).toContain('mysql_mcp_tool_errors_total{tool="test_tool"} 0');
-      expect(prom).toContain('mysql_mcp_tool_tokens_total{tool="test_tool"} 100');
+      // Error type breakdown is sparse; if no errors, it emits nothing.
+      expect(prom).toContain('gen_ai_usage_prompt_tokens_total{tool="test_tool"} 100');
       expect(prom).toContain('mysql_mcp_tool_latency_ms_p50{tool="test_tool"} 50');
       expect(prom).toContain('mysql_mcp_resource_reads_total{resource="test_uri"} 1');
+      // Derived: tokens per call
+      expect(prom).toContain('gen_ai_usage_prompt_tokens_per_call{tool="test_tool"} 100');
+      // Uptime
+      expect(prom).toContain("# TYPE mysql_mcp_uptime_seconds gauge");
+      expect(prom).toMatch(/mysql_mcp_uptime_seconds \d+/);
+    });
+
+    it("should report zero tokens_per_call when no calls exist", () => {
+      // Record and check a tool with zero calls won't happen (no entry created)
+      // But a tool with calls=1, tokens=0 should show 0
+      metrics.recordToolCall("zero_token_tool", 10, true, 0);
+      const prom = metrics.toPrometheus();
+      expect(prom).toContain('gen_ai_usage_prompt_tokens_per_call{tool="zero_token_tool"} 0');
+    });
+
+    it("should omit pool metrics when provider is not set", () => {
+      const prom = metrics.toPrometheus();
+      expect(prom).not.toContain("mysql_mcp_pool_connections_total");
+      expect(prom).not.toContain("mysql_mcp_pool_connections_active");
+      expect(prom).not.toContain("mysql_mcp_pool_connections_idle");
+      expect(prom).not.toContain("mysql_mcp_pool_queries_total");
+    });
+
+    it("should include pool metrics when provider is set", () => {
+      metrics.setPoolStatsProvider(() => ({
+        total: 10,
+        active: 3,
+        idle: 7,
+        waiting: 0,
+        totalQueries: 42
+      }));
+
+      const prom = metrics.toPrometheus();
+      expect(prom).toContain("mysql_mcp_pool_connections_total 10");
+      expect(prom).toContain("mysql_mcp_pool_connections_active 3");
+      expect(prom).toContain("mysql_mcp_pool_connections_idle 7");
+      expect(prom).toContain("mysql_mcp_pool_queries_total 42");
     });
   });
 
@@ -114,22 +151,39 @@ describe("metrics", () => {
 
     it("should load historical metrics", () => {
       const mockRows = [
-        { tool: "historical_tool", max_calls: 10, max_errors: 1, max_tokens: 50 },
+        {
+          tool: "historical_tool",
+          max_calls: 10,
+          max_errors: 2,
+          max_tokens: 5000,
+          p50: 15,
+          p95: 35,
+          p99: 45,
+        },
       ];
       
-      mockDb.prepare.mockReturnValue({ all: vi.fn().mockReturnValue(mockRows) });
+      const emptyPrepared = {
+        all: vi.fn().mockReturnValue([]),
+        get: vi.fn().mockReturnValue({ last_ts: null }),
+      };
+      mockDb.prepare
+        .mockReturnValueOnce({ all: vi.fn().mockReturnValue(mockRows) }) // Phase 1: metrics_snapshots rows
+        .mockReturnValue(emptyPrepared); // Phase 1b .get() + Phase 2/2.5/3/4 queries
       
       metrics.setSystemDb(mockSystemDb);
       
       // Call private method directly because fake timers with unref() can be flaky in coverage
-      (metrics as any).loadHistorical();
+      (metrics as Record<string, unknown>).loadHistorical();
       
       expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining("SELECT tool"));
-      const summary = (metrics.getSummary().tools as any)["historical_tool"];
+      const summary = (metrics.getSummary().tools as Record<string, unknown>)["historical_tool"];
       expect(summary.calls).toBe(10);
-      expect(summary.errors).toBe(1);
-      expect(summary.tokens).toBe(50);
-      expect(logger.info).toHaveBeenCalledWith("Loaded historical metrics for 1 tools");
+      expect(summary.errors).toEqual({ historical: 2 });
+      expect(summary.tokens).toBe(5000);
+      expect(summary.p50).toBe(15);
+      expect(summary.p95).toBe(35);
+      expect(summary.p99).toBe(45);
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining("Loaded historical metrics for 1 tools"));
     });
 
     it("should handle error when loading historical metrics", () => {
@@ -138,9 +192,10 @@ describe("metrics", () => {
       });
       
       metrics.setSystemDb(mockSystemDb);
-      (metrics as any).loadHistorical();
+      (metrics as Record<string, unknown>).loadHistorical();
       
-      expect(logger.warn).toHaveBeenCalledWith("Failed to load historical metrics", expect.any(Object));
+      expect(logger.warn).toHaveBeenCalledWith("Failed to load historical metrics from SQLite", expect.any(Object));
+      expect(logger.warn).toHaveBeenCalledWith("Failed to load historical percentiles/cache metrics", expect.any(Object));
     });
 
     it("should flush to db periodically", () => {
@@ -156,7 +211,7 @@ describe("metrics", () => {
       metrics.recordToolCall("test_tool", 10, true);
       
       // Force flush directly
-      (metrics as any).flushToDb();
+      (metrics as Record<string, unknown>).flushToDb();
       
       expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO metrics_snapshots"));
       expect(mockDb.transaction).toHaveBeenCalled();
@@ -168,7 +223,9 @@ describe("metrics", () => {
         10, // p50
         10, // p95
         10, // p99
-        0  // tokens
+        0,  // tokens
+        "{}", // categories_json
+        "{}" // errors_json
       );
     });
 
@@ -186,7 +243,7 @@ describe("metrics", () => {
       metrics.recordToolCall("test_tool", 10, true);
       
       // Force flush directly
-      (metrics as any).flushToDb();
+      (metrics as Record<string, unknown>).flushToDb();
       
       expect(logger.warn).toHaveBeenCalledWith("Failed to flush metrics to db", expect.any(Object));
     });

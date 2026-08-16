@@ -20,6 +20,7 @@ import {
   VectorStatsOutputSchema,
 } from "../../schemas/vector.js";
 import { ensureVectorSupport, ensureVectorIndexSupport, sanitizeIdentifier, resolveVectorColumn } from "./helpers.js";
+import { escapeQualifiedTable } from "../../../../utils/validators.js";
 
 export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -35,52 +36,55 @@ export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const validated = VectorInfoSchema.parse(params);
 
-        // Pre-check table existence to satisfy P154
-        await adapter.executeQuery(`SELECT 1 FROM \`${sanitizeIdentifier(validated.table)}\` LIMIT 0`);
+        const tableInfo = await adapter.describeTable(sanitizeIdentifier(validated.table));
 
         await ensureVectorSupport(adapter);
 
-        const tableParam = validated.table; // Parameterized
-        const columnFilters: unknown[] = [tableParam];
-        
-        let colCondition = "";
-        if (validated.column) {
-          colCondition = "AND COLUMN_NAME = ?";
-          columnFilters.push(validated.column);
-        }
+        const columns = (tableInfo.columns ?? [])
+          .filter((col) => {
+            if (validated.column && col.name !== validated.column) return false;
+            return typeof col.type === 'string' && col.type.toLowerCase().startsWith('vector');
+          })
+          .map((col) => {
+            let dimensions: number | null = null;
+            const typeStr = col.type;
+            const match = /vector\((\d+)\)/i.exec(typeStr);
+            if (match?.[1]) {
+              dimensions = parseInt(match[1], 10);
+            }
+            return {
+              name: col.name,
+              dimensions,
+              isNullable: col.nullable,
+              default: col.defaultValue ?? null,
+            };
+          });
 
-        const query = `
-          SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT, EXTRA
-          FROM INFORMATION_SCHEMA.COLUMNS
-          WHERE TABLE_NAME = ? AND DATA_TYPE = 'vector' ${colCondition}
-        `;
-
-        const result = await adapter.executeQuery(query, columnFilters);
-
-        // Parse dimensions from COLUMN_TYPE (e.g., "vector(1536)")
-        const columns = (result.rows ?? []).map((r) => {
-          const row = r;
-          let dimensions: number | null = null;
-          
-          const typeStr = typeof row['COLUMN_TYPE'] === "string" ? row['COLUMN_TYPE'] : "";
-          const match = /vector\((\d+)\)/i.exec(typeStr);
-          if (match?.[1]) {
-            dimensions = parseInt(match[1], 10);
+        if (validated.column && columns.length === 0) {
+          const colExists = (tableInfo.columns ?? []).some((c) => c.name === validated.column);
+          if (!colExists) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `Column '${validated.column}' does not exist in table '${validated.table}'.`,
+                "COLUMN_NOT_FOUND",
+                ErrorCategory.VALIDATION
+              )
+            );
           }
-
-          return {
-            name: String(row['COLUMN_NAME']),
-            dimensions,
-            isNullable: row['IS_NULLABLE'] === "YES",
-            default: row['COLUMN_DEFAULT'],
-          };
-        });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Column '${validated.column}' is not a VECTOR column.`,
+              "INVALID_COLUMN_TYPE",
+              ErrorCategory.VALIDATION
+            )
+          );
+        }
 
         return withTokenEstimate({
           success: true,
           data: {
             table: validated.table,
-            columns
+            columns,
           }
         });
       } catch (e) {
@@ -108,8 +112,7 @@ export function createVectorCreateIndexTool(adapter: MySQLAdapter): ToolDefiniti
         const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
         const column = sanitizeIdentifier(targetColumn);
         
-        // Pre-check table existence to satisfy P154
-        await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
+        // Table existence pre-check is handled inside resolveVectorColumn
 
         // HNSW indexes were added in MySQL 9.1
         await ensureVectorIndexSupport(adapter);
@@ -118,7 +121,7 @@ export function createVectorCreateIndexTool(adapter: MySQLAdapter): ToolDefiniti
 
         // Syntax: ALTER TABLE t1 ADD VECTOR INDEX idx_t1_c1_vec (c1)
         const query = `
-          ALTER TABLE \`${table}\` 
+          ALTER TABLE ${escapeQualifiedTable(table)} 
           ADD VECTOR INDEX \`${indexName}\` (\`${column}\`)
         `;
 
@@ -130,8 +133,7 @@ export function createVectorCreateIndexTool(adapter: MySQLAdapter): ToolDefiniti
             created: true,
             table: validated.table,
             column: validated.column,
-            indexName,
-            metric: validated.metric
+            indexName
           }
         });
       } catch (e) {
@@ -168,12 +170,23 @@ export function createVectorOptimizeTool(adapter: MySQLAdapter): ToolDefinition 
 
         const table = sanitizeIdentifier(validated.table);
         
-        // Pre-check table existence to satisfy P154
-        await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
+        // Pre-check table existence and ensure it has a vector column to satisfy P154
+        const tableInfo = await adapter.describeTable(table);
+        const hasVector = tableInfo.columns?.some(c => typeof c.type === 'string' && c.type.toLowerCase().startsWith('vector'));
+        
+        if (!hasVector) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Table '${table}' does not contain any VECTOR columns.`,
+              "INVALID_COLUMN_TYPE",
+              ErrorCategory.VALIDATION
+            )
+          );
+        }
 
         await ensureVectorSupport(adapter);
         
-        const query = `ANALYZE TABLE \`${table}\``;
+        const query = `ANALYZE TABLE ${escapeQualifiedTable(table)}`;
         const result = await adapter.rawQuery(query);
 
         const rows = result.rows ?? [];
@@ -226,51 +239,20 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
         const column = sanitizeIdentifier(targetColumn);
 
-        // Pre-check table existence to satisfy P154
-        await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
+        // Table existence pre-check is handled inside resolveVectorColumn
 
         await ensureVectorSupport(adapter);
 
-        // Pre-check column type to avoid raw MySQL "Incorrect arguments to vector_dim" errors
-        const colCheck = await adapter.executeQuery(`
-          SELECT DATA_TYPE 
-          FROM INFORMATION_SCHEMA.COLUMNS 
-          WHERE TABLE_NAME = ? AND COLUMN_NAME = ?
-        `, [validated.table, targetColumn]);
 
-        if (!colCheck.rows || colCheck.rows.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: `Column '${targetColumn}' not found in table '${validated.table}'`,
-            code: "COLUMN_NOT_FOUND",
-            category: ErrorCategory.RESOURCE,
-            recoverable: false,
-            suggestion: "Verify the column name using mysql_describe_table."
-          });
-        }
-
-        const colCheckFirstRow = colCheck.rows[0];
-        const dataType = String(colCheckFirstRow ? colCheckFirstRow["DATA_TYPE"] : "").toLowerCase();
-        if (dataType !== "vector") {
-          return withTokenEstimate({
-            success: false,
-            error: `Column '${targetColumn}' is of type '${dataType}', not 'vector'`,
-            code: "VALIDATION_ERROR",
-            category: ErrorCategory.VALIDATION,
-            recoverable: false,
-            suggestion: "Vector stats can only be calculated on vector columns. Use mysql_vector_info to list vector columns."
-          });
-        }
-
-        const query = `
+        const query = `(
           SELECT 
             COUNT(*) as total_rows,
             COUNT(\`${column}\`) as non_null_count,
             COUNT(*) - COUNT(\`${column}\`) as null_count,
             MIN(VECTOR_DIM(\`${column}\`)) as min_dimensions,
             MAX(VECTOR_DIM(\`${column}\`)) as max_dimensions
-          FROM \`${table}\`
-        `;
+          FROM ${escapeQualifiedTable(table)}
+        )`;
 
         const result = await adapter.executeQuery(query);
         
@@ -300,14 +282,15 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const r = firstRow;
         const totalRows = Number(typeof r['total_rows'] === "number" || typeof r['total_rows'] === "string" ? r['total_rows'] : 0);
-        
-        if (totalRows === 0) {
+        const nonNullCount = Number(typeof r['non_null_count'] === "number" || typeof r['non_null_count'] === "string" ? r['non_null_count'] : 0);
+
+        if (totalRows === 0 || nonNullCount === 0) {
           return withTokenEstimate({
             success: true,
             data: {
               table,
               column: targetColumn,
-              totalRows: 0,
+              totalRows,
               stats: null
             }
           });

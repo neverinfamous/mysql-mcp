@@ -14,20 +14,20 @@ describe("progress-utils", () => {
     });
 
     it("returns undefined if server does not have notification capability", () => {
-      const ctx = { server: { notNotificationSender: true }, progressToken: 123 } as any;
+      const ctx = { server: { notNotificationSender: true }, progressToken: 123 } as Record<string, unknown>;
       expect(buildProgressContext(ctx)).toBeUndefined();
     });
 
     it("builds context when server directly has notification method", () => {
       const server = { notification: vi.fn() };
-      const ctx = { server, progressToken: 123 } as any;
+      const ctx = { server, progressToken: 123 } as Record<string, unknown>;
       const res = buildProgressContext(ctx);
       expect(res).toEqual({ server, progressToken: 123 });
     });
 
     it("builds context when server is wrapped (inner server)", () => {
       const innerServer = { notification: vi.fn() };
-      const ctx = { server: { server: innerServer }, progressToken: 123 } as any;
+      const ctx = { server: { server: innerServer }, progressToken: 123 } as Record<string, unknown>;
       const res = buildProgressContext(ctx);
       expect(res).toEqual({ server: innerServer, progressToken: 123 });
     });

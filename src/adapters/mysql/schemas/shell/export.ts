@@ -7,9 +7,10 @@ export const ShellExportTableInputSchemaBase = z
     table: z.string().optional().describe("Table name to export"),
     tableName: z.string().optional().describe("Alias for table"),
     name: z.string().optional().describe("Alias for table"),
+    tbl: z.string().optional().describe("Alias for table"),
+    table_name: z.string().optional().describe("Alias for table"),
     outputPath: z
-      .string()
-      .optional()
+      .string().optional()
       .describe("Output file path (absolute path recommended)"),
     outputUrl: z.string().optional().describe("Alias for outputPath"),
     path: z.string().optional().describe("Alias for outputPath"),
@@ -32,9 +33,9 @@ export const ShellExportTableInputSchemaBase = z
 export const ShellExportTableInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; database?: unknown; table?: unknown; tableName?: unknown; name?: unknown; where?: unknown; filter?: unknown; outputPath?: unknown; outputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
+    const obj = val as { schema?: unknown; database?: unknown; table?: unknown; tableName?: unknown; name?: unknown; tbl?: unknown; table_name?: unknown; where?: unknown; filter?: unknown; outputPath?: unknown; outputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
     const rawSchema = obj.schema ?? obj.database;
-    const rawTable = obj.table ?? obj.tableName ?? obj.name;
+    const rawTable = obj.table ?? obj.tableName ?? obj.name ?? obj.tbl ?? obj.table_name;
     const finalWhere = obj.where ?? obj.filter;
     return {
       ...obj,

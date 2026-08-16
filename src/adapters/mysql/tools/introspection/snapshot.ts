@@ -10,7 +10,6 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { ValidationError } from "../../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -42,10 +41,6 @@ export function createSchemaSnapshotTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = SchemaSnapshotSchema.parse(params);
-
-        if (!parsed.schema) {
-          throw new ValidationError("schema parameter is required");
-        }
 
         // Validate schema existence when filtering by schema
         await checkSchemaExists(adapter, parsed.schema);

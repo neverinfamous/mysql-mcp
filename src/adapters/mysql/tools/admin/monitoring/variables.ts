@@ -23,7 +23,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { like, global, limit } = ShowVariablesSchema.parse(params);
+        const { like, global, limit, summary } = ShowVariablesSchema.parse(params);
         const effectiveLimit = limit ?? 10;
 
         let sql = global ? "SHOW GLOBAL VARIABLES" : "SHOW VARIABLES";
@@ -31,7 +31,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
         // SHOW commands don't support parameter binding - build SQL directly
         if (typeof like === "string") {
           // Escape the like pattern for safety
-          const escapedLike = like.replace(/'/g, "''");
+          const escapedLike = like.replace(/\\/g, "\\\\").replace(/'/g, "''");
           sql += ` LIKE '${escapedLike}'`;
         }
 
@@ -51,18 +51,39 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const totalAvailable = Object.keys(variables).length;
-        const entries = Object.entries(variables);
-        const limited = entries.length > effectiveLimit;
-        const truncated = limited
-          ? Object.fromEntries(entries.slice(0, effectiveLimit))
-          : variables;
+        
+        let data: Record<string, unknown> = {};
 
-        const data = {
-          variables: truncated,
-          rowCount: Object.keys(truncated).length,
-          totalAvailable,
-          ...(limited && { limited: true }),
-        };
+        if (summary) {
+          const summaryKeys = [
+            "max_connections", "innodb_buffer_pool_size", "innodb_log_file_size", 
+            "version", "port", "basedir", "datadir", "tmpdir",
+            "character_set_server", "collation_server"
+          ];
+          const summaryObj: Record<string, string> = {};
+          for (const k of summaryKeys) {
+            if (variables[k] !== undefined) summaryObj[k] = variables[k];
+          }
+          data = {
+            variables: {},
+            rowCount: Object.keys(summaryObj).length,
+            totalAvailable,
+            summary: summaryObj
+          };
+        } else {
+          const entries = Object.entries(variables);
+          const limited = entries.length > effectiveLimit;
+          const truncated = limited
+            ? Object.fromEntries(entries.slice(0, effectiveLimit))
+            : variables;
+
+          data = {
+            variables: truncated,
+            rowCount: Object.keys(truncated).length,
+            totalAvailable,
+            ...(limited && { limited: true }),
+          };
+        }
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify({ success: true, data }), "utf8") / 4,
         );

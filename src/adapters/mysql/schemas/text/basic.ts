@@ -3,20 +3,33 @@ import { defaultToEmpty } from "../preprocess-utils.js";
 
 // --- RegexpMatch ---
 export const RegexpMatchSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("Column name"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
+  column: z.string().optional().describe("Column name (Required)"),
   col: z.string().optional().describe("Alias for column"),
-  pattern: z.string().optional().describe("Regular expression pattern"),
-  query: z.string().optional().describe("Alias for pattern"),
-  sql: z.string().optional().describe("Alias for pattern"),
+  pattern: z.union([z.string(), z.number()]).optional().describe("Regular expression pattern (Required)"),
+  query: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
+  sql: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
+  value: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
+  search: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
+  regex: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
+  regexp: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
   where: z
     .string()
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
-  limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  includeSourceColumn: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .default(false)
+    .describe(
+      "Include source column in output (default: false). Set to true for full context.",
+    ),
+  limit: z.union([z.string(), z.number()]).optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const RegexpMatchSchema = z
@@ -26,21 +39,29 @@ export const RegexpMatchSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      tbl: z.string().optional(),
+      table_name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      pattern: z.string().optional(),
-      query: z.string().optional(),
-      sql: z.string().optional(),
+      pattern: z.coerce.string().optional(),
+      query: z.coerce.string().optional(),
+      sql: z.coerce.string().optional(),
+      value: z.coerce.string().optional(),
+      search: z.coerce.string().optional(),
+      regex: z.coerce.string().optional(),
+      regexp: z.coerce.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      includeSourceColumn: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
+    table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? data.table_name ?? "",
     column: data.column ?? data.col ?? "",
-    pattern: data.pattern ?? data.query ?? data.sql ?? "",
-    where: data.where ?? data.filter,
+    pattern: data.pattern ?? data.query ?? data.sql ?? data.value ?? data.search ?? data.regex ?? data.regexp ?? "",
+    where: data.where || data.filter || undefined,
+    includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
@@ -54,26 +75,38 @@ export const RegexpMatchSchema = z
   })
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );
 
 // --- LikeSearch ---
 export const LikeSearchSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("Column name"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
+  column: z.string().optional().describe("Column name (Required)"),
   col: z.string().optional().describe("Alias for column"),
-  pattern: z.string().optional().describe("LIKE pattern with % and _ wildcards"),
-  query: z.string().optional().describe("Alias for pattern"),
-  sql: z.string().optional().describe("Alias for pattern"),
+  pattern: z.union([z.string(), z.number()]).optional().describe("LIKE pattern with % and _ wildcards (Required)"),
+  query: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
+  sql: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
+  value: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
+  search: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
   where: z
     .string()
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
-  limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  includeSourceColumn: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .default(false)
+    .describe(
+      "Include source column in output (default: false). Set to true for full context.",
+    ),
+  limit: z.union([z.string(), z.number()]).optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const LikeSearchSchema = z
@@ -83,21 +116,27 @@ export const LikeSearchSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      tbl: z.string().optional(),
+      table_name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      pattern: z.string().optional(),
-      query: z.string().optional(),
-      sql: z.string().optional(),
+      pattern: z.coerce.string().optional(),
+      query: z.coerce.string().optional(),
+      sql: z.coerce.string().optional(),
+      value: z.coerce.string().optional(),
+      search: z.coerce.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      includeSourceColumn: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
+    table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? data.table_name ?? "",
     column: data.column ?? data.col ?? "",
-    pattern: data.pattern ?? data.query ?? data.sql ?? "",
-    where: data.where ?? data.filter,
+    pattern: data.pattern ?? data.query ?? data.sql ?? data.value ?? data.search ?? "",
+    where: data.where || data.filter || undefined,
+    includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
@@ -111,33 +150,37 @@ export const LikeSearchSchema = z
   })
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );
 
 // --- Soundex ---
 export const SoundexSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("Column name"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
+  column: z.string().optional().describe("Column name (Required)"),
   col: z.string().optional().describe("Alias for column"),
-  value: z.string().optional().describe("Value to match phonetically"),
-  query: z.string().optional().describe("Alias for value"),
-  search: z.string().optional().describe("Alias for value"),
+  value: z.union([z.string(), z.number()]).optional().describe("Value to match phonetically (Required)"),
+  query: z.union([z.string(), z.number()]).optional().describe("Alias for value"),
+  search: z.union([z.string(), z.number()]).optional().describe("Alias for value"),
+  pattern: z.union([z.string(), z.number()]).optional().describe("Alias for value"),
   where: z
     .string()
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
   includeSourceColumn: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .default(false)
     .describe(
       "Include source column in output (default: false). Set to true for full context.",
     ),
-  limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  limit: z.union([z.string(), z.number()]).optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const SoundexSchema = z
@@ -147,22 +190,25 @@ export const SoundexSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      tbl: z.string().optional(),
+      table_name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      value: z.string().optional(),
-      query: z.string().optional(),
-      search: z.string().optional(),
+      value: z.coerce.string().optional(),
+      query: z.coerce.string().optional(),
+      search: z.coerce.string().optional(),
+      pattern: z.coerce.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      includeSourceColumn: z.boolean().optional().default(false),
+      includeSourceColumn: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
+    table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? data.table_name ?? "",
     column: data.column ?? data.col ?? "",
-    value: data.value ?? data.query ?? data.search ?? "",
-    where: data.where ?? data.filter,
+    value: data.value ?? data.query ?? data.search ?? data.pattern ?? "",
+    where: data.where || data.filter || undefined,
     includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
   }))
@@ -177,32 +223,38 @@ export const SoundexSchema = z
   })
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );
 
 // --- Substring ---
 export const SubstringSchemaBase = z.object({
-  table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string)"),
+  table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string) (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("Column name (Note: Pass a column name, not a raw string)"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
+  column: z.string().optional().describe("Column name (Note: Pass a column name, not a raw string) (Required)"),
   col: z.string().optional().describe("Alias for column"),
-  start: z.unknown().optional().describe("Starting position (1-indexed)"),
-  length: z.unknown().optional().describe("Number of characters"),
+  start: z.union([z.string(), z.number()]).optional().describe("Starting position (1-indexed) (Required)"),
+  pos: z.union([z.string(), z.number()]).optional().describe("Alias for start"),
+  position: z.union([z.string(), z.number()]).optional().describe("Alias for start"),
+  length: z.union([z.string(), z.number()]).optional().describe("Number of characters"),
+  len: z.union([z.string(), z.number()]).optional().describe("Alias for length"),
   where: z
     .string()
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
   includeSourceColumn: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .default(false)
     .describe(
       "Include source column in output (default: false). Set to true for full context.",
     ),
-  limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  limit: z.union([z.string(), z.number()]).optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const SubstringSchema = z
@@ -212,22 +264,27 @@ export const SubstringSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      tbl: z.string().optional(),
+      table_name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
       start: z.union([z.string(), z.number()]).optional(),
+      pos: z.union([z.string(), z.number()]).optional(),
+      position: z.union([z.string(), z.number()]).optional(),
       length: z.coerce.number().optional(),
+      len: z.coerce.number().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      includeSourceColumn: z.boolean().optional().default(false),
+      includeSourceColumn: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
+    table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? data.table_name ?? "",
     column: data.column ?? data.col ?? "",
-    start: data.start,
-    length: data.length,
-    where: data.where ?? data.filter,
+    start: data.start ?? data.pos ?? data.position,
+    length: data.length ?? data.len,
+    where: data.where || data.filter || undefined,
     includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
   }))
@@ -239,7 +296,7 @@ export const SubstringSchema = z
   })
   .refine(
     (data) => data.start !== undefined && !Number.isNaN(Number(data.start)),
-    { message: "Validation error: start is required and must be a number" },
+    { message: "start is required and must be a number" },
   )
   .transform((data) => ({
     ...data,
@@ -247,16 +304,21 @@ export const SubstringSchema = z
   }))
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );
 
 // --- Concat ---
 export const ConcatSchemaBase = z.object({
-  table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string)"),
+  table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string) (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to concatenate (Note: Pass column names, not raw strings)"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
+  columns: z.union([z.array(z.string()), z.string()]).optional().describe("Columns to concatenate (Note: Pass column names, not raw strings) (Required)"),
+  cols: z.union([z.array(z.string()), z.string()]).optional().describe("Alias for columns"),
+  column: z.union([z.array(z.string()), z.string()]).optional().describe("Alias for columns"),
   separator: z
     .string()
     .optional()
@@ -265,21 +327,21 @@ export const ConcatSchemaBase = z.object({
   alias: z
     .string()
     .optional()
-    .default("concatenated")
-    .describe("Result column name"),
+    .describe("Result column name (default: concatenated)"),
+  as: z.string().optional().describe("Alias for alias"),
   where: z
     .string()
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
   includeSourceColumns: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .default(false)
     .describe(
       "Include individual source columns in output (default: false). Set to true for full context.",
     ),
-  limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  limit: z.union([z.string(), z.number()]).optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const ConcatSchema = z
@@ -289,21 +351,26 @@ export const ConcatSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
-      columns: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? v : [v]).optional(),
+      tbl: z.string().optional(),
+      table_name: z.string().optional(),
+      columns: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? (v.length === 1 && typeof v[0] === "string" && v[0].includes(",") ? v[0].split(",").map(s => s.trim()) : v) : (typeof v === "string" && v.includes(",") ? v.split(",").map(s => s.trim()) : [v])).optional(),
+      cols: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? (v.length === 1 && typeof v[0] === "string" && v[0].includes(",") ? v[0].split(",").map(s => s.trim()) : v) : (typeof v === "string" && v.includes(",") ? v.split(",").map(s => s.trim()) : [v])).optional(),
+      column: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? (v.length === 1 && typeof v[0] === "string" && v[0].includes(",") ? v[0].split(",").map(s => s.trim()) : v) : (typeof v === "string" && v.includes(",") ? v.split(",").map(s => s.trim()) : [v])).optional(),
       separator: z.string().optional().default(" "),
-      alias: z.string().optional().default("concatenated"),
+      alias: z.string().optional(),
+      as: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      includeSourceColumns: z.boolean().optional().default(false),
+      includeSourceColumns: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
-    columns: data.columns,
+    table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? data.table_name ?? "",
+    columns: data.columns ?? data.cols ?? data.column,
     separator: data.separator,
-    alias: data.alias,
-    where: data.where ?? data.filter,
+    alias: data.alias ?? data.as ?? "concatenated",
+    where: data.where || data.filter || undefined,
     includeSourceColumns: data.includeSourceColumns,
     limit: data.limit,
   }))
@@ -312,7 +379,7 @@ export const ConcatSchema = z
   })
   .refine(
     (data) => Array.isArray(data.columns) && data.columns.length > 0,
-    { message: "Validation error: columns must be an array with at least one column" }
+    { message: "columns must be an array with at least one column" }
   )
   .transform((data) => ({
     ...data,
@@ -320,6 +387,7 @@ export const ConcatSchema = z
   }))
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );

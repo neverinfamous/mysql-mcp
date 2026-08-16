@@ -6,7 +6,7 @@ export const GROUP_EXAMPLES: Record<string, string[]> = {
   core: [
     'mysql.core.readQuery("SELECT * FROM users LIMIT 10")',
     'mysql.core.describeTable("users")',
-    'mysql.core.createTable("orders", { columns: [{ name: "id", type: "INT AUTO_INCREMENT PRIMARY KEY" }] })',
+    'mysql.core.createTable("orders", { columns: [{ name: "id", type: "INT", autoIncrement: true, primaryKey: true }] })',
     "mysql.core.listTables()",
   ],
   transactions: [

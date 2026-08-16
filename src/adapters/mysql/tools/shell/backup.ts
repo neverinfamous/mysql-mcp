@@ -5,7 +5,7 @@
  */
 
 import { ZodError } from "zod";
-import * as path from "path";
+
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -30,7 +30,7 @@ import {
   ShellDumpSchemasOutputSchema,
   ShellDumpTablesOutputSchema,
 } from "../../schemas/shell/index.js";
-import { escapeForJS, execShellJS } from "./common.js";
+import { escapeForJS, execShellJS, mapHostPathToContainer } from "./common.js";
 
 /**
  * Dump entire MySQL instance
@@ -52,6 +52,7 @@ export function createShellDumpInstanceTool(
       openWorldHint: true,
       destructiveHint: false,
       sensitiveHint: false,
+      idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -72,15 +73,13 @@ export function createShellDumpInstanceTool(
           throw new ValidationError("outputDir or outputUrl is required");
         }
 
-        if (!dryRun) {
-          assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
-        }
+        assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
 
-        const resolvedPath = path.resolve(finalOutputDir);
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const resolvedPath = mapHostPathToContainer(finalOutputDir).replace(/\\/g, "/");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
-        if (threads) {
+        if (threads !== undefined) {
           options.push(`threads: ${threads}`);
         }
         if (compression && compression !== "zstd") {
@@ -138,6 +137,46 @@ export function createShellDumpInstanceTool(
             )
           );
         }
+        if (errorMessage.includes("already exists")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The specified output directory already exists and is not empty. Please provide a new directory or remove the existing one." }
+            )
+          );
+        }
+        if (errorMessage.includes("Could not create directory") && errorMessage.includes("File exists")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The specified output path is an existing file, but a directory is required." }
+            )
+          );
+        }
+        if (errorMessage.includes("No such file or directory") || errorMessage.includes("Could not create directory")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The parent directory for the output path does not exist. Ensure the directory path is correct and exists." }
+            )
+          );
+        }
+        if (errorMessage.includes("unexpected input near ;") || errorMessage.includes("ProxySQL")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Dump failed: Administrative command rejected.`,
+              "PROXY_COMPATIBILITY_ERROR",
+              ErrorCategory.QUERY,
+              { suggestion: "This error often occurs when connecting through ProxySQL, which does not support the administrative commands (like FLUSH TABLES) required by util.dumpInstance(). Connect directly to the MySQL cluster node instead." }
+            )
+          );
+        }
         if (errorMessage.includes("Fatal error during dump")) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
@@ -177,6 +216,7 @@ export function createShellDumpSchemasTool(
       openWorldHint: true,
       destructiveHint: false,
       sensitiveHint: false,
+      idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -201,15 +241,13 @@ export function createShellDumpSchemasTool(
           throw new ValidationError("outputDir or outputUrl is required");
         }
 
-        if (!dryRun) {
-          assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
-        }
+        assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
 
-        const resolvedPath = path.resolve(finalOutputDir);
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const resolvedPath = mapHostPathToContainer(finalOutputDir).replace(/\\/g, "/");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
-        if (threads) {
+        if (threads !== undefined) {
           options.push(`threads: ${threads}`);
         }
         if (compression && compression !== "zstd") {
@@ -224,8 +262,9 @@ export function createShellDumpSchemasTool(
         if (excludeTables && excludeTables.length > 0) {
           options.push(`excludeTables: ${JSON.stringify(excludeTables)}`);
         }
-        // ddlOnly mode disables all metadata that requires extra privileges
+        // ddlOnly mode disables data and all metadata that requires extra privileges
         if (ddlOnly) {
+          options.push("ddlOnly: true");
           options.push("events: false");
           options.push("triggers: false");
           options.push("routines: false");
@@ -268,6 +307,65 @@ export function createShellDumpSchemasTool(
             )
           );
         }
+        if (errorMessage.includes("already exists")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The specified output directory already exists and is not empty. Please provide a new directory or remove the existing one." }
+            )
+          );
+        }
+        if (errorMessage.includes("Could not create directory") && errorMessage.includes("File exists")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The specified output path is an existing file, but a directory is required." }
+            )
+          );
+        }
+        if (errorMessage.includes("No such file or directory") || errorMessage.includes("Could not create directory")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The parent directory for the output path does not exist. Ensure the directory path is correct and exists." }
+            )
+          );
+        }
+        if (errorMessage.includes("unexpected input near ;") || errorMessage.includes("ProxySQL")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Dump failed: Administrative command rejected.`,
+              "PROXY_COMPATIBILITY_ERROR",
+              ErrorCategory.QUERY,
+              { suggestion: "This error often occurs when connecting through ProxySQL, which does not support the administrative commands required by util.dumpSchemas(). Connect directly to the MySQL cluster node instead." }
+            )
+          );
+        }
+        if (errorMessage.includes("Following schemas were not found")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "SCHEMA_NOT_FOUND",
+              ErrorCategory.RESOURCE
+            )
+          );
+        }
+        if (errorMessage.includes("must be in the following form: schema.table") || errorMessage.includes("table name cannot be empty")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "Tables in includeTables and excludeTables must be specified in 'schema.table' format, and cannot be empty." }
+            )
+          );
+        }
         return formatHandlerErrorResponse(error);
       }
     },
@@ -294,6 +392,7 @@ export function createShellDumpTablesTool(
       openWorldHint: true,
       destructiveHint: false,
       sensitiveHint: false,
+      idempotentHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -318,15 +417,13 @@ export function createShellDumpTablesTool(
           throw new ValidationError("outputDir or outputUrl is required");
         }
 
-        if (!dryRun) {
-          assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
-        }
+        assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
 
-        const resolvedPath = path.resolve(finalOutputDir);
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const resolvedPath = mapHostPathToContainer(finalOutputDir).replace(/\\/g, "/");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
-        if (threads) {
+        if (threads !== undefined) {
           options.push(`threads: ${threads}`);
         }
         if (compression && compression !== "zstd") {
@@ -337,9 +434,10 @@ export function createShellDumpTablesTool(
         }
         if (where !== undefined && Object.keys(where).length > 0) {
           const whereEntries = Object.entries(where)
-            .map(
-              ([tbl, cond]) => `"${escapeForJS(tbl)}": "${escapeForJS(cond)}"`,
-            )
+            .map(([tbl, cond]) => {
+              const fullTblName = tbl.includes(".") ? tbl : `${schema}.${tbl}`;
+              return `"${escapeForJS(fullTblName)}": "${escapeForJS(cond)}"`;
+            })
             .join(", ");
           options.push(`where: { ${whereEntries} }`);
         }
@@ -350,7 +448,7 @@ export function createShellDumpTablesTool(
 
         const optionsStr =
           options.length > 0 ? `, { ${options.join(", ")} }` : "";
-        const jsCode = `return util.dumpTables("${schema}", ${JSON.stringify(tables)}, "${escapedPath}"${optionsStr});`;
+        const jsCode = `return util.dumpTables("${escapeForJS(schema ?? "")}", ${JSON.stringify(tables)}, "${escapedPath}"${optionsStr});`;
 
         const result = await execShellJS(jsCode, { timeout: 3600000 });
         return withTokenEstimate({
@@ -359,6 +457,7 @@ export function createShellDumpTablesTool(
             schema,
             tables,
             outputDir: finalOutputDir,
+            where,
             dryRun: dryRun ?? false,
             triggersExcluded: !all,
             result,
@@ -397,7 +496,6 @@ export function createShellDumpTablesTool(
           );
         }
 
-        // Generic fatal error - provide actionable guidance
         if (errorMessage.includes("Fatal error during dump")) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
@@ -405,10 +503,68 @@ export function createShellDumpTablesTool(
                 ? `Dump failed while writing schema metadata: ${errorMessage}.`
                 : `Dump failed: ${errorMessage}.`,
               "QUERY_ERROR",
+              ErrorCategory.QUERY
+            )
+          );
+        }
+
+        if (errorMessage.includes("already exists")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The specified output directory already exists and is not empty. Please provide a new directory or remove the existing one." }
+            )
+          );
+        }
+        if (errorMessage.includes("Could not create directory") && errorMessage.includes("File exists")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The specified output path is an existing file, but a directory is required." }
+            )
+          );
+        }
+        if (errorMessage.includes("No such file or directory") || errorMessage.includes("Could not create directory")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The parent directory for the output path does not exist. Ensure the directory path is correct and exists." }
+            )
+          );
+        }
+        if (errorMessage.includes("unexpected input near ;") || errorMessage.includes("ProxySQL")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Dump failed: Administrative command rejected.`,
+              "PROXY_COMPATIBILITY_ERROR",
               ErrorCategory.QUERY,
-              {
-                suggestion: "Set all: false to skip metadata that requires extra privileges.",
-              }
+              { suggestion: "This error often occurs when connecting through ProxySQL, which does not support the administrative commands required by util.dumpTables(). Connect directly to the MySQL cluster node instead." }
+            )
+          );
+        }
+
+        if (errorMessage.includes("Following tables were not found")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "TABLE_NOT_FOUND",
+              ErrorCategory.RESOURCE
+            )
+          );
+        }
+
+        if (errorMessage.includes("The requested schema") && errorMessage.includes("was not found")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "SCHEMA_NOT_FOUND",
+              ErrorCategory.RESOURCE
             )
           );
         }

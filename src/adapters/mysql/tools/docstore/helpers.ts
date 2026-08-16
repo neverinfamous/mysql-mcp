@@ -1,7 +1,7 @@
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import { ValidationError } from "../../../../types/modules/errors.js";
 
-export const IDENTIFIER_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+export const IDENTIFIER_RE = /^[a-zA-Z_][a-zA-Z0-9_]{0,63}$/;
 
 // Valid JSON path: $, $.field, $.field.sub, $.field[0], $[0], $[*]
 export const JSON_PATH_RE =
@@ -33,11 +33,14 @@ export function parseDocFilter(filter: string): {
         !Array.isArray(parsed)
       ) {
         const keys = Object.keys(parsed);
-        const field = keys[0];
-        if (typeof field === "string") {
-          const descriptor = Object.getOwnPropertyDescriptor(parsed, field);
-          const value: unknown = descriptor ? descriptor.value : undefined;
-          if (IDENTIFIER_RE.test(field)) {
+        if (keys.length > 0) {
+          const conditions: string[] = [];
+          const params: unknown[] = [];
+          for (const field of keys) {
+            const value = (parsed as Record<string, unknown>)[field];
+            if (!IDENTIFIER_RE.test(field)) {
+              throw new ValidationError(`Invalid field name in filter: "${field}". Field names must be valid identifiers.`);
+            }
             const numVal = Number(value);
             if (
               typeof value === "number" ||
@@ -45,25 +48,27 @@ export function parseDocFilter(filter: string): {
                 !isNaN(numVal) &&
                 value.trim() !== "")
             ) {
-              return {
-                where: `JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`,
-                params: [`$.${field}`, String(numVal)],
-              };
+              conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`);
+              params.push(`$.${field}`, String(numVal));
+            } else {
+              conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`);
+              params.push(`$.${field}`, String(value));
             }
-            return {
-              where: `JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`,
-              params: [`$.${field}`, String(value)],
-            };
           }
+          return {
+            where: conditions.join(" AND "),
+            params,
+          };
         }
       }
-    } catch {
+    } catch (e) {
+      if (e instanceof ValidationError) throw e;
       // Ignore parse error and fall through
     }
   }
 
-  // Check for simple field=value pattern
-  const eqMatch = /^(?:\$\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.+)$/.exec(filter);
+  // Check for simple field=value pattern (prevent matching ==, ===)
+  const eqMatch = /^(?:\$\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*=(?!=)\s*(.+)$/.exec(filter);
   if (eqMatch) {
     const field = eqMatch[1] ?? "";
     let value = eqMatch[2] ?? "";
@@ -98,9 +103,15 @@ export function parseDocFilter(filter: string): {
 
   // Default: treat as JSON path existence check
   if (!filter.startsWith("$")) {
-    throw new ValidationError(
-      `Invalid filter: "${filter}". Use JSON path ($.field), _id value, or field=value format.`,
-    );
+    if (/[><!]=?|==/.test(filter)) {
+      throw new ValidationError(
+        `Invalid filter: "${filter}". Only equality (field=value), exact _id match, or JSON path existence are supported.`,
+      );
+    }
+    return {
+      where: `JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`,
+      params: [`$._id`, filter],
+    };
   }
   // Validate JSON path against allowlist regex to prevent injection
   if (!JSON_PATH_RE.test(filter)) {
@@ -121,32 +132,58 @@ export async function checkCollectionExists(
   schema?: string,
 ): Promise<
   | { exists: true }
-  | { exists: false; reason: "schema" | "collection"; name: string }
+  | { exists: false; reason: "schema" | "collection" | "not_a_collection"; name: string }
 > {
-  // When schema is explicitly provided, check schema existence first
   if (schema) {
     const schemaCheck = await adapter.executeQuery(
-      "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-      [schema],
+      `SHOW SCHEMAS LIKE '${schema}'`
     );
     if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
       return { exists: false, reason: "schema", name: schema };
     }
   }
-  const result = await adapter.executeQuery(
-    `SELECT 1 FROM information_schema.TABLES
-     WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?`,
-    [schema ?? null, collection],
-  );
-  if ((result.rows?.length ?? 0) > 0) {
-    return { exists: true };
+
+
+  const tableRef = escapeTableRef(collection, schema);
+  try {
+    const result = await adapter.executeQuery(`SHOW COLUMNS FROM ${tableRef}`);
+    if (!result.rows || result.rows.length === 0) {
+      return { exists: false, reason: "collection", name: collection };
+    }
+    
+    let hasDoc = false;
+    let hasId = false;
+    for (const row of result.rows) {
+      if (typeof row === 'object' && row !== null) {
+        const field = row['Field'] as string;
+        const type = (row['Type'] as string)?.toLowerCase();
+        if (field === 'doc' && type === 'json') {
+          hasDoc = true;
+        }
+        if (field === '_id') {
+          hasId = true;
+        }
+      }
+    }
+    
+    if (hasDoc && hasId) {
+      return { exists: true };
+    }
+    return { exists: false, reason: "not_a_collection", name: collection };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.toLowerCase().includes("doesn't exist") || message.toLowerCase().includes("unknown table")) {
+      return { exists: false, reason: "collection", name: collection };
+    }
+    throw error;
   }
-  return { exists: false, reason: "collection", name: collection };
 }
 
 /**
  * Build a backtick-escaped qualified table reference.
  */
 export function escapeTableRef(name: string, schema?: string): string {
-  return schema ? `\`${schema}\`.\`${name}\`` : `\`${name}\``;
+  const escapedName = name.replace(/`/g, '``');
+  const escapedSchema = schema ? schema.replace(/`/g, '``') : undefined;
+  return escapedSchema ? `\`${escapedSchema}\`.\`${escapedName}\`` : `\`${escapedName}\``;
 }

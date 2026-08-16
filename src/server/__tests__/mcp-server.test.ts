@@ -17,7 +17,7 @@ import { VERSION } from "../../version.js";
 import type { TransportType } from "../../types/index.js";
 
 // Mock the StdioServerTransport
-vi.mock("@modelcontextprotocol/sdk/server/stdio.js", () => ({
+vi.mock("@modelcontextprotocol/server/stdio", () => ({
   StdioServerTransport: class MockStdioTransport {},
 }));
 
@@ -46,7 +46,13 @@ vi.mock("../auth/token-validator.js", () => ({
 
 // Mock the MCP SDK server with a proper class - capture constructor args
 let lastMockMcpServerOptions: unknown = null;
-vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
+vi.mock("@modelcontextprotocol/server", () => ({
+  ProtocolError: class ProtocolError extends Error {
+    constructor(public code: number, message?: string) {
+      super(message);
+    }
+  },
+  ProtocolErrorCode: { InternalError: -32603, InvalidParams: -32602, InvalidRequest: -32600, MethodNotFound: -32601, ParseError: -32700 },
   McpServer: class MockMcpServer {
     connect = vi.fn().mockResolvedValue(undefined);
     close = vi.fn().mockResolvedValue(undefined);
@@ -64,6 +70,9 @@ vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
       lastMockMcpServerOptions = options;
     }
   },
+  ResourceTemplate: class MockResourceTemplate {
+    constructor(public template: string, public options?: any) {}
+  }
 }));
 
 // Mock logger
@@ -151,7 +160,7 @@ describe("McpServer", () => {
     it("should register an adapter", () => {
       const mockAdapter = createMockMySQLAdapter();
       server.registerAdapter(
-        mockAdapter as unknown as Parameters<typeof server.registerAdapter>[0],
+        mockAdapter,
       );
       expect(server.getAdapter("mysql:default")).toBe(mockAdapter);
     });
@@ -159,7 +168,7 @@ describe("McpServer", () => {
     it("should register adapter with custom alias", () => {
       const mockAdapter = createMockMySQLAdapter();
       server.registerAdapter(
-        mockAdapter as unknown as Parameters<typeof server.registerAdapter>[0],
+        mockAdapter,
         "primary-db",
       );
       expect(server.getAdapter("primary-db")).toBe(mockAdapter);
@@ -168,10 +177,10 @@ describe("McpServer", () => {
     it("should not register duplicate adapters", () => {
       const mockAdapter = createMockMySQLAdapter();
       server.registerAdapter(
-        mockAdapter as unknown as Parameters<typeof server.registerAdapter>[0],
+        mockAdapter,
       );
       server.registerAdapter(
-        mockAdapter as unknown as Parameters<typeof server.registerAdapter>[0],
+        mockAdapter,
       ); // Should warn but not fail
       expect(server.getAdapters().size).toBe(1);
     });
@@ -190,15 +199,11 @@ describe("McpServer", () => {
 
     it("should return all registered adapters", () => {
       server.registerAdapter(
-        createMockMySQLAdapter() as unknown as Parameters<
-          typeof server.registerAdapter
-        >[0],
+        createMockMySQLAdapter(),
         "db1",
       );
       server.registerAdapter(
-        createMockMySQLAdapter() as unknown as Parameters<
-          typeof server.registerAdapter
-        >[0],
+        createMockMySQLAdapter(),
         "db2",
       );
       expect(server.getAdapters().size).toBe(2);
@@ -236,7 +241,7 @@ describe("McpServer", () => {
         start: vi.fn(),
         close: vi.fn(),
         send: vi.fn()
-      } as any;
+      } as Record<string, unknown>;
       await onConnectCall(mockMcpTransport);
       
       // onConnect should close existing connection and open new one
@@ -275,7 +280,7 @@ describe("McpServer", () => {
         oauth: {
           enabled: true,
           // Missing issuer/audience
-        } as any,
+        },
       });
 
       await expect(badConfigServer.start()).rejects.toThrow();
@@ -354,7 +359,7 @@ describe("McpServer", () => {
       const mockAdapter = createMockMySQLAdapter();
       mockAdapter.disconnect = vi.fn().mockRejectedValue(new Error("Disconnect failed"));
       server.registerAdapter(
-        mockAdapter as unknown as Parameters<typeof server.registerAdapter>[0],
+        mockAdapter,
       );
       await server.start();
       await server.stop(); // Should not throw
@@ -365,7 +370,7 @@ describe("McpServer", () => {
     it("should disconnect all adapters", async () => {
       const mockAdapter = createMockMySQLAdapter();
       server.registerAdapter(
-        mockAdapter as unknown as Parameters<typeof server.registerAdapter>[0],
+        mockAdapter,
       );
       await server.start();
       await server.stop();
@@ -422,7 +427,7 @@ describe("McpServer", () => {
         },
       });
 
-      const mockAdapter = createMockMySQLAdapter() as unknown as any;
+      const mockAdapter = createMockMySQLAdapter() as unknown as Record<string, unknown>;
       mockAdapter.setAuditInterceptor = vi.fn();
       mockAdapter.setAuditLogger = vi.fn();
       mockAdapter.setBackupManager = vi.fn();

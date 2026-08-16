@@ -3,7 +3,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { ServerHealthSchemaBase, ServerHealthOutputSchema } from "../../../schemas/index.js";
+import { ServerHealthSchema, ServerHealthSchemaBase, ServerHealthOutputSchema } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 
@@ -18,9 +18,29 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
     outputSchema: ServerHealthOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        const { summary } = ServerHealthSchema.parse(params);
         const health = await adapter.getHealth();
+
+        if (summary || !health.connected) {
+          const response = {
+            success: true,
+            data: {
+              serverHealth: {
+                connected: health.connected,
+                latencyMs: health.latencyMs,
+                version: health.version,
+                error: health.error,
+              },
+              summary: true
+            },
+          };
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
+          return { ...response, metrics: { tokenEstimate } };
+        }
 
         // Get additional metrics
         const uptimeResult = await adapter.executeQuery(
@@ -44,16 +64,28 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
             serverHealth: {
               ...health,
               uptime:
-                uptime != null && typeof uptime === "string"
-                  ? parseInt(uptime, 10)
+                uptime != null
+                  ? typeof uptime === "string"
+                    ? parseInt(uptime, 10)
+                    : typeof uptime === "number"
+                      ? uptime
+                      : undefined
                   : undefined,
               activeConnections:
-                connections != null && typeof connections === "string"
-                  ? parseInt(connections, 10)
+                connections != null
+                  ? typeof connections === "string"
+                    ? parseInt(connections, 10)
+                    : typeof connections === "number"
+                      ? connections
+                      : undefined
                   : undefined,
               totalQueries:
-                queries != null && typeof queries === "string"
-                  ? parseInt(queries, 10)
+                queries != null
+                  ? typeof queries === "string"
+                    ? parseInt(queries, 10)
+                    : typeof queries === "number"
+                      ? queries
+                      : undefined
                   : undefined,
             },
           },

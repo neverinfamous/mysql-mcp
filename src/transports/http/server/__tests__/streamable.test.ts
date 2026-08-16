@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { handleStreamableRequest, handleStatelessRequest } from "../streamable.js";
-import { IncomingMessage, ServerResponse } from "node:http";
+import { type IncomingMessage, type ServerResponse } from "node:http";
 import { SessionManager } from "../../session-manager.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { SESSION_ABSOLUTE_TTL_MS } from "../../types.js";
 import * as security from "../../security.js";
 import * as utils from "../utils.js";
@@ -88,7 +87,7 @@ describe("streamable", () => {
       const onConnect = vi.fn().mockResolvedValue(undefined);
       
       // Spy on StreamableHTTPServerTransport.handleRequest
-      const handleRequestSpy = vi.spyOn(StreamableHTTPServerTransport.prototype, "handleRequest").mockResolvedValue(undefined);
+      const handleRequestSpy = vi.spyOn(NodeStreamableHTTPServerTransport.prototype, "handleRequest").mockResolvedValue(undefined);
       
       await handleStreamableRequest(req as IncomingMessage, res as ServerResponse, sessionManager, undefined, onConnect);
       
@@ -97,10 +96,10 @@ describe("streamable", () => {
       expect(handleRequestSpy).toHaveBeenCalled();
       
       // Get the created transport to test onclose
-      const transportCall = onConnect.mock.calls[0][0] as StreamableHTTPServerTransport;
+      const transportCall = onConnect.mock.calls[0][0] as NodeStreamableHTTPServerTransport;
       
       // Test onclose with valid session
-      const getSpy = vi.spyOn(sessionManager, "get").mockReturnValue({} as any);
+      const getSpy = vi.spyOn(sessionManager, "get").mockReturnValue({} as Record<string, unknown>);
       const closeSpy = vi.spyOn(sessionManager, "close").mockResolvedValue(undefined);
       
       if (transportCall.onclose) {
@@ -112,39 +111,7 @@ describe("streamable", () => {
       handleRequestSpy.mockRestore();
     });
 
-    it("should reject sessions using different transport", async () => {
-      req.method = "POST";
-      req.headers = { "mcp-session-id": "test-session" };
-      
-      vi.mocked(security.readBody).mockResolvedValueOnce({ method: "ping" });
-      
-      const wrongTransport = new SSEServerTransport("/message", {} as any);
-      sessionManager.get = vi.fn().mockReturnValue({ 
-        transport: wrongTransport,
-        createdAt: Date.now()
-      });
-      
-      await handleStreamableRequest(req as IncomingMessage, res as ServerResponse, sessionManager);
-      
-      expect(res.writeHead).toHaveBeenCalledWith(400, expect.any(Object));
-      expect(res.end).toHaveBeenCalledWith(expect.stringContaining("different transport protocol"));
-    });
 
-    it("should reject non-POST requests with different transport", async () => {
-      req.method = "GET";
-      req.headers = { "mcp-session-id": "test-session" };
-      
-      const wrongTransport = new SSEServerTransport("/message", {} as any);
-      sessionManager.get = vi.fn().mockReturnValue({ 
-        transport: wrongTransport,
-        createdAt: Date.now()
-      });
-      
-      await handleStreamableRequest(req as IncomingMessage, res as ServerResponse, sessionManager);
-      
-      expect(res.writeHead).toHaveBeenCalledWith(400, expect.any(Object));
-      expect(res.end).toHaveBeenCalledWith(expect.stringContaining("different transport protocol"));
-    });
 
     it("should reject expired sessions", async () => {
       req.method = "POST";
@@ -152,7 +119,7 @@ describe("streamable", () => {
       
       vi.mocked(security.readBody).mockResolvedValueOnce({ method: "ping" });
       
-      const transport = new StreamableHTTPServerTransport({});
+      const transport = new NodeStreamableHTTPServerTransport({});
       sessionManager.get = vi.fn().mockReturnValue({ 
         transport,
         createdAt: Date.now() - SESSION_ABSOLUTE_TTL_MS - 1000 // Expired
@@ -168,7 +135,7 @@ describe("streamable", () => {
       req.method = "GET";
       req.headers = { "mcp-session-id": "test-session" };
       
-      const transport = new StreamableHTTPServerTransport({});
+      const transport = new NodeStreamableHTTPServerTransport({});
       sessionManager.get = vi.fn().mockReturnValue({ 
         transport,
         createdAt: Date.now() - SESSION_ABSOLUTE_TTL_MS - 1000 // Expired
@@ -184,7 +151,7 @@ describe("streamable", () => {
       req.method = "GET";
       req.headers = { "mcp-session-id": "test-session" };
       
-      const transport = new StreamableHTTPServerTransport({});
+      const transport = new NodeStreamableHTTPServerTransport({});
       const handleRequestSpy = vi.spyOn(transport, "handleRequest").mockResolvedValue(undefined);
       
       sessionManager.get = vi.fn().mockReturnValue({ 
@@ -212,7 +179,7 @@ describe("streamable", () => {
       const body = { method: "ping" };
       vi.mocked(security.readBody).mockResolvedValueOnce(body);
       
-      const transport = new StreamableHTTPServerTransport({});
+      const transport = new NodeStreamableHTTPServerTransport({});
       const handleRequestSpy = vi.spyOn(transport, "handleRequest").mockResolvedValue(undefined);
       
       sessionManager.get = vi.fn().mockReturnValue({ 
@@ -306,7 +273,7 @@ describe("streamable", () => {
       });
       const onConnect = vi.fn().mockResolvedValue(undefined);
       
-      const handleRequestSpy = vi.spyOn(StreamableHTTPServerTransport.prototype, "handleRequest").mockResolvedValue(undefined);
+      const handleRequestSpy = vi.spyOn(NodeStreamableHTTPServerTransport.prototype, "handleRequest").mockResolvedValue(undefined);
       
       await handleStreamableRequest(req as IncomingMessage, res as ServerResponse, sessionManager, undefined, onConnect);
       
@@ -314,10 +281,10 @@ describe("streamable", () => {
       expect(handleRequestSpy).toHaveBeenCalled();
       
       // Simulate close event where sessionId is null on transport (fallback to generated ID)
-      const transportCall = onConnect.mock.calls[0][0] as StreamableHTTPServerTransport;
+      const transportCall = onConnect.mock.calls[0][0] as NodeStreamableHTTPServerTransport;
       Object.defineProperty(transportCall, 'sessionId', { get: () => undefined });
       
-      const getSpy = vi.spyOn(sessionManager, "get").mockReturnValue({} as any);
+      const getSpy = vi.spyOn(sessionManager, "get").mockReturnValue({} as Record<string, unknown>);
       const closeSpy = vi.spyOn(sessionManager, "close").mockResolvedValue(undefined);
       
       if (transportCall.onclose) {
@@ -375,8 +342,8 @@ describe("streamable", () => {
       vi.mocked(utils.checkToolScope).mockReturnValueOnce(true); // Should pass auth
       
       const onConnect = vi.fn().mockResolvedValue(undefined);
-      const handleRequestSpy = vi.spyOn(StreamableHTTPServerTransport.prototype, "handleRequest").mockResolvedValue(undefined);
-      const closeSpy = vi.spyOn(StreamableHTTPServerTransport.prototype, "close").mockResolvedValue(undefined);
+      const handleRequestSpy = vi.spyOn(NodeStreamableHTTPServerTransport.prototype, "handleRequest").mockResolvedValue(undefined);
+      const closeSpy = vi.spyOn(NodeStreamableHTTPServerTransport.prototype, "close").mockResolvedValue(undefined);
       
       const authContext = { token: "test", user: "test", scopes: [] };
       await handleStatelessRequest(req as IncomingMessage, res as ServerResponse, authContext, onConnect);
@@ -395,8 +362,8 @@ describe("streamable", () => {
       const body = { method: "ping" };
       vi.mocked(security.readBody).mockResolvedValueOnce(body);
       
-      const handleRequestSpy = vi.spyOn(StreamableHTTPServerTransport.prototype, "handleRequest").mockRejectedValue(new Error("Transport error"));
-      const closeSpy = vi.spyOn(StreamableHTTPServerTransport.prototype, "close").mockResolvedValue(undefined);
+      const handleRequestSpy = vi.spyOn(NodeStreamableHTTPServerTransport.prototype, "handleRequest").mockRejectedValue(new Error("Transport error"));
+      const closeSpy = vi.spyOn(NodeStreamableHTTPServerTransport.prototype, "close").mockResolvedValue(undefined);
       
       await handleStatelessRequest(req as IncomingMessage, res as ServerResponse);
       
@@ -414,7 +381,7 @@ describe("streamable", () => {
       vi.mocked(utils.checkToolScope).mockReturnValueOnce(false); // Fails
       
       const authContext = { token: "test", user: "test", scopes: [] };
-      const handleRequestSpy = vi.spyOn(StreamableHTTPServerTransport.prototype, "handleRequest").mockResolvedValue(undefined);
+      const handleRequestSpy = vi.spyOn(NodeStreamableHTTPServerTransport.prototype, "handleRequest").mockResolvedValue(undefined);
       
       await handleStatelessRequest(req as IncomingMessage, res as ServerResponse, authContext);
       

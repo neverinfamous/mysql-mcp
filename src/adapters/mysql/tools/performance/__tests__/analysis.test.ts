@@ -13,14 +13,11 @@ import {
   createIndexUsageTool,
   createTableStatsTool,
   createBufferPoolStatsTool,
-  createThreadStatsTool,
-} from "../analysis/index.js";
-import type {} from "../../../mysql-adapter/index.js";
+  createThreadStatsTool } from "../analysis/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Performance Analysis Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -49,8 +46,7 @@ describe("Performance Analysis Tools", () => {
             id: 1,
             select_type: "SIMPLE",
             table: "users",
-            type: "ALL",
-          },
+            type: "ALL" },
         ]),
       );
 
@@ -70,8 +66,7 @@ describe("Performance Analysis Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
-            EXPLAIN: "-> Table scan on users  (cost=1.00 rows=100)",
-          },
+            EXPLAIN: "-> Table scan on users  (cost=1.00 rows=100)" },
         ]),
       );
 
@@ -91,14 +86,11 @@ describe("Performance Analysis Tools", () => {
       const mockPlan = {
         query_block: {
           select_id: 1,
-          table: { table_name: "users", access_type: "ALL" },
-        },
-      };
+          table: { table_name: "users", access_type: "ALL" } } };
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
-            EXPLAIN: JSON.stringify(mockPlan),
-          },
+            EXPLAIN: JSON.stringify(mockPlan) },
         ]),
       );
 
@@ -176,8 +168,7 @@ describe("Performance Analysis Tools", () => {
         createMockQueryResult([
           {
             EXPLAIN:
-              "-> Table scan on users  (actual time=0.05..0.10 rows=100 loops=1)",
-          },
+              "-> Table scan on users  (actual time=0.05..0.10 rows=100 loops=1)" },
         ]),
       );
 
@@ -241,7 +232,7 @@ describe("Performance Analysis Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("SQL syntax");
+      expect(result.error).toContain("Anti-Hallucination");
     });
 
     it("should accept sql alias for query", async () => {
@@ -249,8 +240,7 @@ describe("Performance Analysis Tools", () => {
         createMockQueryResult([
           {
             EXPLAIN:
-              "-> Table scan on users  (actual time=0.05..0.10 rows=100 loops=1)",
-          },
+              "-> Table scan on users  (actual time=0.05..0.10 rows=100 loops=1)" },
         ]),
       );
 
@@ -276,8 +266,7 @@ describe("Performance Analysis Tools", () => {
           {
             query: "SELECT * FROM big_table",
             executions: 5,
-            avg_time_ms: 1000,
-          },
+            avg_time_ms: 1000 },
         ]),
       );
 
@@ -315,8 +304,7 @@ describe("Performance Analysis Tools", () => {
             avg_time_ms: 18446743555252.1,
             total_time_ms: 55340230665756.3,
             rows_examined: 0,
-            rows_sent: 0,
-          },
+            rows_sent: 0 },
         ]),
       );
 
@@ -341,8 +329,7 @@ describe("Performance Analysis Tools", () => {
             avg_time_ms: "18446743555.2521",
             total_time_ms: "18446743036.7947",
             rows_examined: 0,
-            rows_sent: 0,
-          },
+            rows_sent: 0 },
         ]),
       );
 
@@ -367,8 +354,7 @@ describe("Performance Analysis Tools", () => {
             avg_time_ms: 500,
             total_time_ms: 5000,
             rows_examined: 0,
-            rows_sent: 10,
-          },
+            rows_sent: 10 },
         ]),
       );
 
@@ -393,8 +379,7 @@ describe("Performance Analysis Tools", () => {
             avg_time_ms: "209241.7573",
             total_time_ms: "1046208.7865",
             rows_examined: 100,
-            rows_sent: 10,
-          },
+            rows_sent: 10 },
         ]),
       );
 
@@ -482,8 +467,7 @@ describe("Performance Analysis Tools", () => {
             total_rows_examined: 0,
             total_rows_sent: 0,
             first_seen: "2026-01-01",
-            last_seen: "2026-02-16",
-          },
+            last_seen: "2026-02-16" },
         ]),
       );
 
@@ -512,8 +496,7 @@ describe("Performance Analysis Tools", () => {
             total_rows_examined: 0,
             total_rows_sent: 10,
             first_seen: "2026-01-01",
-            last_seen: "2026-02-16",
-          },
+            last_seen: "2026-02-16" },
         ]),
       );
 
@@ -542,8 +525,7 @@ describe("Performance Analysis Tools", () => {
             total_rows_examined: 100,
             total_rows_sent: 10,
             first_seen: "2026-01-01",
-            last_seen: "2026-02-16",
-          },
+            last_seen: "2026-02-16" },
         ]),
       );
 
@@ -621,8 +603,7 @@ describe("Performance Analysis Tools", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' does not exist",
-      });
+        error: "Table 'nonexistent' does not exist" });
       // Should only call once (existence check), not the index usage query
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(1);
     });
@@ -679,8 +660,7 @@ describe("Performance Analysis Tools", () => {
           {
             table_name: "users",
     title: "Users",
-            estimated_rows: 1000,
-          },
+            estimated_rows: 1000 },
         ]),
       );
 
@@ -737,8 +717,7 @@ describe("Performance Analysis Tools", () => {
         createMockQueryResult([
           {
             POOL_ID: 0,
-            POOL_SIZE: 8192,
-          },
+            POOL_SIZE: 8192 },
         ]),
       );
 
@@ -787,8 +766,7 @@ describe("Performance Analysis Tools", () => {
         createMockQueryResult([
           {
             THREAD_ID: 1,
-            NAME: "thread/sql/one_connection",
-          },
+            NAME: "thread/sql/one_connection" },
         ]),
       );
 

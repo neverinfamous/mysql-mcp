@@ -30,12 +30,22 @@ describe("createDocstoreResource", () => {
       createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]),
     );
 
-    // Mock Collections query
+    // Mock SHOW TABLE STATUS
     mockAdapter.executeQuery.mockResolvedValueOnce(
       createMockQueryResult([
-        { collection_name: "users", row_count: 100, size_bytes: 1024 },
-        { collection_name: "settings", row_count: 5, size_bytes: 512 },
+        { Name: "users", Rows: 100, Data_length: 1024, Index_length: 0 },
+        { Name: "settings", Rows: 5, Data_length: 512, Index_length: 0 },
       ]),
+    );
+
+    // Mock SHOW COLUMNS FOR users
+    mockAdapter.executeQuery.mockResolvedValueOnce(
+      createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }]),
+    );
+
+    // Mock SHOW COLUMNS FOR settings
+    mockAdapter.executeQuery.mockResolvedValueOnce(
+      createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }]),
     );
 
     const result = await resource.handler(resource.uri, mockContext);
@@ -50,7 +60,7 @@ describe("createDocstoreResource", () => {
       note: "X Plugin is active - X Protocol available on port 33060",
     });
 
-    expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+    expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(4);
   });
 
   it("should return correct info when X Plugin is INACTIVE", async () => {

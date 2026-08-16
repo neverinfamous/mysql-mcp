@@ -6,11 +6,9 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getTransactionTools } from "../transactions.js";
-import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapterWithTransaction,
-  createMockRequestContext,
-} from "../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../__tests__/mocks/index.js";
 
 describe("getTransactionTools", () => {
   let tools: ReturnType<typeof getTransactionTools>;
@@ -65,17 +63,20 @@ describe("Transaction Tool Annotations", () => {
   });
 
   it("mysql_transaction_begin should not be read-only", () => {
-    const tool = tools.find((t) => t.name === "mysql_transaction_begin")!;
+    const tool = tools.find((t) => t.name === "mysql_transaction_begin");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.annotations?.readOnlyHint).toBe(false);
   });
 
   it("mysql_transaction_commit should not be read-only", () => {
-    const tool = tools.find((t) => t.name === "mysql_transaction_commit")!;
+    const tool = tools.find((t) => t.name === "mysql_transaction_commit");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.annotations?.readOnlyHint).toBe(false);
   });
 
   it("mysql_transaction_rollback should not be read-only", () => {
-    const tool = tools.find((t) => t.name === "mysql_transaction_rollback")!;
+    const tool = tools.find((t) => t.name === "mysql_transaction_rollback");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.annotations?.readOnlyHint).toBe(false);
   });
 
@@ -116,7 +117,8 @@ describe("Handler Execution", () => {
 
   describe("mysql_transaction_begin", () => {
     it("should call beginTransaction on adapter", async () => {
-      const tool = tools.find((t) => t.name === "mysql_transaction_begin")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_begin");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.beginTransaction).toHaveBeenCalled();
@@ -125,7 +127,8 @@ describe("Handler Execution", () => {
     });
 
     it("should pass isolation level if provided", async () => {
-      const tool = tools.find((t) => t.name === "mysql_transaction_begin")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_begin");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { isolationLevel: "SERIALIZABLE" },
         mockContext,
@@ -136,7 +139,8 @@ describe("Handler Execution", () => {
     });
 
     it("should use default isolation level if not provided", async () => {
-      const tool = tools.find((t) => t.name === "mysql_transaction_begin")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_begin");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(result).toHaveProperty(
@@ -148,7 +152,8 @@ describe("Handler Execution", () => {
 
   describe("mysql_transaction_commit", () => {
     it("should call commitTransaction with transaction id", async () => {
-      const tool = tools.find((t) => t.name === "mysql_transaction_commit")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_commit");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { transactionId: "txn-123" },
         mockContext,
@@ -164,7 +169,8 @@ describe("Handler Execution", () => {
         mockAdapter.commitTransaction as ReturnType<typeof vi.fn>
       ).mockRejectedValue(new Error("Transaction not found: gone"));
 
-      const tool = tools.find((t) => t.name === "mysql_transaction_commit")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_commit");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ transactionId: "gone" }, mockContext);
 
       expect(result).toHaveProperty("success", false);
@@ -177,7 +183,8 @@ describe("Handler Execution", () => {
 
   describe("mysql_transaction_rollback", () => {
     it("should call rollbackTransaction with transaction id", async () => {
-      const tool = tools.find((t) => t.name === "mysql_transaction_rollback")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_rollback");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { transactionId: "txn-123" },
         mockContext,
@@ -193,7 +200,8 @@ describe("Handler Execution", () => {
         mockAdapter.rollbackTransaction as ReturnType<typeof vi.fn>
       ).mockRejectedValue(new Error("Transaction not found: gone"));
 
-      const tool = tools.find((t) => t.name === "mysql_transaction_rollback")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_rollback");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ transactionId: "gone" }, mockContext);
 
       expect(result).toHaveProperty("success", false);
@@ -206,12 +214,12 @@ describe("Handler Execution", () => {
 
   describe("mysql_transaction_savepoint", () => {
     it("should create savepoint on connection", async () => {
-      const tool = tools.find((t) => t.name === "mysql_transaction_savepoint")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_savepoint");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           transactionId: "txn-123",
-          savepoint: "sp1",
-        },
+          savepoint: "sp1" },
         mockContext,
       );
 
@@ -219,25 +227,25 @@ describe("Handler Execution", () => {
         "txn-123",
       );
       expect(mockAdapter.mockConnection.query).toHaveBeenCalledWith(
-        "SAVEPOINT sp1",
+        "SAVEPOINT `sp1`",
       );
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("data.savepoint", "sp1");
     });
 
     it("should return structured error for invalid savepoint name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_transaction_savepoint")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_savepoint");
+      if (!tool) throw new Error('Tool not found');;
 
       const result = await tool.handler(
         {
           transactionId: "txn-123",
-          savepoint: "invalid-name",
-        },
+          savepoint: "invalid-name" },
         mockContext,
       );
 
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("error", "Invalid savepoint name");
+      expect((result as { error: string }).error).toContain("Invalid savepoint name");
     });
 
     it("should return structured error for non-existent transaction", async () => {
@@ -245,13 +253,13 @@ describe("Handler Execution", () => {
         mockAdapter.getTransactionConnection as ReturnType<typeof vi.fn>
       ).mockReturnValue(undefined);
 
-      const tool = tools.find((t) => t.name === "mysql_transaction_savepoint")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_savepoint");
+      if (!tool) throw new Error('Tool not found');;
 
       const result = await tool.handler(
         {
           transactionId: "nonexistent",
-          savepoint: "sp1",
-        },
+          savepoint: "sp1" },
         mockContext,
       );
 
@@ -264,35 +272,35 @@ describe("Handler Execution", () => {
 
   describe("mysql_transaction_release", () => {
     it("should release savepoint on connection", async () => {
-      const tool = tools.find((t) => t.name === "mysql_transaction_release")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_release");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           transactionId: "txn-123",
-          savepoint: "sp1",
-        },
+          savepoint: "sp1" },
         mockContext,
       );
 
       expect(mockAdapter.mockConnection.query).toHaveBeenCalledWith(
-        "RELEASE SAVEPOINT sp1",
+        "RELEASE SAVEPOINT `sp1`",
       );
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("data.message", "Savepoint released.");
     });
 
     it("should return structured error for invalid savepoint name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_transaction_release")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_release");
+      if (!tool) throw new Error('Tool not found');;
 
       const result = await tool.handler(
         {
           transactionId: "txn-123",
-          savepoint: "123invalid",
-        },
+          savepoint: "123invalid" },
         mockContext,
       );
 
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("error", "Invalid savepoint name");
+      expect((result as { error: string }).error).toContain("Invalid savepoint name");
     });
 
     it("should return structured error for non-existent transaction", async () => {
@@ -300,13 +308,13 @@ describe("Handler Execution", () => {
         mockAdapter.getTransactionConnection as ReturnType<typeof vi.fn>
       ).mockReturnValue(undefined);
 
-      const tool = tools.find((t) => t.name === "mysql_transaction_release")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_release");
+      if (!tool) throw new Error('Tool not found');;
 
       const result = await tool.handler(
         {
           transactionId: "gone",
-          savepoint: "sp1",
-        },
+          savepoint: "sp1" },
         mockContext,
       );
 
@@ -325,13 +333,12 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           transactionId: "txn-123",
-          savepoint: "checkpoint",
-        },
+          savepoint: "checkpoint" },
         mockContext,
       );
 
       expect(mockAdapter.mockConnection.query).toHaveBeenCalledWith(
-        "ROLLBACK TO SAVEPOINT checkpoint",
+        "ROLLBACK TO SAVEPOINT `checkpoint`",
       );
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty(
@@ -348,13 +355,12 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           transactionId: "txn-123",
-          savepoint: "DROP TABLE users; --",
-        },
+          savepoint: "DROP TABLE users; --" },
         mockContext,
       );
 
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("error", "Invalid savepoint name");
+      expect((result as { error: string }).error).toContain("Invalid savepoint name");
     });
 
     it("should return structured error for non-existent transaction", async () => {
@@ -369,8 +375,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           transactionId: "missing",
-          savepoint: "sp1",
-        },
+          savepoint: "sp1" },
         mockContext,
       );
 
@@ -383,7 +388,8 @@ describe("Handler Execution", () => {
 
   describe("mysql_transaction_execute", () => {
     it("should reject empty statements array", async () => {
-      const tool = tools.find((t) => t.name === "mysql_transaction_execute")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_execute");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ statements: [] }, mockContext);
       expect(result).toHaveProperty("success", false);
       expect(result).toHaveProperty("error");
@@ -397,14 +403,14 @@ describe("Handler Execution", () => {
         mockAdapter as { executeOnConnection?: ReturnType<typeof vi.fn> }
       ).executeOnConnection = vi.fn().mockResolvedValue({ rowsAffected: 1 });
 
-      const tool = tools.find((t) => t.name === "mysql_transaction_execute")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_execute");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           statements: [
             "INSERT INTO users VALUES (1)",
             "INSERT INTO logs VALUES (1)",
-          ],
-        },
+          ] },
         mockContext,
       );
 
@@ -431,11 +437,11 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce({ rows: mockRows })
         .mockResolvedValueOnce({ rowsAffected: 1 });
 
-      const tool = tools.find((t) => t.name === "mysql_transaction_execute")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_execute");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
-          statements: ["SELECT * FROM users", "INSERT INTO logs VALUES (1)"],
-        },
+          statements: ["SELECT * FROM users", "INSERT INTO logs VALUES (1)"] },
         mockContext,
       );
 
@@ -467,12 +473,12 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce({ rowsAffected: 1 })
         .mockRejectedValueOnce(new Error("Constraint violation"));
 
-      const tool = tools.find((t) => t.name === "mysql_transaction_execute")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_execute");
+      if (!tool) throw new Error('Tool not found');;
 
       const result = await tool.handler(
         {
-          statements: ["INSERT INTO users VALUES (1)", "INSERT INTO invalid"],
-        },
+          statements: ["INSERT INTO users VALUES (1)", "INSERT INTO invalid"] },
         mockContext,
       );
 
@@ -489,12 +495,12 @@ describe("Handler Execution", () => {
         mockAdapter as { executeOnConnection?: ReturnType<typeof vi.fn> }
       ).executeOnConnection = vi.fn().mockResolvedValue({ rowsAffected: 1 });
 
-      const tool = tools.find((t) => t.name === "mysql_transaction_execute")!;
+      const tool = tools.find((t) => t.name === "mysql_transaction_execute");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           statements: ["SELECT 1"],
-          isolationLevel: "READ COMMITTED",
-        },
+          isolationLevel: "READ COMMITTED" },
         mockContext,
       );
 

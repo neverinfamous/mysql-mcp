@@ -38,9 +38,25 @@ export const RoleAssignSchema = RoleAssignSchemaBase.refine((val) => val.role ||
     message: "Must provide 'user', 'toUser', 'userName', or 'username'",
   })
   .transform((val) => {
-    const role = val.role || val.name || val.roleName || "";
-    const user = val.user || val.toUser || val.userName || val.username || "";
-    return { ...val, role, user };
+    let role = val.role || val.name || val.roleName || "";
+    let roleHost = "%";
+    if (role?.includes("@")) {
+      const parts = role.split("@");
+      role = parts[0] || "";
+      if (parts.length > 1) {
+        roleHost = parts.slice(1).join("@");
+      }
+    }
+    let user = val.user || val.toUser || val.userName || val.username || "";
+    let host = val.host;
+    if (user?.includes("@")) {
+      const parts = user.split("@");
+      user = parts[0] || "";
+      if (parts.length > 1) {
+        host = parts.slice(1).join("@");
+      }
+    }
+    return { ...val, role, roleHost, user, host };
   });
 
 export const RoleRevokeSchemaBase = z.object({
@@ -78,9 +94,45 @@ export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role ||
       message: "Must provide 'user'/'fromUser'/'userName'/'username' OR 'privileges'/'privilege'",
     },
   )
+  .refine(
+    (val) => {
+      const hasUser = Boolean(val.user) || Boolean(val.fromUser) || Boolean(val.userName) || Boolean(val.username);
+      const hasPriv = Boolean(val.privileges) || Boolean(val.privilege);
+      return !(hasUser && hasPriv);
+    },
+    {
+      message: "Cannot provide both user and privileges. Use 'user' to revoke a role, or 'privileges' to revoke specific privileges.",
+    }
+  )
+  .refine(
+    (val) => {
+      const targetOn = val.on ?? val.object;
+      if (targetOn && targetOn.split(".").length > 2) return false;
+      return true;
+    },
+    {
+      message: "Column-level privileges are not supported via the 'on' parameter. Use 'database' and 'table' for table-level revokes, and provide at most 'db.table'.",
+    }
+  )
   .transform((val) => {
-    const role = val.role || val.name || val.roleName || "";
-    const user = val.user || val.fromUser || val.userName || val.username || "";
+    let role = val.role || val.name || val.roleName || "";
+    let roleHost = "%";
+    if (role?.includes("@")) {
+      const parts = role.split("@");
+      role = parts[0] || "";
+      if (parts.length > 1) {
+        roleHost = parts.slice(1).join("@");
+      }
+    }
+    let user = val.user || val.fromUser || val.userName || val.username || "";
+    let host = val.host;
+    if (user?.includes("@")) {
+      const parts = user.split("@");
+      user = parts[0] || "";
+      if (parts.length > 1) {
+        host = parts.slice(1).join("@");
+      }
+    }
     const privsRaw = val.privileges ?? (val.privilege ? [val.privilege] : []);
     const privileges = Array.isArray(privsRaw) ? privsRaw : [privsRaw];
     let database = val.db ?? val.schema ?? val.database;
@@ -98,15 +150,23 @@ export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role ||
       }
     }
 
-    return { ...val, role, user, privileges, database, table };
+    return { ...val, role, roleHost, user, host, privileges, database, table };
+  })
+  .refine((val) => {
+    if (val.privileges.length > 0) {
+      return !(val.database === "*" && val.table !== "*");
+    }
+    return true;
+  }, {
+    message: "Cannot specify a table without a specific database. MySQL does not support revoking on a specific table across all databases (*.table). Use database: '*' and table: '*' for global privileges, or provide a specific database.",
   });
 
 export const UserRolesSchemaBase = z.object({
-  user: z.string().optional(),
-  targetUser: z.string().optional(),
-  userName: z.string().optional(),
-  username: z.string().optional(),
-  host: z.string().default("%"),
+  user: z.string().optional().describe("User name"),
+  targetUser: z.string().optional().describe("Alias for user"),
+  userName: z.string().optional().describe("Alias for user"),
+  username: z.string().optional().describe("Alias for user"),
+  host: z.string().default("%").describe("Host name"),
 });
 
 export const UserRolesSchema = UserRolesSchemaBase.refine(
@@ -115,8 +175,16 @@ export const UserRolesSchema = UserRolesSchemaBase.refine(
     message: "Must provide 'user', 'targetUser', 'userName', or 'username'",
   },
 ).transform((val) => {
-  const user = val.user || val.targetUser || val.userName || val.username || "";
-  return { ...val, user };
+  let user = val.user || val.targetUser || val.userName || val.username || "";
+  let host = val.host;
+  if (user?.includes("@")) {
+    const parts = user.split("@");
+    user = parts[0] || "";
+    if (parts.length > 1) {
+      host = parts.slice(1).join("@");
+    }
+  }
+  return { ...val, user, host };
 });
 
 export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
@@ -132,38 +200,40 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
-          const { role, user, host, withAdminOption } =
+          const { role, roleHost, user, host, withAdminOption } =
             RoleAssignSchema.parse(params);
 
-          validateIdentifier(role, "role");
+          validateMySQLUserHost(role, "role");
+          validateMySQLUserHost(roleHost, "host");
           validateMySQLUserHost(user, "user");
           validateMySQLUserHost(host, "host");
 
           const checkResult = await adapter.executeQuery(
-            `SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
-            [role],
+            `(SELECT 1 FROM mysql.user WHERE User = ? AND Host = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = '')`,
+            [role, roleHost],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
+            const roleStr = roleHost === "%" ? role : `${role}@${roleHost}`;
             return formatHandlerErrorResponse(
-              new MySQLMcpError(`Role '${role}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+              new MySQLMcpError(`Role '${roleStr}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
             );
           }
 
           const userCheck = await adapter.executeQuery(
-            `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?`,
+            `(SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?)`,
             [user, host],
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new MySQLMcpError(`User '${user}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+              new MySQLMcpError(`User '${user}' at host '${host}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
             );
           }
 
-          let sql = `GRANT '${role}' TO '${user}'@'${host}'`;
+          let sql = `GRANT '${role}'@'${roleHost}' TO '${user}'@'${host}'`;
           if (withAdminOption) sql += " WITH ADMIN OPTION";
           await adapter.rawQuery(sql);
           await adapter.rawQuery(
-            `SET DEFAULT ROLE '${role}' TO '${user}'@'${host}'`,
+            `SET DEFAULT ROLE '${role}'@'${roleHost}' TO '${user}'@'${host}'`,
           );
           const data = { role, user, host };
           const response = { success: true, data };
@@ -176,6 +246,11 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             return formatHandlerErrorResponse(error);
           }
           const message = error instanceof Error ? error.message : String(error);
+          if (message.includes("GRANT would create a loop")) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError("Cannot assign a role to itself. The GRANT would create a loop.", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
+            );
+          }
           if (message.includes("Unknown authorization ID")) {
             return formatHandlerErrorResponse(
               new MySQLMcpError("User does not exist", "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
@@ -196,49 +271,53 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
-          const { role, user, host, privileges, database, table } =
+          const { role, roleHost, user, host, privileges, database, table } =
             RoleRevokeSchema.parse(params);
 
+          validateMySQLUserHost(role, "role");
+          validateMySQLUserHost(roleHost, "host");
+
           const checkResult = await adapter.executeQuery(
-            `SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
-            [role],
+            `(SELECT 1 FROM mysql.user WHERE User = ? AND Host = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = '')`,
+            [role, roleHost],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
+            const roleStr = roleHost === "%" ? role : `${role}@${roleHost}`;
             return formatHandlerErrorResponse(
-              new MySQLMcpError(`Role '${role}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+              new MySQLMcpError(`Role '${roleStr}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
             );
           }
 
           if (user) {
+            validateMySQLUserHost(user, "user");
+            validateMySQLUserHost(host, "host");
+
             const userCheck = await adapter.executeQuery(
-              `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?`,
+              `(SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?)`,
               [user, host],
             );
             if (!userCheck.rows || userCheck.rows.length === 0) {
               return formatHandlerErrorResponse(
-                new MySQLMcpError(`User '${user}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+                new MySQLMcpError(`User '${user}' at host '${host}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
               );
             }
 
             const assignCheck = await adapter.executeQuery(
-              `SELECT 1 FROM mysql.role_edges WHERE FROM_USER = ? AND FROM_HOST = '%' AND TO_USER = ? AND TO_HOST = ?`,
-              [role, user, host],
+              `(SELECT 1 FROM mysql.role_edges WHERE FROM_USER = ? AND FROM_HOST = ? AND TO_USER = ? AND TO_HOST = ?)`,
+              [role, roleHost, user, host],
             );
             if (!assignCheck.rows || assignCheck.rows.length === 0) {
+              const roleStr = roleHost === "%" ? role : `${role}@${roleHost}`;
               return formatHandlerErrorResponse(
                 new MySQLMcpError(
-                  `Role '${role}' is not assigned to user '${user}'@'${host}'`,
+                  `Role '${roleStr}' is not assigned to user '${user}'`,
                   "OBJECT_NOT_FOUND",
                   ErrorCategory.RESOURCE
                 )
               );
             }
 
-            validateIdentifier(role, "role");
-            validateMySQLUserHost(user, "user");
-            validateMySQLUserHost(host, "host");
-
-            await adapter.rawQuery(`REVOKE '${role}' FROM '${user}'@'${host}'`);
+            await adapter.rawQuery(`REVOKE '${role}'@'${roleHost}' FROM '${user}'@'${host}'`);
             const data = { role, user, host };
             const response = { success: true, data };
             const tokenEstimate = Math.ceil(
@@ -265,7 +344,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             }
 
             await adapter.rawQuery(
-              `REVOKE ${privileges.join(", ")} ON ${onClause} FROM '${role}'`,
+              `REVOKE ${privileges.join(", ")} ON ${onClause} FROM '${role}'@'${roleHost}'`,
             );
             const data = {
               role,
@@ -297,6 +376,11 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
               new MySQLMcpError("User does not exist", "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
             );
           }
+          if (message.includes("There is no such grant")) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError("No such grant exists to revoke", "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
+          }
           return formatHandlerErrorResponse(error);
         }
       },
@@ -314,19 +398,22 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { user, host } = UserRolesSchema.parse(params);
 
+          validateMySQLUserHost(user, "user");
+          validateMySQLUserHost(host, "host");
+
           const userCheck = await adapter.executeQuery(
-            `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?`,
+            `(SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?)`,
             [user, host],
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new MySQLMcpError(`User '${user}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+              new MySQLMcpError(`User '${user}' at host '${host}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
             );
           }
 
           const result = await adapter.executeQuery(
-            `SELECT FROM_USER as roleName, FROM_HOST as roleHost, WITH_ADMIN_OPTION as admin
-                       FROM mysql.role_edges WHERE TO_USER=? AND TO_HOST=?`,
+            `(SELECT FROM_USER as roleName, FROM_HOST as roleHost, WITH_ADMIN_OPTION as admin
+                       FROM mysql.role_edges WHERE TO_USER=? AND TO_HOST=?)`,
             [user, host],
           );
           const data = { user, host, roles: result.rows ?? [] };

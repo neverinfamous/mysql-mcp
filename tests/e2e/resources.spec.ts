@@ -6,8 +6,8 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
+import { BASE_URL } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -28,8 +28,8 @@ test.describe("E2E Resource Reads (via MCP SDK Client)", () => {
   let client: Client;
 
   test.beforeAll(async () => {
-    const transport = new SSEClientTransport(
-      new URL("http://localhost:3000/sse"),
+    const transport = new StreamableHTTPClientTransport(
+      new URL(`${BASE_URL}/mcp`),
     );
     client = new Client(
       { name: "playwright-resource-test", version: "1.0.0" },
@@ -63,7 +63,7 @@ test.describe("E2E Resource Reads (via MCP SDK Client)", () => {
 
     const schema = parseResourceText(response.contents[0]!.text as string);
     expect(schema).toHaveProperty("tables");
-    expect(Array.isArray((schema as any).tables)).toBe(true);
+    expect(Array.isArray((schema as Record<string, unknown>).tables)).toBe(true);
   });
 
   test("should read mysql://tables resource", async () => {
@@ -84,7 +84,7 @@ test.describe("E2E Resource Reads (via MCP SDK Client)", () => {
 
     const health = parseResourceText(
       response.contents[0]!.text as string,
-    ) as any;
+    ) as Record<string, unknown>;
     // mysql-mcp health resource returns connection and server info
     expect(health).toBeDefined();
     expect(typeof health).toBe("object");

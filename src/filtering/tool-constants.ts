@@ -177,8 +177,9 @@ export const TOOL_GROUPS = {
     "mysql_list_stored_procedures",
     "mysql_list_functions",
     "mysql_list_triggers",
+    "mysql_create_trigger",
+    "mysql_drop_trigger",
     "mysql_list_constraints",
-    "mysql_list_events",
   ],
   events: [
     "mysql_event_create",
@@ -319,7 +320,7 @@ export const TOOL_GROUPS = {
  * Tool counts (verified):
  *   starter:         43 (core:12 + json:17 + transactions:7 + text:6 + codemode:1)
  *   essential:       20 (core:12 + transactions:7 + codemode:1)
- *   dev-power:       47 (core:12 + schema:11 + performance:11 + fulltext:5 + transactions:7 + codemode:1)
+ *   dev-power:       46 (core:12 + schema:10 + performance:11 + fulltext:5 + transactions:7 + codemode:1)
  *   dev-analytics:   44 (core:12 + stats:20 + performance:11 + codemode:1)
  *   ai-data-nosql:   39 (core:12 + json:17 + docstore:9 + codemode:1)
  *   ai-search:       35 (core:12 + text:6 + fulltext:5 + vector:11 + codemode:1)
@@ -328,8 +329,8 @@ export const TOOL_GROUPS = {
  *   dba-monitor:     43 (core:12 + monitoring:7 + performance:11 + sysschema:8 + optimization:4 + codemode:1)
  *   dba-manage:      44 (core:12 + admin:9 + backup:7 + replication:5 + partitioning:4 + events:6 + codemode:1)
  *   dba-secure:      37 (core:12 + security:9 + roles:8 + transactions:7 + codemode:1)
- *   dba-schema:      36 (core:12 + schema:11 + introspection:6 + migration:6 + codemode:1)
- *   base-relational: 37 (core:12 + transactions:7 + text:6 + schema:11 + codemode:1)
+ *   dba-schema:      35 (core:12 + schema:10 + introspection:6 + migration:6 + codemode:1)
+ *   base-relational: 36 (core:12 + transactions:7 + text:6 + schema:10 + codemode:1)
  *   base-analytics:  27 (stats:20 + events:6 + codemode:1)
  *   base-nosql:      33 (docstore:9 + spatial:12 + vector:11 + codemode:1)
  *   ecosystem:       41 (router:9 + proxysql:11 + shell:10 + cluster:10 + codemode:1)

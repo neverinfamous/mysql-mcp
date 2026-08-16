@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { registerHelpResources, registerAuditResource, registerObservabilityResource } from "../resources.js";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "../mcp-server.js";
 import { metrics } from "../../../observability/metrics.js";
 import { HELP_CONTENT } from "../../../constants/server-instructions.js";
 
@@ -20,78 +20,71 @@ vi.mock("../../../utils/logger.js", () => ({
 
 describe("mcp-server resources", () => {
   let mcpServer: McpServer;
+  let mockSdkServer: any;
 
   beforeEach(() => {
-    mcpServer = new McpServer({ name: "test", version: "1.0.0" });
-    vi.spyOn(mcpServer, "registerResource").mockImplementation(() => {});
+    mockSdkServer = {
+      registerResource: vi.fn(),
+    };
+    const mockAdapter = {
+      getToolDefinitions: () => [
+        { name: "mysql_read_query" },
+        { name: "mysql_server_config" }
+      ]
+    };
+    mcpServer = {
+      getSdkServer: () => mockSdkServer,
+      getToolFilter: () => ({ enabledTools: new Set(["mysql_read_query", "mysql_server_config"]) }),
+      getAdapters: () => new Map([["test", mockAdapter]]),
+    } as unknown as McpServer;
     vi.clearAllMocks();
   });
 
   describe("registerHelpResources", () => {
     it("should register base help resource and enabled group resources", () => {
-      // Mock HELP_CONTENT to have some values
-      const getSpy = vi.spyOn(HELP_CONTENT, "get");
-      getSpy.mockImplementation((key) => {
-        if (key === "gotchas") return "Gotchas content";
-        if (key === "core") return "Core content";
-        if (key === "admin") return "Admin content";
-        return undefined;
-      });
-
-      const enabledTools = new Set(["mysql_read_query", "mysql_server_config"]); // core and admin
+      registerHelpResources(mcpServer);
       
-      registerHelpResources(mcpServer, enabledTools);
-      
-      expect(mcpServer.registerResource).toHaveBeenCalledWith(
+      expect(mockSdkServer.registerResource).toHaveBeenCalledWith(
         "mysql_help",
         "mysql://help",
         expect.any(Object),
         expect.any(Function)
       );
 
-      expect(mcpServer.registerResource).toHaveBeenCalledWith(
-        "mysql_help_core",
-        "mysql://help/core",
+      expect(mockSdkServer.registerResource).toHaveBeenCalledWith(
+        "mysql_help_group",
+        expect.any(Object), // ResourceTemplate
         expect.any(Object),
         expect.any(Function)
       );
 
-      expect(mcpServer.registerResource).toHaveBeenCalledWith(
-        "mysql_help_admin",
-        "mysql://help/admin",
-        expect.any(Object),
-        expect.any(Function)
-      );
-
-      // Verify the handler works for gotchas
-      const gotchasCall = vi.mocked(mcpServer.registerResource).mock.calls.find(call => call[1] === "mysql://help");
-      const gotchasHandler = gotchasCall![3];
-      const gotchasResult = gotchasHandler(undefined as any, undefined as any);
+      // Verify the handler works for the base json endpoint
+      const baseCall = vi.mocked(mockSdkServer.registerResource).mock.calls.find(call => call[1] === "mysql://help");
+      const baseHandler = baseCall![3];
+      const baseResult = baseHandler(undefined, undefined);
       
-      expect(gotchasResult).toEqual({
-        contents: [
-          {
-            uri: "mysql://help",
-            mimeType: "text/markdown",
-            text: "Gotchas content",
-          }
-        ]
-      });
+      const parsed = JSON.parse(baseResult.contents[0].text);
+      const groupNames = parsed.groups.map((g: any) => g.name);
+      expect(groupNames).toContain("gotchas");
+      expect(groupNames).toContain("core");
+      expect(groupNames).toContain("admin");
       expect(metrics.recordResourceRead).toHaveBeenCalledWith("mysql://help");
-
-      getSpy.mockRestore();
     });
 
-    it("should register all help resources if codemode is enabled", () => {
+    it("should correctly handle dynamic group resolution for ResourceTemplate", () => {
+      registerHelpResources(mcpServer);
+      
+      const groupCall = vi.mocked(mockSdkServer.registerResource).mock.calls.find(call => call[0] === "mysql_help_group");
+      const groupHandler = groupCall![3];
+      
       const getSpy = vi.spyOn(HELP_CONTENT, "get");
-      getSpy.mockReturnValue("Mock content");
-
-      const enabledTools = new Set(["mysql_execute_code"]); // codemode
+      getSpy.mockReturnValue("Mock gotchas content");
       
-      registerHelpResources(mcpServer, enabledTools);
-      
-      // Should register gotchas + all groups
-      expect(mcpServer.registerResource).toHaveBeenCalledTimes(28); // gotchas + 27 groups
+      const result = groupHandler(new URL("mysql://help/gotchas"), { group: "gotchas" });
+      const parsed = JSON.parse(result.contents[0].text);
+      expect(parsed.helpContent).toBe("Mock gotchas content");
+      expect(parsed.group).toBe("gotchas");
+      expect(metrics.recordResourceRead).toHaveBeenCalledWith("mysql://help/gotchas");
       
       getSpy.mockRestore();
     });
@@ -99,8 +92,8 @@ describe("mcp-server resources", () => {
 
   describe("registerAuditResource", () => {
     it("should return early if auditLogger is null", () => {
-      registerAuditResource(mcpServer, null, null);
-      expect(mcpServer.registerResource).not.toHaveBeenCalled();
+      registerAuditResource(mockSdkServer, null, null);
+      expect(mockSdkServer.registerResource).not.toHaveBeenCalled();
     });
 
     it("should register audit resource and return recent data", async () => {
@@ -116,17 +109,17 @@ describe("mcp-server resources", () => {
         getStats: vi.fn().mockResolvedValue({ total: 2 })
       };
 
-      registerAuditResource(mcpServer, mockAuditLogger as any, mockBackupManager as any);
+      registerAuditResource(mockSdkServer, mockAuditLogger as Record<string, unknown>, mockBackupManager as Record<string, unknown>);
       
-      expect(mcpServer.registerResource).toHaveBeenCalledWith(
+      expect(mockSdkServer.registerResource).toHaveBeenCalledWith(
         "mysql_audit",
         "mysql://audit",
         expect.any(Object),
         expect.any(Function)
       );
 
-      const handler = vi.mocked(mcpServer.registerResource).mock.calls[0][3];
-      const result: any = await handler(undefined as any, undefined as any);
+      const handler = vi.mocked(mockSdkServer.registerResource).mock.calls[0][3];
+      const result: any = await handler(undefined, undefined);
       
       expect(metrics.recordResourceRead).toHaveBeenCalledWith("mysql://audit");
       
@@ -146,10 +139,10 @@ describe("mcp-server resources", () => {
         recent: vi.fn().mockResolvedValue([])
       };
 
-      registerAuditResource(mcpServer, mockAuditLogger as any, null);
+      registerAuditResource(mockSdkServer, mockAuditLogger as Record<string, unknown>, null);
       
-      const handler = vi.mocked(mcpServer.registerResource).mock.calls[0][3];
-      const result: any = await handler(undefined as any, undefined as any);
+      const handler = vi.mocked(mockSdkServer.registerResource).mock.calls[0][3];
+      const result: any = await handler(undefined, undefined);
       
       const parsed = JSON.parse(result.contents[0].text);
       expect(parsed.summary.backups).toBeUndefined();
@@ -158,17 +151,17 @@ describe("mcp-server resources", () => {
 
   describe("registerObservabilityResource", () => {
     it("should register metrics resource", async () => {
-      registerObservabilityResource(mcpServer);
+      registerObservabilityResource(mockSdkServer);
       
-      expect(mcpServer.registerResource).toHaveBeenCalledWith(
+      expect(mockSdkServer.registerResource).toHaveBeenCalledWith(
         "mysql_metrics",
         "mysql://metrics",
         expect.any(Object),
         expect.any(Function)
       );
 
-      const handler = vi.mocked(mcpServer.registerResource).mock.calls[0][3];
-      const result: any = await handler(undefined as any, undefined as any);
+      const handler = vi.mocked(mockSdkServer.registerResource).mock.calls[0][3];
+      const result: any = await handler(undefined, undefined);
       
       expect(metrics.recordResourceRead).toHaveBeenCalledWith("mysql://metrics");
       

@@ -18,8 +18,7 @@
  */
 
 import { readFile, appendFile } from "node:fs/promises";
-import { join } from "node:path";
-import { tmpdir } from "node:os";
+
 import { setTimeout as delay } from "node:timers/promises";
 
 import { test, expect } from "@playwright/test";
@@ -30,21 +29,19 @@ import {
   callToolRaw,
   callToolAndParse,
   cleanupAuditFiles,
+  auditLogPath,
 } from "./helpers.js";
-import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Client } from "@modelcontextprotocol/client";
 
 // Force sequential execution to prevent parallel workers from colliding on manual ports/files
-test.describe.configure({ mode: "serial", timeout: 120_000 });
+import { TIMEOUTS } from "./helpers.js";
+
+test.describe.configure({ mode: "serial", timeout: TIMEOUTS.LONG });
 
 const AUDIT_PORT_BASE = 3150;
 
 /** Tool filter that includes core+transactions (write-scope) and monitoring (read-scope) */
 const AUDIT_FILTER = "core,transactions,monitoring";
-
-/** Generate a unique temp file path for each test */
-function auditLogPath(suffix: string): string {
-  return join(tmpdir(), `mysql-audit-e2e-${suffix}-${Date.now()}.jsonl`);
-}
 
 /**
  * Retry reading the audit log file until it exists and has entries.
@@ -76,7 +73,7 @@ async function readAuditLogWithRetry(
 test.describe("Audit Log", () => {
   test("write-scoped tool calls produce audit entries", async () => {
     const port = AUDIT_PORT_BASE;
-    const logPath = auditLogPath("write");
+    const logPath = auditLogPath("audit", "write");
 
     await startServer(
       port,
@@ -86,7 +83,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Begin a transaction (write scope) — should be logged
       await callToolRaw(client, "mysql_transaction_begin", {});
@@ -122,7 +119,7 @@ test.describe("Audit Log", () => {
 
   test("read-scoped tool calls are NOT logged", async () => {
     const port = AUDIT_PORT_BASE + 1;
-    const logPath = auditLogPath("readonly");
+    const logPath = auditLogPath("audit", "readonly");
 
     await startServer(
       port,
@@ -132,7 +129,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Execute only read-scope tools (monitoring group = read scope)
       await callToolRaw(client, "mysql_show_status", {});
@@ -159,7 +156,7 @@ test.describe("Audit Log", () => {
 
   test("mysql://audit resource returns recent entries", async () => {
     const port = AUDIT_PORT_BASE + 2;
-    const logPath = auditLogPath("resource");
+    const logPath = auditLogPath("audit", "resource");
 
     await startServer(
       port,
@@ -169,7 +166,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Create an audit entry via a write-scope tool
       await callToolRaw(client, "mysql_transaction_begin", {});
@@ -201,7 +198,7 @@ test.describe("Audit Log", () => {
 
   test("--audit-redact omits tool arguments from entries", async () => {
     const port = AUDIT_PORT_BASE + 3;
-    const logPath = auditLogPath("redact");
+    const logPath = auditLogPath("audit", "redact");
 
     await startServer(
       port,
@@ -211,7 +208,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Begin a transaction (write scope) with redact enabled
       await callToolRaw(client, "mysql_transaction_begin", {});
@@ -233,7 +230,7 @@ test.describe("Audit Log", () => {
 
   test("--audit-reads logs read-scoped tools with compact entries", async () => {
     const port = AUDIT_PORT_BASE + 4;
-    const logPath = auditLogPath("reads");
+    const logPath = auditLogPath("audit", "reads");
 
     await startServer(
       port,
@@ -243,7 +240,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Execute a read-scope tool (monitoring group = read scope)
       await callToolRaw(client, "mysql_show_status", {});
@@ -270,7 +267,7 @@ test.describe("Audit Log", () => {
 
   test("audit entries include tokenEstimate > 0", async () => {
     const port = AUDIT_PORT_BASE + 5;
-    const logPath = auditLogPath("tokens");
+    const logPath = auditLogPath("audit", "tokens");
 
     await startServer(
       port,
@@ -280,7 +277,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Begin a transaction (write scope) — should be logged with tokenEstimate
       await callToolRaw(client, "mysql_transaction_begin", {});
@@ -301,7 +298,7 @@ test.describe("Audit Log", () => {
 
   test("mysql://audit resource includes summary block", async () => {
     const port = AUDIT_PORT_BASE + 6;
-    const logPath = auditLogPath("summary");
+    const logPath = auditLogPath("audit", "summary");
 
     await startServer(
       port,
@@ -311,7 +308,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Create an audit entry via a write-scope tool
       await callToolRaw(client, "mysql_transaction_begin", {});
@@ -357,8 +354,8 @@ test.describe("Audit Log", () => {
   });
 
   test("audit log correctly ignores and recovers from corrupted entries", async () => {
-    const port = AUDIT_PORT_BASE + 8;
-    const logPath = auditLogPath("corrupted");
+    const port = AUDIT_PORT_BASE + 7;
+    const logPath = auditLogPath("audit", "corrupted");
 
     // Manually write a corrupted log file before server starts
     await appendFile(
@@ -378,7 +375,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Perform a new write
       await callToolRaw(client, "mysql_transaction_begin", {});

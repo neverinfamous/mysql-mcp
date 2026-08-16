@@ -3,19 +3,29 @@ import { SystemDb } from "./system-db.js";
 import fs from "fs";
 import path from "path";
 
+import os from "os";
+
 describe("SystemDb", () => {
-  const dbPath = path.join(process.cwd(), "test-system.sqlite");
+  const dbPath = path.join(os.tmpdir(), "test-system.sqlite");
 
   beforeEach(() => {
-    if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
-    if (fs.existsSync(`${dbPath}-shm`)) fs.unlinkSync(`${dbPath}-shm`);
-    if (fs.existsSync(`${dbPath}-wal`)) fs.unlinkSync(`${dbPath}-wal`);
+    try {
+      if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
+      if (fs.existsSync(`${dbPath}-shm`)) fs.unlinkSync(`${dbPath}-shm`);
+      if (fs.existsSync(`${dbPath}-wal`)) fs.unlinkSync(`${dbPath}-wal`);
+    } catch {
+      // Ignore EBUSY errors on Windows
+    }
   });
 
   afterEach(() => {
-    if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
-    if (fs.existsSync(`${dbPath}-shm`)) fs.unlinkSync(`${dbPath}-shm`);
-    if (fs.existsSync(`${dbPath}-wal`)) fs.unlinkSync(`${dbPath}-wal`);
+    try {
+      if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
+      if (fs.existsSync(`${dbPath}-shm`)) fs.unlinkSync(`${dbPath}-shm`);
+      if (fs.existsSync(`${dbPath}-wal`)) fs.unlinkSync(`${dbPath}-wal`);
+    } catch {
+      // Ignore EBUSY errors on Windows
+    }
   });
 
   it("should initialize database and create tables", async () => {
@@ -59,8 +69,8 @@ describe("SystemDb", () => {
 
   it("should catch and log initialization errors", async () => {
     // A path that is completely invalid should cause SQLite or mkdir to throw.
-    // By pointing to a file (like package.json) as a directory, it throws ENOTDIR on both OSes.
-    const invalidDb = new SystemDb({ dbPath: path.join(process.cwd(), "package.json", "invalid.sqlite") });
+    // By pointing to a file as a directory, it throws ENOTDIR on both OSes.
+    const invalidDb = new SystemDb({ dbPath: path.join(__dirname, "system-db.test.ts", "invalid.sqlite") });
     await expect(invalidDb.init()).rejects.toThrow();
   });
 });

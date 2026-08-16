@@ -15,8 +15,8 @@ vi.mock("../sse.js", () => ({
 
 vi.mock("node:http", () => {
   const mockServer = {
-    listen: vi.fn((port, host, cb) => cb && cb()),
-    close: vi.fn((cb) => cb && cb()),
+    listen: vi.fn((port, host, cb) => cb?.()),
+    close: vi.fn((cb) => cb?.()),
     on: vi.fn(),
     setTimeout: vi.fn(),
     keepAliveTimeout: 0,
@@ -33,7 +33,9 @@ vi.mock("redis", () => ({
   createClient: vi.fn(() => ({
     connect: vi.fn().mockResolvedValue(undefined),
     destroy: vi.fn(),
+    quit: vi.fn().mockResolvedValue(undefined),
     isOpen: true,
+    on: vi.fn(),
   })),
 }));
 
@@ -53,7 +55,7 @@ describe("HttpTransport", () => {
     it("should start the server", async () => {
       await transport.start();
       expect(http.createServer).toHaveBeenCalled();
-      const server = (http.createServer as any).mock.results[0].value;
+      const server = (http.createServer as Record<string, unknown>).mock.results[0].value;
       expect(server.listen).toHaveBeenCalledWith(8080, "localhost", expect.any(Function));
     });
 
@@ -65,7 +67,10 @@ describe("HttpTransport", () => {
       await t.start();
       
       const { createClient } = await import("redis");
-      expect(createClient).toHaveBeenCalledWith({ url: "redis://localhost" });
+      expect(createClient).toHaveBeenCalledWith({ 
+        url: "redis://localhost",
+        disableOfflineQueue: true
+      });
       
       if (origUrl === undefined) delete process.env["REDIS_URL"];
       else process.env["REDIS_URL"] = origUrl;
@@ -75,7 +80,7 @@ describe("HttpTransport", () => {
 
     it("should stop the server gracefully", async () => {
       await transport.start();
-      const server = (http.createServer as any).mock.results[0].value;
+      const server = (http.createServer as Record<string, unknown>).mock.results[0].value;
       await transport.stop();
       expect(server.close).toHaveBeenCalled();
     });
@@ -102,7 +107,7 @@ describe("HttpTransport", () => {
 
     it("should handle request routing", async () => {
       await transport.start();
-      const requestHandler = (http.createServer as any).mock.calls[0][0];
+      const requestHandler = (http.createServer as Record<string, unknown>).mock.calls[0][0];
       
       req.url = "/health";
       await requestHandler(req, res);
@@ -113,7 +118,7 @@ describe("HttpTransport", () => {
 
     it("should handle preflight OPTIONS requests", async () => {
       await transport.start();
-      const requestHandler = (http.createServer as any).mock.calls[0][0];
+      const requestHandler = (http.createServer as Record<string, unknown>).mock.calls[0][0];
       
       req.method = "OPTIONS";
       await requestHandler(req, res);
@@ -124,7 +129,7 @@ describe("HttpTransport", () => {
 
     it("should handle /.well-known/oauth-protected-resource", async () => {
       await transport.start();
-      const requestHandler = (http.createServer as any).mock.calls[0][0];
+      const requestHandler = (http.createServer as Record<string, unknown>).mock.calls[0][0];
       
       req.url = "/.well-known/oauth-protected-resource";
       await requestHandler(req, res);
@@ -135,7 +140,7 @@ describe("HttpTransport", () => {
     it("should handle /metrics", async () => {
       const metricsTransport = new HttpTransport({ port: 8080, metricsExport: "prometheus" });
       await metricsTransport.start();
-      const requestHandler = (http.createServer as any).mock.calls[0][0];
+      const requestHandler = (http.createServer as Record<string, unknown>).mock.calls[0][0];
       
       req.url = "/metrics";
       await requestHandler(req, res);
@@ -147,7 +152,7 @@ describe("HttpTransport", () => {
 
     it("should handle / (root info)", async () => {
       await transport.start();
-      const requestHandler = (http.createServer as any).mock.calls[0][0];
+      const requestHandler = (http.createServer as Record<string, unknown>).mock.calls[0][0];
       
       req.url = "/";
       req.method = "GET";
@@ -158,7 +163,7 @@ describe("HttpTransport", () => {
 
     it("should handle /mcp", async () => {
       await transport.start();
-      const requestHandler = (http.createServer as any).mock.calls[0][0];
+      const requestHandler = (http.createServer as Record<string, unknown>).mock.calls[0][0];
       
       req.url = "/mcp";
       req.method = "POST";
@@ -169,7 +174,7 @@ describe("HttpTransport", () => {
 
     it("should handle 404 for unknown paths", async () => {
       await transport.start();
-      const requestHandler = (http.createServer as any).mock.calls[0][0];
+      const requestHandler = (http.createServer as Record<string, unknown>).mock.calls[0][0];
       
       req.url = "/unknown-path";
       req.method = "GET";
@@ -181,7 +186,7 @@ describe("HttpTransport", () => {
 
     it("should handle payload too large", async () => {
       await transport.start();
-      const requestHandler = (http.createServer as any).mock.calls[0][0];
+      const requestHandler = (http.createServer as Record<string, unknown>).mock.calls[0][0];
       
       req.url = "/mcp";
       req.headers["content-length"] = "10000000"; // Exceeds default limit
@@ -202,7 +207,7 @@ describe("HttpTransport", () => {
 
       it("should reject if no token is provided", async () => {
         await authTransport.start();
-        const requestHandler = (http.createServer as any).mock.calls[0][0];
+        const requestHandler = (http.createServer as Record<string, unknown>).mock.calls[0][0];
         
         req.url = "/mcp";
         await requestHandler(req, res);
@@ -213,7 +218,7 @@ describe("HttpTransport", () => {
 
       it("should reject if token is invalid", async () => {
         await authTransport.start();
-        const requestHandler = (http.createServer as any).mock.calls[0][0];
+        const requestHandler = (http.createServer as Record<string, unknown>).mock.calls[0][0];
         
         req.url = "/mcp";
         req.headers.authorization = "Bearer wrong-token";
@@ -225,7 +230,7 @@ describe("HttpTransport", () => {
 
       it("should accept valid token", async () => {
         await authTransport.start();
-        const requestHandler = (http.createServer as any).mock.calls[0][0];
+        const requestHandler = (http.createServer as Record<string, unknown>).mock.calls[0][0];
         
         req.url = "/mcp";
         req.headers.authorization = "Bearer secret-token";
@@ -238,7 +243,7 @@ describe("HttpTransport", () => {
 
     it("should handle /sse and /messages", async () => {
       await transport.start();
-      const requestHandler = (http.createServer as any).mock.calls[0][0];
+      const requestHandler = (http.createServer as Record<string, unknown>).mock.calls[0][0];
       
       // Test /sse
       req.url = "/sse";
@@ -253,21 +258,7 @@ describe("HttpTransport", () => {
       }
     });
 
-    it("should reject /sse and /messages in stateless mode", async () => {
-      const statelessTransport = new HttpTransport({ port: 8080, stateless: true });
-      await statelessTransport.start();
-      const requestHandler = (http.createServer as any).mock.calls[0][0];
-      
-      req.url = "/sse";
-      await requestHandler(req, res);
-      expect(res.writeHead).toHaveBeenCalledWith(404, expect.any(Object));
 
-      req.url = "/messages";
-      await requestHandler(req, res);
-      expect(res.writeHead).toHaveBeenCalledWith(404, expect.any(Object));
-      
-      await statelessTransport.stop();
-    });
   });
 
   describe("getTransports", () => {

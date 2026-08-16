@@ -1,3 +1,4 @@
+
 /**
  * MySQL Shell - Restore and Scripting Tools
  *
@@ -5,7 +6,7 @@
  */
 
 import { promises as fs } from "fs";
-import { tmpdir } from "os";
+
 import { join, resolve } from "path";
 import { ZodError } from "zod";
 import {
@@ -29,7 +30,7 @@ import {
   ShellLoadDumpOutputSchema,
   ShellRunScriptOutputSchema,
 } from "../../schemas/shell/index.js";
-import { getShellConfig, execShellJS, execMySQLShell } from "./common.js";
+import { getShellConfig, execShellJS, execMySQLShell, escapeForJS, mapHostPathToContainer, getWorkspaceRoot } from "./common.js";
 
 /**
  * Load dump to instance
@@ -75,12 +76,25 @@ export function createShellLoadDumpTool(
           throw new ValidationError("inputDir or inputUrl is required");
         }
 
-        if (!dryRun) {
-          assertSafeIoPath(finalInputDir, adapter.getAllowedIoRoots(), false);
+        assertSafeIoPath(finalInputDir, adapter.getAllowedIoRoots(), false);
+
+        const hostResolvedPath = resolve(finalInputDir);
+
+        try {
+          const stat = await fs.stat(hostResolvedPath);
+          if (!stat.isDirectory()) {
+            throw new Error("not a directory");
+          }
+        } catch {
+          throw new MySQLMcpError(
+            `Dump path not found or is not a directory: ${finalInputDir}`,
+            "VALIDATION_ERROR",
+            ErrorCategory.VALIDATION
+          );
         }
 
-        const resolvedPath = resolve(finalInputDir);
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const resolvedPath = mapHostPathToContainer(finalInputDir).replace(/\\/g, "/");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
         if (threads) {
@@ -143,8 +157,9 @@ export function createShellLoadDumpTool(
             { timeout: 3600000 },
           );
 
-          // Parse stderr for dry run summary, filtering out common warnings
           const stderrClean = rawResult.stderr
+            .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+            .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "")
             .replace(
               /WARNING: Using a password on the command line interface can be insecure\.\s*/gi,
               "",
@@ -194,6 +209,14 @@ export function createShellLoadDumpTool(
                     "CONFLICT_ERROR",
                     ErrorCategory.QUERY,
                     { suggestion: "Use ignoreExistingObjects: true to skip existing objects" }
+                  );
+                }
+                if (errorMessage.includes("No such file or directory") || errorMessage.includes("Cannot open file")) {
+                  throw new MySQLMcpError(
+                    errorMessage,
+                    "VALIDATION_ERROR",
+                    ErrorCategory.VALIDATION,
+                    { suggestion: "Check that the dump directory contains valid dump files." }
                   );
                 }
                 throw new MySQLMcpError(
@@ -256,6 +279,16 @@ export function createShellLoadDumpTool(
             )
           );
         }
+        if (errorMessage.includes("No such file or directory") || errorMessage.includes("Cannot open file")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "Check that the dump directory contains valid dump files." }
+            )
+          );
+        }
         return formatHandlerErrorResponse(error);
       }
     },
@@ -310,10 +343,13 @@ export function createShellRunScriptTool(
         if (scriptPath) {
           assertSafeIoPath(scriptPath, adapter.getAllowedIoRoots(), false);
           try {
-            await fs.access(scriptPath);
+            const stat = await fs.stat(scriptPath);
+            if (!stat.isFile()) {
+              throw new Error("not a file");
+            }
           } catch {
             throw new MySQLMcpError(
-              `Script file not found: ${scriptPath}`,
+              `Script file not found or is a directory: ${scriptPath}`,
               "VALIDATION_ERROR",
               ErrorCategory.VALIDATION
             );
@@ -334,50 +370,62 @@ export function createShellRunScriptTool(
 
         let result;
         if (scriptPath) {
-          const args = ["--uri", config.connectionUri, langFlag, "--file", scriptPath];
+          const mappedScriptPath = mapHostPathToContainer(scriptPath).replace(/\\/g, "/");
+          const args = ["--uri", config.connectionUri, langFlag, "--file", mappedScriptPath];
           result = await execMySQLShell(args, { timeout });
-        } else if (language === "sql") {
-          // SQL scripts with comments or multi-line content break when passed via -e
-          // Use --file approach for SQL to properly handle all syntax
-          // Create a secure temp directory via mkdtemp (restrictive permissions,
-          // unique path) to avoid CodeQL js/insecure-temporary-file alert.
-          const tempDir = await fs.mkdtemp(join(tmpdir(), `mysqlsh_script_`));
-          const tempFile = join(tempDir, "script.sql");
+        } else {
+          // Write all inline scripts to a temp file to avoid OS command line length limits
+          // and complex string escaping bugs with -e, regardless of language.
+          const ext = language === "py" || language === "python" ? "py" : (language === "sql" ? "sql" : "js");
+          const scratchDir = join(getWorkspaceRoot(), ".agents", "scratch");
+          await fs.mkdir(scratchDir, { recursive: true });
+          const tempDir = await fs.mkdtemp(join(scratchDir, `mysqlsh_script_`));
+          const tempFile = join(tempDir, `script.${ext}`);
           try {
             await fs.writeFile(tempFile, script, "utf8");
+            const mappedTempFile = mapHostPathToContainer(tempFile).replace(/\\/g, "/");
             const args = [
               "--uri",
               config.connectionUri,
               langFlag,
               "--file",
-              tempFile,
+              mappedTempFile,
             ];
             result = await execMySQLShell(args, { timeout });
           } finally {
             // Cleanup temp directory and its contents
             await fs.rm(tempDir, { recursive: true }).catch(() => void 0);
           }
-        } else {
-          // JS and Python work fine with -e
-          const args = ["--uri", config.connectionUri, langFlag, "-e", script];
-          result = await execMySQLShell(args, { timeout });
         }
 
         if (result.exitCode !== 0) {
+          const cleanStderr = result.stderr
+            ? result.stderr
+                .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+                .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "")
+                .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
+                .trim()
+            : "";
           throw new MySQLMcpError(
-            result.stderr
-              ? result.stderr.trim()
-              : `Script failed with exit code ${result.exitCode}`,
+            cleanStderr || `Script failed with exit code ${result.exitCode}`,
             "QUERY_ERROR",
             ErrorCategory.QUERY,
             { details: {
                 language,
                 exitCode: result.exitCode,
                 stdout: result.stdout,
-                stderr: result.stderr,
+                stderr: cleanStderr,
             } }
           );
         }
+
+        const finalStderr = result.stderr
+          ? result.stderr
+              .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+              .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "")
+              .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
+              .trim()
+          : "";
 
         return withTokenEstimate({
           success: true,
@@ -385,7 +433,7 @@ export function createShellRunScriptTool(
             language,
             exitCode: result.exitCode,
             stdout: result.stdout,
-            stderr: result.stderr,
+            stderr: finalStderr,
           },
         });
       } catch (err) {

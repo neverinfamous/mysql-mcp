@@ -1,19 +1,20 @@
 name: Dockerfile Patch Drift Check
 
-# Detects when manually patched transitive dependencies in the Dockerfile
-# have been updated in the Node.js base image's bundled npm, making the
-# patches redundant. Runs daily and on Dockerfile changes.
+# Detects when manually patched transitive dependencies in the Dockerfile OR
+# package.json overrides have been updated in the
+# upstream registry or Node.js base image's bundled npm, making the
+# patches redundant. Runs daily and on Dockerfile/package/lock changes.
 
 on:
   schedule:
     - cron: "0 12 * * *" # Daily at noon UTC
   pull_request:
+    branches: [main]
     paths:
       - "Dockerfile"
       - "package.json"
-      - "package-lock.json"
+      - "pnpm-lock.yaml"
   workflow_dispatch:
-  workflow_call:
 
 permissions:
   contents: read
@@ -22,11 +23,18 @@ jobs:
   check-patches:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@v7.0.1 # v7.0.1
         with:
           persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v4.x
+        with:
+          node-version-file: ".node-version"
 
       - name: Check patch drift
         run: |
@@ -35,15 +43,15 @@ jobs:
 
           # These are the versions we manually patch in the Dockerfile.
           # If npm's bundled version is already >= patched version, the patch is stale.
-          declare -A PATCHES=(
-            ["diff"]="9.0.0"
-            ["@isaacs/brace-expansion"]="5.0.1"
-            ["tar"]="7.5.15"
-            ["minimatch"]="10.2.5"
-            ["brace-expansion"]="5.0.6"
-          )
+          declare -A PATCHES
+          for pkg_str in $(grep -oP 'npm install -g \K.*' Dockerfile | grep -Eo '[a-zA-Z0-9_/@-]+@[0-9.]+'); do
+            pkg_name="${pkg_str%@*}"
+            pkg_ver="${pkg_str##*@}"
+            PATCHES["$pkg_name"]="$pkg_ver"
+          done
 
-          NPM_DIR="/usr/local/lib/node_modules/npm"
+          BASE_IMAGE=$(grep -i '^FROM' Dockerfile | head -1 | sed 's/--platform=[^ ]* //' | awk '{print $2}')
+          NPM_DIR="$(docker run --rm --entrypoint sh $BASE_IMAGE -c "npm root -g")/npm"
           STALE=0
 
           for pkg in "${!PATCHES[@]}"; do
@@ -51,12 +59,11 @@ jobs:
 
             # Find the package.json for the bundled dependency
             pkg_path="$NPM_DIR/node_modules/$pkg/package.json"
-            if [ ! -f "$pkg_path" ]; then
+            bundled_version=$(docker run --rm --entrypoint sh $BASE_IMAGE -c "node -p \"require('$pkg_path').version\"" 2>/dev/null || true)
+            if [ -z "$bundled_version" ]; then
               echo "⚠️  $pkg: not found in npm bundle (may have been removed upstream)"
               continue
             fi
-
-            bundled_version=$(node -p "require('$pkg_path').version")
 
             # Compare versions using node's semver-aware comparison
             is_stale=$(BUNDLED_VERSION="$bundled_version" PATCHED_VERSION="$patched_version" node -e "
@@ -87,20 +94,21 @@ jobs:
   check-overrides:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@v7.0.1 # v7.0.1
         with:
           persist-credentials: false
 
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
-        with:
-          version: 9.15.4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v4.x
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v4.x
         with:
-          node-version: "26.x"
+          node-version-file: ".node-version"
 
       - name: Check package.json override drift
         run: |
@@ -110,7 +118,7 @@ jobs:
           # Extract overrides from package.json
           OVERRIDES=$(node -e "
             const pkg = require('./package.json');
-            const overrides = pkg.overrides || {};
+            const overrides = pkg.pnpm?.overrides || pkg.resolutions || pkg.overrides || {};
             for (const [name, version] of Object.entries(overrides)) {
               console.log(name + '=' + version);
             }
@@ -120,8 +128,8 @@ jobs:
           while IFS='=' read -r pkg version; do
             [ -z "$pkg" ] && continue
 
-            # Check if the lockfile still needs this override
-            # by looking for the package in node_modules after pnpm install --frozen-lockfile
+            # Check if the override is still needed
+            # by looking up the latest version in the npm registry
             LATEST=$(pnpm view "$pkg" version 2>/dev/null || echo "unknown")
 
             if [ "$LATEST" = "$version" ]; then

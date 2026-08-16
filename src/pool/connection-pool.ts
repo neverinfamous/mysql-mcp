@@ -112,9 +112,14 @@ export class ConnectionPool {
         connectionLimit: poolConfig.connectionLimit ?? 10,
       });
     } catch (error) {
-      const err = error as Error;
+      let msg: string;
+      if (error instanceof Error && error.name === "AggregateError" && "errors" in error && Array.isArray((error as { errors?: unknown[] }).errors)) {
+        msg = ((error as { errors?: unknown[] }).errors ?? []).map(e => e instanceof Error ? e.message : String(e)).join(", ");
+      } else {
+        msg = error instanceof Error ? error.message : String(error);
+      }
       throw new ConnectionError(
-        `Failed to initialize connection pool: ${err.message}`,
+        `Failed to initialize connection pool: ${msg}`,
         {
           host: this.config.host,
           port: this.config.port,
@@ -247,7 +252,7 @@ export class ConnectionPool {
     return {
       ...this.stats,
       total: this.config.pool?.connectionLimit ?? 10,
-      idle: (this.config.pool?.connectionLimit ?? 10) - this.stats.active,
+      idle: Math.max(0, (this.config.pool?.connectionLimit ?? 10) - this.stats.active),
     };
   }
 

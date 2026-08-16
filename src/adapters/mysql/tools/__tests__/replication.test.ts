@@ -7,12 +7,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getReplicationTools } from "../replication.js";
 import { getPartitioningTools } from "../partitioning.js";
-import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../__tests__/mocks/index.js";
 
 describe("getReplicationTools", () => {
   let tools: ReturnType<typeof getReplicationTools>;
@@ -115,7 +113,8 @@ describe("Replication Handler Execution", () => {
         createMockQueryResult([{ File: "mysql-bin.000001", Position: 12345 }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_master_status")!;
+      const tool = tools.find((t) => t.name === "mysql_master_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -131,7 +130,8 @@ describe("Replication Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_slave_status")!;
+      const tool = tools.find((t) => t.name === "mysql_slave_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -147,7 +147,8 @@ describe("Replication Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      const tool = tools.find((t) => t.name === "mysql_binlog_events");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ logFile: "mysql-bin.000001" }, mockContext);
 
       // With explicit logFile, no master status query needed
@@ -159,7 +160,8 @@ describe("Replication Handler Execution", () => {
     it("should limit events", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      const tool = tools.find((t) => t.name === "mysql_binlog_events");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { logFile: "mysql-bin.000001", limit: 10 },
         mockContext,
@@ -181,7 +183,8 @@ describe("Replication Handler Execution", () => {
           ]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      const tool = tools.find((t) => t.name === "mysql_binlog_events");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
@@ -198,7 +201,8 @@ describe("Replication Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_gtid_status")!;
+      const tool = tools.find((t) => t.name === "mysql_gtid_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -210,7 +214,8 @@ describe("Replication Handler Execution", () => {
         new Error("GTID not supported"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_gtid_status")!;
+      const tool = tools.find((t) => t.name === "mysql_gtid_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
         error: string;
@@ -227,10 +232,26 @@ describe("Replication Handler Execution", () => {
         createMockQueryResult([{ Seconds_Behind_Master: 5 }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
+      const tool = tools.find((t) => t.name === "mysql_replication_lag");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      expect(result).toBeDefined();
+    });
+
+    it("should use channel if provided", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([{ Seconds_Behind_Master: 5 }]),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_replication_lag");
+      if (!tool) throw new Error('Tool not found');;
+      const result = await tool.handler({ channel: "replica1" }, mockContext);
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(call).toContain("FOR CHANNEL 'replica1'");
       expect(result).toBeDefined();
     });
   });
@@ -258,12 +279,12 @@ describe("Partitioning Handler Execution", () => {
             {
               PARTITION_NAME: "p0",
               TABLE_ROWS: 1000,
-              PARTITION_METHOD: "RANGE",
-            },
+              PARTITION_METHOD: "RANGE" },
           ]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_partition_info")!;
+      const tool = tools.find((t) => t.name === "mysql_partition_info");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ table: "logs" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
@@ -278,7 +299,8 @@ describe("Partitioning Handler Execution", () => {
           createMockQueryResult([{ PARTITION_NAME: null, TABLE_ROWS: 1000 }]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_partition_info")!;
+      const tool = tools.find((t) => t.name === "mysql_partition_info");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler({ table: "users" }, mockContext)) as {
         success: boolean;
         data: { partitioned: boolean };
@@ -296,12 +318,12 @@ describe("Partitioning Handler Execution", () => {
             {
               PARTITION_NAME: "p0",
               PARTITION_METHOD: "RANGE",
-              PARTITION_EXPRESSION: "TO_DAYS(created_at)",
-            },
+              PARTITION_EXPRESSION: "TO_DAYS(created_at)" },
           ]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_partition_info")!;
+      const tool = tools.find((t) => t.name === "mysql_partition_info");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler({ table: "logs" }, mockContext)) as {
         data: {
           partitioned: boolean;
@@ -320,14 +342,14 @@ describe("Partitioning Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "logs" }]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_add_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_add_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "logs",
           partitionName: "p2024",
           partitionType: "RANGE",
-          value: "2024",
-        },
+          value: "2024" },
         mockContext,
       );
 
@@ -345,14 +367,14 @@ describe("Partitioning Handler Execution", () => {
         )
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_add_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_add_partition");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "regions",
           partitionName: "p_east",
           partitionType: "LIST",
-          value: "'NY', 'NJ', 'PA'",
-        },
+          value: "'NY', 'NJ', 'PA'" },
         mockContext,
       );
 
@@ -365,14 +387,14 @@ describe("Partitioning Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "data" }]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_add_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_add_partition");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "data",
           partitionName: "hash_p",
           partitionType: "HASH",
-          value: "4",
-        },
+          value: "4" },
         mockContext,
       );
 
@@ -385,14 +407,14 @@ describe("Partitioning Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "data" }]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_add_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_add_partition");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "data",
           partitionName: "key_p",
           partitionType: "KEY",
-          value: "8",
-        },
+          value: "8" },
         mockContext,
       );
 
@@ -407,12 +429,12 @@ describe("Partitioning Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "logs" }]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_drop_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "logs",
-          partitionName: "p2020",
-        },
+          partitionName: "p2020" },
         mockContext,
       );
 
@@ -429,7 +451,8 @@ describe("Partitioning Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "logs" }]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_reorganize_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_reorganize_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "logs",
@@ -438,8 +461,7 @@ describe("Partitioning Handler Execution", () => {
           toPartitions: [
             { name: "p2023_h1", value: "202307" },
             { name: "p2023_h2", value: "202401" },
-          ],
-        },
+          ] },
         mockContext,
       );
 
@@ -458,14 +480,14 @@ describe("Partitioning Handler Execution", () => {
           ),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_reorganize_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_reorganize_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "users",
           fromPartitions: ["p1"],
           partitionType: "RANGE",
-          toPartitions: [{ name: "p1a", value: "50" }],
-        },
+          toPartitions: [{ name: "p1a", value: "50" }] },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -480,14 +502,14 @@ describe("Partitioning Handler Execution", () => {
           new Error("Error in list of partitions to REORGANIZE"),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_reorganize_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_reorganize_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "logs",
           fromPartitions: ["nonexistent"],
           partitionType: "RANGE",
-          toPartitions: [{ name: "p_new", value: "2030" }],
-        },
+          toPartitions: [{ name: "p_new", value: "2030" }] },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -496,14 +518,14 @@ describe("Partitioning Handler Execution", () => {
     });
 
     it("should return structured error for unsupported partition type (HASH)", async () => {
-      const tool = tools.find((t) => t.name === "mysql_reorganize_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_reorganize_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "data",
           fromPartitions: ["p1"],
           partitionType: "HASH",
-          toPartitions: [{ name: "p1a", value: "50" }],
-        },
+          toPartitions: [{ name: "p1a", value: "50" }] },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -519,14 +541,14 @@ describe("Partitioning Handler Execution", () => {
     it("should return exists: false for nonexistent table in add_partition", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_add_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_add_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "nonexistent",
           partitionName: "p1",
           partitionType: "RANGE",
-          value: "100",
-        },
+          value: "100" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -537,7 +559,8 @@ describe("Partitioning Handler Execution", () => {
     it("should return exists: false for nonexistent table in drop_partition", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_drop_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { table: "nonexistent", partitionName: "p1" },
         mockContext,
@@ -550,14 +573,14 @@ describe("Partitioning Handler Execution", () => {
     it("should return exists: false for nonexistent table in reorganize_partition", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_reorganize_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_reorganize_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "nonexistent",
           fromPartitions: ["p1"],
           partitionType: "RANGE",
-          toPartitions: [{ name: "p1a", value: "50" }],
-        },
+          toPartitions: [{ name: "p1a", value: "50" }] },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -570,7 +593,8 @@ describe("Partitioning Handler Execution", () => {
     it("should return exists: false for nonexistent table", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_partition_info")!;
+      const tool = tools.find((t) => t.name === "mysql_partition_info");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { table: "nonexistent" },
         mockContext,
@@ -591,14 +615,14 @@ describe("Partitioning Handler Execution", () => {
           ),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_add_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_add_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "users",
           partitionName: "p1",
           partitionType: "RANGE",
-          value: "100",
-        },
+          value: "100" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -613,14 +637,14 @@ describe("Partitioning Handler Execution", () => {
           new Error("MAXVALUE can only be used in last partition definition"),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_add_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_add_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "logs",
           partitionName: "p2025",
           partitionType: "RANGE",
-          value: "2026",
-        },
+          value: "2026" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -640,14 +664,14 @@ describe("Partitioning Handler Execution", () => {
           ),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_add_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_add_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           table: "regions",
           partitionName: "p_dup",
           partitionType: "LIST",
-          value: "'east'",
-        },
+          value: "'east'" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -666,7 +690,8 @@ describe("Partitioning Handler Execution", () => {
           ),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_drop_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { table: "users", partitionName: "p1" },
         mockContext,
@@ -683,7 +708,8 @@ describe("Partitioning Handler Execution", () => {
           new Error("Error in list of partitions to DROP"),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_drop_partition")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_partition");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { table: "logs", partitionName: "nonexistent" },
         mockContext,
@@ -714,24 +740,26 @@ describe("Replication Fallback Handling", () => {
     it("should fallback to SHOW MASTER STATUS on error", async () => {
       // First call fails (new syntax), second succeeds (old syntax)
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
         .mockResolvedValueOnce(
           createMockQueryResult([{ File: "mysql-bin.000001" }]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_master_status")!;
+      const tool = tools.find((t) => t.name === "mysql_master_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("status");
+      expect((result as Record<string, unknown>).data).toHaveProperty("status");
     });
 
     it("should return structured error when binary logging is disabled", async () => {
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
         .mockRejectedValueOnce(new Error("Binary logging not enabled"));
 
-      const tool = tools.find((t) => t.name === "mysql_master_status")!;
+      const tool = tools.find((t) => t.name === "mysql_master_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
         error: string;
@@ -745,24 +773,26 @@ describe("Replication Fallback Handling", () => {
   describe("mysql_slave_status fallback", () => {
     it("should fallback to SHOW SLAVE STATUS on error", async () => {
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
         .mockResolvedValueOnce(
           createMockQueryResult([{ Slave_IO_Running: "Yes" }]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_slave_status")!;
+      const tool = tools.find((t) => t.name === "mysql_slave_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("status");
+      expect((result as Record<string, unknown>).data).toHaveProperty("status");
     });
 
     it("should return message when not configured as replica", async () => {
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
-        .mockRejectedValueOnce(new Error("Not configured"));
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_slave_status")!;
+      const tool = tools.find((t) => t.name === "mysql_slave_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
         data: { configured: boolean };
@@ -777,7 +807,8 @@ describe("Replication Fallback Handling", () => {
     it("should include log file when specified", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      const tool = tools.find((t) => t.name === "mysql_binlog_events");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ logFile: "mysql-bin.000005" }, mockContext);
 
       // With explicit logFile, first call is the binlog query itself
@@ -793,7 +824,8 @@ describe("Replication Fallback Handling", () => {
         )
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      const tool = tools.find((t) => t.name === "mysql_binlog_events");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ position: 12345 }, mockContext);
 
       // Second call is the actual SHOW BINLOG EVENTS query
@@ -806,7 +838,8 @@ describe("Replication Fallback Handling", () => {
         new Error("Could not find target log"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      const tool = tools.find((t) => t.name === "mysql_binlog_events");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { logFile: "nonexistent.000001" },
         mockContext,
@@ -822,7 +855,8 @@ describe("Replication Fallback Handling", () => {
         new Error("Binary logging not enabled"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      const tool = tools.find((t) => t.name === "mysql_binlog_events");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
         error: string;
@@ -835,7 +869,8 @@ describe("Replication Fallback Handling", () => {
 
   describe("mysql_binlog_events limit:0 guard", () => {
     it("should return empty events for limit: 0 without querying MySQL", async () => {
-      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      const tool = tools.find((t) => t.name === "mysql_binlog_events");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { logFile: "mysql-bin.000001", limit: 0 },
         mockContext,
@@ -848,7 +883,8 @@ describe("Replication Fallback Handling", () => {
     });
 
     it("should return structured error for negative limit", async () => {
-      const tool = tools.find((t) => t.name === "mysql_binlog_events")!;
+      const tool = tools.find((t) => t.name === "mysql_binlog_events");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { logFile: "mysql-bin.000001", limit: -1 },
         mockContext,
@@ -869,12 +905,12 @@ describe("Replication Fallback Handling", () => {
             Seconds_Behind_Source: 5,
             Replica_IO_Running: "Yes",
             Replica_SQL_Running: "Yes",
-            Last_Error: "",
-          },
+            Last_Error: "" },
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
+      const tool = tools.find((t) => t.name === "mysql_replication_lag");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler({}, mockContext)) as {
         data: { lagSeconds: number };
       };
@@ -884,19 +920,19 @@ describe("Replication Fallback Handling", () => {
 
     it("should fallback to SHOW SLAVE STATUS on error", async () => {
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
         .mockResolvedValueOnce(
           createMockQueryResult([
             {
               Seconds_Behind_Master: 10,
               Slave_IO_Running: "Yes",
               Slave_SQL_Running: "Yes",
-              Last_Error: "",
-            },
+              Last_Error: "" },
           ]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
+      const tool = tools.find((t) => t.name === "mysql_replication_lag");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler({}, mockContext)) as {
         data: { lagSeconds: number };
       };
@@ -906,26 +942,28 @@ describe("Replication Fallback Handling", () => {
 
     it("should return message when not a replica after both fail", async () => {
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
         .mockRejectedValueOnce(new Error("Not configured"));
 
-      const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
+      const tool = tools.find((t) => t.name === "mysql_replication_lag");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
-        data: { lagSeconds: null };
+        error: string;
       };
 
-      expect(result.success).toBe(true);
-      expect(result.data.lagSeconds).toBeNull();
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Failed to retrieve slave status");
     });
 
     it("should return message when replica status returns empty", async () => {
       // Empty result means it's not configured as a replica
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
+      const tool = tools.find((t) => t.name === "mysql_replication_lag");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
         data: { lagSeconds: null };

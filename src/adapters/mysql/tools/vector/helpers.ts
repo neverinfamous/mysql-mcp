@@ -5,17 +5,21 @@ import { ExtensionNotAvailableError, ValidationError } from "../../../../types/m
  * Get MySQL server version
  */
 export async function getServerVersion(adapter: MySQLAdapter): Promise<{ major: number; minor: number; patch: number; raw: string }> {
-  const result = await adapter.executeQuery("SELECT VERSION() as version");
-  let rawVersion = "0.0.0";
-  
-  if (result?.rows !== undefined && result.rows.length > 0) {
-    const firstRow = result.rows[0];
-    if (firstRow !== undefined && firstRow !== null) {
-      const row = firstRow;
-      const versionStr = row['version'];
-      if (typeof versionStr === 'string') {
-        rawVersion = versionStr;
-      }
+  // Use the cached version from the health check rather than executing SHOW VARIABLES
+  // which causes ProxySQL hostgroup locking errors during vector queries.
+  const health = await adapter.getHealth();
+  let rawVersion = health.version || "0.0.0";
+
+  // Fallback if version is somehow undefined in health (unlikely)
+  if (rawVersion === "0.0.0") {
+    try {
+       const result = await adapter.rawQuery("(SELECT VERSION() as version)");
+       if (result?.rows && result.rows.length > 0) {
+         const val = result.rows[0]?.['version'];
+         rawVersion = typeof val === 'string' ? val : "0.0.0";
+       }
+    } catch {
+       // Ignore fallback failure
     }
   }
 
@@ -92,25 +96,44 @@ export function sanitizeIdentifier(id: string): string {
  * Resolves the vector column if it is omitted
  */
 export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, providedColumn?: string): Promise<string> {
-  // Pre-check table existence
-  await adapter.executeQuery(`SELECT 1 FROM \`${sanitizeIdentifier(table)}\` LIMIT 0`);
+  const sanitizedTable = sanitizeIdentifier(table);
+  
+  // Use cached describeTable instead of raw SHOW COLUMNS to avoid ProxySQL multiplexing locks
+  const tableInfo = await adapter.describeTable(sanitizedTable);
 
-  if (providedColumn) return providedColumn;
-
-  const infoQuery = `
-    SELECT COLUMN_NAME 
-    FROM INFORMATION_SCHEMA.COLUMNS 
-    WHERE TABLE_NAME = ? AND DATA_TYPE = 'vector' 
-    LIMIT 1
-  `;
-  const pkResult = await adapter.executeQuery(infoQuery, [table]);
-  if (!pkResult.rows || pkResult.rows.length === 0) {
-    throw new ValidationError(`No VECTOR column found in table '${table}'. Please specify the column parameter.`);
+  const columns = tableInfo.columns;
+  if (!columns || columns.length === 0) {
+    throw new ValidationError(`Table '${sanitizedTable}' has no columns.`);
   }
-  const firstRow = pkResult.rows[0];
-  const columnName = firstRow?.['COLUMN_NAME'];
+
+  if (providedColumn) {
+    const colInfo = columns.find(col => col.name.toLowerCase() === providedColumn.toLowerCase());
+    if (!colInfo) {
+      throw new ValidationError(`Column '${providedColumn}' does not exist in table '${sanitizedTable}'.`);
+    }
+    const type = colInfo.type;
+    if (typeof type !== 'string' || !type.toLowerCase().startsWith('vector')) {
+      throw new ValidationError(`Column '${providedColumn}' is not a VECTOR column (found type: ${type}).`);
+    }
+    return colInfo.name;
+  }
+
+  const vectorColumns = columns.filter(col => 
+    col.type === 'vector' || (typeof col.type === 'string' && col.type.toLowerCase().startsWith('vector'))
+  );
+
+  if (vectorColumns.length === 0) {
+    throw new ValidationError(`No VECTOR column found in table '${sanitizedTable}'. Please specify the column parameter.`);
+  }
+
+  if (vectorColumns.length > 1) {
+    throw new ValidationError(`Multiple VECTOR columns found in table '${sanitizedTable}'. Please specify the column parameter explicitly.`);
+  }
+
+  const firstColumn = vectorColumns[0];
+  const columnName = firstColumn ? firstColumn.name : undefined;
   if (typeof columnName !== 'string') {
-    throw new ValidationError(`No VECTOR column found in table '${table}'. Please specify the column parameter.`);
+    throw new ValidationError(`No VECTOR column found in table '${sanitizedTable}'. Please specify the column parameter.`);
   }
   return columnName;
 }

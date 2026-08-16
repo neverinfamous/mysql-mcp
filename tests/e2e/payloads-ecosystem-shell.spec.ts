@@ -9,7 +9,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Client } from "@modelcontextprotocol/client";
 import { createClient, callToolAndParse, expectSuccess } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
@@ -28,7 +28,7 @@ test.describe("Payload Contracts: Ecosystem — Shell", () => {
   test("mysqlsh_version returns { success, version }", async () => {
     const payload = await callToolAndParse(client, "mysqlsh_version", {});
     expectSuccess(payload);
-    expect(typeof (payload.data as any).version).toBe("string");
+    expect(typeof payload.data?.version).toBe("string");
   });
 
   // mysqlsh_run_script excluded — Shell subprocess can crash the MCP server

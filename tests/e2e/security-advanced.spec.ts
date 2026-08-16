@@ -2,10 +2,10 @@ import { test, expect } from "@playwright/test";
 import { startServer, stopServer } from "./helpers.js";
 import { createConnection } from "node:net";
 
-const ADV_SEC_PORT = 3132;
-const SLOWLORIS_PORT = 3133;
+const ADV_SEC_PORT = 3132 + parseInt(process.env.TEST_WORKER_INDEX || "0", 10);
+const SLOWLORIS_PORT = 3133 + parseInt(process.env.TEST_WORKER_INDEX || "0", 10);
 
-test.describe.configure({ mode: "serial" });
+// test.describe.configure({ mode: "parallel" });
 
 test.describe("Advanced HTTP Transport Security", () => {
   test.describe("DNS Rebinding & Trust Proxy", () => {
@@ -95,7 +95,7 @@ test.describe("Advanced HTTP Transport Security", () => {
     test("should drop connection if headers take too long (Slowloris protection)", async () => {
       return new Promise<void>((resolve, reject) => {
         const client = createConnection(
-          { port: SLOWLORIS_PORT, host: "localhost" },
+          { port: SLOWLORIS_PORT, host: "127.0.0.1" },
           () => {
             // Send incomplete headers slowly
             client.write("GET /health HTTP/1.1\\r\\n");

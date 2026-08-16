@@ -56,6 +56,8 @@ export const RouteConnectionSchema = z.object({
   destinationAddress: z.string().optional(),
   timeStarted: z.string().optional(),
   timeConnectedToServer: z.string().optional(),
+  timeLastSentToServer: z.string().optional(),
+  timeLastReceivedFromServer: z.string().optional(),
 });
 
 export const RouteConnectionsListSchema = z.object({
@@ -115,107 +117,181 @@ export type ConnectionPoolStatus = z.infer<typeof ConnectionPoolStatusSchema>;
 // Tool Input Schemas
 // =============================================================================
 
-export const RouterBaseInputSchema = z.object({});
+export const RouterBaseInputSchema = z.object({}).strict();
 
 export const RouteNameInputSchemaBase = z.object({
-  routeName: z.string().optional().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
-  name: z.string().optional().describe("Alias for routeName"),
-  route: z.string().optional().describe("Alias for routeName"),
-  routename: z.string().optional().describe("Alias for routeName"),
-  routerName: z.string().optional().describe("Alias for routeName"),
-  id: z.string().optional().describe("Alias for routeName"),
-  clusterName: z.string().optional().describe("Alias for routeName"),
-  cluster_name: z.string().optional().describe("Alias for routeName"),
-});
+  routeName: z.unknown().optional().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
+  name: z.unknown().optional().describe("Alias for routeName"),
+  route: z.unknown().optional().describe("Alias for routeName"),
+  route_name: z.unknown().optional().describe("Alias for routeName"),
+  routename: z.unknown().optional().describe("Alias for routeName"),
+  routerName: z.unknown().optional().describe("Alias for routeName"),
+  id: z.unknown().optional().describe("Alias for routeName"),
+  clusterName: z.unknown().optional().describe("Alias for routeName"),
+  cluster_name: z.unknown().optional().describe("Alias for routeName"),
+  metadataName: z.unknown().optional().describe("Alias for routeName"),
+  poolName: z.unknown().optional().describe("Alias for routeName"),
+}).strict();
+
+export const RouteNameWithLimitInputSchemaBase = RouteNameInputSchemaBase.extend({
+  limit: z.coerce.number().int().min(1).max(1000).optional().describe("Maximum number of results to return (default: 50)"),
+}).strict();
 
 export const RouteNameInputSchema = z.preprocess(
   (data: unknown) => {
     if (typeof data !== "object" || data === null) return data;
     const obj = data as Record<string, unknown>;
+    let finalName = obj["routeName"] ?? obj["route"] ?? obj["route_name"] ?? 
+                    obj["name"] ?? obj["routename"] ?? obj["routerName"] ?? 
+                    obj["clusterName"] ?? obj["cluster_name"] ?? 
+                    obj["metadataName"] ?? obj["poolName"] ?? obj["id"];
+    
+    if (finalName !== undefined) {
+      if (typeof finalName === "object" && finalName !== null) {
+        finalName = JSON.stringify(finalName);
+      } else if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
+        finalName = String(finalName);
+      }
+    }
+    
     return {
       ...obj,
-      routeName: obj["routeName"] !== undefined ? obj["routeName"] : 
-                 (obj["route"] !== undefined ? obj["route"] : 
-                  (obj["name"] !== undefined ? obj["name"] : 
-                   (obj["routename"] !== undefined ? obj["routename"] : 
-                    (obj["routerName"] !== undefined ? obj["routerName"] : 
-                     (obj["clusterName"] !== undefined ? obj["clusterName"] : 
-                      (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"])))))),
+      routeName: finalName,
     };
   },
   RouteNameInputSchemaBase
-).refine((data) => data.routeName !== undefined && data.routeName !== "", {
-  message: "routeName must not be empty",
+).refine((data) => data.routeName !== undefined && typeof data.routeName === "string" && data.routeName.trim() !== "", {
+  message: "routeName must be a non-empty string",
   path: ["routeName"]
 }).transform((data) => ({
-  routeName: data.routeName ?? "",
+  routeName: (data.routeName ?? "") as string,
+}));
+
+export const RouteNameWithLimitInputSchema = z.preprocess(
+  (data: unknown) => {
+    if (typeof data !== "object" || data === null) return data;
+    const obj = data as Record<string, unknown>;
+    let finalName = obj["routeName"] ?? obj["route"] ?? obj["route_name"] ?? 
+                    obj["name"] ?? obj["routename"] ?? obj["routerName"] ?? 
+                    obj["clusterName"] ?? obj["cluster_name"] ?? 
+                    obj["metadataName"] ?? obj["poolName"] ?? obj["id"];
+    
+    if (finalName !== undefined) {
+      if (typeof finalName === "object" && finalName !== null) {
+        finalName = JSON.stringify(finalName);
+      } else if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
+        finalName = String(finalName);
+      }
+    }
+
+    let finalLimit = obj["limit"];
+    if (finalLimit !== undefined && typeof finalLimit === "string") {
+      const parsed = parseInt(finalLimit, 10);
+      if (!isNaN(parsed)) finalLimit = parsed;
+    }
+    
+    return {
+      ...obj,
+      routeName: finalName,
+      limit: finalLimit,
+    };
+  },
+  RouteNameWithLimitInputSchemaBase
+).refine((data) => data.routeName !== undefined && typeof data.routeName === "string" && data.routeName.trim() !== "", {
+  message: "routeName must be a non-empty string",
+  path: ["routeName"]
+}).transform((data) => ({
+  routeName: (data.routeName ?? "") as string,
+  limit: data.limit,
 }));
 
 export const MetadataNameInputSchemaBase = z.object({
   metadataName: z
-    .string()
+    .unknown()
     .optional()
     .describe("Name of the metadata cache instance. Anti-Hallucination Hint: Pass metadataName, not metadata."),
-  name: z.string().optional().describe("Alias for metadataName"),
-  metadata: z.string().optional().describe("Alias for metadataName"),
-  metadataname: z.string().optional().describe("Alias for metadataName"),
-  id: z.string().optional().describe("Alias for metadataName"),
-  clusterName: z.string().optional().describe("Alias for metadataName"),
-  cluster_name: z.string().optional().describe("Alias for metadataName"),
-});
+  name: z.unknown().optional().describe("Alias for metadataName"),
+  metadata: z.unknown().optional().describe("Alias for metadataName"),
+  metadata_name: z.unknown().optional().describe("Alias for metadataName"),
+  metadataname: z.unknown().optional().describe("Alias for metadataName"),
+  id: z.unknown().optional().describe("Alias for metadataName"),
+  clusterName: z.unknown().optional().describe("Alias for metadataName"),
+  cluster_name: z.unknown().optional().describe("Alias for metadataName"),
+  routeName: z.unknown().optional().describe("Alias for metadataName"),
+  poolName: z.unknown().optional().describe("Alias for metadataName"),
+}).strict();
 
 export const MetadataNameInputSchema = z.preprocess(
   (data: unknown) => {
     if (typeof data !== "object" || data === null) return data;
     const obj = data as Record<string, unknown>;
+    let finalName = obj["metadataName"] ?? obj["metadata"] ?? obj["metadata_name"] ?? 
+                    obj["name"] ?? obj["metadataname"] ?? obj["clusterName"] ?? 
+                    obj["cluster_name"] ?? obj["routeName"] ?? obj["poolName"] ?? obj["id"];
+                         
+    if (finalName !== undefined) {
+      if (typeof finalName === "object" && finalName !== null) {
+        finalName = JSON.stringify(finalName);
+      } else if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
+        finalName = String(finalName);
+      }
+    }
+    
     return {
       ...obj,
-      metadataName: obj["metadataName"] !== undefined ? obj["metadataName"] : 
-                    (obj["metadata"] !== undefined ? obj["metadata"] : 
-                     (obj["name"] !== undefined ? obj["name"] : 
-                      (obj["metadataname"] !== undefined ? obj["metadataname"] : 
-                       (obj["clusterName"] !== undefined ? obj["clusterName"] : 
-                        (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"]))))),
+      metadataName: finalName,
     };
   },
   MetadataNameInputSchemaBase
-).refine((data) => data.metadataName !== undefined && data.metadataName !== "", {
+).refine((data) => data.metadataName !== undefined && typeof data.metadataName === "string" && data.metadataName.trim() !== "", {
   message: "metadataName must not be empty",
   path: ["metadataName"]
 }).transform((data) => ({
-  metadataName: data.metadataName ?? "",
+  metadataName: (data.metadataName ?? "") as string,
 }));
 
 export const ConnectionPoolNameInputSchemaBase = z.object({
-  poolName: z.string().optional().describe("Name of the connection pool. Anti-Hallucination Hint: Pass poolName, not pool."),
-  name: z.string().optional().describe("Alias for poolName"),
-  pool: z.string().optional().describe("Alias for poolName"),
-  poolname: z.string().optional().describe("Alias for poolName"),
-  id: z.string().optional().describe("Alias for poolName"),
-  clusterName: z.string().optional().describe("Alias for poolName"),
-  cluster_name: z.string().optional().describe("Alias for poolName"),
-});
+  poolName: z.unknown().optional().describe("Name of the connection pool (the default pool is typically named 'main'). Anti-Hallucination Hint: Pass poolName, not pool."),
+  name: z.unknown().optional().describe("Alias for poolName"),
+  pool: z.unknown().optional().describe("Alias for poolName"),
+  pool_name: z.unknown().optional().describe("Alias for poolName"),
+  poolname: z.unknown().optional().describe("Alias for poolName"),
+  id: z.unknown().optional().describe("Alias for poolName"),
+  clusterName: z.unknown().optional().describe("Alias for poolName"),
+  cluster_name: z.unknown().optional().describe("Alias for poolName"),
+  routeName: z.unknown().optional().describe("Alias for poolName"),
+  metadataName: z.unknown().optional().describe("Alias for poolName"),
+}).strict();
 
 export const ConnectionPoolNameInputSchema = z.preprocess(
   (data: unknown) => {
     if (typeof data !== "object" || data === null) return data;
     const obj = data as Record<string, unknown>;
+    let finalName = obj["poolName"] ?? obj["pool"] ?? obj["pool_name"] ?? 
+                    obj["name"] ?? obj["poolname"] ?? obj["clusterName"] ?? 
+                    obj["cluster_name"] ?? obj["routeName"] ?? obj["metadataName"] ?? obj["id"];
+                     
+    if (finalName !== undefined) {
+      if (typeof finalName === "object" && finalName !== null) {
+        finalName = JSON.stringify(finalName);
+      } else if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
+        finalName = String(finalName);
+      }
+    } else {
+      finalName = "main";
+    }
+    
     return {
       ...obj,
-      poolName: obj["poolName"] !== undefined ? obj["poolName"] : 
-                (obj["pool"] !== undefined ? obj["pool"] : 
-                 (obj["name"] !== undefined ? obj["name"] : 
-                  (obj["poolname"] !== undefined ? obj["poolname"] : 
-                   (obj["clusterName"] !== undefined ? obj["clusterName"] : 
-                    (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"]))))),
+      poolName: finalName,
     };
   },
   ConnectionPoolNameInputSchemaBase
-).refine((data) => data.poolName !== undefined && data.poolName !== "", {
+).refine((data) => data.poolName !== undefined && typeof data.poolName === "string" && data.poolName.trim() !== "", {
   message: "poolName must not be empty",
   path: ["poolName"]
 }).transform((data) => ({
-  poolName: data.poolName ?? "",
+  poolName: (data.poolName ?? "") as string,
 }));
 
 // =============================================================================

@@ -34,8 +34,8 @@ describe("insights tool", () => {
       );
 
       expect(result.success).toBe(true);
-      expect((result as any).data.insightCount).toBe(1);
-      expect((result as any).data.message).toBe("Insight recorded (1 total)");
+      expect((result as Record<string, unknown>).data.insightCount).toBe(1);
+      expect((result as Record<string, unknown>).data.message).toBe("Insight recorded (1 total)");
       expect(insightsManager.append).toHaveBeenCalledWith("This is a valuable insight.");
     });
 
@@ -46,8 +46,8 @@ describe("insights tool", () => {
       );
 
       expect(result.success).toBe(false);
-      expect((result as any).error).toContain("Insight text cannot be empty");
-      expect((result as any).category).toBe(ErrorCategory.VALIDATION);
+      expect((result as Record<string, unknown>).error).toContain("insight (or text/message alias) is required");
+      expect((result as Record<string, unknown>).category).toBe(ErrorCategory.VALIDATION);
       expect(insightsManager.append).not.toHaveBeenCalled();
     });
 
@@ -55,7 +55,7 @@ describe("insights tool", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(result.success).toBe(false);
-      expect((result as any).category).toBe(ErrorCategory.VALIDATION);
+      expect((result as Record<string, unknown>).category).toBe(ErrorCategory.VALIDATION);
       expect(insightsManager.append).not.toHaveBeenCalled();
     });
 
@@ -67,8 +67,8 @@ describe("insights tool", () => {
       );
 
       expect(result.success).toBe(false);
-      expect((result as any).error).toContain("Insight text is too long (1001 chars). Maximum allowed is 1000 characters.");
-      expect((result as any).category).toBe(ErrorCategory.VALIDATION);
+      expect((result as Record<string, unknown>).error).toContain("Insight text is too long (1001 chars). Maximum allowed is 1000 characters.");
+      expect((result as Record<string, unknown>).category).toBe(ErrorCategory.VALIDATION);
       expect(insightsManager.append).not.toHaveBeenCalled();
     });
 
@@ -82,7 +82,7 @@ describe("insights tool", () => {
       );
 
       expect(result.success).toBe(true);
-      expect((result as any).data.insightCount).toBe(5);
+      expect((result as Record<string, unknown>).data.insightCount).toBe(5);
       expect(insightsManager.append).toHaveBeenCalledWith(exactInsight);
     });
 
@@ -97,7 +97,7 @@ describe("insights tool", () => {
       );
 
       expect(result.success).toBe(false);
-      expect((result as any).error).toContain("Failed to write insight");
+      expect((result as Record<string, unknown>).error).toContain("Failed to write insight");
     });
   });
 });

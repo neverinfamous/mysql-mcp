@@ -29,6 +29,8 @@ export const JsonInsertOutputSchema = BaseOutputSchema.extend({
 export const JsonReplaceOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     rowsAffected: z.number(),
+    changed: z.boolean().optional(),
+    suggestion: z.string().optional(),
   }).optional(),
 });
 
@@ -47,7 +49,8 @@ export const JsonContainsOutputSchema = BaseOutputSchema.extend({
 
 export const JsonKeysOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    keys: z.array(z.string()).optional(),
+    keys: z.array(z.string()).nullable().optional(),
+    suggestion: z.string().optional(),
   }).optional(),
 });
 
@@ -61,6 +64,8 @@ export const JsonSearchOutputSchema = BaseOutputSchema.extend({
 export const JsonArrayAppendOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     rowsAffected: z.number(),
+    changed: z.boolean().optional(),
+    suggestion: z.string().optional(),
   }).optional(),
 });
 
@@ -96,6 +101,7 @@ export const JsonStatsOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     totalSampled: z.number().optional(),
     nullCount: z.number().optional(),
+    invalidCount: z.number().optional(),
     length: z.object({
       avg: z.number().optional(),
       max: z.number().optional(),
@@ -148,6 +154,7 @@ export const JsonMergeOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     result: z.unknown(),
     mode: z.string(),
+    truncated: z.boolean().optional(),
   }).optional(),
 });
 
@@ -167,5 +174,6 @@ export const JsonDiffOutputSchema = BaseOutputSchema.extend({
       value1: z.unknown().optional(),
       value2: z.unknown().optional(),
     })).optional(),
+    truncated: z.boolean().optional(),
   }).optional(),
 });

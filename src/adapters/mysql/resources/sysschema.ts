@@ -52,10 +52,11 @@ export function createSysSchemaResource(
           slowStatements: statementsResult.rows ?? [],
           currentLockWaits: Number(lockRow?.["lock_wait_count"] ?? 0),
         };
-      } catch {
+      } catch (error) {
+        const err = error as Error;
         return {
           available: false,
-          message: "sys schema not available or insufficient privileges",
+          message: `sys schema not available or error occurred: ${err.message}`,
         };
       }
     },

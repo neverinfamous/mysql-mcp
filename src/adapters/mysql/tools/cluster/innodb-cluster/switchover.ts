@@ -27,11 +27,16 @@ export function createClusterSwitchoverTool(
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
+        z.object({}).strict().parse(_params);
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
+      }
+
+      try {
         // Check if GR is running
-        const pluginResult = await adapter.executeQuery(
-          "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'",
-        );
-        if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
+        const pluginResult = await adapter.executeQuery("SHOW PLUGINS");
+        const grPlugin = pluginResult.rows?.find((row) => row["Name"] === "group_replication");
+        if (grPlugin?.["Status"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
             new ExtensionNotAvailableError("Group Replication")
           );
@@ -98,27 +103,37 @@ export function createClusterSwitchoverTool(
           return order[a.suitability] - order[b.suitability];
         });
 
+        const rawPrimary = members.find((m) => m["role"] === "PRIMARY");
+        const currentPrimary = rawPrimary ? {
+          ...rawPrimary,
+          txQueue: Number(rawPrimary["txQueue"] ?? 0),
+          applierQueue: Number(rawPrimary["applierQueue"] ?? 0)
+        } : null;
+
         const firstCandidate = candidates[0];
-        const data = {
-          currentPrimary: members.find((m) => m["role"] === "PRIMARY") ?? null,
-          candidates,
-          recommendedTarget:
-            candidates.length > 0 &&
-            firstCandidate &&
-            firstCandidate.suitability !== "NOT_RECOMMENDED"
-              ? firstCandidate
-              : null,
-          canSwitchover: candidates.some(
-            (c) => c.suitability !== "NOT_RECOMMENDED",
-          ),
-          warning:
-            onlineSecondaries.length === 0
-              ? "No online secondaries available for switchover."
-              : candidates.every((c) => c.suitability === "NOT_RECOMMENDED")
-                ? "All secondaries have significant replication lag. Switchover not recommended."
-                : undefined,
-        };
-        return withTokenEstimate({ success: true, data });
+        const parsed = ClusterSwitchoverOutputSchema.parse({
+          success: true,
+          data: {
+            currentPrimary,
+            candidates,
+            recommendedTarget:
+              candidates.length > 0 &&
+              firstCandidate &&
+              firstCandidate.suitability !== "NOT_RECOMMENDED"
+                ? firstCandidate
+                : null,
+            canSwitchover: candidates.some(
+              (c) => c.suitability !== "NOT_RECOMMENDED",
+            ),
+            warning:
+              onlineSecondaries.length === 0
+                ? "No online secondaries available for switchover."
+                : candidates.every((c) => c.suitability === "NOT_RECOMMENDED")
+                  ? "All secondaries have significant replication lag. Switchover not recommended."
+                  : undefined,
+          }
+        });
+        return withTokenEstimate(parsed);
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }

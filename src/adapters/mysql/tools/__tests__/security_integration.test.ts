@@ -7,12 +7,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   createMockMySQLAdapter,
-  createMockRequestContext,
-} from "../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../__tests__/mocks/index.js";
 import { getBackupTools } from "../admin/index.js";
 import { getJsonTools } from "../json/index.js";
-import type {} from "../../mysql-adapter/index.js";
-
 describe("Security: Validation Flow Integration", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
   let mockContext: ReturnType<typeof createMockRequestContext>;
@@ -26,14 +23,14 @@ describe("Security: Validation Flow Integration", () => {
   describe("End-to-End Injection Rejection", () => {
     it("should reject malicious input at validation layer, not database layer", async () => {
       const tools = getBackupTools(mockAdapter);
-      const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
+      const exportTool = tools.find((t) => t.name === "mysql_export_table");
+      if (!exportTool) throw new Error('Tool not found');;
 
       // Malicious input should be rejected BEFORE any database call
       const result = (await exportTool.handler(
         {
           table: "users'; DROP TABLE users; --",
-          format: "SQL",
-        },
+          format: "SQL" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -47,7 +44,8 @@ describe("Security: Validation Flow Integration", () => {
 
     it("should reject complex injection attempt with multiple vectors", async () => {
       const tools = getJsonTools(mockAdapter);
-      const setTool = tools.find((t) => t.name === "mysql_json_set")!;
+      const setTool = tools.find((t) => t.name === "mysql_json_set");
+      if (!setTool) throw new Error('Tool not found');;
 
       // Multiple attack vectors in one request
       await expect(
@@ -57,32 +55,29 @@ describe("Security: Validation Flow Integration", () => {
             column: "data", // Valid
             path: "$.name",
             value: "test",
-            where: "1=1; DELETE FROM users; -- UNION SELECT * FROM passwords",
-          },
+            where: "1=1; DELETE FROM users; -- UNION SELECT * FROM passwords" },
           mockContext,
         ),
       ).resolves.toMatchObject({
         success: false,
-        error: expect.stringContaining("dangerous SQL patterns"),
-      });
+        error: expect.stringContaining("dangerous SQL patterns") });
 
       expect(mockAdapter.executeWriteQuery).not.toHaveBeenCalled();
     });
 
     it("should process valid input successfully after validation", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue({
-        rows: [{ id: 1, name: "Test User" }],
-      });
+        rows: [{ id: 1, name: "Test User" }] });
 
       const tools = getBackupTools(mockAdapter);
-      const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
+      const exportTool = tools.find((t) => t.name === "mysql_export_table");
+      if (!exportTool) throw new Error('Tool not found');;
 
       const result = await exportTool.handler(
         {
           table: "users",
           format: "SQL",
-          where: "status = 'active'",
-        },
+          where: "status = 'active'" },
         mockContext,
       );
 
@@ -95,13 +90,13 @@ describe("Security: Validation Flow Integration", () => {
   describe("Error Message Security", () => {
     it("should not leak table name validation patterns in errors", async () => {
       const tools = getBackupTools(mockAdapter);
-      const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
+      const exportTool = tools.find((t) => t.name === "mysql_export_table");
+      if (!exportTool) throw new Error('Tool not found');;
 
       const result = (await exportTool.handler(
         {
           table: "admin'; SELECT * FROM secrets; --",
-          format: "SQL",
-        },
+          format: "SQL" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -114,7 +109,8 @@ describe("Security: Validation Flow Integration", () => {
 
     it("should not expose database schema information in errors", async () => {
       const tools = getJsonTools(mockAdapter);
-      const setTool = tools.find((t) => t.name === "mysql_json_set")!;
+      const setTool = tools.find((t) => t.name === "mysql_json_set");
+      if (!setTool) throw new Error('Tool not found');;
 
       try {
         await setTool.handler(
@@ -123,8 +119,7 @@ describe("Security: Validation Flow Integration", () => {
             column: "data",
             path: "$.x",
             value: "test",
-            where: "1=1 AND information_schema.tables",
-          },
+            where: "1=1 AND information_schema.tables" },
           mockContext,
         );
         expect.fail("Should have thrown");
@@ -138,13 +133,13 @@ describe("Security: Validation Flow Integration", () => {
 
     it("should provide user-friendly error messages", async () => {
       const tools = getBackupTools(mockAdapter);
-      const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
+      const exportTool = tools.find((t) => t.name === "mysql_export_table");
+      if (!exportTool) throw new Error('Tool not found');;
 
       const result = (await exportTool.handler(
         {
           table: "123invalid",
-          format: "SQL",
-        },
+          format: "SQL" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -168,14 +163,14 @@ describe("Security: Validation Flow Integration", () => {
       const exportTool = backupTools.find(
         (t) => t.name === "mysql_export_table",
       )!;
-      const jsonTool = jsonTools.find((t) => t.name === "mysql_json_extract")!;
+      const jsonTool = jsonTools.find((t) => t.name === "mysql_json_extract");
+      if (!jsonTool) throw new Error('Tool not found');;
 
       // Backup tools return structured errors (caught by try/catch)
       const exportResult = (await exportTool.handler(
         {
           table: maliciousTable,
-          format: "SQL",
-        },
+          format: "SQL" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -188,14 +183,12 @@ describe("Security: Validation Flow Integration", () => {
           {
             table: maliciousTable,
             column: "data",
-            path: "$.x",
-          },
+            path: "$.x" },
           mockContext,
         ),
       ).resolves.toMatchObject({
         success: false,
-        error: expect.stringContaining("Invalid table name"),
-      });
+        error: expect.stringContaining("Invalid table name") });
     });
   });
 });
@@ -219,7 +212,8 @@ describe("Rate Limiting Preparation", () => {
     const mockAdapter = createMockMySQLAdapter();
     const tools = getBackupTools(mockAdapter);
 
-    const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
+    const exportTool = tools.find((t) => t.name === "mysql_export_table");
+      if (!exportTool) throw new Error('Tool not found');;
 
     // Tools have annotations that can inform rate limiting
     expect(exportTool.annotations).toBeDefined();
@@ -231,8 +225,10 @@ describe("Rate Limiting Preparation", () => {
     const mockAdapter = createMockMySQLAdapter();
     const tools = getBackupTools(mockAdapter);
 
-    const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
-    const importTool = tools.find((t) => t.name === "mysql_import_data")!;
+    const exportTool = tools.find((t) => t.name === "mysql_export_table");
+      if (!exportTool) throw new Error('Tool not found');;
+    const importTool = tools.find((t) => t.name === "mysql_import_data");
+      if (!importTool) throw new Error('Tool not found');;
 
     // Scopes can determine rate limit tiers
     expect(exportTool.requiredScopes).toContain("read");

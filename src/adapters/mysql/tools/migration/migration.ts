@@ -63,7 +63,7 @@ export function createMigrationInitTool(adapter: MySQLAdapter): ToolDefinition {
           targetSchema = (dbRow?.["db"] as string) || "mysql";
         }
 
-        const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+        const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
 
         const check = await adapter.executeReadQuery(
           `SELECT EXISTS (
@@ -147,7 +147,7 @@ export function createMigrationRecordTool(
           ).rows?.[0];
           targetSchema = (dbRow?.["db"] as string) || "mysql";
         }
-        const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+        const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
 
         await adapter.executeWriteQuery(
           `INSERT INTO ${qualifiedTable}
@@ -175,6 +175,9 @@ export function createMigrationRecordTool(
           const errorResponse = {
             success: false as const,
             error: "Failed to insert migration record.",
+            code: "INTERNAL_ERROR",
+            category: "system",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
@@ -237,7 +240,7 @@ export function createMigrationApplyTool(
           ).rows?.[0];
           targetSchema = (dbRow?.["db"] as string) || "mysql";
         }
-        const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+        const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
 
         // We do not use transactions for DDL in MySQL because MySQL DDL commits implicitly
         // We will just execute it, and if it succeeds, write the record.
@@ -272,6 +275,9 @@ export function createMigrationApplyTool(
               success: false as const,
               error:
                 "Migration was applied but failed to insert tracking record.",
+              code: "INTERNAL_ERROR",
+              category: "system",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,

@@ -11,10 +11,10 @@
 import { test, expect } from "@playwright/test";
 import { createClient } from "./helpers.js";
 
-test.describe.configure({ mode: "serial" });
+// test.describe.configure({ mode: "parallel" });
 
 test.describe("Extended Resource Reads", () => {
-  test("mysql://pool returns JSON", async ({}, testInfo) => {
+  test("mysql://pool returns JSON", async () => {
     const client = await createClient();
     try {
       const response = await client.readResource({ uri: "mysql://pool" });
@@ -28,8 +28,8 @@ test.describe("Extended Resource Reads", () => {
     }
   });
 
-  test("mysql://capabilities returns JSON with version", async ({}, testInfo) => {
-    test.setTimeout(120000);
+  test("mysql://capabilities returns JSON with version", async () => {
+    test.setTimeout(30000);
     const client = await createClient();
     try {
       const response = await client.readResource({
@@ -45,7 +45,7 @@ test.describe("Extended Resource Reads", () => {
     }
   });
 
-  test("mysql://performance returns JSON", async ({}, testInfo) => {
+  test("mysql://performance returns JSON", async () => {
     const client = await createClient();
     try {
       const response = await client.readResource({
@@ -62,7 +62,7 @@ test.describe("Extended Resource Reads", () => {
     }
   });
 
-  test("mysql://indexes returns JSON", async ({}, testInfo) => {
+  test("mysql://indexes returns JSON", async () => {
     const client = await createClient();
     try {
       const response = await client.readResource({
@@ -78,7 +78,7 @@ test.describe("Extended Resource Reads", () => {
     }
   });
 
-  test("mysql://replication returns JSON", async ({}, testInfo) => {
+  test("mysql://replication returns JSON", async () => {
     const client = await createClient();
     try {
       const response = await client.readResource({
@@ -93,7 +93,7 @@ test.describe("Extended Resource Reads", () => {
       await client.close();
     }
   });
-  test("mysql://locks returns JSON", async ({}, testInfo) => {
+  test("mysql://locks returns JSON", async () => {
     const client = await createClient();
     try {
       const response = await client.readResource({ uri: "mysql://locks" });
@@ -110,7 +110,7 @@ test.describe("Extended Resource Reads", () => {
   // --- Extension-dependent resources (lenient assertions) ---
   // --- In-memory resources ---
 
-  test("mysql://insights returns text memo", async ({}, testInfo) => {
+  test("mysql://insights returns text memo", async () => {
     const client = await createClient();
     try {
       const response = await client.readResource({

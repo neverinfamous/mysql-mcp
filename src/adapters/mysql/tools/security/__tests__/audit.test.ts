@@ -8,14 +8,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createSecurityAuditTool,
   createSecurityFirewallStatusTool,
-  createSecurityFirewallRulesTool,
-} from "../audit.js";
-import type {} from "../../../mysql-adapter/index.js";
+  createSecurityFirewallRulesTool } from "../audit.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Security Audit Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -45,8 +42,7 @@ describe("Security Audit Tools", () => {
       const result = (await tool.handler(
         {
           limit: 10,
-          user: "test",
-        },
+          user: "test" },
         mockContext,
       )) as { data: { source: string; events: any[] } };
 
@@ -74,8 +70,7 @@ describe("Security Audit Tools", () => {
           limit: 10,
           user: "test",
           eventType: "LOGIN",
-          startTime: "2023-01-01",
-        },
+          startTime: "2023-01-01" },
         mockContext,
       );
 
@@ -85,7 +80,7 @@ describe("Security Audit Tools", () => {
       expect(queryCall).toContain("user LIKE ?");
       expect(queryCall).toContain("event_type = ?");
       expect(queryCall).toContain("timestamp >= ?");
-      expect(queryParams).toHaveLength(4);
+      expect(queryParams).toHaveLength(3);
     });
 
     it("should fallback to performance_schema if audit_log is missing", async () => {
@@ -103,8 +98,7 @@ describe("Security Audit Tools", () => {
       const result = (await tool.handler(
         {
           limit: 10,
-          user: "test",
-        },
+          user: "test" },
         mockContext,
       )) as { data: { source: string } };
 
@@ -129,8 +123,7 @@ describe("Security Audit Tools", () => {
       await tool.handler(
         {
           limit: 10,
-          user: "test_user",
-        },
+          user: "test_user" },
         mockContext,
       );
 
@@ -149,8 +142,7 @@ describe("Security Audit Tools", () => {
       await tool.handler(
         {
           limit: 10,
-          eventType: "CONNECT",
-        },
+          eventType: "CONNECT" },
         mockContext,
       );
 
@@ -169,8 +161,7 @@ describe("Security Audit Tools", () => {
       const result = (await tool.handler(
         {
           limit: 10,
-          startTime: "2023-01-01",
-        },
+          startTime: "2023-01-01" },
         mockContext,
       )) as { data: { filtersIgnored?: string[]; note?: string } };
 
@@ -192,7 +183,9 @@ describe("Security Audit Tools", () => {
       };
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Connection lost to host");
+      expect(result.error).toBe(
+        "[ERROR] [security] [CONNECTION_ERROR] Connection lost to host (context: mysql_security_audit)",
+      );
     });
 
     it("should handle error when checking audit log", async () => {
@@ -207,7 +200,7 @@ describe("Security Audit Tools", () => {
       };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Audit logging is not enabled");
+      expect(result.error).toContain("is not installed or enabled");
     });
 
     it("should not include duplicated message field in error response", async () => {
@@ -232,7 +225,7 @@ describe("Security Audit Tools", () => {
       // Mock plugin check
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
-          { PLUGIN_NAME: "mysql_firewall", PLUGIN_STATUS: "ACTIVE" },
+          { Name: "mysql_firewall", Status: "ACTIVE" },
         ]),
       );
 
@@ -280,7 +273,7 @@ describe("Security Audit Tools", () => {
     it("should list firewall rules", async () => {
       // Mock plugin check
       mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ PLUGIN_NAME: "MYSQL_FIREWALL", PLUGIN_STATUS: "ACTIVE" }])
+        createMockQueryResult([{ Name: "MYSQL_FIREWALL", Status: "ACTIVE" }])
       );
       // Mock users query
       mockAdapter.executeQuery.mockResolvedValueOnce(
@@ -297,8 +290,7 @@ describe("Security Audit Tools", () => {
       );
       const result = (await tool.handler(
         {
-          user: "user",
-        },
+          user: "user" },
         mockContext,
       )) as { data: { users: any[]; rules: any[] } };
 
@@ -319,7 +311,7 @@ describe("Security Audit Tools", () => {
       };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Firewall tables not accessible");
+      expect(result.error).toContain("Table missing");
     });
 
     it("should not include duplicated message field in error response", async () => {

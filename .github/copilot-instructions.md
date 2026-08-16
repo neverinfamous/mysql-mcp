@@ -1,38 +1,18 @@
 # mysql-mcp — Copilot Code Review Context
 
-[![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
-[![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+## Enforce Core Architecture Rules
+Ensure PRs adhere to these SSoT architectural rules:
+- **Tool filtering** skips MySQL connections when using exclusively router, proxysql, or shell tools.
+- **Code Mode** (`mysql_execute_code`) significantly reduces token usage.
+- **Cache**: `METADATA_CACHE_TTL_MS` controls the cache TTL (default 30000).
+- **Transports**: Supports `stdio` and streamable `http` (MCP v2 stateless architecture via `NodeStreamableHTTPServerTransport`).
+- **Validation**: Ensure parameter alias validation at the MCP boundary (via the Dual-Schema Pattern).
+- **Authentication**: Secure connections with Bearer Tokens or OAuth.
+- **Features**: Tool filtering, token logging, and ecosystem integrations for MySQL Router, ProxySQL, and Shell.
 
-## 💎 Deliver the Value Proposition
+## Review Session Context
 
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
-
-## Review the Project Overview
-
-mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 200+ tools and extensive resources.
-> **Architectural Rule:** Tool filtering skips MySQL connections when using exclusively router, proxysql, or shell tools.
-
-**Architecture & Capabilities**:
-- **Execution**: Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%).
-- **Cache**: `METADATA_CACHE_TTL_MS` is the cache TTL (default 30000).
-- **Transports**: It supports `stdio`, streamable `http`, and legacy `sse`.
-- **Authentication**: Secure connections with Bearer Tokens or OAuth 2.1.
-- **Audit Logging**: Maintain strict security with comprehensive audit trails.
-- **Recent Architecture**:
-  - Added conditional update aliases for data and conditions.
-  - Fix alias resolution in stats hypothesis tool.
-  - Added streamable and HTTP transport tests.
-  - Mask data alias validation at MCP boundary.
-  - Require at least one filter for audit tool to prevent payload bloat.
-- **Features**: Tool Filtering, Audit/Token Logging, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell.
-
-## Utilize Session Context
-
-Before starting work, read `memory://briefing/mysql-mcp` from the `memory-journal-mcp` server. It provides real-time context:
+Read `memory://briefing/mysql-mcp` from `memory-journal-mcp` before starting. This provides essential real-time context:
 
 - **Recent journal entries** — what was just worked on by the development agent
 - **GitHub status** — open issues, PRs, CI status, milestones
@@ -41,13 +21,14 @@ Before starting work, read `memory://briefing/mysql-mcp` from the `memory-journa
 
 For detailed session handoff context, search for entries tagged `session-summary`. These contain end-of-session notes from the development agent.
 
-Log review issues using `create_entry` with the `copilot-finding` tag. Agents review these findings during their next session briefings.
+Log review issues using `mj_execute_code`. Agents review these findings during their next session briefings.
 
-## Enforce Coding Standards
+## Uphold Coding Standards
 
-### Format Names Correctly
+### Standardize File Naming
 
 - **Files and folders**: Always kebab-case (`schema-manager.ts`, `tool-filter.ts`)
+  - **Exception**: `.github` repository templates may use `snake_case`.
 - **Never** PascalCase or camelCase for filenames
 
 ### Maintain Modularity
@@ -56,12 +37,12 @@ Log review issues using `create_entry` with the `copilot-finding` tag. Agents re
 - **Split pattern**: `foo.ts` → `foo/` directory with sub-modules + `foo/index.ts` barrel re-export
 - **Logical grouping**: Split by functional cohesion, not arbitrary line counts
 
-### Ensure Type Safety
+### Enforce Type Safety
 
 - **Strict TypeScript** — `tsconfig.json` enforces strict mode
 - **Never use `eslint-disable`** to evade standards
 - **Never use `any`** — use `unknown` and narrow with type guards
-- **Never use `as` type assertions** — use `satisfies` operator or strict type guards
+- Type assertions (e.g., `as`) — always forbidden (use `satisfies` or strict type guards instead)
 - **Never use `@ts-ignore` or `@ts-expect-error`** — fix the underlying type issue
 - **Zod schemas** for all tool input validation at system boundaries
 - **Union types over enums** — use `type Status = "active" | "inactive"` instead of `enum`
@@ -73,36 +54,31 @@ All tool handlers return structured error responses — never raw exceptions:
 ```typescript
 {
   success: false,
-  error: string,        // Human-readable message
-  code: string,         // Module-prefixed code (e.g., "QUERY_ERROR")
-  category: string,     // Error category (validation, connection, query, etc.)
-  suggestion: string,   // Actionable fix for the agent
-  recoverable: boolean  // true = user can fix, false = server error
+  error: string,          // Human-readable message
+  code: string,           // Module-prefixed code (e.g., "QUERY_ERROR")
+  category: ErrorCategory,// Error category (validation, connection, query, etc.)
+  suggestion?: string,    // Optional actionable fix for the agent
+  recoverable: boolean,   // true = user can fix, false = server error
+  details?: unknown,      // Optional error details
+  metrics?: unknown       // Optional error metrics
 }
 ```
 
-> **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect the 200+ tools and current config flags.
+> **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect the comprehensive toolset and current config flags.
 > **Anti-Hallucination**: Do not assume existence of tools, resources, or prompts. They must be explicitly listed in the tool-reference or registered in `server/`.
 
-## Apply Architecture Rules (Recent Changes)
-
-Ensure PRs adhere to these recent SSoT architectural rules:
-- **Code Mode** (`mysql_execute_code`) dramatically reduces token usage (70–90%).
-- `METADATA_CACHE_TTL_MS` controls the cache TTL (default 30000).
-- Supports `stdio`, streamable `http`, and legacy `sse` transports.
-- Ensure mask data alias validation at the MCP boundary.
-- Audit tool requires at least one filter to prevent bloat.
-
-## Navigate the Architecture
+## Understand Architecture
 
 ```
+scripts/                        # Instruction and infrastructure scripts
 src/
-├── cli.ts                      # CLI entry point (Commander)
+├── cli.ts                      # CLI entry point (util.parseArgs)
 ├── index.ts                    # Library entry point
 ├── version.ts                  # Version export
+├── __tests__/                  # Unit and E2E tests
 ├── adapters/                   # MySQL database adapters
 ├── audit/                      # Audit and token logging
-├── auth/                       # OAuth 2.1 authentication
+├── auth/                       # OAuth authentication
 ├── cli/                        # CLI argument parsing modules
 ├── codemode/                   # Sandboxed JS execution engine
 ├── constants/                  # Server instructions, config
@@ -112,42 +88,48 @@ src/
 ├── pool/                       # Connection pool management
 ├── progress/                   # Progress notification helpers
 ├── server/                     # MCP server setup and registration
-├── transports/                 # HTTP/SSE transport layer
+├── transports/                 # Streamable HTTP transport layer
 ├── types/                      # Type definitions + barrel exports
 └── utils/                      # Logger, error helpers, utilities
 ```
 
-## Consult Key Reference Files
+## Consult Reference Files
 
 | File                            | Purpose                             |
 | ------------------------------- | ----------------------------------- |
+| `README.md`                     | Primary project documentation       |
+| `AGENT_README.md`               | Root AI agent specific instructions |
+| `skills/AGENT_README.md`        | AI agent specific instructions      |
 | `test-server/code-map.md`       | File → tool/handler mapping         |
 | `test-server/tool-reference.md` | Categorized tool inventory          |
-| `test-server/test-tools.md`     | Test validation reference           |
+| `test-server/test-preflight.md` | Test validation reference           |
 | `CONTRIBUTING.md`               | Development setup and PR guidelines |
 | `DOCKER_README.md`              | Docker Hub documentation            |
 
 
-## Complete the Review Checklist
+## Complete the Quality Assurance Checklist
 
 When reviewing PRs, check for:
 
 - [ ] Missing barrel exports in `src/types/index.ts` when new types are added
 - [ ] `eslint-disable` usage — always forbidden
-- [ ] `@ts-ignore` or `as any` — always forbidden
+- [ ] No `@ts-ignore`, `@ts-expect-error`, or `as` assertions (use `satisfies` or type guards).
 - [ ] Raw exceptions from tool handlers — must use structured error responses
 - [ ] Must reference `gh copilot` not the deprecated `github-copilot-cli`
-- [ ] Update the 200+ tools count in markdown lists if tools are added/removed.
 - [ ] Files approaching 500 lines — flag for splitting
 - [ ] New tools missing from tool filtering configuration
 - [ ] Missing Zod schemas on new tools
 - [ ] Kebab-case violations in new filenames
-- [ ] `continue-on-error: true` in workflow files — forbidden per project standards (except Agentic Workflow `.lock.yml` files)
-- [ ] Verify the author has run tests locally (e.g., via pnpm run check)
+- [ ] No `continue-on-error: true` in workflow files (except Agentic .lock.yml files).
+- [ ] Verify the author has run tests locally (e.g., via `pnpm run test` and `pnpm run test:e2e`)
 - [ ] Dual-Schema Pattern enforcement
-- [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
-- [ ] Display value proposition blocks prominently in README. Ensure strict compliance with exact text.
-- [ ] Docker readme <= 25,000 chars
+- [ ] Ensure Docker instructions use `:latest` tag for user-facing pulls in `DOCKER_README.md` (infrastructure files must use explicit version tags) and use exact account names (Docker Hub uses 'writenotenow' and GitHub uses 'neverinfamous')
+- [ ] Avoid using 'any' (use 'unknown' instead) and prefer union types over enums.
+- [ ] Add prominent Value Proposition at the top to standard README.md and Wikis. Use active voice, benefit-driven headers, and concise sentences (<15 words).
+- [ ] CRITICAL: Never add marketing tone to AGENT_README.md or SKILL.md files.
+- [ ] Docker readme <= 25,000 chars and dynamically updated test badges are preserved.
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables
-- [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`
-- [ ] Schema examples accurately reflect the 200+ tool count and current configuration flags
+- [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS` (if applicable)
+- [ ] Schema examples accurately reflect the comprehensive toolset and current configuration flags
+- [ ] Ensure version-agnostic text (no exact tool/resource counts)
+- [ ] Verify the author has verified performance benchmark throughput (via pnpm run bench) for any hot-path modifications

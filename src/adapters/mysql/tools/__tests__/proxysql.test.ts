@@ -7,11 +7,9 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getProxySQLTools } from "../proxysql/index.js";
-import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
-  createMockRequestContext,
-} from "../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../__tests__/mocks/index.js";
 
 // Mock mysql2/promise for ProxySQL connection testing
 const mockQuery = vi.fn();
@@ -20,9 +18,7 @@ const mockCreateConnection = vi.fn();
 
 vi.mock("mysql2/promise", () => ({
   default: {
-    createConnection: (...args: unknown[]) => mockCreateConnection(...args),
-  },
-}));
+    createConnection: (...args: unknown[]) => mockCreateConnection(...args) } }));
 
 describe("getProxySQLTools", () => {
   let tools: ReturnType<typeof getProxySQLTools>;
@@ -83,7 +79,8 @@ describe("Tool Structure Validation", () => {
   });
 
   it("proxysql_status should have correct structure", () => {
-    const tool = tools.find((t) => t.name === "proxysql_status")!;
+    const tool = tools.find((t) => t.name === "proxysql_status");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.name).toBe("proxysql_status");
     expect(tool.description).toBeDefined();
     expect(tool.annotations?.readOnlyHint).toBe(true);
@@ -91,12 +88,14 @@ describe("Tool Structure Validation", () => {
   });
 
   it("proxysql_query_digest should be read-only", () => {
-    const tool = tools.find((t) => t.name === "proxysql_query_digest")!;
+    const tool = tools.find((t) => t.name === "proxysql_query_digest");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.annotations?.readOnlyHint).toBe(true);
   });
 
   it("proxysql_commands should require admin scope", () => {
-    const tool = tools.find((t) => t.name === "proxysql_commands")!;
+    const tool = tools.find((t) => t.name === "proxysql_commands");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.requiredScopes).toContain("admin");
   });
 
@@ -128,8 +127,7 @@ describe("Handler Execution", () => {
     // Setup mock connection
     mockCreateConnection.mockResolvedValue({
       query: mockQuery,
-      end: mockEnd,
-    });
+      end: mockEnd });
   });
 
   afterEach(() => {
@@ -147,7 +145,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce([mockStats])
         .mockResolvedValueOnce([[{ variable_value: "3.0.3" }]]);
 
-      const tool = tools.find((t) => t.name === "proxysql_status")!;
+      const tool = tools.find((t) => t.name === "proxysql_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ summary: false }, mockContext);
 
       expect(mockCreateConnection).toHaveBeenCalled();
@@ -165,10 +164,8 @@ describe("Handler Execution", () => {
           version: "3.0.3",
           uptime: "12345",
           stats: mockStats,
-          totalVarsAvailable: 3,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          totalVarsAvailable: 3 },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -180,7 +177,8 @@ describe("Handler Execution", () => {
           [{ variable_name: "admin-read_only", variable_value: "false" }],
         ]);
 
-      const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
+      const tool = tools.find((t) => t.name === "proxysql_runtime_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ summary: false }, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -195,7 +193,8 @@ describe("Handler Execution", () => {
     it("should handle missing version", async () => {
       mockQuery.mockResolvedValueOnce([[{}]]).mockResolvedValueOnce([[]]);
 
-      const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
+      const tool = tools.find((t) => t.name === "proxysql_runtime_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(result).toHaveProperty("data.version", "unknown");
@@ -209,16 +208,15 @@ describe("Handler Execution", () => {
             { variable_name: "admin-read_only", variable_value: "false" },
             {
               variable_name: "admin-admin_credentials",
-              variable_value: "admin:admin",
-            },
+              variable_value: "admin:admin" },
             {
               variable_name: "admin-cluster_password",
-              variable_value: "secret123",
-            },
+              variable_value: "secret123" },
           ],
         ]);
 
-      const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
+      const tool = tools.find((t) => t.name === "proxysql_runtime_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { summary: false },
         mockContext,
@@ -248,26 +246,23 @@ describe("Handler Execution", () => {
         { variable_name: "admin-restapi_enabled", variable_value: "true" },
         {
           variable_name: "admin-admin_credentials",
-          variable_value: "admin:admin",
-        },
+          variable_value: "admin:admin" },
         {
           variable_name: "admin-cluster_password",
-          variable_value: "secret",
-        },
+          variable_value: "secret" },
         {
           variable_name: "admin-hash_passwords",
-          variable_value: "true",
-        },
+          variable_value: "true" },
         {
           variable_name: "admin-refresh_interval",
-          variable_value: "2000",
-        },
+          variable_value: "2000" },
       ];
       mockQuery
         .mockResolvedValueOnce([[{ variable_value: "3.0.3" }]])
         .mockResolvedValueOnce([mockAdminVars]);
 
-      const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
+      const tool = tools.find((t) => t.name === "proxysql_runtime_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { summary: true },
         mockContext,
@@ -302,7 +297,8 @@ describe("Handler Execution", () => {
       ];
       mockQuery.mockResolvedValue([mockServers]);
 
-      const tool = tools.find((t) => t.name === "proxysql_servers")!;
+      const tool = tools.find((t) => t.name === "proxysql_servers");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith("SELECT * FROM mysql_servers");
@@ -310,17 +306,16 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           servers: mockServers,
-          count: 2,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          count: 2 },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should filter by hostgroup_id when provided", async () => {
       const mockServers = [{ hostgroup_id: 1, hostname: "mysql1", port: 3306 }];
       mockQuery.mockResolvedValue([mockServers]);
 
-      const tool = tools.find((t) => t.name === "proxysql_servers")!;
+      const tool = tools.find((t) => t.name === "proxysql_servers");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ hostgroup_id: 1 }, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -330,7 +325,8 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error for negative hostgroup_id", async () => {
-      const tool = tools.find((t) => t.name === "proxysql_servers")!;
+      const tool = tools.find((t) => t.name === "proxysql_servers");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { hostgroup_id: -1 },
         mockContext,
@@ -346,7 +342,8 @@ describe("Handler Execution", () => {
       const mockRules = [{ rule_id: 1, match_pattern: "SELECT.*" }];
       mockQuery.mockResolvedValue([mockRules]);
 
-      const tool = tools.find((t) => t.name === "proxysql_query_rules")!;
+      const tool = tools.find((t) => t.name === "proxysql_query_rules");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -358,7 +355,8 @@ describe("Handler Execution", () => {
     it("should respect custom limit", async () => {
       mockQuery.mockResolvedValue([[]]);
 
-      const tool = tools.find((t) => t.name === "proxysql_query_rules")!;
+      const tool = tools.find((t) => t.name === "proxysql_query_rules");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ limit: 10 }, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -367,7 +365,8 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error for negative limit", async () => {
-      const tool = tools.find((t) => t.name === "proxysql_query_rules")!;
+      const tool = tools.find((t) => t.name === "proxysql_query_rules");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler({ limit: -1 }, mockContext)) as {
         success: boolean;
         error: string;
@@ -382,15 +381,18 @@ describe("Handler Execution", () => {
     it("should return top queries by count", async () => {
       const mockDigests = [
         {
+          hostgroup: 1,
+          schemaname: "test",
+          username: "root",
           digest: "abc123",
           digest_text: "SELECT ?",
           count_star: 1000,
-          sum_time: 5000,
-        },
+          sum_time: 5000 },
       ];
       mockQuery.mockResolvedValue([mockDigests]);
 
-      const tool = tools.find((t) => t.name === "proxysql_query_digest")!;
+      const tool = tools.find((t) => t.name === "proxysql_query_digest");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -402,7 +404,8 @@ describe("Handler Execution", () => {
     it("should respect custom limit", async () => {
       mockQuery.mockResolvedValue([[]]);
 
-      const tool = tools.find((t) => t.name === "proxysql_query_digest")!;
+      const tool = tools.find((t) => t.name === "proxysql_query_digest");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ limit: 25 }, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -411,7 +414,8 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error for negative limit", async () => {
-      const tool = tools.find((t) => t.name === "proxysql_query_digest")!;
+      const tool = tools.find((t) => t.name === "proxysql_query_digest");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler({ limit: -1 }, mockContext)) as {
         success: boolean;
         error: string;
@@ -427,7 +431,8 @@ describe("Handler Execution", () => {
       const mockPools = [{ hostgroup: 1, srv_host: "localhost" }];
       mockQuery.mockResolvedValue([mockPools]);
 
-      const tool = tools.find((t) => t.name === "proxysql_connection_pool")!;
+      const tool = tools.find((t) => t.name === "proxysql_connection_pool");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -439,7 +444,8 @@ describe("Handler Execution", () => {
     it("should filter by hostgroup", async () => {
       mockQuery.mockResolvedValue([[]]);
 
-      const tool = tools.find((t) => t.name === "proxysql_connection_pool")!;
+      const tool = tools.find((t) => t.name === "proxysql_connection_pool");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ hostgroup_id: 2 }, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -448,7 +454,8 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error for negative hostgroup_id", async () => {
-      const tool = tools.find((t) => t.name === "proxysql_connection_pool")!;
+      const tool = tools.find((t) => t.name === "proxysql_connection_pool");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { hostgroup_id: -1 },
         mockContext,
@@ -466,7 +473,8 @@ describe("Handler Execution", () => {
       ];
       mockQuery.mockResolvedValue([mockUsers]);
 
-      const tool = tools.find((t) => t.name === "proxysql_users")!;
+      const tool = tools.find((t) => t.name === "proxysql_users");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       // Should not include password column
@@ -486,7 +494,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce([[{ cnt: 1 }]])
         .mockResolvedValueOnce([mockVars]);
 
-      const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
+      const tool = tools.find((t) => t.name === "proxysql_global_variables");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -504,7 +513,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce([[{ cnt: 0 }]])
         .mockResolvedValueOnce([[]]);
 
-      const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
+      const tool = tools.find((t) => t.name === "proxysql_global_variables");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ prefix: "mysql" }, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -520,7 +530,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce([[{ cnt: 0 }]])
         .mockResolvedValueOnce([[]]);
 
-      const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
+      const tool = tools.find((t) => t.name === "proxysql_global_variables");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ prefix: "admin" }, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -536,7 +547,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce([[{ cnt: 0 }]])
         .mockResolvedValueOnce([[]]);
 
-      const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
+      const tool = tools.find((t) => t.name === "proxysql_global_variables");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ limit: 50 }, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -549,22 +561,20 @@ describe("Handler Execution", () => {
         { variable_name: "mysql-threads", variable_value: "4" },
         {
           variable_name: "admin-admin_credentials",
-          variable_value: "admin:admin",
-        },
+          variable_value: "admin:admin" },
         {
           variable_name: "mysql-monitor_password",
-          variable_value: "monpass",
-        },
+          variable_value: "monpass" },
         {
           variable_name: "admin-stats_credentials",
-          variable_value: "stats:stats",
-        },
+          variable_value: "stats:stats" },
       ];
       mockQuery
         .mockResolvedValueOnce([[{ cnt: 4 }]])
         .mockResolvedValueOnce([mockVars]);
 
-      const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
+      const tool = tools.find((t) => t.name === "proxysql_global_variables");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       // Non-sensitive should be preserved
@@ -594,7 +604,8 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error for negative limit", async () => {
-      const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
+      const tool = tools.find((t) => t.name === "proxysql_global_variables");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler({ limit: -1 }, mockContext)) as {
         success: boolean;
         error: string;
@@ -605,7 +616,8 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error for unsafe like pattern", async () => {
-      const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
+      const tool = tools.find((t) => t.name === "proxysql_global_variables");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { like: "'; DROP TABLE --" },
         mockContext,
@@ -623,7 +635,8 @@ describe("Handler Execution", () => {
       ];
       mockQuery.mockResolvedValue([mockMemory]);
 
-      const tool = tools.find((t) => t.name === "proxysql_memory_stats")!;
+      const tool = tools.find((t) => t.name === "proxysql_memory_stats");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -633,10 +646,8 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           memoryStats: mockMemory,
-          count: 1,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          count: 1 },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -644,7 +655,8 @@ describe("Handler Execution", () => {
     it("should execute admin command", async () => {
       mockQuery.mockResolvedValue([]);
 
-      const tool = tools.find((t) => t.name === "proxysql_commands")!;
+      const tool = tools.find((t) => t.name === "proxysql_commands");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { command: "LOAD MYSQL USERS TO RUNTIME" },
         mockContext,
@@ -655,10 +667,8 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           command: "LOAD MYSQL USERS TO RUNTIME",
-          message: "Command executed: LOAD MYSQL USERS TO RUNTIME",
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          message: "Command executed: LOAD MYSQL USERS TO RUNTIME" },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -669,7 +679,8 @@ describe("Handler Execution", () => {
       ];
       mockQuery.mockResolvedValue([mockProcesses]);
 
-      const tool = tools.find((t) => t.name === "proxysql_process_list")!;
+      const tool = tools.find((t) => t.name === "proxysql_process_list");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockQuery).toHaveBeenCalledWith(
@@ -679,10 +690,8 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           processes: mockProcesses,
-          count: 1,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          count: 1 },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 });
@@ -702,7 +711,8 @@ describe("Connection Error Handling", () => {
   it("should return structured error on connection failure", async () => {
     mockCreateConnection.mockRejectedValue(new Error("Connection refused"));
 
-    const tool = tools.find((t) => t.name === "proxysql_status")!;
+    const tool = tools.find((t) => t.name === "proxysql_status");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler({}, mockContext)) as {
       success: boolean;
       error: string;
@@ -715,10 +725,10 @@ describe("Connection Error Handling", () => {
   it("should return structured error on query failure", async () => {
     mockCreateConnection.mockResolvedValue({
       query: vi.fn().mockRejectedValue(new Error("Access denied")),
-      end: mockEnd,
-    });
+      end: mockEnd });
 
-    const tool = tools.find((t) => t.name === "proxysql_status")!;
+    const tool = tools.find((t) => t.name === "proxysql_status");
+      if (!tool) throw new Error('Tool not found');;
     const result = (await tool.handler({}, mockContext)) as {
       success: boolean;
       error: string;
@@ -743,8 +753,7 @@ describe("Crash Tests (all 12 handlers)", () => {
     // All tools will fail on query
     mockCreateConnection.mockResolvedValue({
       query: vi.fn().mockRejectedValue(new Error("ProxySQL unavailable")),
-      end: mockEnd,
-    });
+      end: mockEnd });
   });
 
   const toolNames = [
@@ -763,7 +772,8 @@ describe("Crash Tests (all 12 handlers)", () => {
 
   for (const toolName of toolNames) {
     it(`${toolName} should return { success: false, error } on query failure`, async () => {
-      const tool = tools.find((t) => t.name === toolName)!;
+      const tool = tools.find((t) => t.name === toolName);
+      if (!tool) throw new Error('Tool not found');;
       const params =
         toolName === "proxysql_commands"
           ? { command: "LOAD MYSQL USERS TO RUNTIME" }

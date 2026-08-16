@@ -14,16 +14,16 @@ export const BinlogEventsSchemaBase = z.object({
   binlog: z.string().optional().describe("Alias for logFile"),
   log_file: z.string().optional().describe("Alias for logFile"),
   name: z.string().optional().describe("Alias for logFile"),
-  position: z.number().optional().describe("Starting position"),
-  pos: z.number().optional().describe("Alias for position"),
-  start: z.number().optional().describe("Alias for position"),
+  position: z.unknown().optional().describe("Starting position"),
+  pos: z.unknown().optional().describe("Alias for position"),
+  start: z.unknown().optional().describe("Alias for position"),
   limit: z
-    .number()
+    .unknown()
     .optional()
     .describe(
       "Maximum events to return (default: 5). Set higher for more events.",
     ),
-});
+}).strict();
 
 export const BinlogEventsSchema = z.preprocess(
   preprocessBinlogEventsParams,
@@ -33,9 +33,17 @@ export const BinlogEventsSchema = z.preprocess(
       .min(1, "Invalid logFile: cannot be an empty string")
       .optional()
       .describe("Binlog file name (aliases: file, filename, fileName, binlog)"),
-    position: z.number().optional().describe("Starting position (alias: pos)"),
-    limit: z
+    position: z
+      .coerce
       .number()
+      .int("Invalid position: must be an integer")
+      .nonnegative("Invalid position: must be greater than or equal to 0")
+      .optional()
+      .describe("Starting position (alias: pos)"),
+    limit: z
+      .coerce
+      .number()
+      .int("Invalid limit: must be an integer")
       .nonnegative()
       .max(50, "Limit capped at 50 to prevent payload exhaustion")
       .optional()
@@ -43,7 +51,7 @@ export const BinlogEventsSchema = z.preprocess(
       .describe(
         "Maximum events to return (default: 5, max: 50). Set higher for more events.",
       ),
-  })
+  }).strict()
 );
 
 export const MasterStatusOutputSchema = BaseOutputSchema.extend({
@@ -55,6 +63,7 @@ export const MasterStatusOutputSchema = BaseOutputSchema.extend({
 export const SlaveStatusOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     status: z.record(z.string(), z.unknown()).optional(),
+    configured: z.boolean().optional(),
   }).loose().optional(),
 });
 
@@ -74,9 +83,9 @@ export const GtidStatusOutputSchema = BaseOutputSchema.extend({
 
 export const ReplicationLagOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    lagSeconds: z.unknown(),
-    ioRunning: z.unknown().optional(),
-    sqlRunning: z.unknown().optional(),
-    lastError: z.unknown().optional(),
+    lagSeconds: z.union([z.number(), z.null()]).optional(),
+    ioRunning: z.string().nullish(),
+    sqlRunning: z.string().nullish(),
+    lastError: z.string().nullish(),
   }).loose().optional(),
 });

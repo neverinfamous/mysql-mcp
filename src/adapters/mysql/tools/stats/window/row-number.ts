@@ -33,23 +33,28 @@ export function createStatsRowNumberTool(
       try {
         const parsed = StatsRowNumberSchema.parse(params);
 
-        if (!/^[a-zA-Z0-9_.]+$/.test(parsed.table)) {
+        const { parseQualifiedTable, validateQualifiedIdentifier, escapeQualifiedTable } = await import("../../../../../utils/validators.js");
+        const cleanTable = parseQualifiedTable(parsed.table);
+        const tableNameToValidate = cleanTable.schema ? `${cleanTable.schema}.${cleanTable.table}` : cleanTable.table;
+        try {
+          validateQualifiedIdentifier(tableNameToValidate);
+        } catch (e: unknown) {
           return withTokenEstimate({
             success: false,
-            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid table name",
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: e instanceof Error ? e.message : "Invalid table name",
           });
         }
         
         const fullTableName = parsed.database 
-          ? `\`${parsed.database}\`.\`${parsed.table}\`` 
-          : (parsed.table.includes('.') ? parsed.table.split('.').map(p => `\`${p}\``).join('.') : `\`${parsed.table}\``);
+          ? `\`${parsed.database}\`.${escapeQualifiedTable(parsed.table)}` 
+          : escapeQualifiedTable(parsed.table);
 
         const partition = partitionClause(parsed.partitionBy);
         // MySQL 8.0+ syntax
         const windowExpr = `ROW_NUMBER() OVER(${partition} ORDER BY ${parsed.orderBy})`;
 
         const sql = `
-          SELECT ${selectList(parsed.selectColumns, windowExpr, "row_number")}
+          SELECT ${selectList(parsed.selectColumns, windowExpr, parsed.asColumn)}
           FROM ${fullTableName}
           ${whereClause(parsed.where)}
           ORDER BY ${parsed.orderBy}

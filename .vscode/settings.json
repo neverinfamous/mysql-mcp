@@ -1,7 +1,4 @@
 {
-  // ═══════════════════════════════════════════════════════════════════════
-  // ESLint Configuration
-  // ═══════════════════════════════════════════════════════════════════════
   "eslint.enable": true,
   "eslint.useFlatConfig": true,
   "eslint.validate": [
@@ -13,18 +10,13 @@
     "jsonc",
     "markdown"
   ],
-  // Run ESLint on save (provides feedback to agent)
   "eslint.run": "onSave",
-  // Show severity inline
   "eslint.rules.customizations": [
     {
       "rule": "*",
       "severity": "warn"
     }
   ],
-  // ═══════════════════════════════════════════════════════════════════════
-  // Prettier Configuration
-  // ═══════════════════════════════════════════════════════════════════════
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "[typescript]": {
@@ -51,33 +43,27 @@
   "[css]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  // ═══════════════════════════════════════════════════════════════════════
-  // Error Lens Configuration
-  // ═══════════════════════════════════════════════════════════════════════
   "errorLens.enabled": true,
-  "errorLens.enabledDiagnosticLevels": ["error", "warning", "info"],
+  "errorLens.enabledDiagnosticLevels": [
+    "error",
+    "warning",
+    "info"
+  ],
   "errorLens.messageEnabled": true,
   "errorLens.statusBarMessageEnabled": true,
   "errorLens.gutterIconsEnabled": true,
-  // Delay to avoid flicker during active typing
   "errorLens.delay": 500,
-  // Exclude noisy hints if needed
   "errorLens.excludeBySource": [],
-  // ═══════════════════════════════════════════════════════════════════════
-  // TypeScript Configuration (Built-in)
-  // ═══════════════════════════════════════════════════════════════════════
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.suggest.autoImports": true,
   "typescript.tsdk": "node_modules/typescript/lib",
-  // ═══════════════════════════════════════════════════════════════════════
-  // Editor Behavior
-  // ═══════════════════════════════════════════════════════════════════════
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "never"
   },
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
-  "files.trimFinalNewlines": true
+  "files.trimFinalNewlines": true,
+  "terminal.external.windowsExec": "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
 }

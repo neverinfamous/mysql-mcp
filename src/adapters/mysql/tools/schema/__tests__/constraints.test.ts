@@ -1,20 +1,17 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { createListConstraintsTool } from "../constraints.js";
-import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
+import { setupSchemaTest } from "./setup.js";
 
 describe("Schema Constraint Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
   let mockContext: ReturnType<typeof createMockRequestContext>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockAdapter = createMockMySQLAdapter();
-    mockContext = createMockRequestContext();
+    ({ mockAdapter, mockContext } = setupSchemaTest());
   });
 
   describe("mysql_list_constraints", () => {
@@ -126,8 +123,7 @@ describe("Schema Constraint Tools", () => {
           {
             name: "fk_orders",
             type: "FOREIGN KEY",
-            referencedTable: "customers",
-          },
+            referencedTable: "customers" },
         ]),
       );
 

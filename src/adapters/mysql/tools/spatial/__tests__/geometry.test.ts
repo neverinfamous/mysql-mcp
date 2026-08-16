@@ -7,14 +7,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createSpatialPointTool,
-  createSpatialPolygonTool,
-} from "../geometry.js";
-import type {} from "../../../mysql-adapter/index.js";
+  createSpatialPolygonTool } from "../geometry.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Spatial Geometry Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -36,14 +33,15 @@ describe("Spatial Geometry Tools", () => {
     });
 
     it("should create point from coordinates", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([
-          {
-            wkt: "POINT(20 10)",
-            geoJson: '{"type":"Point","coordinates":[10,20]}',
-          },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ 1: 1 }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            {
+              wkt: "POINT(20 10)",
+              geoJson: '{"type":"Point","coordinates":[10,20]}' },
+          ]),
+        );
 
       const tool = createSpatialPointTool(
         mockAdapter,
@@ -53,33 +51,36 @@ describe("Spatial Geometry Tools", () => {
         mockContext,
       )) as { data: { wkt: string; geoJson: Record<string, unknown> } };
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const sql = mockAdapter.executeQuery.mock.calls[0][0];
-      const args = mockAdapter.executeQuery.mock.calls[0][1];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(2);
+      const sql = mockAdapter.executeReadQuery.mock.calls[1][0];
+      const args = mockAdapter.executeReadQuery.mock.calls[1][1];
       // With axis-order=long-lat, longitude comes first in POINT
       expect(args[0]).toBe("POINT(10 20)");
       expect(sql).toContain("axis-order=long-lat");
       expect(result.data.wkt).toBe("POINT(20 10)");
       expect(result.data.geoJson).toEqual({
         type: "Point",
-        coordinates: [10, 20],
-      });
+        coordinates: [10, 20] });
     });
 
     it("should use default SRID 4326", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ 1: 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createSpatialPointTool(
         mockAdapter,
       );
       await tool.handler({ longitude: 10, latitude: 20 }, mockContext);
 
-      const args = mockAdapter.executeQuery.mock.calls[0][1];
+      const args = mockAdapter.executeReadQuery.mock.calls[1][1];
       expect(args).toContain(4326);
     });
 
     it("should handle custom SRID", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ 1: 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createSpatialPointTool(
         mockAdapter,
@@ -89,7 +90,7 @@ describe("Spatial Geometry Tools", () => {
         mockContext,
       );
 
-      const args = mockAdapter.executeQuery.mock.calls[0][1];
+      const args = mockAdapter.executeReadQuery.mock.calls[1][1];
       expect(args).toContain(3857);
     });
   });
@@ -103,15 +104,16 @@ describe("Spatial Geometry Tools", () => {
     });
 
     it("should create polygon from coordinates", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([
-          {
-            wkt: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
-            geoJson: '{"type":"Polygon"}',
-            area: 100,
-          },
-        ]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ 1: 1 }]))
+        .mockResolvedValueOnce(
+          createMockQueryResult([
+            {
+              wkt: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
+              geoJson: '{"type":"Polygon"}',
+              area: 100 },
+          ]),
+        );
 
       const tool = createSpatialPolygonTool(
         mockAdapter,
@@ -130,11 +132,11 @@ describe("Spatial Geometry Tools", () => {
         data: { wkt: string; area: number };
       };
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(2);
+      const call = mockAdapter.executeReadQuery.mock.calls[1][0];
       // Now using axis-order=long-lat for correct coordinate handling
       expect(call).toContain("axis-order=long-lat");
-      const args = mockAdapter.executeQuery.mock.calls[0][1];
+      const args = mockAdapter.executeReadQuery.mock.calls[1][1];
       expect(args[0]).toBe("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))");
 
       expect(result.data.wkt).toBe("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))");

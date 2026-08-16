@@ -33,28 +33,35 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeReadQuery(sql, [json1, json2]);
 
         const merged = result.rows?.[0]?.["merged"];
+        let truncated = false;
+        
+        let finalResult: unknown = merged;
+        const mergedStr = typeof merged === "string" ? merged : JSON.stringify(merged);
+
+        if (mergedStr && mergedStr.length > 5000) {
+          finalResult = mergedStr.substring(0, 5000) + "... (truncated)";
+          truncated = true;
+        } else if (typeof merged === "string") {
+          try {
+            finalResult = JSON.parse(merged);
+          } catch {
+            finalResult = merged;
+          }
+        }
+        
         return withTokenEstimate({
           success: true,
           data: {
-            result:
-              typeof merged === "string"
-                ? (() => {
-                    try {
-                      const parsed = JSON.parse(merged) as unknown;
-                      return parsed;
-                    } catch {
-                      return merged;
-                    }
-                  })()
-                : merged,
+            result: finalResult,
             mode,
+            ...(truncated ? { truncated: true } : {}),
           },
         });
       } catch (err: unknown) {
         if (err instanceof ZodError) {
-          return formatHandlerErrorResponse(err);
+          return formatHandlerErrorResponse(err, { module: "json", tool: "mysql_json_merge" });
         }
-        return formatHandlerErrorResponse(err);
+        return formatHandlerErrorResponse(err, { module: "json", tool: "mysql_json_merge" });
       }
     },
   };

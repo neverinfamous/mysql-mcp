@@ -9,7 +9,7 @@ function preprocessFulltextParams(val: unknown): unknown {
   const v1 = preprocessTableParams(val);
   const v2 = preprocessQueryOnlyParams(v1);
   if (v2 !== null && typeof v2 === "object") {
-    const v = v2 as Record<string, unknown>;
+    const v = { ...(v2 as Record<string, unknown>) };
     // Agents often pass fulltextSearch(table, query, columns) resulting in:
     // columns = query (string), query = columns (array)
     if (typeof v["columns"] === "string" && Array.isArray(v["query"])) {
@@ -23,13 +23,20 @@ function preprocessFulltextParams(val: unknown): unknown {
       v["columns"] = v["sql"];
       v["sql"] = temp;
     }
-    // If it is just a string, wrap it in an array
+    // If it is just a string, split by comma and wrap in an array
     else if (typeof v["columns"] === "string") {
-      v["columns"] = [v["columns"]];
+      v["columns"] = v["columns"].split(",").map((s: string) => s.trim());
     }
     
-    if (typeof v["col"] === "string") v["col"] = [v["col"]];
-    if (typeof v["column"] === "string") v["column"] = [v["column"]];
+    if (typeof v["col"] === "string") v["col"] = v["col"].split(",").map((s: string) => s.trim());
+    if (typeof v["column"] === "string") v["column"] = v["column"].split(",").map((s: string) => s.trim());
+    
+    // Fallback if query was passed as an array but didn't trigger the swap
+    if (Array.isArray(v["query"])) v["query"] = v["query"].join(" ");
+    if (Array.isArray(v["sql"])) v["sql"] = v["sql"].join(" ");
+    if (Array.isArray(v["search"])) v["search"] = v["search"].join(" ");
+    
+    return v;
   }
   return v2;
 }
@@ -37,10 +44,11 @@ function preprocessFulltextParams(val: unknown): unknown {
 function preprocessFulltextCreateParams(val: unknown): unknown {
   const v = defaultToEmpty(val);
   if (v !== null && typeof v === "object") {
-    const obj = v as Record<string, unknown>;
-    if (typeof obj["columns"] === "string") obj["columns"] = [obj["columns"]];
-    if (typeof obj["col"] === "string") obj["col"] = [obj["col"]];
-    if (typeof obj["column"] === "string") obj["column"] = [obj["column"]];
+    const obj = { ...(v as Record<string, unknown>) };
+    if (typeof obj["columns"] === "string") obj["columns"] = obj["columns"].split(",").map((s: string) => s.trim());
+    if (typeof obj["col"] === "string") obj["col"] = obj["col"].split(",").map((s: string) => s.trim());
+    if (typeof obj["column"] === "string") obj["column"] = obj["column"].split(",").map((s: string) => s.trim());
+    return obj;
   }
   return v;
 }
@@ -50,13 +58,15 @@ export const FulltextCreateSchemaBase = z.object({
   table: z.string().optional().describe("Table name. REQUIRED."),
   tableName: z.string().optional().describe("Alias for table"),
   columns: z
-    .array(z.string())
+    .union([z.string(), z.array(z.string())])
     .optional()
     .describe("Columns to include in index. REQUIRED. Note: must be an array (e.g. ['col1'])."),
   indexName: z.string().optional().describe("Optional index name"),
   index_name: z.string().optional().describe("Alias for indexName"),
   name: z.string().optional().describe("Alias for indexName"),
   index: z.string().optional().describe("Alias for indexName"),
+  col: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
+  column: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
 });
 
 export const FulltextCreateSchema = z
@@ -67,6 +77,8 @@ export const FulltextCreateSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       columns: z.array(z.string()).optional(),
+      col: z.array(z.string()).optional(),
+      column: z.array(z.string()).optional(),
       indexName: z.string().optional(),
       index_name: z.string().optional(),
       index: z.string().optional(),
@@ -74,7 +86,7 @@ export const FulltextCreateSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? "",
-    columns: data.columns ?? [],
+    columns: data.columns ?? data.col ?? data.column ?? [],
     indexName: data.indexName ?? data.index_name ?? data.index ?? data.name,
   }))
   .refine((data) => data.table !== "", {
@@ -89,12 +101,12 @@ export const FulltextSearchSchemaBase = z.object({
   table: z.string().optional().describe("Table name. REQUIRED."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
-  col: z.array(z.string()).optional().describe("Alias for columns"),
-  column: z.array(z.string()).optional().describe("Alias for columns"),
-  query: z.string().optional().describe("Search query. REQUIRED. Note: must be a string, not an array."),
-  sql: z.string().optional().describe("Alias for query"),
-  search: z.string().optional().describe("Alias for query"),
+  columns: z.union([z.string(), z.array(z.string())]).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
+  col: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
+  column: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
+  query: z.union([z.string(), z.array(z.string())]).optional().describe("Search query. REQUIRED. Note: must be a string, not an array."),
+  sql: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for query"),
+  search: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for query"),
   mode: z
     .enum(["NATURAL", "BOOLEAN", "EXPANSION"])
     .optional()
@@ -157,16 +169,18 @@ export const FulltextSearchSchema = z
     message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.columns.length > 0, { message: "columns is required" })
+  .refine((data) => data.query !== "", { message: "query (or search/sql alias) is required" })
   .refine(
     (data) =>
       data.maxLength === undefined ||
-      (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "Validation error: maxLength must be a positive number" },
+      (!Number.isNaN(data.maxLength) && Number.isInteger(data.maxLength) && data.maxLength > 0),
+    { message: "maxLength must be a positive integer" },
   )
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );
 
 // --- FulltextDrop ---
@@ -210,15 +224,15 @@ export const FulltextBooleanSchemaBase = z.object({
   table: z.string().optional().describe("Table name. REQUIRED."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
-  col: z.array(z.string()).optional().describe("Alias for columns"),
-  column: z.array(z.string()).optional().describe("Alias for columns"),
+  columns: z.union([z.string(), z.array(z.string())]).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
+  col: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
+  column: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
   query: z
-    .string()
+    .union([z.string(), z.array(z.string())])
     .optional()
     .describe("Boolean search query with +, -, *, etc. REQUIRED. Note: must be a string, not an array."),
-  sql: z.string().optional().describe("Alias for query"),
-  search: z.string().optional().describe("Alias for query"),
+  sql: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for query"),
+  search: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for query"),
   maxLength: z
     .unknown()
     .optional()
@@ -271,16 +285,18 @@ export const FulltextBooleanSchema = z
     message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.columns.length > 0, { message: "columns is required" })
+  .refine((data) => data.query !== "", { message: "query (or search/sql alias) is required" })
   .refine(
     (data) =>
       data.maxLength === undefined ||
-      (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "Validation error: maxLength must be a positive number" },
+      (!Number.isNaN(data.maxLength) && Number.isInteger(data.maxLength) && data.maxLength > 0),
+    { message: "maxLength must be a positive integer" },
   )
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );
 
 // --- FulltextExpand ---
@@ -288,12 +304,12 @@ export const FulltextExpandSchemaBase = z.object({
   table: z.string().optional().describe("Table name. REQUIRED."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
-  col: z.array(z.string()).optional().describe("Alias for columns"),
-  column: z.array(z.string()).optional().describe("Alias for columns"),
-  query: z.string().optional().describe("Search query to expand. REQUIRED. Note: must be a string, not an array."),
-  sql: z.string().optional().describe("Alias for query"),
-  search: z.string().optional().describe("Alias for query"),
+  columns: z.union([z.string(), z.array(z.string())]).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
+  col: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
+  column: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
+  query: z.union([z.string(), z.array(z.string())]).optional().describe("Search query to expand. REQUIRED. Note: must be a string, not an array."),
+  sql: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for query"),
+  search: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for query"),
   maxLength: z
     .unknown()
     .optional()
@@ -346,14 +362,16 @@ export const FulltextExpandSchema = z
     message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.columns.length > 0, { message: "columns is required" })
+  .refine((data) => data.query !== "", { message: "query (or search/sql alias) is required" })
   .refine(
     (data) =>
       data.maxLength === undefined ||
-      (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "Validation error: maxLength must be a positive number" },
+      (!Number.isNaN(data.maxLength) && Number.isInteger(data.maxLength) && data.maxLength > 0),
+    { message: "maxLength must be a positive integer" },
   )
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );

@@ -1,16 +1,18 @@
-import type { McpServer as SdkMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { SubscribeRequestSchema, UnsubscribeRequestSchema, McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
+import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
+import type { McpServer as SdkMcpServer } from "@modelcontextprotocol/server";
 import type { SubscriptionManager } from "../subscription-manager.js";
 
 export function setupSubscriptions(server: SdkMcpServer, subscriptionManager: SubscriptionManager): void {
   // Handle subscribe request
   server.server.setRequestHandler(
-    SubscribeRequestSchema,
-    (request, extra) => {
+    'resources/subscribe',
+    (request, ctx) => {
       const uri = request.params.uri;
       let sessionId =
-        extra.sessionId ??
-        extra.requestInfo?.headers["mcp-session-id"] ??
+        ctx.sessionId ??
+        (typeof ctx.http?.req?.headers?.get === 'function' 
+          ? (ctx.http.req.headers.get("mcp-session-id") as string | undefined) 
+          : ((ctx.http?.req?.headers as unknown) as Record<string, string | undefined>)?.["mcp-session-id"]) ??
         undefined;
 
       sessionId ??= "default";
@@ -22,15 +24,15 @@ export function setupSubscriptions(server: SdkMcpServer, subscriptionManager: Su
         ) &&
         !uri.startsWith("mysql://table/")
       ) {
-        throw new McpError(
-          ErrorCode.InvalidParams,
+        throw new ProtocolError(
+          ProtocolErrorCode.InvalidParams,
           `Resource ${uri} is not subscribable`,
         );
       }
 
       subscriptionManager.subscribe(
         uri,
-        sessionId as string | undefined,
+        sessionId,
       );
       return {};
     },
@@ -38,19 +40,21 @@ export function setupSubscriptions(server: SdkMcpServer, subscriptionManager: Su
 
   // Handle unsubscribe request
   server.server.setRequestHandler(
-    UnsubscribeRequestSchema,
-    (request, extra) => {
+    'resources/unsubscribe',
+    (request, ctx) => {
       const uri = request.params.uri;
       let sessionId =
-        extra.sessionId ??
-        extra.requestInfo?.headers["mcp-session-id"] ??
+        ctx.sessionId ??
+        (typeof ctx.http?.req?.headers?.get === 'function' 
+          ? (ctx.http.req.headers.get("mcp-session-id") as string | undefined) 
+          : ((ctx.http?.req?.headers as unknown) as Record<string, string | undefined>)?.["mcp-session-id"]) ??
         undefined;
 
       sessionId ??= "default";
 
       subscriptionManager.unsubscribe(
         uri,
-        sessionId as string | undefined,
+        sessionId,
       );
       return {};
     },

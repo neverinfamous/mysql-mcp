@@ -11,6 +11,7 @@ import { WindowFunctionOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { StatsLagLeadSchemaBase, StatsLagLeadSchema } from "./schemas.js";
 import { selectList, partitionClause, whereClause } from "./helpers.js";
+import { validateWhereClause } from "../../../../../utils/validators.js";
 
 // =============================================================================
 // LAG / LEAD
@@ -31,22 +32,35 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const parsed = StatsLagLeadSchema.parse(params);
 
-        if (!/^[a-zA-Z0-9_.]+$/.test(parsed.table)) {
+        const { parseQualifiedTable, validateQualifiedIdentifier, escapeQualifiedTable } = await import("../../../../../utils/validators.js");
+        const cleanTable = parseQualifiedTable(parsed.table);
+        const tableNameToValidate = cleanTable.schema ? `${cleanTable.schema}.${cleanTable.table}` : cleanTable.table;
+        try {
+          validateQualifiedIdentifier(tableNameToValidate);
+        } catch (e: unknown) {
           return withTokenEstimate({
             success: false,
-            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid table name",
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: e instanceof Error ? e.message : "Invalid table name",
           });
         }
         
         const fullTableName = parsed.database 
-          ? `\`${parsed.database}\`.\`${parsed.table}\`` 
-          : (parsed.table.includes('.') ? parsed.table.split('.').map(p => `\`${p}\``).join('.') : `\`${parsed.table}\``);
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.column)) {
+          ? `\`${parsed.database}\`.${escapeQualifiedTable(parsed.table)}` 
+          : escapeQualifiedTable(parsed.table);
+        const cleanColumn = parseQualifiedTable(parsed.column);
+        const columnToValidate = cleanColumn.schema ? `${cleanColumn.schema}.${cleanColumn.table}` : cleanColumn.table;
+        try {
+          validateQualifiedIdentifier(columnToValidate, "column");
+        } catch (e: unknown) {
           return withTokenEstimate({
             success: false,
-            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid column name",
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: e instanceof Error ? e.message : "Invalid column name",
           });
         }
+
+        validateWhereClause(parsed.where);
+        validateWhereClause(parsed.orderBy);
+        validateWhereClause(parsed.partitionBy);
 
         const partition = partitionClause(parsed.partitionBy);
         const fnName = parsed.direction.toUpperCase();
@@ -55,7 +69,8 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
             ? `, '${parsed.defaultValue.replace(/'/g, "''")}'`
             : "";
 
-        const windowExpr = `${fnName}(\`${parsed.column}\`, ${String(parsed.offset)}${defaultArg}) OVER(${partition} ORDER BY ${parsed.orderBy})`;
+        const escapedColumn = escapeQualifiedTable(parsed.column);
+        const windowExpr = `${fnName}(${escapedColumn}, ${String(parsed.offset)}${defaultArg}) OVER(${partition} ORDER BY ${parsed.orderBy})`;
         const alias = `${parsed.direction}_value`;
 
         const sql = `

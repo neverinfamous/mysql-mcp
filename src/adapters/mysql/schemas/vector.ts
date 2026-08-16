@@ -55,7 +55,7 @@ const distanceAliasesBase = {
 };
 
 const metricParamBase = z
-  .enum(["COSINE", "EUCLIDEAN", "DOT"])
+  .string()
   .optional()
   .describe("Distance metric: 'COSINE', 'EUCLIDEAN', or 'DOT' (default: 'COSINE')");
 const filterParamBase = z
@@ -101,7 +101,7 @@ export const VectorStoreSchema = z
   table: tableParam,
   column: columnParam,
   id: idParam,
-  vector: z.array(z.number()).min(1, "Vector cannot be empty").describe("Vector embedding as an array of numbers"),
+  vector: z.array(z.number()).min(1, "Vector cannot be empty").max(16383, "Maximum vector dimensions is 16383").describe("Vector embedding as an array of numbers"),
   idColumn: idColumnParam,
 })
   );
@@ -110,9 +110,15 @@ export const VectorBatchStoreSchemaBase = z.object({
   ...tableAliasesBase,
   ...columnAliasesBase,
   items: z.array(z.object({ 
-    id: z.union([z.string(), z.number()]), 
-    vector: z.array(z.number()) 
-  })).optional().describe("Array of objects with 'id' and 'vector' fields"),
+    id: z.union([z.string(), z.number()]).optional(), 
+    rowId: z.union([z.string(), z.number()]).optional(),
+    recordId: z.union([z.string(), z.number()]).optional(),
+    vector: z.array(z.number()).optional(),
+    queryVector: z.array(z.number()).optional(),
+    query: z.union([z.string(), z.array(z.number())]).optional(),
+    sql: z.union([z.string(), z.array(z.number())]).optional(),
+    search: z.union([z.string(), z.array(z.number())]).optional(),
+  })).optional().describe("Array of objects with 'id' and 'vector' fields (aliases supported)"),
   ...idColumnAliasesBase,
 });
 
@@ -124,8 +130,8 @@ export const VectorBatchStoreSchema = z
   column: columnParam,
   items: z.array(z.object({
     id: idParam,
-    vector: z.array(z.number()).min(1, "Vector cannot be empty")
-  })).min(1, "Items array cannot be empty").describe("Array of objects with 'id' and 'vector' fields"),
+    vector: z.array(z.number()).min(1, "Vector cannot be empty").max(16383, "Maximum vector dimensions is 16383")
+  })).min(1, "Items array cannot be empty").max(1000, "Maximum batch size is 1000").describe("Array of objects with 'id' and 'vector' fields"),
   idColumn: idColumnParam,
 })
   );
@@ -173,6 +179,7 @@ export const VectorSearchSchemaBase = z.object({
   ...columnAliasesBase,
   ...queryVectorAliasesBase,
   k: z.number().optional().describe("Number of nearest neighbors to return (default: 10)"),
+  limit: z.number().optional().describe("Alias for k"),
   metric: metricParamBase,
   filter: filterParamBase,
   select: z.array(z.string()).optional().describe("Array of additional column names to return alongside the distance score"),
@@ -184,7 +191,7 @@ export const VectorSearchSchema = z
     z.object({
   table: tableParam,
   column: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
-  queryVector: z.array(z.number()).min(1, "Query vector cannot be empty"),
+  queryVector: z.array(z.number()).min(1, "Query vector cannot be empty").max(16383, "Maximum vector dimensions is 16383"),
   k: z.number().int().positive().max(1000).optional().default(10),
   metric: metricParam,
   filter: filterParam,
@@ -199,6 +206,7 @@ export const VectorRangeSearchSchemaBase = z.object({
   ...distanceAliasesBase,
   metric: metricParamBase,
   limit: z.number().optional().describe("Maximum number of results to return (default: 50)"),
+  k: z.number().optional().describe("Alias for limit"),
   filter: filterParamBase,
   select: z.array(z.string()).optional().describe("Array of additional column names to return alongside the distance score"),
 });
@@ -209,7 +217,7 @@ export const VectorRangeSearchSchema = z
     z.object({
   table: tableParam,
   column: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
-  queryVector: z.array(z.number()).min(1, "Query vector cannot be empty"),
+  queryVector: z.array(z.number()).min(1, "Query vector cannot be empty").max(16383, "Maximum vector dimensions is 16383"),
   maxDistance: z.number().nonnegative("Distance threshold must be non-negative"),
   metric: metricParam,
   limit: z.number().int().positive().max(1000).optional().default(50),
@@ -227,7 +235,8 @@ export const VectorHybridSearchSchemaBase = z.object({
   ...queryVectorAliasesBase,
   queryText: z.string().optional().describe("Natural language search query (Note: Pass queryText, not sql)"),
   k: z.number().optional().describe("Number of fused results to return (default: 10)"),
-  metric: z.enum(["COSINE", "EUCLIDEAN", "DOT"]).optional().describe("Distance metric: 'COSINE', 'EUCLIDEAN', or 'DOT' (default: 'COSINE')"),
+  limit: z.number().optional().describe("Alias for k"),
+  metric: metricParamBase,
   rrfK: z.number().optional().describe("RRF smoothing constant (default: 60). Lower = more weight to top ranks"),
   vectorWeight: z.number().optional().describe("Weight for vector score in RRF (0.0 to 1.0, default: 0.5)"),
   textWeight: z.number().optional().describe("Weight for text score in RRF (0.0 to 1.0, default: 0.5)"),
@@ -242,7 +251,7 @@ export const VectorHybridSearchSchema = z
   table: tableParam,
   vectorColumn: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
   textColumn: z.string().min(1, "Text column name cannot be empty"),
-  queryVector: z.array(z.number()).min(1).optional(),
+  queryVector: z.array(z.number()).min(1, "Query vector cannot be empty").max(16383, "Maximum vector dimensions is 16383").optional(),
   queryText: z.string().optional(),
   k: z.number().int().positive().max(1000).optional().default(10),
   metric: metricParam,
@@ -279,8 +288,6 @@ export const VectorInfoSchema = z
 export const VectorCreateIndexSchemaBase = z.object({
   ...tableAliasesBase,
   ...columnAliasesBase,
-  metric: metricParamBase,
-  type: z.enum(["HNSW"]).optional().describe("Vector index type (default: 'HNSW')"),
 });
 
 export const VectorCreateIndexSchema = z
@@ -289,8 +296,6 @@ export const VectorCreateIndexSchema = z
     z.object({
   table: tableParam,
   column: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
-  metric: metricParam,
-  type: z.enum(["HNSW"]).optional().default("HNSW"),
 })
   );
 
@@ -411,7 +416,6 @@ export const VectorCreateIndexOutputSchema = BaseOutputSchema.extend({
     table: z.string(),
     column: z.string(),
     indexName: z.string(),
-    metric: z.string(),
   }).loose().optional(),
 });
 

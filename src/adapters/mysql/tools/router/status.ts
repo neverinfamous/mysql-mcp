@@ -4,6 +4,8 @@ import {
   RouterBaseInputSchema,
   RouterStatusOutputSchema,
   RouterRoutesOutputSchema,
+  RouterStatusResponseSchema,
+  RouteListSchema,
 } from "../../schemas/router.js";
 import { safeRouterFetch } from "./utils.js";
 
@@ -33,7 +35,7 @@ export function createRouterStatusTool(): ToolDefinition {
         }
         return withTokenEstimate({
           success: true,
-          data: result.data,
+          data: RouterStatusResponseSchema.parse(result.data),
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -68,7 +70,7 @@ export function createRouterRoutesTool(): ToolDefinition {
         }
         return withTokenEstimate({
           success: true,
-          data: result.data,
+          data: RouteListSchema.parse(result.data),
         });
       } catch (err) {
         return formatHandlerErrorResponse(err);

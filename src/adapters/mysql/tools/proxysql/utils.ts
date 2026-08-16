@@ -1,5 +1,6 @@
 import mysql from "mysql2/promise";
 import type { ProxySQLConfig } from "../../schemas/proxysql.js";
+import { execSync } from "node:child_process";
 
 export const LIKE_SAFE_RE = /^[a-zA-Z0-9_%\-. *]+$/;
 
@@ -18,31 +19,62 @@ export async function proxySQLQuery(
 ): Promise<Record<string, unknown>[]> {
   const cfg = config ?? getProxySQLConfig();
 
-  const connection = await mysql.createConnection({
-    host: cfg.host,
-    port: cfg.port,
-    user: cfg.user,
-    password: cfg.password,
-  });
+  const attemptHosts = [cfg.host];
 
-  try {
-    const [rows] = await connection.query(sql);
-    const validRows: Record<string, unknown>[] = [];
-    if (Array.isArray(rows)) {
-      for (const r of rows) {
-        if (typeof r === "object" && r !== null) {
-          const rec: Record<string, unknown> = {};
-          for (const [k, v] of Object.entries(r)) {
-            rec[k] = v;
+  // Windows native WSL fallback: If host is localhost/127.0.0.1 and we are on Windows,
+  // we may encounter ECONNREFUSED due to WSL2 port forwarding issues.
+  if (
+    process.platform === "win32" &&
+    (cfg.host === "127.0.0.1" || cfg.host === "localhost")
+  ) {
+    try {
+      const output = execSync("wsl hostname -I", { encoding: "utf8" });
+      const ip = output.trim().split(/\s+/)[0];
+      if (ip && /^\d+\.\d+\.\d+\.\d+$/.test(ip)) {
+        attemptHosts.push(ip);
+      }
+    } catch {
+      // Ignore error if wsl is not available
+    }
+  }
+
+  let lastError: unknown;
+
+  for (const host of attemptHosts) {
+    let connection;
+    try {
+      connection = await mysql.createConnection({
+        host,
+        port: cfg.port,
+        user: cfg.user,
+        password: cfg.password,
+      });
+
+      const [rows] = await connection.query(sql);
+      const validRows: Record<string, unknown>[] = [];
+      if (Array.isArray(rows)) {
+        for (const r of rows) {
+          if (typeof r === "object" && r !== null) {
+            const rec: Record<string, unknown> = {};
+            for (const [k, v] of Object.entries(r)) {
+              rec[k] = v;
+            }
+            validRows.push(rec);
           }
-          validRows.push(rec);
         }
       }
+      return validRows;
+    } catch (error) {
+      lastError = error;
+      // Continue to the next host
+    } finally {
+      if (connection) {
+        await connection.end();
+      }
     }
-    return validRows;
-  } finally {
-    await connection.end();
   }
+
+  throw lastError;
 }
 
 const SENSITIVE_VARIABLE_PATTERNS = [/password/i, /credentials/i];

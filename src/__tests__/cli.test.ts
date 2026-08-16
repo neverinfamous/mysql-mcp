@@ -30,17 +30,27 @@ vi.mock("../adapters/mysql/mysql-adapter/index.js", () => ({
   MySQLAdapter: mocks.MySQLAdapter,
 }));
 
+// Mock output module — cliError/cliInfo write to stderr, cliFatal throws (simulating process.exit)
+vi.mock("../cli/output.js", () => ({
+  cliError: vi.fn(),
+  cliInfo: vi.fn(),
+  cliWarn: vi.fn(),
+  cliVersion: vi.fn(),
+  cliFatal: vi.fn((_msg: string, _err?: unknown) => {
+    throw new Error(`process.exit(1)`);
+  }),
+}));
+
+import { cliError, cliInfo, cliFatal } from "../cli/output.js";
+// Ensure TS sees these mocked imports as used (they're passed to expect())
+void cliError; void cliInfo; void cliFatal;
+
 // Mock process.exit
 const mockExit = vi
   .spyOn(process, "exit")
-  .mockImplementation((code?: number | string | null | undefined) => {
+  .mockImplementation((code?: number | string | null  ) => {
     throw new Error(`process.exit(${code})`);
   });
-
-// Mock console.error
-const mockConsoleError = vi
-  .spyOn(console, "error")
-  .mockImplementation(() => {});
 
 // Fix: Use a regular function for implementation so it can be called with 'new'
 const mockMySQLAdapterImplementation = function () {
@@ -242,8 +252,9 @@ describe("CLI", () => {
         }),
       ).rejects.toThrow("process.exit(1)");
 
-      expect(mockConsoleError).toHaveBeenCalledWith(
-        expect.stringContaining("No database connection specified"),
+      expect(cliError).toHaveBeenCalledWith(
+        "No database connection specified",
+        expect.stringContaining("--mysql"),
       );
     });
 
@@ -263,7 +274,7 @@ describe("CLI", () => {
       expect(mocks.serverInstance.start).toHaveBeenCalled();
     });
 
-    it("should handle startup error", async () => {
+    it("should handle startup error via cliFatal", async () => {
       mocks.serverInstance.start.mockRejectedValue(new Error("Startup failed"));
 
       await expect(
@@ -276,8 +287,8 @@ describe("CLI", () => {
         }),
       ).rejects.toThrow("process.exit(1)");
 
-      expect(mockConsoleError).toHaveBeenCalledWith(
-        "Fatal error:",
+      expect(cliFatal).toHaveBeenCalledWith(
+        "Server startup failed",
         expect.any(Error),
       );
     });
@@ -295,7 +306,7 @@ describe("CLI", () => {
         },
       });
 
-      expect(mockConsoleError).toHaveBeenCalledWith(
+      expect(cliInfo).toHaveBeenCalledWith(
         "OAuth authentication enabled",
       );
     });
@@ -348,9 +359,7 @@ describe("CLI", () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(mocks.serverInstance.stop).toHaveBeenCalled();
-      expect(mockConsoleError).toHaveBeenCalledWith(
-        expect.stringContaining("Shutting down"),
-      );
+      expect(cliInfo).toHaveBeenCalledWith("Shutting down...");
       expect(mockExit).toHaveBeenCalledWith(0);
 
       onSpy.mockRestore();

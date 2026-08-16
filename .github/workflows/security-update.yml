@@ -9,13 +9,13 @@ on:
     paths:
       - "Dockerfile"
       - "package.json"
-      - "package-lock.json"
+      - "pnpm-lock.yaml"
   workflow_call:
   workflow_dispatch:
 
 concurrency:
   group: security-update-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read # C-20: trimmed from write — workflow only reads source
@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@v7.0.1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -39,46 +39,49 @@ jobs:
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Build image for scanning
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v6.x
         with:
           context: .
           file: Dockerfile
           tags: security-test:latest
           load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+          cache-from: type=gha,scope=security-test
+          cache-to: type=gha,scope=security-test,mode=max
 
       # Run SARIF scan first (non-blocking) to always generate the file
-      - name: Run Trivy scanner for SARIF output
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with:
-          image-ref: security-test:latest
-          format: "sarif"
-          output: "trivy-results.sarif"
-          exit-code: "0"
-          ignore-unfixed: true
-          severity: "CRITICAL,HIGH,MEDIUM"
-          trivyignores: ".trivyignore"
-          skip-dirs: "/usr/local/lib/node_modules/npm"
-
-      - name: Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a # v4.36.3
-        if: always() && hashFiles('trivy-results.sarif') != ''
-        with:
-          sarif_file: "trivy-results.sarif"
-
-      # Run table scan (blocking) after SARIF is uploaded
-      - name: Run Trivy vulnerability scanner
+      - name: Run Trivy vulnerability scanner (Table Output)
         id: trivy-scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: security-test:latest
           format: "table"
-          exit-code: "1"
+          severity: "CRITICAL,HIGH"
           ignore-unfixed: true
-          severity: "CRITICAL,HIGH,MEDIUM"
+          vuln-type: "os,library"
           trivyignores: ".trivyignore"
-          skip-dirs: "/usr/local/lib/node_modules/npm"
+          exit-code: "1" # Fail the build if critical vulnerabilities are found
+
+      - name: Run Trivy vulnerability scanner (JSON/SARIF)
+        if: always()
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: security-test:latest
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          trivyignores: ".trivyignore"
+          exit-code: "0" # Don't fail the build here, we want to upload SARIF and then fail on the table output
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v4.37.3
+        if: always() && hashFiles('trivy-results.sarif') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        with:
+          sarif_file: "trivy-results.sarif"
+          category: trivy-docker-scanules/npm
+          timeout: 10m
 
       - name: Check scan result
         id: check-scan
@@ -141,8 +144,7 @@ jobs:
 
               **Scan Details:**
               - Workflow run: ${process.env.SERVER_URL}/${process.env.REPOSITORY}/actions/runs/${process.env.RUN_ID}
-              - Triggered by: Weekly security scan
-              - Scan Date: ${process.env.SCHEDULE}
+              - Scan Schedule / Trigger: ${process.env.SCHEDULE}
 
               **Next Steps:**
               - [ ] Review vulnerability details

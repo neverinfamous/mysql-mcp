@@ -4,8 +4,7 @@ import { booleanCoerce } from "./base.js";
 export const ShellDumpInstanceInputSchemaBase = z
   .object({
     outputDir: z
-      .string()
-      .optional()
+      .string().optional()
       .describe("Output directory for dump (must be empty or non-existent)"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     url: z.string().optional().describe("Alias for outputDir"),
@@ -13,13 +12,13 @@ export const ShellDumpInstanceInputSchemaBase = z
     filepath: z.string().optional().describe("Alias for outputDir"),
     dir: z.string().optional().describe("Alias for outputDir"),
     directory: z.string().optional().describe("Alias for outputDir"),
-    threads: z
-      .number()
-      .int()
-      .min(1)
-      .max(128)
-      .optional()
-      .default(4)
+    threads: z.preprocess((val: unknown) => {
+      if (typeof val === "string" && val.trim() !== "") {
+        const parsed = Number(val);
+        if (!isNaN(parsed)) return parsed;
+      }
+      return val;
+    }, z.number().int().min(1).max(128).optional().default(4))
       .describe("Number of parallel threads"),
     compression: z
       .enum(["none", "zstd", "gzip"])
@@ -34,10 +33,12 @@ export const ShellDumpInstanceInputSchemaBase = z
       .array(z.string())
       .optional()
       .describe("Schemas to include (default: all non-system)"),
+    includeSchema: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for includeSchemas"),
     excludeSchemas: z
       .array(z.string())
       .optional()
       .describe("Schemas to exclude"),
+    excludeSchema: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for excludeSchemas"),
     consistent: booleanCoerce
       .optional()
       .default(true)
@@ -52,14 +53,31 @@ export const ShellDumpInstanceInputSchemaBase = z
 export const ShellDumpInstanceInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; filepath?: unknown; dir?: unknown; directory?: unknown };
+    const obj = val as { outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; filepath?: unknown; dir?: unknown; directory?: unknown; includeSchemas?: unknown; includeSchema?: unknown; excludeSchemas?: unknown; excludeSchema?: unknown };
+    
+    const rawIncludeSchemas = obj.includeSchemas ?? obj.includeSchema;
+    const includeSchemasArray = Array.isArray(rawIncludeSchemas) 
+      ? rawIncludeSchemas.map(String) 
+      : typeof rawIncludeSchemas === "string" 
+        ? [rawIncludeSchemas] 
+        : undefined;
+
+    const rawExcludeSchemas = obj.excludeSchemas ?? obj.excludeSchema;
+    const excludeSchemasArray = Array.isArray(rawExcludeSchemas) 
+      ? rawExcludeSchemas.map(String) 
+      : typeof rawExcludeSchemas === "string" 
+        ? [rawExcludeSchemas] 
+        : undefined;
+
     return {
       ...obj,
       outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path ?? obj.filepath ?? obj.dir ?? obj.directory,
+      includeSchemas: includeSchemasArray,
+      excludeSchemas: excludeSchemasArray,
     };
   },
   ShellDumpInstanceInputSchemaBase
-);
+).refine((data) => data.outputDir != null && data.outputDir !== "", { message: "outputDir or outputUrl is required" });
 
 export const ShellDumpSchemasInputSchemaBase = z
   .object({
@@ -74,13 +92,13 @@ export const ShellDumpSchemasInputSchemaBase = z
     url: z.string().optional().describe("Alias for outputDir"),
     path: z.string().optional().describe("Alias for outputDir"),
     filepath: z.string().optional().describe("Alias for outputDir"),
-    threads: z
-      .number()
-      .int()
-      .min(1)
-      .max(128)
-      .optional()
-      .default(4)
+    threads: z.preprocess((val: unknown) => {
+      if (typeof val === "string" && val.trim() !== "") {
+        const parsed = Number(val);
+        if (!isNaN(parsed)) return parsed;
+      }
+      return val;
+    }, z.number().int().min(1).max(128).optional().default(4))
       .describe("Number of parallel threads"),
     compression: z
       .enum(["none", "zstd", "gzip"])
@@ -148,14 +166,15 @@ export const ShellDumpSchemasInputSchema = z.preprocess(
   .transform((data) => ({ ...data, schemas: data.schemas ?? [] }))
   .refine((data) => data.schemas.length > 0, {
     message: "At least one schema name is required",
-  });
+  })
+  .refine((data) => data.outputDir != null && data.outputDir !== "", { message: "outputDir or outputUrl is required" });
 
 export const ShellDumpTablesInputSchemaBase = z
   .object({
     schema: z.string().optional().describe("Schema containing tables"),
     schemaName: z.string().optional().describe("Alias for schema"),
     database: z.string().optional().describe("Alias for schema"),
-    tables: z.array(z.string()).optional().describe("Table names to dump"),
+    tables: z.union([z.string(), z.array(z.string())]).optional().describe("Table names to dump"),
     tableNames: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     table: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     tableName: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
@@ -165,13 +184,13 @@ export const ShellDumpTablesInputSchemaBase = z
     url: z.string().optional().describe("Alias for outputDir"),
     path: z.string().optional().describe("Alias for outputDir"),
     filepath: z.string().optional().describe("Alias for outputDir"),
-    threads: z
-      .number()
-      .int()
-      .min(1)
-      .max(128)
-      .optional()
-      .default(4)
+    threads: z.preprocess((val: unknown) => {
+      if (typeof val === "string" && val.trim() !== "") {
+        const parsed = Number(val);
+        if (!isNaN(parsed)) return parsed;
+      }
+      return val;
+    }, z.number().int().min(1).max(128).optional().default(4))
       .describe("Number of parallel threads"),
     compression: z
       .enum(["none", "zstd", "gzip"])
@@ -179,11 +198,11 @@ export const ShellDumpTablesInputSchemaBase = z
       .default("zstd")
       .describe("Compression method"),
     where: z
-      .record(z.string(), z.string())
+      .union([z.string(), z.record(z.string(), z.string())])
       .optional()
       .describe('WHERE clauses per table ({tableName: "condition"})'),
     filter: z
-      .record(z.string(), z.string())
+      .union([z.string(), z.record(z.string(), z.string())])
       .optional()
       .describe("Alias for where"),
     dryRun: booleanCoerce
@@ -237,7 +256,8 @@ export const ShellDumpTablesInputSchema = z.preprocess(
   ShellDumpTablesInputSchemaBase
 )
   .transform((data) => ({ ...data, tables: data.tables ?? [] }))
-  .refine((data) => data.schema !== "", { message: "schema must not be empty" })
+  .refine((data) => data.schema != null && data.schema !== "", { message: "schema must not be empty" })
   .refine((data) => data.tables.length > 0, {
     message: "At least one table name is required",
-  });
+  })
+  .refine((data) => data.outputDir != null && data.outputDir !== "", { message: "outputDir or outputUrl is required" });

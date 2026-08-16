@@ -33,46 +33,37 @@ export async function getAllUserIndexes(
     return byTable;
   }
 
-  // Get all indexes across the database
-  const query = `
-    SELECT table_name, index_name, column_name, seq_in_index, non_unique, index_type
-    FROM information_schema.statistics
-    WHERE table_schema = DATABASE()
-    ORDER BY table_name, index_name, seq_in_index
-  `;
-
-  const result = await adapter.executeReadQuery(query);
-  const rows = (result.rows ?? []);
-
-  const currentIndexes = new Map<string, ExistingIndex>();
-
-  for (const row of rows) {
-    const tableName = typeof row["TABLE_NAME"] === "string" ? row["TABLE_NAME"] : "";
-    const indexName = typeof row["INDEX_NAME"] === "string" ? row["INDEX_NAME"] : "";
-    const colName = typeof row["COLUMN_NAME"] === "string" ? row["COLUMN_NAME"] : "";
-    const nonUnique = Number(row["NON_UNIQUE"]) === 1;
-    const indexType = typeof row["INDEX_TYPE"] === "string" ? row["INDEX_TYPE"] : "";
-
-    const key = `${tableName}.${indexName}`;
-    const existing = currentIndexes.get(key);
-
-    if (existing) {
-      existing.columns.push(colName);
-    } else {
-      currentIndexes.set(key, {
-        name: indexName,
-        table: tableName,
-        columns: [colName],
-        unique: !nonUnique,
-        type: indexType,
-      });
+  // Get all indexes across the database using SHOW commands for ProxySQL compatibility
+  const tables: string[] = [];
+  try {
+    const tablesResult = await adapter.executeReadQuery("SHOW TABLES");
+    const rows = tablesResult.rows ?? [];
+    for (const r of rows) {
+      const vals = Object.values(r);
+      if (vals.length > 0 && typeof vals[0] === "string") {
+        tables.push(vals[0]);
+      }
     }
+  } catch (err) {
+    throw new ValidationError(`Failed to list tables: ${err instanceof Error ? err.message : String(err)}`);
   }
 
-  for (const index of currentIndexes.values()) {
-    const tableIndexes = byTable.get(index.table) ?? [];
-    tableIndexes.push(index);
-    byTable.set(index.table, tableIndexes);
+  for (const t of tables) {
+    try {
+      const indexes = await adapter.getTableIndexes(t);
+      byTable.set(
+        t,
+        indexes.map((i) => ({
+          name: i.name,
+          table: t,
+          columns: i.columns,
+          unique: i.unique,
+          type: i.type,
+        })),
+      );
+    } catch {
+      // Ignore errors for individual tables (e.g. views)
+    }
   }
 
   return byTable;
@@ -182,16 +173,10 @@ export async function detectUnindexedTables(
 ): Promise<IndexFinding[]> {
   const findings: IndexFinding[] = [];
 
-  let query = `
-    SELECT table_name, table_rows
-    FROM information_schema.tables
-    WHERE table_schema = DATABASE()
-      AND table_type = 'BASE TABLE'
-      AND table_rows >= 1000
-  `;
+  let query = `SHOW TABLE STATUS`;
 
   if (targetTable) {
-    query += ` AND table_name = '${targetTable.replace(/'/g, "''")}'`;
+    query += ` LIKE '${targetTable.replace(/'/g, "''")}'`;
   }
 
   try {
@@ -199,8 +184,18 @@ export async function detectUnindexedTables(
     const tables = (result.rows ?? []);
 
     for (const row of tables) {
-      const table = typeof row["TABLE_NAME"] === "string" ? row["TABLE_NAME"] : "";
-      const rowCount = Number(row["TABLE_ROWS"]);
+      const tableVal = row["Name"] ?? row["name"] ?? row["NAME"];
+      const engineVal = row["Engine"] ?? row["engine"] ?? row["ENGINE"];
+      const rowsVal = row["Rows"] ?? row["rows"] ?? row["ROWS"];
+
+      const table = typeof tableVal === "string" ? tableVal : "";
+      const engine = typeof engineVal === "string" ? engineVal : "";
+      const rowCount = typeof rowsVal === "number" || typeof rowsVal === "bigint" || typeof rowsVal === "string" 
+        ? Number(rowsVal) 
+        : 0;
+
+      // Skip views and system tables
+      if (!table || !engine || rowCount < 1000) continue;
 
       const tableIndexes = indexesByTable.get(table) ?? [];
       // Table is unindexed if it has 0 indexes OR only a PRIMARY key
@@ -246,9 +241,10 @@ export async function analyzeQueriesWithExplain(
       continue;
     }
 
-    try {
+
+      const cleanQuery = query.replace(/^\s*EXPLAIN\s+(?:FORMAT=JSON\s+)?/i, "");
       const explainResult = await adapter.executeReadQuery(
-        `EXPLAIN FORMAT=JSON ${query}`,
+        `EXPLAIN FORMAT=JSON ${cleanQuery}`,
       );
       const rows = explainResult.rows ?? [];
       if (rows.length === 0) continue;
@@ -369,10 +365,7 @@ export async function analyzeQueriesWithExplain(
       };
 
       analyzeNodeInternal(parsedExplain);
-    } catch {
-      // Ignore EXPLAIN failures (could be bad query syntax)
-      continue;
-    }
+
   }
 
   return findings;

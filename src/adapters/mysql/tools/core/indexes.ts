@@ -17,7 +17,7 @@ import { ErrorCategory } from "../../../../types/modules/error-types.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 import { isValidId, escapeId } from "./tables.js";
 
-const VALID_INDEX_NAME_PATTERN = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+const VALID_INDEX_NAME_PATTERN = /^[a-zA-Z_][a-zA-Z0-9_]{0,63}$/;
 
 export function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -77,6 +77,18 @@ export function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
             new MySQLMcpError("Invalid table name", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
           );
         }
+        
+        if (columns?.some(c => !isValidId(c))) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError("Invalid column name", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
+          );
+        }
+
+        if (columns && columns.length > 16) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError("MySQL limits indexes to a maximum of 16 columns", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
+          );
+        }
 
         const columnList = (columns ?? []).map((c) => `\`${c}\``).join(", ");
         const tableName = escapeId(table);
@@ -120,9 +132,56 @@ export function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
               )
             );
           }
-          if (message.includes("does not exist")) {
+          if (message.includes("does not exist") || message.includes("doesn't exist")) {
             return formatHandlerErrorResponse(
               new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
+          }
+          if (message.includes("without a key length")) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `BLOB/TEXT column used in key specification without a key length. The mysql_create_index tool does not support prefix lengths for BTREE indexes on text columns. Suggestion: Use type: "FULLTEXT", or use mysql_execute_code to run a raw CREATE INDEX statement.`,
+                "PREFIX_LENGTH_REQUIRED",
+                ErrorCategory.VALIDATION
+              )
+            );
+          }
+          if (message.includes("is not BASE TABLE")) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `Cannot create index on view '${table}'. Indexes can only be created on base tables.`,
+                "NOT_BASE_TABLE",
+                ErrorCategory.VALIDATION
+              )
+            );
+          }
+          if (message.includes("A SPATIAL index may only contain a geometrical type column")) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `A SPATIAL index may only contain a geometrical type column.`,
+                "INVALID_INDEX_TYPE",
+                ErrorCategory.VALIDATION
+              )
+            );
+          }
+          if (message.includes("cannot be part of FULLTEXT index")) {
+            const colMatch = /Column '([^']+)' cannot be part of FULLTEXT index/.exec(message);
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                colMatch ? `Column '${colMatch[1]}' cannot be part of FULLTEXT index` : `Column cannot be part of FULLTEXT index`,
+                "INVALID_INDEX_TYPE",
+                ErrorCategory.VALIDATION
+              )
+            );
+          }
+          if (message.includes("Duplicate column name")) {
+            const colMatch = /Duplicate column name '([^']+)'/.exec(message);
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                colMatch ? `Duplicate column name '${colMatch[1]}'` : `Duplicate column name`,
+                "DUPLICATE_COLUMN",
+                ErrorCategory.VALIDATION
+              )
             );
           }
           return formatHandlerErrorResponse(err);

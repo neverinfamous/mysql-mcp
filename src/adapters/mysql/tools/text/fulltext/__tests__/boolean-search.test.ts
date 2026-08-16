@@ -9,7 +9,7 @@ describe("createFulltextBooleanTool", () => {
   beforeEach(() => {
     mockAdapter = {
       executeReadQuery: vi.fn(),
-    } as any;
+    } as Record<string, unknown>;
     tool = createFulltextBooleanTool(mockAdapter as unknown as MySQLAdapter);
   });
 
@@ -20,13 +20,13 @@ describe("createFulltextBooleanTool", () => {
 
     const result = await tool.handler(
       { table: "articles", columns: ["title"], query: "+MySQL -Tutorial" },
-      {} as any
+      {} as Record<string, unknown>
     );
 
     expect(result.success).toBe(true);
     expect(result.data.rows).toEqual([{ title: "MySQL", relevance: 1.2 }]);
     expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-      "SELECT `title`, MATCH(`title`) AGAINST(? IN BOOLEAN MODE) as relevance FROM `articles` WHERE MATCH(`title`) AGAINST(? IN BOOLEAN MODE) ORDER BY relevance DESC LIMIT 5",
+      "WITH cte AS (SELECT *, MATCH(`title`) AGAINST(? IN BOOLEAN MODE) as relevance FROM `articles` WHERE MATCH(`title`) AGAINST(? IN BOOLEAN MODE)) SELECT * FROM cte ORDER BY relevance DESC LIMIT 5",
       ["+MySQL -Tutorial", "+MySQL -Tutorial"]
     );
   });
@@ -34,11 +34,11 @@ describe("createFulltextBooleanTool", () => {
   it("should handle empty query with no results", async () => {
     const result = await tool.handler(
       { table: "articles", columns: ["title"], query: "" },
-      {} as any
+      {} as Record<string, unknown>
     );
 
-    expect(result.success).toBe(true);
-    expect(result.data.rows).toEqual([]);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Validation error");
     expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
   });
 
@@ -51,7 +51,7 @@ describe("createFulltextBooleanTool", () => {
     
     const result = await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL", cursor: cursorData },
-      {} as any
+      {} as Record<string, unknown>
     );
 
     expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
@@ -64,7 +64,7 @@ describe("createFulltextBooleanTool", () => {
   it("should reject invalid cursor", async () => {
     const result = await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL", cursor: "invalid" },
-      {} as any
+      {} as Record<string, unknown>
     );
 
     expect(result.success).toBe(false);
@@ -81,7 +81,7 @@ describe("createFulltextBooleanTool", () => {
 
     const result = await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL", includeFacets: true },
-      {} as any
+      {} as Record<string, unknown>
     );
 
     expect(result.data.facets).toEqual({ total: 10, title: 5 });
@@ -94,10 +94,10 @@ describe("createFulltextBooleanTool", () => {
 
     const result = await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL", includeFacets: true },
-      {} as any
+      {} as Record<string, unknown>
     );
 
-    expect(result.data.facets).toBeUndefined();
+    expect(result.data.facets).toEqual({ total: 10 });
     expect(result.data.warnings).toContain("Facet skipped for 'title': Requires individual FULLTEXT index");
   });
 
@@ -108,7 +108,7 @@ describe("createFulltextBooleanTool", () => {
 
     const result = await tool.handler(
       { table: "articles", columns: ["title"], query: "MySQL", includeFacets: true },
-      {} as any
+      {} as Record<string, unknown>
     );
 
     expect(result.success).toBe(false);
@@ -118,19 +118,19 @@ describe("createFulltextBooleanTool", () => {
   it("should handle common SQL errors like missing index or table", async () => {
     mockAdapter.executeReadQuery.mockRejectedValueOnce(new Error("Table 'articles' does not exist"));
 
-    let result = await tool.handler({ table: "articles", columns: ["title"], query: "MySQL" }, {} as any);
+    let result = await tool.handler({ table: "articles", columns: ["title"], query: "MySQL" }, {} as Record<string, unknown>);
     expect(result.success).toBe(false);
     expect(result.error).toContain("does not exist");
 
     mockAdapter.executeReadQuery.mockRejectedValueOnce(new Error("Can't find FULLTEXT index matching the column list"));
 
-    result = await tool.handler({ table: "articles", columns: ["title"], query: "MySQL" }, {} as any);
+    result = await tool.handler({ table: "articles", columns: ["title"], query: "MySQL" }, {} as Record<string, unknown>);
     expect(result.success).toBe(false);
     expect(result.error).toContain("No FULLTEXT index found");
     
     mockAdapter.executeReadQuery.mockRejectedValueOnce(new Error("syntax error, unexpected"));
 
-    result = await tool.handler({ table: "articles", columns: ["title"], query: "MySQL" }, {} as any);
+    result = await tool.handler({ table: "articles", columns: ["title"], query: "MySQL" }, {} as Record<string, unknown>);
     expect(result.success).toBe(false);
     expect(result.error).toContain("Invalid search syntax");
   });

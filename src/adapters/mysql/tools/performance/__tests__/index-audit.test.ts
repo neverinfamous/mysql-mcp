@@ -4,13 +4,11 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createIndexRecommendationTool } from "../index-audit/index.js";
-import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
   createMockQueryResult,
-  createMockTableInfo,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockTableInfo } from "../../../../../__tests__/mocks/index.js";
 
 describe("Index Audit Tool", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -169,7 +167,7 @@ describe("Index Audit Tool", () => {
           { name: "PRIMARY", tableName: "logs", columns: ["id"], unique: true, type: "BTREE" }
         ]);
         mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([
-          { TABLE_NAME: "logs", TABLE_ROWS: 1500 }
+          { Name: "logs", Engine: "InnoDB", Rows: 1500 }
         ]));
 
         const mockTableInfo = createMockTableInfo("logs");

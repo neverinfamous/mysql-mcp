@@ -204,7 +204,19 @@ export function createAuditDiffBackupTool(
           });
         }
 
-        const { target, schema: schemaName } = snapshot.metadata;
+        const metadata = snapshot.metadata;
+        const target = metadata?.target;
+        const schemaName = metadata?.schema;
+
+        if (typeof target !== "string") {
+          return withTokenEstimate({
+            success: false,
+            error: `Invalid snapshot metadata: target is missing or invalid in ${filename}`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
+          });
+        }
 
         // Get current DDL
         let liveDdl = "";
@@ -231,8 +243,11 @@ export function createAuditDiffBackupTool(
               ? dbName
               : "mysql";
 
+          const escapedDb = dbRes.replace(/`/g, "``");
+          const escapedTable = tableName.replace(/`/g, "``");
+
           const result = await adapter.executeReadQuery(
-            `SHOW CREATE TABLE \`${dbRes}\`.\`${tableName}\``,
+            `SHOW CREATE TABLE \`${escapedDb}\`.\`${escapedTable}\``,
           );
           if (Array.isArray(result.rows)) {
             const row = result.rows[0];
@@ -244,8 +259,14 @@ export function createAuditDiffBackupTool(
               }
             }
           }
-        } catch {
-          liveDdl = `-- Object "${target}" does not exist in current schema`;
+        } catch (err: unknown) {
+          const errMsg = err instanceof Error ? err.message : String(err);
+          const errCode = (err as Record<string, unknown>)?.["code"];
+          if (errMsg.includes("doesn't exist") || errMsg.includes("does not exist") || errCode === "ER_NO_SUCH_TABLE") {
+            liveDdl = `-- Object "${target}" does not exist in current schema`;
+          } else {
+            throw err;
+          }
         }
 
         return withTokenEstimate({

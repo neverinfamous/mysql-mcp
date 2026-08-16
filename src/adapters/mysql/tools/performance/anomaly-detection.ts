@@ -88,7 +88,8 @@ export function createDetectQueryAnomaliesTool(
         }
 
         const countResult = await adapter.executeQuery(
-          `SELECT COUNT(*) AS total FROM performance_schema.events_statements_summary_by_digest WHERE COUNT_STAR >= ${String(minCalls)}`,
+          `SELECT COUNT(*) AS total FROM performance_schema.events_statements_summary_by_digest WHERE COUNT_STAR >= ?`,
+          [minCalls]
         );
         const totalAnalyzed = toNum(countResult.rows?.[0]?.["total"]);
 
@@ -103,13 +104,13 @@ export function createDetectQueryAnomaliesTool(
             ROUND(MAX_TIMER_WAIT / NULLIF(AVG_TIMER_WAIT, 0), 2) AS variance_ratio,
             ROUND(SUM_TIMER_WAIT / 1000000000, 2) AS total_exec_time_ms
           FROM performance_schema.events_statements_summary_by_digest
-          WHERE COUNT_STAR >= ${String(minCalls)}
+          WHERE COUNT_STAR >= ?
             AND AVG_TIMER_WAIT > 0
             AND MAX_TIMER_WAIT < 86400000000000000
-            AND (MAX_TIMER_WAIT / AVG_TIMER_WAIT) > ${String(threshold)}
+            AND (MAX_TIMER_WAIT / AVG_TIMER_WAIT) > ?
           ORDER BY (MAX_TIMER_WAIT / AVG_TIMER_WAIT) DESC
           LIMIT 10
-        `);
+        `, [minCalls, threshold]);
 
         const anomalies = (result.rows ?? []).map((row) => ({
           queryPreview: toStr(row["query_preview"]),
@@ -187,38 +188,54 @@ export function createDetectBloatRiskTool(
         const schema = parsed.schema;
         const table = parsed.table;
 
+        const queryParams: unknown[] = [];
         let schemaFilter = `TABLE_SCHEMA NOT IN ('information_schema', 'performance_schema', 'sys', 'mysql')`;
         if (schema) {
-          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(schema)) {
+          if (!/^[a-zA-Z0-9_$-]+$/.test(schema)) {
             throw new ValidationError("Invalid schema name");
           }
           
           const schemaExists = await adapter.executeQuery(
-            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '${schema}'`
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
+            [schema]
           );
           if (!schemaExists.rows || schemaExists.rows.length === 0) {
             throw new ValidationError(`Database '${schema}' does not exist`);
           }
           
-          schemaFilter = `TABLE_SCHEMA = '${schema}'`;
+          schemaFilter = `TABLE_SCHEMA = ?`;
+          queryParams.push(schema);
         }
 
         let tableFilter = "1=1";
         if (table) {
-          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          if (!/^[a-zA-Z0-9_$-]+$/.test(table)) {
             throw new ValidationError("Invalid table name");
           }
-          const schemaCondition = schema ? `TABLE_SCHEMA = '${schema}'` : schemaFilter;
-          const tableExists = await adapter.executeQuery(
-            `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_NAME = '${table}' AND ${schemaCondition}`
-          );
+          
+          let tableExists;
+          if (schema) {
+            tableExists = await adapter.executeQuery(
+              `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_NAME = ? AND TABLE_SCHEMA = ?`,
+              [table, schema]
+            );
+          } else {
+            tableExists = await adapter.executeQuery(
+              `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_NAME = ? AND ${schemaFilter}`,
+              [table] // Wait, if schema is not provided, schemaFilter contains NO parameters, so [table] is correct. But wait, we pushed to queryParams above? No, if !schema, queryParams is empty, and schemaFilter has no `?`. So just [table] works.
+            );
+          }
+          
           if (!tableExists.rows || tableExists.rows.length === 0) {
             throw new ValidationError(`Table '${table}' does not exist`);
           }
-          tableFilter = `TABLE_NAME = '${table}'`;
+          tableFilter = `TABLE_NAME = ?`;
+          queryParams.push(table);
         }
 
         const minBytes = minSizeMb * 1024 * 1024;
+        const minSizeParam = table ? 0 : minBytes;
+        queryParams.unshift(minSizeParam);
 
         const result = await adapter.executeQuery(`
           SELECT
@@ -236,12 +253,12 @@ export function createDetectBloatRiskTool(
             END AS fragmentation_pct
           FROM information_schema.TABLES
           WHERE TABLE_TYPE = 'BASE TABLE'
-            AND (DATA_LENGTH + INDEX_LENGTH) >= ${table ? 0 : String(minBytes)}
+            AND (DATA_LENGTH + INDEX_LENGTH) >= ?
             AND ${schemaFilter}
             AND ${tableFilter}
           ORDER BY DATA_FREE DESC
           LIMIT 50
-        `);
+        `, queryParams);
 
         const rows = result.rows ?? [];
 
