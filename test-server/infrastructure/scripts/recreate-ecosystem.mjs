@@ -112,10 +112,10 @@ async function main() {
      * @param {string} command - The Docker command string.
      * @returns {Promise<string>} Trimmed stdout, or `''` on error.
      */
-    async function runQuiet(command) {
+    async function runQuiet(command, extraEnv = {}) {
         const cmd = command.startsWith('docker ') ? wslPrefix + command : command;
         try {
-            const { stdout } = await execAsync(cmd, { encoding: 'utf-8', cwd: REPO_ROOT, env: process.env });
+            const { stdout } = await execAsync(cmd, { encoding: 'utf-8', cwd: REPO_ROOT, env: { ...process.env, ...extraEnv } });
             return stdout.trim();
         } catch {
             return '';
@@ -131,9 +131,9 @@ async function main() {
      * @returns {Promise<string>} Query output, or `''` on error.
      */
     async function mysqlExec(container, query) {
-        const cmd = `docker exec -e MYSQL_PWD=${MYSQL_ROOT_PASSWORD} ${container} mysql -uroot -N -s -e "${query}"`;
+        const cmd = `docker exec -e MYSQL_PWD ${container} mysql -uroot -N -s -e "${query.replace(/(["'$`\\])/g, '\\$1')}"`;
         try {
-            const { stdout } = await execAsync(wslPrefix + cmd, { encoding: 'utf-8', cwd: REPO_ROOT, env: process.env });
+            const { stdout } = await execAsync(wslPrefix + cmd, { encoding: 'utf-8', cwd: REPO_ROOT, env: { ...process.env, MYSQL_PWD: MYSQL_ROOT_PASSWORD, WSLENV: (process.env.WSLENV ? process.env.WSLENV + ':' : '') + 'MYSQL_PWD/u' } });
             return (stdout || '').trim();
         } catch {
             return '';
@@ -148,8 +148,8 @@ async function main() {
         console.log(`  Waiting for MySQL in ${containerName}...`);
         const success = await retry(
             async (attempt) => {
-                const cmd = `docker exec -e MYSQL_PWD=${MYSQL_ROOT_PASSWORD} ${containerName} mysqladmin ping -h 127.0.0.1 -uroot`;
-                const out = await runQuiet(cmd);
+                const cmd = `docker exec -e MYSQL_PWD ${containerName} mysqladmin ping -h 127.0.0.1 -uroot`;
+                const out = await runQuiet(cmd, { MYSQL_PWD: MYSQL_ROOT_PASSWORD, WSLENV: (process.env.WSLENV ? process.env.WSLENV + ':' : '') + 'MYSQL_PWD/u' });
                 if (out.includes('mysqld is alive')) {
                     console.log(`  ✅ ${containerName} is ready`);
                     return true;
@@ -200,9 +200,12 @@ async function main() {
      * @param {string} scriptContent - MySQL Shell JavaScript to execute.
      */
     async function runMySQLShellScript(container, scriptContent) {
-        const cmd = wslPrefix + `docker exec -i ${container} mysqlsh --js --user=root --password=${MYSQL_ROOT_PASSWORD} --host=127.0.0.1 --port=${CONFIG.cluster.mysqlPort}`;
+        const bin = dockerCmd === 'wsl' ? 'wsl' : 'docker';
+        const args = ['exec', '-i', container, 'mysqlsh', '--js', '--user=root', `--password=${MYSQL_ROOT_PASSWORD}`, '--host=127.0.0.1', `--port=${CONFIG.cluster.mysqlPort}`];
+        if (dockerCmd === 'wsl') args.unshift('docker');
+        
         return new Promise((resolve, reject) => {
-            const child = spawn(cmd, { shell: true, stdio: ['pipe', 'inherit', 'pipe'], cwd: REPO_ROOT, env: process.env });
+            const child = spawn(bin, args, { stdio: ['pipe', 'inherit', 'pipe'], cwd: REPO_ROOT, env: process.env });
             child.stdin.write(scriptContent);
             child.stdin.end();
 

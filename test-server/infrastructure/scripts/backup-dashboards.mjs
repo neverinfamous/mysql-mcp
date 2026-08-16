@@ -43,11 +43,13 @@ for (const dashboard of dashboards) {
                 const dest = join(dir, dashboard.file);
                 let changed = true;
                 
-                if (existsSync(dest)) {
+                try {
                     const existing = readFileSync(dest, 'utf-8');
                     if (existing === dashboardJson) {
                         changed = false;
                     }
+                } catch (e) {
+                    if (e.code !== 'ENOENT') throw e;
                 }
                 
                 if (changed) {

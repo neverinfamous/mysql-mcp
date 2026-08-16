@@ -5,8 +5,7 @@
  * This script is zero-dependency, leveraging Bun's native fetch and OTLP JSON protocols.
  */
 
-// Bypass self-signed cert validation for the router API
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+// To bypass self-signed cert validation for the router API, set NODE_TLS_REJECT_UNAUTHORIZED=0 in your environment.
 
 const ROUTER_API_URL = process.env.ROUTER_API_URL || "https://mysql-router:8443/api/20190715";
 const ROUTER_API_USER = process.env.ROUTER_API_USER || "rest_api";

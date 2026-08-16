@@ -543,10 +543,10 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
-        let command = `mysqldump -u [username] -p "${database.replace(/"/g, '\\"')}"`;
+        let command = `mysqldump -u [username] -p "${database.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
 
         if (tables && tables.length > 0) {
-          const quotedTables = tables.map(t => `"${t.replace(/"/g, '\\"')}"`);
+          const quotedTables = tables.map(t => `"${t.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
           command += ` ${quotedTables.join(" ")}`;
         }
 
@@ -682,7 +682,7 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
           });
         }
 
-        const command = `mysql -u [username] -p "${database.replace(/"/g, '\\"')}" < "${filename}"`;
+        const command = `mysql -u [username] -p "${database.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}" < "${filename}"`;
 
         return withTokenEstimate({
           success: true,

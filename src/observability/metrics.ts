@@ -469,26 +469,29 @@ export class MetricsRegistry {
           // via a separate read-only mount without conflicting with its own AuditLogger.
           const jsonlPath = process.env['AUDIT_LOG_PATH'] ?? (auditLogArgIndex !== -1 ? process.argv[auditLogArgIndex + 1] : undefined);
           
-          if (jsonlPath !== undefined && jsonlPath !== "" && fs.existsSync(jsonlPath)) {
-            const stat = fs.statSync(jsonlPath);
-            if (stat.size < this.jsonlState.offset) {
-              this.jsonlState.offset = 0;
-              // We intentionally DO NOT clear toolStats/resourceStats on log rotation.
-              // This is because the exporter has no persistent DB (isMemoryDb = true) 
-              // and relies entirely on jsonlState for its lifetime cumulative metrics.
-              // IDE processes (which use persistent DBs) skip this fallback entirely 
-              // via the isMemoryDb check above, so they won't double count.
-            }
-            
-            if (stat.size > this.jsonlState.offset) {
-              const fd = fs.openSync(jsonlPath, 'r');
-              const length = stat.size - this.jsonlState.offset;
-              const buffer = Buffer.alloc(length);
-              fs.readSync(fd, buffer, 0, length, this.jsonlState.offset);
-              fs.closeSync(fd);
-              this.jsonlState.offset = stat.size;
+          if (jsonlPath !== undefined && jsonlPath !== "") {
+            let fd: number | undefined;
+            try {
+              fd = fs.openSync(jsonlPath, 'r');
+              const stat = fs.fstatSync(fd);
+              if (stat.size < this.jsonlState.offset) {
+                this.jsonlState.offset = 0;
+                // We intentionally DO NOT clear toolStats/resourceStats on log rotation.
+                // This is because the exporter has no persistent DB (isMemoryDb = true) 
+                // and relies entirely on jsonlState for its lifetime cumulative metrics.
+                // IDE processes (which use persistent DBs) skip this fallback entirely 
+                // via the isMemoryDb check above, so they won't double count.
+              }
               
-              const content = buffer.toString('utf8');
+              if (stat.size > this.jsonlState.offset) {
+                const length = stat.size - this.jsonlState.offset;
+                const buffer = Buffer.alloc(length);
+                fs.readSync(fd, buffer, 0, length, this.jsonlState.offset);
+                fs.closeSync(fd);
+                fd = undefined;
+                this.jsonlState.offset = stat.size;
+                
+                const content = buffer.toString('utf8');
               const lines = content.split('\n').filter((l: string) => l !== "");
               
               for (const line of lines) {
@@ -579,6 +582,11 @@ export class MetricsRegistry {
                   // Ignore parse errors for individual lines
                 }
               }
+            }
+            } catch (e: unknown) {
+              if (typeof e === 'object' && e !== null && 'code' in e && e.code !== 'ENOENT') throw e;
+            } finally {
+              if (fd !== undefined) fs.closeSync(fd);
             }
             
             parsedLiveRows = Array.from(this.jsonlState.toolStats.entries()).map(([tool, stats]) => ({
