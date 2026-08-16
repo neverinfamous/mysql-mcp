@@ -1,276 +1,564 @@
 {
-  "description": "Isolated log streams and diagnostics. Consumes high memory by design.",
+  "description": "AI Efficiency metrics for memory-journal-mcp server (Opus 4.8 Standard pricing)\n\n*Note: Datadog automatically formats values less than 0.01 in scientific notation. During low-traffic periods, micro-costs may appear in scientific format (e.g., 5e-5 $) until the accumulated cost exceeds $0.01.*",
   "layout_type": "ordered",
   "notify_list": [],
   "pause_auto_refresh": null,
   "reflow_type": "fixed",
-  "template_variables": [
-    {
-      "available_values": [],
-      "default": "*",
-      "name": "tool",
-      "prefix": "tool"
-    }
-  ],
-  "title": "datadog-logs.json",
+  "template_variables": [],
+  "title": "memory-journal-mcp AI Efficiency",
   "widgets": [
     {
       "definition": {
-        "description": "Note: This captures all audited tools executed by the AI agent.",
+        "autoscale": true,
+        "description": "Amounts under a penny will show in scientific notation.",
+        "precision": 2,
         "requests": [
           {
-            "columns": [
+            "aggregator": "sum",
+            "conditional_formats": [
               {
-                "field": "@tool",
-                "width": "auto"
-              },
-              {
-                "field": "@category",
-                "width": "auto"
-              },
-              {
-                "field": "@success",
-                "width": "compact"
-              },
-              {
-                "field": "@durationMs",
-                "width": "compact"
-              },
-              {
-                "field": "content",
-                "width": "auto"
+                "comparator": "\u003e=",
+                "custom_bg_color": "#063d05",
+                "palette": "custom_bg",
+                "value": 0.0
               }
             ],
-            "query": {
-              "data_source": "logs_stream",
-              "indexes": [],
-              "query_string": "source:mysql_mcp log_type:mcp_audit",
-              "sort": {
-                "column": "timestamp",
-                "order": "desc"
-              },
-              "storage": "hot"
-            },
-            "response_format": "event_list"
+            "formulas": [
+              {
+                "formula": "(((default_zero(query1)) / 1000000) * 2)"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:memory_journal_mcp.mcp_tool_tokens_by_name.count{*}.as_count()"
+              }
+            ],
+            "response_format": "scalar"
           }
         ],
-        "title": "MySQL-MCP Audit Log",
+        "title": "Total Cost (Gemini 3.1) ($)",
         "title_align": "left",
         "title_size": "16",
-        "type": "list_stream"
+        "type": "query_value"
       },
-      "id": 8706701828007376,
+      "id": 74868358445735,
       "layout": {
-        "height": 4,
-        "width": 4,
+        "height": 2,
+        "width": 3,
         "x": 0,
         "y": 0
       }
     },
     {
       "definition": {
+        "autoscale": true,
+        "description": "Amounts under a penny will show in scientific notation.",
+        "precision": 2,
         "requests": [
           {
-            "columns": [
+            "aggregator": "sum",
+            "conditional_formats": [
               {
-                "field": "status_line",
-                "width": "auto"
-              },
-              {
-                "field": "timestamp",
-                "width": "auto"
-              },
-              {
-                "field": "content",
-                "width": "auto"
+                "comparator": "\u003e=",
+                "custom_bg_color": "#063c11",
+                "palette": "custom_bg",
+                "value": 0.0
               }
             ],
-            "query": {
-              "data_source": "logs_stream",
-              "query_string": "source:mysqlrouter"
-            },
-            "response_format": "event_list"
+            "formulas": [
+              {
+                "formula": "(((default_zero(query1)) / 1000000) * 5)"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:memory_journal_mcp.mcp_tool_tokens_by_name.count{*}.as_count()"
+              }
+            ],
+            "response_format": "scalar"
           }
         ],
-        "title": "MySQL Router Logs",
-        "type": "list_stream"
+        "title": "Total Cost (Claude 4.8) ($)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_value"
       },
-      "id": 8829397236877308,
+      "id": 1108273956124995,
       "layout": {
-        "height": 4,
-        "width": 4,
-        "x": 4,
+        "height": 2,
+        "width": 3,
+        "x": 3,
         "y": 0
       }
     },
     {
       "definition": {
-        "description": "Note: The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with theÃ‚Â `--audit-reads`Ã‚Â flag.\"",
+        "autoscale": true,
+        "description": "Amounts under a penny will show in scientific notation.",
+        "precision": 2,
         "requests": [
           {
-            "columns": [
+            "aggregator": "sum",
+            "conditional_formats": [
               {
-                "field": "status_line",
-                "width": "auto"
-              },
-              {
-                "field": "timestamp",
-                "width": "auto"
-              },
-              {
-                "field": "host",
-                "width": "auto"
-              },
-              {
-                "field": "service",
-                "width": "auto"
-              },
-              {
-                "field": "message",
-                "width": "auto"
-              },
-              {
-                "field": "content",
-                "width": "compact"
+                "comparator": "\u003e=",
+                "custom_bg_color": "#083f0f",
+                "palette": "custom_bg",
+                "value": 0.0
               }
             ],
-            "query": {
-              "data_source": "logs_stream",
-              "indexes": [],
-              "query_string": "source:mysql_mcp status:error OR log_type:agent_issues",
-              "sort": {
-                "column": "timestamp",
-                "order": "desc"
-              },
-              "storage": "hot"
-            },
-            "response_format": "event_list"
+            "formulas": [
+              {
+                "formula": "(((default_zero(query1)) / 1000000) * 5)"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:memory_journal_mcp.mcp_tool_tokens_by_name.count{*}.as_count()"
+              }
+            ],
+            "response_format": "scalar"
           }
         ],
-        "title": "MySQL-MCP Error Log",
+        "title": "Total Cost (GPT-5.5) ($)",
         "title_align": "left",
         "title_size": "16",
-        "type": "list_stream"
+        "type": "query_value"
       },
-      "id": 2516024086793335,
+      "id": 504802242786021,
       "layout": {
-        "height": 4,
-        "width": 4,
-        "x": 8,
+        "height": 2,
+        "width": 3,
+        "x": 6,
         "y": 0
       }
     },
     {
       "definition": {
-        "description": "Note: This captures operational stdout/stderr logs from the mysql-mcp-exporter container.",
+        "autoscale": true,
+        "description": "Amounts under a penny will show in scientific notation.",
+        "precision": 2,
         "requests": [
           {
-            "columns": [
+            "aggregator": "sum",
+            "conditional_formats": [
               {
-                "field": "host",
-                "width": "compact"
-              },
-              {
-                "field": "content",
-                "width": "auto"
+                "comparator": "\u003e=",
+                "custom_bg_color": "#083f09",
+                "palette": "custom_bg",
+                "value": 0.0
               }
             ],
-            "query": {
-              "data_source": "logs_stream",
-              "indexes": [],
-              "query_string": "service:mysql-mcp-exporter OR container_name:mysql-mcp-exporter",
-              "sort": {
-                "column": "timestamp",
-                "order": "desc"
-              },
-              "storage": "hot"
-            },
-            "response_format": "event_list"
+            "formulas": [
+              {
+                "formula": "(((default_zero(query1)) / 1000000) * 6)"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:memory_journal_mcp.mcp_tool_tokens_by_name.count{*}.as_count()"
+              }
+            ],
+            "response_format": "scalar"
           }
         ],
-        "title": "MySQL-MCP Exporter Logs",
+        "title": "Total Cost (Claude Sonnet 5) ($)",
         "title_align": "left",
         "title_size": "16",
-        "type": "list_stream"
+        "type": "query_value"
       },
-      "id": 8706701828007377,
+      "id": 3867370951191716,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 9,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "formulas": [
+              {
+                "cell_display_mode": "bar",
+                "formula": "default_zero(query1)"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:memory_journal_mcp.mcp_tool_tokens_by_name.count{*} by {tool}.as_count()"
+              }
+            ],
+            "response_format": "scalar",
+            "sort": {
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
+            }
+          }
+        ],
+        "title": "Top Tools by Tokens",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_table"
+      },
+      "id": 1070403684560322,
+      "layout": {
+        "height": 4,
+        "width": 6,
+        "x": 0,
+        "y": 2
+      }
+    },
+    {
+      "definition": {
+        "has_search_bar": "auto",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "cell_display_mode": "bar",
+                "formula": "default_zero(query1)"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:memory_journal_mcp.mcp_tool_calls_by_name.count{*} by {tool}.as_count()"
+              }
+            ],
+            "response_format": "scalar",
+            "sort": {
+              "count": 500,
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
+            }
+          }
+        ],
+        "title": "Tool Call Volume",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_table"
+      },
+      "id": 5704902594105579,
+      "layout": {
+        "height": 4,
+        "width": 6,
+        "x": 6,
+        "y": 2
+      }
+    },
+    {
+      "definition": {
+        "autoscale": true,
+        "description": "Amounts under a penny will show in scientific notation.",
+        "precision": 2,
+        "requests": [
+          {
+            "aggregator": "sum",
+            "conditional_formats": [
+              {
+                "comparator": "\u003e=",
+                "custom_bg_color": "#0c4008",
+                "palette": "custom_bg",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "(((default_zero(query1)) / 1000000) * 30)"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:memory_journal_mcp.mcp_tool_tokens_by_name.count{*}.as_count()"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Total Cost (Claude Fable 5) ($)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 8963360244781651,
+      "layout": {
+        "height": 2,
+        "is_column_break": true,
+        "width": 3,
+        "x": 0,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "autoscale": true,
+        "precision": 2,
+        "requests": [
+          {
+            "aggregator": "sum",
+            "conditional_formats": [
+              {
+                "comparator": "\u003e=",
+                "custom_bg_color": "#0b4107",
+                "palette": "custom_bg",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "default_zero(query1)"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:memory_journal_mcp.mcp_tool_tokens_by_name.count{*}.as_count()"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Total Tokens Used",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 3208252485683038,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 3,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "autoscale": true,
+        "precision": 0,
+        "requests": [
+          {
+            "conditional_formats": [
+              {
+                "comparator": "\u003e=",
+                "custom_bg_color": "#173b07",
+                "palette": "custom_bg",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "default_zero(a) / (default_zero(b) + 0.0000001)"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "a",
+                "query": "sum:memory_journal_mcp.mcp_tool_tokens_by_name.count{*}.as_count()"
+              },
+              {
+                "data_source": "metrics",
+                "name": "b",
+                "query": "sum:memory_journal_mcp.mcp_tool_calls.count{*}.as_count()"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Avg Tokens / Call",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 4078349398291238,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 6,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "autoscale": true,
+        "precision": 2,
+        "requests": [
+          {
+            "conditional_formats": [
+              {
+                "comparator": "\u003e=",
+                "custom_bg_color": "#841010",
+                "palette": "custom_bg",
+                "value": 5.0
+              },
+              {
+                "comparator": "\u003e=",
+                "palette": "white_on_yellow",
+                "value": 2.0
+              },
+              {
+                "comparator": "\u003c",
+                "custom_bg_color": "#104409",
+                "palette": "custom_bg",
+                "value": 2.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "(default_zero(a) / (default_zero(b) + 0.0000001)) * 100"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "a",
+                "query": "sum:memory_journal_mcp.mcp_tool_errors_by_name.count{*}.as_count()"
+              },
+              {
+                "data_source": "metrics",
+                "name": "b",
+                "query": "sum:memory_journal_mcp.mcp_tool_calls.count{*}.as_count()"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Global Error Rate (%)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 12938475619283,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 9,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "formulas": [
+              {
+                "cell_display_mode": "bar",
+                "formula": "default_zero(calls) * default_zero(latency)"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "calls",
+                "query": "sum:memory_journal_mcp.mcp_tool_calls_by_name.count{*} by {tool}.as_count()"
+              },
+              {
+                "data_source": "metrics",
+                "name": "latency",
+                "query": "avg:memory_journal_mcp.mcp_tool_latency_ms_p50{*} by {tool}"
+              }
+            ],
+            "response_format": "scalar",
+            "sort": {
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
+            }
+          }
+        ],
+        "title": "Optimization Target (Total Gross Latency)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_table"
+      },
+      "id": 115532157614989,
       "layout": {
         "height": 4,
         "width": 4,
         "x": 0,
-        "y": 4
+        "y": 8
       }
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
         "requests": [
           {
-            "columns": [
+            "display_type": "bars",
+            "formulas": [
               {
-                "field": "status_line",
-                "width": "auto"
-              },
-              {
-                "field": "timestamp",
-                "width": "auto"
-              },
-              {
-                "field": "content",
-                "width": "auto"
+                "formula": "default_zero(query1)"
               }
             ],
-            "query": {
-              "data_source": "logs_stream",
-              "query_string": "source:proxysql (status:error OR status:warn OR \"error\" OR \"failed\")"
-            },
-            "response_format": "event_list"
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:memory_journal_mcp.mcp_tool_errors_by_name.count{*} by {error_type}.as_count()"
+              }
+            ],
+            "response_format": "timeseries"
           }
         ],
-        "title": "ProxySQL Error Logs",
-        "type": "list_stream"
+        "show_legend": false,
+        "title": "Agent Quality (Error Classification)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries"
       },
-      "id": 7992432021567240,
+      "id": 203565609753226,
       "layout": {
         "height": 4,
-        "width": 4,
+        "width": 8,
         "x": 4,
-        "y": 4
-      }
-    },
-    {
-      "definition": {
-        "requests": [
-          {
-            "columns": [
-              {
-                "field": "status_line",
-                "width": "auto"
-              },
-              {
-                "field": "timestamp",
-                "width": "auto"
-              },
-              {
-                "field": "content",
-                "width": "auto"
-              }
-            ],
-            "query": {
-              "data_source": "logs_stream",
-              "query_string": "container_name:datadog-unified (status:error OR status:warn)"
-            },
-            "response_format": "event_list"
-          }
-        ],
-        "title": "Datadog Agent Logs (Warnings \u0026 Errors)",
-        "type": "list_stream"
-      },
-      "id": 1785645640121,
-      "layout": {
-        "height": 4,
-        "width": 4,
-        "x": 8,
-        "y": 4
+        "y": 8
       }
     }
   ]

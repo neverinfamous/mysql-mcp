@@ -1001,7 +1001,7 @@
         "group_by": "family",
         "requests": [
           {
-            "q": "processes{$scope}"
+            "q": "processes{host:adamic-wsl2}"
           }
         ],
         "size_by": "pct_mem",
