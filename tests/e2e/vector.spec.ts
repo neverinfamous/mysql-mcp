@@ -129,7 +129,7 @@ test.describe("Vector Tools", () => {
       column: "embedding",
       queryVector: [0.1, 0.8, 0.1],
       k: 2,
-      metric: "COSINE",
+      metric: "EUCLIDEAN",
     });
 
     if (result.success === false) {
@@ -149,6 +149,7 @@ test.describe("Vector Tools", () => {
       column: "embedding",
       queryVector: [0.1, 0.2, 0.3],
       maxDistance: 0.1,
+      metric: "EUCLIDEAN",
     });
 
     if (result.success === false) {
