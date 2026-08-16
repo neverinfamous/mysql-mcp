@@ -110,33 +110,45 @@ function updateBadges(): string[] {
     }
   }
 
-  const newCovBadge = `![Coverage](https://img.shields.io/badge/Coverage-${linesPct}%25-${coverageColor}.svg)`;
-  const newE2eBadge = `![E2E](https://img.shields.io/badge/E2E-${e2ePassing}%20passing%20%C2%B7%20${e2eSkipped}%20skipped-blue.svg)`;
+    const newCovBadge = `![Coverage](https://img.shields.io/badge/Coverage-${linesPct}%25-${coverageColor}.svg)`;
+    const newE2eBadge = hasE2e ? `![E2E](https://img.shields.io/badge/E2E-${e2ePassing}%20passing%20%C2%B7%20${e2eSkipped}%20skipped-blue.svg)` : "";
 
-  const updatedFiles: string[] = [];
+    const updatedFiles: string[] = [];
 
-  for (const file of CONFIG.filesToUpdate) {
-    const filePath = path.join(ROOT_DIR, file);
-    
-    let rawContent: string;
-    try {
-      rawContent = fs.readFileSync(filePath, "utf-8");
-    } catch (error: unknown) {
-      if (error instanceof Error && 'code' in error && (error as any).code === "ENOENT") {
-        console.warn(`Skipped updating ${file}: File unreadable (ENOENT).`);
-        continue;
+    for (const file of CONFIG.filesToUpdate) {
+      const filePath = path.join(ROOT_DIR, file);
+      
+      let rawContent: string;
+      try {
+        rawContent = fs.readFileSync(filePath, "utf-8");
+      } catch (error: unknown) {
+        if (error instanceof Error && 'code' in error && (error as any).code === "ENOENT") {
+          console.warn(`Skipped updating ${file}: File unreadable (ENOENT).`);
+          continue;
+        }
+        throw error;
       }
-      throw error;
-    }
 
-    const originalNormalized = rawContent.replace(/\r\n/g, "\n");
-    
-    const newBadges: string[] = [];
-    if (hasCoverage) newBadges.push(newCovBadge);
-    if (hasE2e) newBadges.push(newE2eBadge);
-    const badgeString = newBadges.join(" ");
+      const originalNormalized = rawContent.replace(/\r\n/g, "\n");
+      
+      let fileHasE2e = hasE2e;
+      let fileE2eBadge = newE2eBadge;
 
-    let content = originalNormalized;
+      // If Playwright results are missing, preserve the existing E2E badge in the file
+      if (!fileHasE2e) {
+        const e2eMatch = originalNormalized.match(/!\[E2E\]\(https:\/\/img\.shields\.io\/badge\/E2E-[^)]+\)/);
+        if (e2eMatch) {
+          fileHasE2e = true;
+          fileE2eBadge = e2eMatch[0];
+        }
+      }
+
+      const newBadges: string[] = [];
+      if (hasCoverage) newBadges.push(newCovBadge);
+      if (fileHasE2e) newBadges.push(fileE2eBadge);
+      const badgeString = newBadges.join(" ");
+
+      let content = originalNormalized;
     
     if (badgeString.length > 0) {
        if (CONFIG.licenseLineRegex.test(content)) {
