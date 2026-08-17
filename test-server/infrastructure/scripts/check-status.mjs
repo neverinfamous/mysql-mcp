@@ -47,13 +47,6 @@ const CONFIG = {
         healthValue: 'ok',
         healthTtlSec: '10',
     },
-    containers: {
-        mysqlRouter: 'mysql-router',
-        datadogUnified: 'datadog-unified',
-        prometheus: 'prometheus',
-        mysqlNode1: 'mysql-node1',
-        asyncReplica: 'mysql-async-replica',
-    },
     workspace: {
         mcpPackageJson: '/workspace/mysql-mcp/package.json',
         scratchDir: '/workspace/scratch',
@@ -179,6 +172,10 @@ let runningContainers = {};
 // This overlaps the heavy mysqlsh-inside-docker startup with Sections 1-2.
 const mysqlNodes = containers.filter(c => c.startsWith('mysql-node'));
 const firstMysqlNode = mysqlNodes[0] ?? null;
+const mysqlRouterNode = containers.find(c => c.includes('mysql-router')) || 'mysql-router';
+const datadogUnifiedNode = containers.find(c => c.includes('datadog-unified')) || 'datadog-unified';
+const prometheusNode = containers.find(c => c.includes('prometheus')) || 'prometheus';
+const asyncReplicaNode = containers.find(c => c.includes('mysql-async-replica')) || 'mysql-async-replica';
 const mysqlshMetadataPromise = firstMysqlNode
     ? dockerExecEnvAsync(firstMysqlNode, [], ['mysqlsh', `--user=${CONFIG.credentials.mysql.user}`, `--password=${CONFIG.credentials.mysql.password}`, '--host=127.0.0.1', '--port=3306', '--js', '-e', `try { var c = dba.getCluster('${CONFIG.cluster.name}'); print('OK'); } catch(e) { print('ERROR: ' + e.message); process.exit(1); }`])
     : Promise.resolve(null);
@@ -302,10 +299,10 @@ runSection('InnoDB Cluster Status', () => {
 // Section 2.5: Async Replica Status
 // ============================================================
 runSection('Async Replica Status', () => {
-    if (containers.includes(CONFIG.containers.asyncReplica)) {
+    if (containers.includes(asyncReplicaNode)) {
         console.log('\n2.5. Async Replica Status:');
         console.log(SEPARATOR);
-        const replicaOut = dockerExecEnv(CONFIG.containers.asyncReplica, [MYSQL_PWD_ENV], ['mysql', MYSQL_USER_FLAG, '-E', '-e', 'SHOW REPLICA STATUS'], true);
+        const replicaOut = dockerExecEnv(asyncReplicaNode, [MYSQL_PWD_ENV], ['mysql', MYSQL_USER_FLAG, '-E', '-e', 'SHOW REPLICA STATUS'], true);
         if (replicaOut && replicaOut.includes('Replica_IO_Running: Yes') && replicaOut.includes('Replica_SQL_Running: Yes')) {
             console.log('✅ Async Replica        : IO and SQL threads are running');
         } else {
@@ -361,13 +358,13 @@ await runSectionAsync('Routing & Proxy Validation', async () => {
     // Fire all independent checks in parallel
     const [routerRWResult, routerROResult, routerAPIHTTPResult, routerAPIHTTPSResult, proxyBackendsResult, proxyDataResult, redisResult] = await Promise.allSettled([
         // MySQL Router R/W (port 6446)
-        dockerExecEnvAsync(firstMysqlNode, [MYSQL_PWD_ENV], ['mysql', '-h', CONFIG.containers.mysqlRouter, '-P', routerRW, MYSQL_USER_FLAG, '-N', '-s', '-e', 'SELECT @@hostname;']),
+        dockerExecEnvAsync(firstMysqlNode, [MYSQL_PWD_ENV], ['mysql', '-h', mysqlRouterNode, '-P', routerRW, MYSQL_USER_FLAG, '-N', '-s', '-e', 'SELECT @@hostname;']),
         // MySQL Router R/O (port 6447)
-        dockerExecEnvAsync(firstMysqlNode, [MYSQL_PWD_ENV], ['mysql', '-h', CONFIG.containers.mysqlRouter, '-P', routerRO, MYSQL_USER_FLAG, '-N', '-s', '-e', 'SELECT @@hostname;']),
+        dockerExecEnvAsync(firstMysqlNode, [MYSQL_PWD_ENV], ['mysql', '-h', mysqlRouterNode, '-P', routerRO, MYSQL_USER_FLAG, '-N', '-s', '-e', 'SELECT @@hostname;']),
         // Router REST API — HTTP (should fail = HTTPS enforced)
-        dockerExecAsync(CONFIG.containers.datadogUnified, ['curl', '-s', '-m', routerHttpCheckSec, `http://${CONFIG.containers.mysqlRouter}:${routerAPI}${CONFIG.routerApiPath}`]),
+        dockerExecAsync(datadogUnifiedNode, ['curl', '-s', '-m', routerHttpCheckSec, `http://${mysqlRouterNode}:${routerAPI}${CONFIG.routerApiPath}`]),
         // Router REST API — HTTPS
-        dockerExecAsync(CONFIG.containers.datadogUnified, ['curl', '-sk', '-u', `${routerApi.user}:${routerApi.password}`, `https://${CONFIG.containers.mysqlRouter}:${routerAPI}${CONFIG.routerApiPath}`]),
+        dockerExecAsync(datadogUnifiedNode, ['curl', '-sk', '-u', `${routerApi.user}:${routerApi.password}`, `https://${mysqlRouterNode}:${routerAPI}${CONFIG.routerApiPath}`]),
         // ProxySQL backend status
         dockerExecEnvAsync(proxySqlNode, [`MYSQL_PWD=${proxyAdmin.password}`], ['mysql', '-h', '127.0.0.1', '-P', proxySQLAdmin, `-u${proxyAdmin.user}`, '-N', '-s', '-e', 'SELECT hostgroup_id, hostname, status FROM runtime_mysql_servers ORDER BY hostgroup_id, hostname;']),
         // ProxySQL data port (6033)
@@ -470,17 +467,17 @@ await runSectionAsync('Observability Stack', async () => {
 
     // Fire all independent observability checks in parallel
     const [promHealthResult, grafanaHealthResult, lokiReadyResult, alloyReadyResult] = await Promise.allSettled([
-        dockerExecAsync(CONFIG.containers.prometheus, ['wget', '-qO-', 'http://localhost:9090/-/healthy']),
-        dockerExecAsync(CONFIG.containers.datadogUnified, ['curl', '-s', '--connect-timeout', curlSec, `http://grafana:${CONFIG.ports.grafana}/api/health`]),
-        dockerExecAsync(CONFIG.containers.datadogUnified, ['curl', '-s', '--connect-timeout', curlSec, `http://loki:${CONFIG.ports.loki}/ready`]),
-        dockerExecAsync(CONFIG.containers.datadogUnified, ['curl', '-s', '--connect-timeout', curlSec, `http://alloy:${CONFIG.ports.alloy}/-/ready`]),
+        dockerExecAsync(prometheusNode, ['wget', '-qO-', 'http://localhost:9090/-/healthy']),
+        dockerExecAsync(datadogUnifiedNode, ['curl', '-s', '--connect-timeout', curlSec, `http://grafana:${CONFIG.ports.grafana}/api/health`]),
+        dockerExecAsync(datadogUnifiedNode, ['curl', '-s', '--connect-timeout', curlSec, `http://loki:${CONFIG.ports.loki}/ready`]),
+        dockerExecAsync(datadogUnifiedNode, ['curl', '-s', '--connect-timeout', curlSec, `http://alloy:${CONFIG.ports.alloy}/-/ready`]),
     ]);
 
     // Prometheus health
     const promHealth = settled(promHealthResult);
     if (promHealth && promHealth.includes('Healthy')) {
         // Scrape targets check (sequential since it depends on health)
-        const promTargets = await dockerExecAsync(CONFIG.containers.prometheus, ['wget', '-qO-', `http://localhost:${CONFIG.ports.prometheus}/api/v1/targets?state=active`]);
+        const promTargets = await dockerExecAsync(prometheusNode, ['wget', '-qO-', `http://localhost:${CONFIG.ports.prometheus}/api/v1/targets?state=active`]);
         if (promTargets) {
             const parsed = safeParse(promTargets);
             if (parsed.ok) {
@@ -531,7 +528,7 @@ await runSectionAsync('Observability Stack', async () => {
     // Loki ready — also query labels API to confirm Alloy→Loki pipeline is shipping data
     const lokiReady = settled(lokiReadyResult);
     if (lokiReady && lokiReady.toLowerCase().includes('ready')) {
-        const lokiLabels = await dockerExecAsync(CONFIG.containers.datadogUnified, ['curl', '-s', '--connect-timeout', curlSec, `http://loki:${CONFIG.ports.loki}/loki/api/v1/labels`]);
+        const lokiLabels = await dockerExecAsync(datadogUnifiedNode, ['curl', '-s', '--connect-timeout', curlSec, `http://loki:${CONFIG.ports.loki}/loki/api/v1/labels`]);
         let labelCount = 0;
         if (lokiLabels) {
             const parsed = safeParse(lokiLabels);
@@ -565,12 +562,12 @@ runSection('Datadog Integration Status', () => {
     console.log(SEPARATOR);
 
     // Primary indicator: Docker-level health (already collected in Section 1 — immune to transient agent health exec failures)
-    const ddDockerStatus = runningContainers[CONFIG.containers.datadogUnified]?.status ?? '';
+    const ddDockerStatus = runningContainers[datadogUnifiedNode]?.status ?? '';
     const ddContainerHealthy = ddDockerStatus.includes('healthy') && !ddDockerStatus.includes('unhealthy');
 
     if (ddContainerHealthy) {
         // Get full status to parse per-integration check results
-        const ddStatus = dockerExec(CONFIG.containers.datadogUnified, ['agent', 'status'], true);
+        const ddStatus = dockerExec(datadogUnifiedNode, ['agent', 'status'], true);
         if (ddStatus) {
             // Single-pass categorization — avoids 4 intermediate array allocations
             const { errorInstances, warningInstances, okInstances } = splitLines(ddStatus).reduce(
@@ -625,7 +622,7 @@ runSection('MCP Server Metrics', () => {
     console.log('\n7. MCP Server Metrics:');
     console.log(SEPARATOR);
 
-    const mcpMetrics = dockerExec(CONFIG.containers.datadogUnified, ['curl', '-s', '--connect-timeout', CONFIG.timeouts.curlSec, `http://mysql-mcp-exporter:${CONFIG.ports.mcpExporter}/metrics`], true);
+    const mcpMetrics = dockerExec(datadogUnifiedNode, ['curl', '-s', '--connect-timeout', CONFIG.timeouts.curlSec, `http://mysql-mcp-exporter:${CONFIG.ports.mcpExporter}/metrics`], true);
     if (mcpMetrics && mcpMetrics.includes(CONFIG.metricsPrefix)) {
         // Count unique metric families via regex (avoids full array allocation)
         const seen = new Set();
@@ -659,7 +656,7 @@ runSection('Test Database Integrity', () => {
     if (!firstMysqlNode) throw new Error('No MySQL nodes found');
 
     const batchOut = dockerExecEnv(firstMysqlNode, [MYSQL_PWD_ENV],
-        ['mysql', '-h', CONFIG.containers.mysqlRouter, '-P', CONFIG.ports.routerRW, MYSQL_USER_FLAG, CONFIG.database, '-N', '-s', '-e', `${batchQuery};`], true);
+        ['mysql', '-h', mysqlRouterNode, '-P', CONFIG.ports.routerRW, MYSQL_USER_FLAG, CONFIG.database, '-N', '-s', '-e', `${batchQuery};`], true);
 
     let dbIntegrityOk = true;
     const tableFailures = [];
@@ -715,11 +712,11 @@ await runSectionAsync('Filesystem Boundaries', async () => {
     console.log(SEPARATOR);
     
     // Check if the volumes are mounted correctly in mysql-node1 (only check if node1 is up)
-    if (runningContainers[CONFIG.containers.mysqlNode1] && runningContainers[CONFIG.containers.mysqlNode1].state === 'running') {
+    if (runningContainers[firstMysqlNode] && runningContainers[firstMysqlNode].state === 'running') {
         // Two independent ls calls — fire in parallel
         const [workspaceResult, scratchResult] = await Promise.all([
-            dockerExecAsync(CONFIG.containers.mysqlNode1, ['ls', CONFIG.workspace.mcpPackageJson]),
-            dockerExecAsync(CONFIG.containers.mysqlNode1, ['ls', '-d', CONFIG.workspace.scratchDir]),
+            dockerExecAsync(firstMysqlNode, ['ls', CONFIG.workspace.mcpPackageJson]),
+            dockerExecAsync(firstMysqlNode, ['ls', '-d', CONFIG.workspace.scratchDir]),
         ]);
         const workspaceCheck = workspaceResult;
         const scratchCheck = scratchResult;
