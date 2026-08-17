@@ -271,7 +271,7 @@ export const BufferPoolStatsSchema = z
     limit: z.union([z.number(), z.string()]).optional(),
   })
   .strict()
-  .refine((data) => !data.query && !data.sql && !data.table && !data.tableName && !data.schema && !data.database && !data.db && data.limit === undefined, {
+  .refine((data) => data.query === undefined && data.sql === undefined && data.table === undefined && data.tableName === undefined && data.schema === undefined && data.database === undefined && data.db === undefined && data.limit === undefined, {
     message: "Anti-Hallucination Hint: mysql_buffer_pool_stats returns overall server stats. It does NOT accept a specific query, sql, table, tableName, schema, database, db, or limit string.",
   });
 
@@ -318,7 +318,7 @@ export const ThreadStatsSchema = z
       user: z.string().optional(),
     })
     .strict()
-    .refine((data) => !data.query && !data.sql && !data.table && !data.tableName && !data.schema && !data.database && !data.db && !data.status && !data.state && !data.user, {
+    .refine((data) => data.query === undefined && data.sql === undefined && data.table === undefined && data.tableName === undefined && data.schema === undefined && data.database === undefined && data.db === undefined && data.status === undefined && data.state === undefined && data.user === undefined, {
       message: "Anti-Hallucination Hint: mysql_thread_stats returns overall server stats. It does NOT accept a specific query, sql, table, tableName, schema, database, db, status, state, or user.",
     }),
   )
