@@ -43,7 +43,7 @@ const targetPort = cluster ? '6446' : '3306';
 const mysqlHost = 'localhost';
 const mysqlPort = cluster ? '3307' : '3306';
 const mysqlUser = 'root';
-const mysqlPassword = 'root';
+const mysqlPassword = process.env.MYSQL_ROOT_PASSWORD || 'root';
 const mysqlDatabase = 'testdb';
 const targetLabel = cluster ? 'InnoDB Cluster' : 'Standalone MySQL';
 
@@ -60,8 +60,8 @@ if (!existsSync(seedFile)) {
 function invokeMySql(query, noDatabase = false, isRetry = false) {
     const db = noDatabase ? '' : mysqlDatabase;
     const args = db 
-        ? [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', db, '-e', query]
-        : [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', '-e', query];
+        ? [...dockerBaseArgs, 'exec', '-e', `MYSQL_PWD=${mysqlPassword}`, containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', db, '-e', query]
+        : [...dockerBaseArgs, 'exec', '-e', `MYSQL_PWD=${mysqlPassword}`, containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', '-e', query];
         
     try {
         const result = execFileSync(dockerCmd, args, { encoding: 'utf-8', stdio: 'pipe' });
@@ -70,7 +70,7 @@ function invokeMySql(query, noDatabase = false, isRetry = false) {
         if (!isRetry && (e.message.includes('1290') || e.message.includes('--super-read-only'))) {
             console.log(`\n[!] Detected super-read-only mode. Automatically disabling...`);
             try {
-                execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = 0'], { encoding: 'utf-8' });
+                execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', `MYSQL_PWD=${mysqlPassword}`, containerName, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = 0'], { encoding: 'utf-8' });
                 console.log(`[!] super-read-only disabled. Retrying command...`);
                 return invokeMySql(query, noDatabase, true);
             } catch (err) {
@@ -92,12 +92,12 @@ function invokeMySqlFile(filePath, isRetry = false) {
         const fileContent = readFileSync(filePath, 'utf-8').replace(/\r\n/g, '\n');
         // --binary-mode: prevents MySQL CLI from interpreting \n, \G, \q etc.
         // as interactive commands when receiving piped SQL input.
-        execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-i', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '--binary-mode', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase], { input: fileContent, stdio: 'pipe' });
+        execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-i', '-e', `MYSQL_PWD=${mysqlPassword}`, containerName, 'mysql', '--binary-mode', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase], { input: fileContent, stdio: 'pipe' });
     } catch (e) {
         if (!isRetry && (e.message.includes('1290') || e.message.includes('--super-read-only'))) {
             console.log(`\n[!] Detected super-read-only mode during seed script. Automatically disabling...`);
             try {
-                execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = 0'], { encoding: 'utf-8' });
+                execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', `MYSQL_PWD=${mysqlPassword}`, containerName, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = 0'], { encoding: 'utf-8' });
                 console.log(`[!] super-read-only disabled. Retrying seed script...`);
                 return invokeMySqlFile(filePath, true);
             } catch (err) {
@@ -159,7 +159,7 @@ if (!skipVerify) {
         
         for (let attempt = 1; attempt <= 3; attempt++) {
             try {
-                const result = execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase, '-N', '-s', '-e', `SELECT COUNT(*) FROM ${table};`], { encoding: 'utf-8', stdio: 'pipe' });
+                const result = execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', `MYSQL_PWD=${mysqlPassword}`, containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase, '-N', '-s', '-e', `SELECT COUNT(*) FROM ${table};`], { encoding: 'utf-8', stdio: 'pipe' });
                 const countStr = result.match(/\d+/);
                 count = countStr ? parseInt(countStr[0], 10) : 0;
                 success = true;

@@ -25,7 +25,8 @@ if (mysqlNodes.length === 0) {
 
 try {
     // 1. Identify current primary
-    const primaryOut = execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', mysqlNodes[0], 'mysql', '-uroot', '-N', '-s', '-e', "SELECT member_host FROM performance_schema.replication_group_members WHERE member_role='PRIMARY';"], { encoding: 'utf-8', stdio: 'pipe' });
+    const mysqlPassword = process.env.MYSQL_ROOT_PASSWORD || 'root';
+    const primaryOut = execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', `MYSQL_PWD=${mysqlPassword}`, mysqlNodes[0], 'mysql', '-uroot', '-N', '-s', '-e', "SELECT member_host FROM performance_schema.replication_group_members WHERE member_role='PRIMARY';"], { encoding: 'utf-8', stdio: 'pipe' });
     let currentPrimary = primaryOut.trim();
     if (currentPrimary.includes('mysql: [Warning]')) {
         currentPrimary = currentPrimary.split('\n').pop().trim();
@@ -55,10 +56,10 @@ c.setPrimaryInstance('${currentPrimary}:3306');
 print('\\nCycle complete.');
 `;
     
-    execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', mysqlNodes[0], 'mysqlsh', '--user=root', '--password=root', '--host=127.0.0.1', '--port=3306', '--js', '-e', jsPayload], { encoding: 'utf-8', stdio: 'inherit' });
+    execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', mysqlNodes[0], 'mysqlsh', '--user=root', `--password=${mysqlPassword}`, '--host=127.0.0.1', '--port=3306', '--js', '-e', jsPayload], { encoding: 'utf-8', stdio: 'inherit' });
     
     // Verify
-    let readOnlyCheck = execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', currentPrimary, 'mysql', '-uroot', '-N', '-s', '-e', "SELECT @@super_read_only;"], { encoding: 'utf-8', stdio: 'pipe' });
+    let readOnlyCheck = execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', `MYSQL_PWD=${mysqlPassword}`, currentPrimary, 'mysql', '-uroot', '-N', '-s', '-e', "SELECT @@super_read_only;"], { encoding: 'utf-8', stdio: 'pipe' });
     if (readOnlyCheck.includes('mysql: [Warning]')) {
         readOnlyCheck = readOnlyCheck.split('\n').pop().trim();
     }

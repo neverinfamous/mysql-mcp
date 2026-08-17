@@ -39,7 +39,7 @@ docker compose up -d
 | **Loki** | `loki` | `3100` | `grafana/loki:3.7.6` |
 | **Grafana Alloy** | `alloy` | `12345` (internal HTTP) | `grafana/alloy:v1.18.1` |
 | **Grafana** | `grafana` | `3001` | `grafana/grafana:13.1.3` |
-| **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7.82.1` |
+| **Datadog Agent** | `datadog-unified`| `8125/udp, 4318` | `gcr.io/datadoghq/agent:7.82.1` |
 
 > **Version Pinning:** All images use explicit version tags defined in [`docker-compose.yml`](docker-compose.yml). See that file for current versions.
 > **Resilience:** All containers are configured with `restart: unless-stopped` to gracefully survive host laptop reboots without manual intervention.

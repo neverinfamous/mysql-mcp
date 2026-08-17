@@ -16,7 +16,7 @@ const ECOSYSTEM_ROOT = path.resolve(__dirname, '..');
 // ============================================================
 const CONFIG = {
     credentials: {
-        mysql: { user: 'root', password: 'root' },
+        mysql: { user: 'root', password: process.env.MYSQL_ROOT_PASSWORD || 'root' },
         proxyAdmin: { user: 'radmin', password: 'radmin' },
         proxyData: { user: 'cluster_admin', password: 'cluster_admin' },
         routerApi: { user: 'rest_api', password: 'router_api' },

@@ -38,7 +38,12 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot" ]
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD:-root}
+            2>/dev/null || exit 1"
+        ]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -82,7 +87,12 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot" ]
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD:-root}
+            2>/dev/null || exit 1"
+        ]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -126,7 +136,12 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot" ]
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD:-root}
+            2>/dev/null || exit 1"
+        ]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -170,7 +185,12 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot" ]
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD:-root}
+            2>/dev/null || exit 1"
+        ]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -187,6 +207,7 @@ services:
     entrypoint: [ "/bin/bash", "/scripts/cluster-healer.sh" ]
     environment:
       - MYSQL_NODES_LIST=mysql-node1 mysql-node2 mysql-node3
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
     depends_on:
       mysql-node1:
         condition: service_healthy
