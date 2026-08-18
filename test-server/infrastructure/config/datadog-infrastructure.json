@@ -17,12 +17,12 @@
                 "comparator": "=",
                 "custom_bg_color": "#841001",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               },
               {
                 "comparator": "=",
                 "palette": "white_on_green",
-                "value": 1
+                "value": 1.0
               }
             ],
             "formulas": [
@@ -653,12 +653,12 @@
                 "comparator": "=",
                 "custom_bg_color": "#841001",
                 "palette": "custom_bg",
-                "value": 1
+                "value": 1.0
               },
               {
                 "comparator": "=",
                 "palette": "white_on_green",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -696,6 +696,14 @@
     },
     {
       "definition": {
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "area",
@@ -711,10 +719,16 @@
                 "query": "max:mysql_mcp.mysql_mcp_pool_connections_idle{*}.rollup(max)"
               }
             ],
-            "response_format": "timeseries"
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
           }
         ],
         "show_legend": false,
+        "time": {},
         "title": "MCP Pool Connections",
         "type": "timeseries"
       },
@@ -763,7 +777,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "Node.js Heap Memory",
         "type": "timeseries"
       },
@@ -812,7 +825,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "Node.js Active Requests/Handles",
         "type": "timeseries"
       },
@@ -856,6 +868,14 @@
     },
     {
       "definition": {
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "vertical",
         "requests": [
           {
             "display_type": "line",
@@ -871,49 +891,6 @@
                 "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p95{*} by {tool}.rollup(avg)"
               }
             ],
-            "response_format": "timeseries"
-          }
-        ],
-        "show_legend": false,
-        "title": "MCP Tool Duration Percentiles",
-        "type": "timeseries"
-      },
-      "id": 999999999999995,
-      "layout": {
-        "height": 2,
-        "width": 3,
-        "x": 3,
-        "y": 9
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_http_rx_bytes.count{*}.as_count().rollup(sum)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query2",
-                "query": "sum:mysql_mcp.mysql_mcp_http_tx_bytes.count{*}.as_count().rollup(sum)"
-              }
-            ],
             "response_format": "timeseries",
             "style": {
               "line_type": "solid",
@@ -922,16 +899,16 @@
             }
           }
         ],
-        "show_legend": false,
+        "show_legend": true,
         "time": {},
-        "title": "MCP Server Network I/O",
+        "title": "MCP Tool Duration Percentiles",
         "type": "timeseries"
       },
-      "id": 999999999999994,
+      "id": 999999999999995,
       "layout": {
-        "height": 2,
-        "width": 3,
-        "x": 6,
+        "height": 5,
+        "width": 6,
+        "x": 3,
         "y": 9
       }
     },
@@ -972,7 +949,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "MCP Cache Performance",
         "type": "timeseries"
       },
@@ -1022,6 +998,54 @@
         "width": 3,
         "x": 0,
         "y": 10
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_http_rx_bytes.count{*}.as_count().rollup(sum)"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "sum:mysql_mcp.mysql_mcp_http_tx_bytes.count{*}.as_count().rollup(sum)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": false,
+        "title": "MCP Server Network I/O",
+        "type": "timeseries"
+      },
+      "id": 999999999999994,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 9,
+        "y": 11
       }
     },
     {
