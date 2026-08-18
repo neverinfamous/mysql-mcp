@@ -217,12 +217,12 @@
             ],
             "query": {
               "data_source": "logs_stream",
-              "query_string": "source:proxysql (status:error OR status:warn OR \"error\" OR \"failed\")"
+              "query_string": "source:proxysql"
             },
             "response_format": "event_list"
           }
         ],
-        "title": "ProxySQL Error Logs",
+        "title": "ProxySQL Logs",
         "type": "list_stream"
       },
       "id": 7992432021567240,
