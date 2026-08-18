@@ -168,6 +168,13 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
         "legend_layout": "auto",
         "requests": [
           {
@@ -198,11 +205,12 @@
             "style": {
               "line_type": "solid",
               "line_width": "normal",
-              "palette": "dog_classic"
+              "palette": "green"
             }
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "MySQL Shell Group Replication Lag",
         "title_align": "left",
         "title_size": "16",
@@ -719,6 +727,14 @@
     },
     {
       "definition": {
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "line",
@@ -729,10 +745,16 @@
                 "query": "max:mysqlrouter.connections.active{*} by {route}"
               }
             ],
-            "response_format": "timeseries"
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
           }
         ],
         "show_legend": false,
+        "time": {},
         "title": "MySQL Router Active Connections",
         "type": "timeseries"
       },
@@ -781,7 +803,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "MySQL Router Network Throughput (Bytes)",
         "type": "timeseries"
       },
