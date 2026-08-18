@@ -150,7 +150,7 @@ All containers are configured with `restart: unless-stopped`. This ensures that 
 | Datadog AI Efficiency | `https://app.datadoghq.com/dashboard/q48-mq9-3i7` (Tracks `mysql-mcp` cache, pool metrics, and error rates) |
 | Datadog Custom Dashboard | `https://app.datadoghq.com/dashboard/qwe-2un-us8` (Includes the **MySQL-MCP Audit Log** widget `source:mysql_mcp log_type:mcp_audit`) |
 | Datadog MySQL Overview | `https://app.datadoghq.com/dash/integration/12/mysql---overview` |
-| Datadog Local Backups | `config/datadog-*.json` (e.g. AI Efficiency, Redis, MySQL) |
+| Datadog Local Backups | `../../../examples/dashboards/datadog-*.json` (e.g. AI Efficiency, Redis, MySQL) |
 | Datadog Host Map | `https://app.datadoghq.com/infrastructure/map` (look for `adamic-wsl2`) |
 | Datadog Containers | `https://app.datadoghq.com/containers` |
 | Datadog Live Processes | `https://app.datadoghq.com/process` |
