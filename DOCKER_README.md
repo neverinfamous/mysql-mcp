@@ -62,7 +62,7 @@ docker run -i --rm -v ./data:/app/data -v ./logs:/var/log/mysql-mcp writenotenow
 Launch the full observability stack (Datadog + OpenTelemetry + Prometheus + Grafana) using the included template. This spins up the MCP server, MySQL database, Redis, and observability sidecars. See the **[Observability Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Observability)** for deep-dive metrics configuration:
 
 ```bash
-cd examples/full-observability-ecosystem
+cd examples/basic-mysql-datadog
 cp .env.example .env
 docker compose up -d
 ```

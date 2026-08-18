@@ -127,7 +127,7 @@ docker run -i --rm -v ./data:/app/data -v ./logs:/var/log/mysql-mcp writenotenow
 Launch the full observability stack using the included template. This includes Datadog, OpenTelemetry, Prometheus, and Grafana. This spins up the MCP server, MySQL database, Redis, and observability sidecars:
 
 ```bash
-cd examples/full-observability-ecosystem
+cd examples/basic-mysql-datadog
 cp .env.example .env
 docker compose up -d
 ```
@@ -697,18 +697,18 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 The server handles millions of ops/sec across core execution paths. This ensures minimal latency and maximum throughput. Every component is tuned for enterprise-scale workloads. Enjoy sub-millisecond sandbox cold starts and optimized reverse lookups.
 
 **Benchmark Baselines:**
-- parseToolFilter: ~16,000-27,000 ops/sec
-- CodeModeSandbox.create cold start: ~1.38M ops/sec
-- Sandbox dispose: ~1.69M ops/sec
-- SandboxPool init: ~71k ops/sec
-- Set.has tool check: ~2.8M ops/sec
-- Map.get reverse lookup: ~2.5M ops/sec
-- Map.get URI match: ~2.3M-3.0M ops/sec
-- validateCode safe short: ~81k ops/sec
-- validateCode blocked: ~251k ops/sec
-- checkRateLimit: ~1.0M ops/sec
-- sanitizeResult small payload: ~660k ops/sec
-- prompt schema parse: ~600k ops/sec
+- parseToolFilter: ~32,000-62,000 ops/sec
+- CodeModeSandbox.create cold start: ~2.78M ops/sec
+- Sandbox dispose: ~2.37M ops/sec
+- SandboxPool init: ~109k ops/sec
+- Set.has tool check: ~4.4M ops/sec
+- Map.get reverse lookup: ~4.5M ops/sec
+- Map.get URI match: ~5.1M ops/sec
+- validateCode safe short: ~173k ops/sec
+- validateCode blocked: ~298k ops/sec
+- checkRateLimit: ~205k ops/sec
+- sanitizeResult small payload: ~1.49M ops/sec
+- prompt schema parse: ~1.3M ops/sec
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`). Increase it for production with stable schemas (e.g., `300000` = 5 min).
 
@@ -795,7 +795,10 @@ See [Enforce OAuth Scopes](#enforce-oauth-scopes).
 See **[Build From Source](#build-from-source)** above for setup. After cloning:
 
 ```bash
-pnpm run lint && pnpm run typecheck && pnpm test && pnpm run test:e2e  # Run individually to avoid timeouts
+pnpm run lint
+pnpm run typecheck
+pnpm test
+pnpm run test:e2e  # Run individually to avoid timeouts
 ```
 
 ### Debug with MCP Inspector

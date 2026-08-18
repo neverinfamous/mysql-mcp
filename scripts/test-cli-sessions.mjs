@@ -7,7 +7,7 @@ async function runTest() {
   console.log("Starting server...");
   const server = spawn('node', ['dist/cli.js', '--transport', 'http', '--port', '12345'], {
     stdio: 'pipe',
-    shell: true,
+    shell: false,
     env: { ...process.env, MYSQL_USER: 'root', MYSQL_PASSWORD: 'root', MYSQL_HOST: '127.0.0.1', MYSQL_DATABASE: 'mysql', ALLOWED_IO_ROOTS: 'C:\\' }
   });
 

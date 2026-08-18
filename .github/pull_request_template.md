@@ -1,4 +1,4 @@
-Thank you for contributing to MySQL MCP—the production-ready integration engineered for AI agents!
+Thank you for contributing to MySQL MCP—the production-ready, highly observable integration engineered for AI agents!
 
 ## Detail Your Value-Adding Changes
 
@@ -43,3 +43,4 @@ Detail the specific tests you ran. Ensure thorough validation.
 - [ ] I have ensured schema examples reflect the comprehensive toolset and current configuration flags.
 - [ ] I have ensured version-agnostic text (no exact tool/resource counts)
 - [ ] I have verified performance benchmark throughput (via pnpm run bench) for any hot-path modifications
+- [ ] I have verified that new features expose relevant Prometheus metrics and maintain observability standards

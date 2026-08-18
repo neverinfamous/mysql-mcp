@@ -133,3 +133,4 @@ When reviewing PRs, check for:
 - [ ] Schema examples accurately reflect the comprehensive toolset and current configuration flags
 - [ ] Ensure version-agnostic text (no exact tool/resource counts)
 - [ ] Verify the author has verified performance benchmark throughput (via pnpm run bench) for any hot-path modifications
+- [ ] Verify the author has exposed relevant Prometheus metrics and maintained observability standards for any new features
