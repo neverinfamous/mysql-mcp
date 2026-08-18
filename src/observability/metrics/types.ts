@@ -23,6 +23,7 @@ export interface MetricSummary {
   calls: number;
   errors: Record<string, number>;
   tokens: number;
+  completionTokens: number;
   p50: number;
   p95: number;
   p99: number;
@@ -30,6 +31,7 @@ export interface MetricSummary {
 
 export interface ResourceMetricSummary {
   reads: number;
+  readBytes: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -40,6 +42,7 @@ export interface JsonlToolStats {
   calls: number;
   errors: number;
   tokens: number;
+  completionTokens: number;
   durations: number[];
   errorTypes: Record<string, number>;
   errorCategories: Record<string, number>;
@@ -48,7 +51,7 @@ export interface JsonlToolStats {
 export interface JsonlState {
   offset: number;
   toolStats: Map<string, JsonlToolStats>;
-  resourceStats: Map<string, { reads: number }>;
+  resourceStats: Map<string, { reads: number; readBytes: number }>;
   poolStatsByPid: Map<number, PoolStats>;
 }
 
@@ -61,6 +64,7 @@ export const SnapshotRowSchema = z.object({
   max_calls: z.number(),
   max_errors: z.number(),
   max_tokens: z.number(),
+  max_completion_tokens: z.number().optional().default(0),
   p50: z.number(),
   p95: z.number(),
   p99: z.number(),
@@ -74,6 +78,7 @@ export const LiveRowSchema = z.object({
   live_calls: z.number(),
   live_errors: z.number(),
   live_tokens: z.number(),
+  live_completion_tokens: z.number().optional().default(0),
 });
 
 /**
@@ -97,6 +102,16 @@ export const CacheSnapshotRowSchema = z.object({
 export const ResourceSnapshotRowSchema = z.object({
   uri: z.string(),
   max_reads: z.number(),
+  max_read_bytes: z.number().optional().default(0),
+});
+
+export const PoolStatsSchema = z.object({
+  total: z.number(),
+  active: z.number(),
+  idle: z.number(),
+  waiting: z.number(),
+  totalQueries: z.number(),
+  connectionErrors: z.number().optional().default(0),
 });
 
 // Re-export PoolStats for convenience

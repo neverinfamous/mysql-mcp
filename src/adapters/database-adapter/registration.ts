@@ -199,15 +199,23 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
         // Auditing is disabled, but we still need to record metrics
         const startTime = Date.now();
         let success = false;
-        let tokens = 0;
+        let tokens = 0; // promptTokens
+        let completionTokens = 0;
         let errorType: string | undefined;
         let errorCategory: string | undefined;
+
+        try {
+          const paramsStr = JSON.stringify(params ?? {});
+          tokens = Math.ceil(Buffer.byteLength(paramsStr, "utf8") / 4) + 12;
+        } catch {
+          // ignore
+        }
 
         try {
           const result = await execFn();
           success = !result.isError;
           if (success) {
-            tokens = result.content?.[0]?.type === "text" 
+            completionTokens = result.content?.[0]?.type === "text" 
               ? Math.ceil(Buffer.byteLength(result.content[0].text, "utf8") / 4) 
               : 0;
           }
@@ -218,7 +226,7 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
           throw error; // Let the outer catch block format the error
         } finally {
           const durationMs = Date.now() - startTime;
-          metrics.recordToolCall(tool.name, durationMs, success, tokens, errorType, errorCategory);
+          metrics.recordToolCall(tool.name, durationMs, success, tokens, completionTokens, errorType, errorCategory);
         }
       } catch (error: unknown) {
         const errorMessage =

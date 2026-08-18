@@ -199,6 +199,31 @@ export class HttpTransport {
     req: IncomingMessage,
     res: ServerResponse,
   ): Promise<void> {
+    // --- Byte Tracking ---
+    let rxBytes = 0;
+    let txBytes = 0;
+
+    req.on("data", (chunk: Buffer) => {
+      rxBytes += chunk.length;
+    });
+
+    const originalWrite = res.write;
+    const originalEnd = res.end;
+
+    res.write = function (chunk: any, ...args: any[]): boolean {
+      if (chunk) txBytes += Buffer.byteLength(chunk);
+      return originalWrite.apply(res, [chunk, ...args] as any);
+    } as any;
+
+    res.end = function (chunk?: any, ...args: any[]): any {
+      if (chunk && typeof chunk !== 'function') txBytes += Buffer.byteLength(chunk);
+      return originalEnd.apply(res, [chunk, ...args] as any);
+    } as any;
+
+    res.on("finish", () => {
+      metrics.recordHttpTransportBytes(rxBytes, txBytes);
+    });
+
     // Set security headers for all responses
     setSecurityHeaders(res, this.config);
 

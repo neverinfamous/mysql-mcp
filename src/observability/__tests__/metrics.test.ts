@@ -224,6 +224,7 @@ describe("metrics", () => {
         10, // p95
         10, // p99
         0,  // tokens
+        0,  // completion_tokens
         "{}", // categories_json
         "{}" // errors_json
       );

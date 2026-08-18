@@ -36,6 +36,8 @@ export class MetricsRegistry {
   private lastPercentileUpdate = { value: 0 };
   private redis = new RedisMetric();
   private httpErrors: Record<string, number> = { "401": 0, "413": 0, "429": 0 };
+  private httpRxBytes = 0;
+  private httpTxBytes = 0;
   private jsonlState: JsonlState = {
     offset: 0,
     toolStats: new Map(),
@@ -222,8 +224,8 @@ export class MetricsRegistry {
     try {
       const db = this.systemDb.getDb();
       const stmt = db.prepare(`
-        INSERT INTO metrics_snapshots (timestamp, tool, calls, errors, p50, p95, p99, tokens, categories_json, errors_json)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO metrics_snapshots (timestamp, tool, calls, errors, p50, p95, p99, tokens, completion_tokens, categories_json, errors_json)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       const timestamp = new Date().toISOString();
       const transaction = db.transaction(() => {
@@ -242,6 +244,7 @@ export class MetricsRegistry {
             summary.p95,
             summary.p99,
             summary.tokens,
+            summary.completionTokens,
             JSON.stringify(metric.errorCategories),
             JSON.stringify(metric.errors),
           );
@@ -288,6 +291,7 @@ export class MetricsRegistry {
     durationMs: number,
     success: boolean,
     tokens = 0,
+    completionTokens = 0,
     errorType?: string,
     errorCategory?: string,
   ): void {
@@ -296,7 +300,7 @@ export class MetricsRegistry {
       metric = new ToolMetric();
       this.tools.set(toolName, metric);
     }
-    metric.record(durationMs, success, tokens, errorType, errorCategory);
+    metric.record(durationMs, success, tokens, completionTokens, errorType, errorCategory);
 
     // OTel observations — no-ops when no MeterProvider is registered
     const attributes = { tool: toolName, success: String(success) };
@@ -307,13 +311,13 @@ export class MetricsRegistry {
     }
   }
 
-  recordResourceRead(uri: string): void {
+  recordResourceRead(uri: string, bytes = 0): void {
     let metric = this.resources.get(uri);
     if (!metric) {
       metric = new ResourceMetric();
       this.resources.set(uri, metric);
     }
-    metric.record();
+    metric.record(bytes);
 
     if (this.auditLogger) {
       this.auditLogger.log({
@@ -361,6 +365,14 @@ export class MetricsRegistry {
     }
   }
 
+  setCacheItems(items: number): void {
+    this.cache.items = items;
+  }
+
+  recordCacheEviction(): void {
+    this.cache.evictions++;
+  }
+
   recordRedisRateLimitExceeded(): void {
     this.redis.recordRateLimitExceeded();
   }
@@ -380,6 +392,11 @@ export class MetricsRegistry {
   recordHttpError(statusCode: number): void {
     const key = String(statusCode);
     this.httpErrors[key] = (this.httpErrors[key] ?? 0) + 1;
+  }
+
+  recordHttpTransportBytes(rx: number, tx: number): void {
+    this.httpRxBytes += rx;
+    this.httpTxBytes += tx;
   }
 
   // ---------------------------------------------------------------------------
@@ -417,6 +434,8 @@ export class MetricsRegistry {
       this.cache,
       this.redis,
       this.httpErrors,
+      this.httpRxBytes,
+      this.httpTxBytes,
       this.poolStatsProvider,
       this.jsonlState.poolStatsByPid,
       this.startedAt,

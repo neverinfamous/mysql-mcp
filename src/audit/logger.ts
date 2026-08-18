@@ -25,6 +25,7 @@ interface AuditLogRow {
   durationMs: number;
   success: number;
   tokenEstimate: number | null;
+  completionTokens: number | null;
   error: string | null;
   argsJson: string | null;
   backupPath: string | null;
@@ -135,8 +136,8 @@ export class AuditLogger {
         if (this.systemDb) {
           const db = this.systemDb.getDb();
           const stmt = db.prepare(`
-            INSERT INTO audit_logs (timestamp, requestId, tool, category, scope, user, scopesJson, durationMs, success, tokenEstimate, error, argsJson, backupPath)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO audit_logs (timestamp, requestId, tool, category, scope, user, scopesJson, durationMs, success, tokenEstimate, completionTokens, error, argsJson, backupPath)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `);
 
           const transaction = db.transaction((entries: string[]) => {
@@ -153,6 +154,7 @@ export class AuditLogger {
                 log.durationMs,
                 log.success ? 1 : 0,
                 log.tokenEstimate ?? null,
+                log.completionTokens ?? null,
                 log.error ?? null,
                 log.args ? JSON.stringify(log.args) : null,
                 log.backup ?? null,
@@ -232,6 +234,7 @@ export class AuditLogger {
           durationMs: row.durationMs,
           success: row.success === 1,
           tokenEstimate: row.tokenEstimate ?? undefined,
+          completionTokens: row.completionTokens ?? undefined,
           error: row.error ?? undefined,
           args: row.argsJson
             ? (JSON.parse(row.argsJson) as Record<string, unknown>)
@@ -412,6 +415,7 @@ export class AuditLogger {
         durationMs: row.durationMs,
         success: row.success === 1,
         tokenEstimate: row.tokenEstimate ?? undefined,
+        completionTokens: row.completionTokens ?? undefined,
         error: row.error ?? undefined,
         args: row.argsJson
           ? (JSON.parse(row.argsJson) as Record<string, unknown>)

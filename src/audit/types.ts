@@ -55,8 +55,11 @@ export interface AuditEntry {
   /** Relative path to the pre-mutation snapshot file; undefined when audit backup is disabled. */
   backup?: string | undefined;
 
-  /** Estimated token count of the tool response (~4 bytes per token) */
+  /** Estimated prompt token count of the tool invocation (~4 bytes per token) */
   tokenEstimate?: number | undefined;
+
+  /** Estimated completion token count of the tool response (~4 bytes per token) */
+  completionTokens?: number | undefined;
 }
 
 /** Audit log configuration */

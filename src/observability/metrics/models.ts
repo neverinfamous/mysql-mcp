@@ -21,7 +21,7 @@ export class ToolMetric {
   public errors: Record<string, number> = {};
   public errorCategories: Record<string, number> = {};
   public tokens = 0;
-
+  public completionTokens = 0;
   // Circular buffer for latency samples
   private samples: number[] = new Array<number>(MAX_SAMPLES).fill(0);
   private sampleIndex = 0;
@@ -36,6 +36,7 @@ export class ToolMetric {
     durationMs: number,
     success: boolean,
     tokens = 0,
+    completionTokens = 0,
     errorType?: string,
     errorCategory?: string,
   ): void {
@@ -47,6 +48,7 @@ export class ToolMetric {
       this.errorCategories[cat] = (this.errorCategories[cat] ?? 0) + 1;
     }
     this.tokens += tokens;
+    this.completionTokens += completionTokens;
 
     this.samples[this.sampleIndex] = durationMs;
     this.sampleIndex = (this.sampleIndex + 1) % MAX_SAMPLES;
@@ -66,6 +68,7 @@ export class ToolMetric {
         calls: this.calls,
         errors: this.errors,
         tokens: this.tokens,
+        completionTokens: this.completionTokens,
         p50: this.loaded_p50,
         p95: this.loaded_p95,
         p99: this.loaded_p99,
@@ -81,6 +84,7 @@ export class ToolMetric {
       calls: this.calls,
       errors: this.errors,
       tokens: this.tokens,
+      completionTokens: this.completionTokens,
       p50: this.getPercentile(activeSamples, 0.5),
       p95: this.getPercentile(activeSamples, 0.95),
       p99: this.getPercentile(activeSamples, 0.99),
@@ -109,10 +113,12 @@ export class ToolMetric {
 
 export class ResourceMetric {
   public reads = 0;
+  public readBytes = 0;
   private localReads = 0;
 
-  record(): void {
+  record(bytes = 0): void {
     this.reads++;
+    this.readBytes += bytes;
     this.localReads++;
   }
 
@@ -121,7 +127,7 @@ export class ResourceMetric {
   }
 
   getSummary(): ResourceMetricSummary {
-    return { reads: this.reads };
+    return { reads: this.reads, readBytes: this.readBytes };
   }
 }
 
@@ -132,6 +138,8 @@ export class ResourceMetric {
 export class CacheMetric {
   public hits = 0;
   public misses = 0;
+  public items = 0;
+  public evictions = 0;
 
   recordHit(): void {
     this.hits++;
@@ -141,8 +149,8 @@ export class CacheMetric {
     this.misses++;
   }
 
-  getSummary(): { hits: number; misses: number } {
-    return { hits: this.hits, misses: this.misses };
+  getSummary(): { hits: number; misses: number; items: number; evictions: number } {
+    return { hits: this.hits, misses: this.misses, items: this.items, evictions: this.evictions };
   }
 }
 

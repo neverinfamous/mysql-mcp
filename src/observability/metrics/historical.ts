@@ -74,6 +74,7 @@ export function loadHistorical(
     live_calls: number;
     live_errors: number;
     live_tokens: number;
+    live_completion_tokens: number;
     durations?: number[];
   }[] = [];
   let parsedLiveCategoryRows: {
@@ -84,6 +85,7 @@ export function loadHistorical(
   }[] = [];
   const snapshotCallBaselines = new Map<string, number>();
   const snapshotTokenBaselines = new Map<string, number>();
+  const snapshotCompletionTokenBaselines = new Map<string, number>();
   const snapshotCategoryBaselines = new Map<string, Record<string, number>>();
   const snapshotErrorBaselines = new Map<string, Record<string, number>>();
   let since = "1970-01-01T00:00:00.000Z";
@@ -94,7 +96,7 @@ export function loadHistorical(
       const rows = db
         .prepare(
           `
-        SELECT tool, calls as max_calls, errors as max_errors, tokens as max_tokens, p50, p95, p99, categories_json, errors_json
+        SELECT tool, calls as max_calls, errors as max_errors, tokens as max_tokens, completion_tokens as max_completion_tokens, p50, p95, p99, categories_json, errors_json
         FROM metrics_snapshots
         WHERE id IN (SELECT MAX(id) FROM metrics_snapshots GROUP BY tool)
       `,
@@ -117,12 +119,14 @@ export function loadHistorical(
           row.max_errors,
         );
         metric.tokens = Math.max(metric.tokens, row.max_tokens);
+        metric.completionTokens = Math.max(metric.completionTokens ?? 0, row.max_completion_tokens);
         // Persist the latest recorded percentiles for background export
         metric.loaded_p50 = row.p50;
         metric.loaded_p95 = row.p95;
         metric.loaded_p99 = row.p99;
         snapshotCallBaselines.set(row.tool, row.max_calls);
         snapshotTokenBaselines.set(row.tool, row.max_tokens);
+        snapshotCompletionTokenBaselines.set(row.tool, row.max_completion_tokens);
 
         // Restore specific categories and error types if they were saved in the snapshot!
         if (row.categories_json) {
@@ -178,7 +182,8 @@ export function loadHistorical(
         SELECT tool,
                COUNT(*) as live_calls,
                SUM(CASE WHEN success = 0 THEN 1 ELSE 0 END) as live_errors,
-               SUM(COALESCE(tokenEstimate, 0)) as live_tokens
+               SUM(COALESCE(tokenEstimate, 0)) as live_tokens,
+               SUM(COALESCE(completionTokens, 0)) as live_completion_tokens
         FROM audit_logs
         WHERE timestamp > ?
         GROUP BY tool
@@ -256,6 +261,7 @@ export function loadHistorical(
             live_calls: stats.calls,
             live_errors: stats.errors,
             live_tokens: stats.tokens,
+            live_completion_tokens: stats.completionTokens,
             durations: stats.durations,
           }),
         );
@@ -293,6 +299,7 @@ export function loadHistorical(
     tools,
     snapshotCallBaselines,
     snapshotTokenBaselines,
+    snapshotCompletionTokenBaselines
   );
 
   if (db) {
@@ -535,6 +542,7 @@ function processJsonlEntry(
       calls: 0,
       errors: 0,
       tokens: 0,
+      completionTokens: 0,
       durations: [],
       errorTypes: {},
       errorCategories: {},
@@ -581,6 +589,12 @@ function processJsonlEntry(
         ? entry["tokenEstimate"]
         : undefined;
     if (entryTokenEstimate !== undefined) stats.tokens += entryTokenEstimate;
+
+    const entryCompletionTokens =
+      typeof entry["completionTokens"] === "number"
+        ? entry["completionTokens"]
+        : undefined;
+    if (entryCompletionTokens !== undefined) stats.completionTokens += entryCompletionTokens;
   }
 }
 
@@ -661,11 +675,13 @@ function applyLiveDeltas(
     live_calls: number;
     live_errors: number;
     live_tokens: number;
+    live_completion_tokens: number;
     durations?: number[];
   }[],
   tools: Map<string, ToolMetric>,
   snapshotCallBaselines: Map<string, number>,
   snapshotTokenBaselines: Map<string, number>,
+  snapshotCompletionTokenBaselines: Map<string, number>,
 ): void {
   for (const row of parsedLiveRows) {
     let metric = tools.get(row.tool);
@@ -677,6 +693,7 @@ function applyLiveDeltas(
     // Using Math.max keeps this idempotent across repeated sync intervals.
     const callsBaseline = snapshotCallBaselines.get(row.tool) ?? 0;
     const tokensBaseline = snapshotTokenBaselines.get(row.tool) ?? 0;
+    const completionTokensBaseline = snapshotCompletionTokenBaselines.get(row.tool) ?? 0;
     metric.calls = Math.max(metric.calls, callsBaseline + row.live_calls);
     // Rename "live" bucket to "historical" for the total count to match Datadog filtering
     // We don't overwrite types, they are populated from parsedLiveCategoryRows
@@ -687,6 +704,10 @@ function applyLiveDeltas(
     metric.tokens = Math.max(
       metric.tokens,
       tokensBaseline + row.live_tokens,
+    );
+    metric.completionTokens = Math.max(
+      metric.completionTokens,
+      completionTokensBaseline + row.live_completion_tokens,
     );
 
     const durations = row.durations;

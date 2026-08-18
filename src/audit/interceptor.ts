@@ -101,6 +101,13 @@ export function createAuditInterceptor(
       let errorCategory: string | undefined;
       let backupRef: string | undefined;
       let tokenEstimate: number | undefined;
+      let promptTokenEstimate = 0;
+
+      try {
+        promptTokenEstimate = estimateObjectTokens(args ?? {}) + 12;
+      } catch {
+        // ignore
+      }
 
       // Pre-mutation snapshot (before tool executes)
       if (
@@ -231,6 +238,7 @@ export function createAuditInterceptor(
           options?.logAs ?? toolName,
           durationMs,
           success,
+          promptTokenEstimate,
           tokenEstimate ?? 0,
           errorType,
           errorCategory
@@ -249,7 +257,8 @@ export function createAuditInterceptor(
               success,
               status: success ? "info" : "error",
               error,
-              tokenEstimate,
+              tokenEstimate: promptTokenEstimate,
+              completionTokens: tokenEstimate,
             } as Parameters<typeof auditLogger.log>[0]);
           } else {
             auditLogger.log({
@@ -268,7 +277,8 @@ export function createAuditInterceptor(
                 : (args as Record<string, unknown>),
               scopes: authCtx?.scopes ?? [],
               backup: backupRef,
-              tokenEstimate,
+              tokenEstimate: promptTokenEstimate,
+              completionTokens: tokenEstimate,
             });
           }
         }

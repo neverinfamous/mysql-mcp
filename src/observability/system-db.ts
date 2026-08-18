@@ -54,6 +54,7 @@ export class SystemDb {
           durationMs INTEGER NOT NULL,
           success INTEGER NOT NULL,
           tokenEstimate INTEGER,
+          completionTokens INTEGER,
           error TEXT,
           argsJson TEXT,
           scopesJson TEXT,
@@ -75,6 +76,7 @@ export class SystemDb {
           p95 INTEGER NOT NULL,
           p99 INTEGER NOT NULL,
           tokens INTEGER NOT NULL,
+          completion_tokens INTEGER,
           categories_json TEXT,
           errors_json TEXT
         );
@@ -96,6 +98,16 @@ export class SystemDb {
       }
       try {
         this.db.exec("ALTER TABLE metrics_snapshots ADD COLUMN errors_json TEXT");
+      } catch {
+        // Column already exists
+      }
+      try {
+        this.db.exec("ALTER TABLE metrics_snapshots ADD COLUMN completion_tokens INTEGER DEFAULT 0");
+      } catch {
+        // Column already exists
+      }
+      try {
+        this.db.exec("ALTER TABLE audit_logs ADD COLUMN completionTokens INTEGER DEFAULT 0");
       } catch {
         // Column already exists
       }

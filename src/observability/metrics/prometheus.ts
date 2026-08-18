@@ -25,6 +25,8 @@ export function formatPrometheus(
   cache: CacheMetric,
   redis: RedisMetric,
   httpErrors: Record<string, number>,
+  httpRxBytes: number,
+  httpTxBytes: number,
   poolStatsProvider: (() => PoolStats) | null,
   jsonlPoolStats: Map<number, PoolStats>,
   startedAt: number,
@@ -74,6 +76,24 @@ export function formatPrometheus(
     );
   }
 
+  lines.push(
+    "# HELP gen_ai_usage_completion_tokens_total Total completion tokens estimated",
+  );
+  lines.push("# TYPE gen_ai_usage_completion_tokens_total counter");
+  for (const [name, metric] of tools.entries()) {
+    lines.push(
+      `gen_ai_usage_completion_tokens_total{tool="${name}"} ${metric.getSummary().completionTokens}`,
+    );
+  }
+
+  // --- DB Query Latency ---
+  lines.push("# HELP mysql_mcp_db_query_latency_ms_p95 P95 DB Query Latency (ms)");
+  lines.push("# TYPE mysql_mcp_db_query_latency_ms_p95 gauge");
+  for (const [name, metric] of tools.entries()) {
+    // Left as future extension for when actual DB query profiling is separated from Tool Latency
+  }
+
+
   // --- Latency percentiles ---
   lines.push("# HELP mysql_mcp_tool_latency_ms_p50 P50 Latency (ms)");
   lines.push("# TYPE mysql_mcp_tool_latency_ms_p50 gauge");
@@ -121,6 +141,14 @@ export function formatPrometheus(
     lines.push(`mysql_mcp_resource_reads_total${labels} ${summary.reads}`);
   }
 
+  lines.push("# HELP mysql_mcp_resource_read_bytes_total Total resource bytes read");
+  lines.push("# TYPE mysql_mcp_resource_read_bytes_total counter");
+  for (const [uri, metric] of resources.entries()) {
+    const summary = metric.getSummary();
+    const labels = `{resource="${uri}"}`;
+    lines.push(`mysql_mcp_resource_read_bytes_total${labels} ${summary.readBytes}`);
+  }
+
   // --- Cache ---
   const cacheSummary = cache.getSummary();
   lines.push("# HELP mysql_mcp_cache_hits_total Total schema cache hits");
@@ -130,6 +158,14 @@ export function formatPrometheus(
   lines.push("# HELP mysql_mcp_cache_misses_total Total schema cache misses");
   lines.push("# TYPE mysql_mcp_cache_misses_total counter");
   lines.push(`mysql_mcp_cache_misses_total ${cacheSummary.misses}`);
+
+  lines.push("# HELP mysql_mcp_cache_items_total Current cache items");
+  lines.push("# TYPE mysql_mcp_cache_items_total gauge");
+  lines.push(`mysql_mcp_cache_items_total ${cacheSummary.items}`);
+
+  lines.push("# HELP mysql_mcp_cache_evictions_total Total schema cache evictions");
+  lines.push("# TYPE mysql_mcp_cache_evictions_total counter");
+  lines.push(`mysql_mcp_cache_evictions_total ${cacheSummary.evictions}`);
 
   // --- Redis rate limiting ---
   const redisSummary = redis.getSummary();
@@ -177,6 +213,28 @@ export function formatPrometheus(
     );
   }
 
+  lines.push(
+    "# HELP mysql_mcp_http_rx_bytes_total HTTP transport bytes received",
+  );
+  lines.push("# TYPE mysql_mcp_http_rx_bytes_total counter");
+  lines.push(`mysql_mcp_http_rx_bytes_total ${httpRxBytes}`);
+
+  lines.push(
+    "# HELP mysql_mcp_http_tx_bytes_total HTTP transport bytes sent",
+  );
+  lines.push("# TYPE mysql_mcp_http_tx_bytes_total counter");
+  lines.push(`mysql_mcp_http_tx_bytes_total ${httpTxBytes}`);
+
+  // --- Node.js Runtime Health ---
+  const memUsage = process.memoryUsage();
+  lines.push("# HELP nodejs_heap_size_bytes Node.js heap memory usage");
+  lines.push("# TYPE nodejs_heap_size_bytes gauge");
+  lines.push(`nodejs_heap_size_bytes ${memUsage.heapUsed}`);
+
+  lines.push("# HELP nodejs_rss_bytes Node.js RSS memory usage");
+  lines.push("# TYPE nodejs_rss_bytes gauge");
+  lines.push(`nodejs_rss_bytes ${memUsage.rss}`);
+
   // --- Server uptime ---
   lines.push("# HELP mysql_mcp_uptime_seconds Server uptime in seconds");
   lines.push("# TYPE mysql_mcp_uptime_seconds gauge");
@@ -201,6 +259,7 @@ function appendPoolMetrics(
   let idle = 0;
   let waiting = 0;
   let totalQueries = 0;
+  let connectionErrors = 0;
 
   if (poolStatsProvider) {
     const poolStats = poolStatsProvider();
@@ -209,6 +268,7 @@ function appendPoolMetrics(
     idle += poolStats.idle;
     waiting += poolStats.waiting;
     totalQueries += poolStats.totalQueries;
+    connectionErrors += poolStats.connectionErrors || 0;
   }
 
   for (const stats of jsonlPoolStats.values()) {
@@ -217,6 +277,7 @@ function appendPoolMetrics(
     idle += stats.idle;
     waiting += stats.waiting;
     totalQueries += stats.totalQueries;
+    connectionErrors += stats.connectionErrors || 0;
   }
 
   if (totalSlots > 0 || totalQueries > 0) {
@@ -256,5 +317,11 @@ function appendPoolMetrics(
     );
     lines.push("# TYPE mysql_mcp_pool_queries_total counter");
     lines.push(`mysql_mcp_pool_queries_total ${totalQueries}`);
+
+    lines.push(
+      "# HELP mysql_mcp_pool_connection_errors_total Cumulative connection errors",
+    );
+    lines.push("# TYPE mysql_mcp_pool_connection_errors_total counter");
+    lines.push(`mysql_mcp_pool_connection_errors_total ${connectionErrors}`);
   }
 }
