@@ -5,7 +5,7 @@ import type {
   IndexInfo,
   ColumnInfo,
 } from "../../types/index.js";
-import { metrics } from "../../observability/metrics.js";
+import { metrics } from "../../observability/metrics/index.js";
 import { ValidationError } from "../../types/index.js";
 
 export interface QueryExecutor {

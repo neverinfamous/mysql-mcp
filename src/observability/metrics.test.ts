@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { MetricsRegistry } from "./metrics.js";
+import { MetricsRegistry } from "./metrics/index.js";
 import { SystemDb } from "./system-db.js";
 import fs from "fs";
 import path from "path";

@@ -7,7 +7,7 @@ import type {
   PromptDefinition,
 } from "../../types/index.js";
 import type { DatabaseAdapter } from "./database-adapter.js";
-import { metrics } from "../../observability/metrics.js";
+import { metrics } from "../../observability/metrics/index.js";
 
 /**
  * Patches a Zod schema's ~standard JSON Schema output to remove

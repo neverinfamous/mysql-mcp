@@ -24,7 +24,7 @@ import type {
 import { ConnectionError } from "../../../types/index.js";
 import { logger } from "../../../utils/logger.js";
 import { VERSION } from "../../../version.js";
-import { metrics } from "../../../observability/metrics.js";
+import { metrics } from "../../../observability/metrics/index.js";
 import { execSync } from "node:child_process";
 
 import { SchemaManager } from "../schema-manager.js";

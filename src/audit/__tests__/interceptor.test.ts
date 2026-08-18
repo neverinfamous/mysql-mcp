@@ -16,7 +16,7 @@ vi.mock('../../utils/tokens.js', () => ({
   estimateObjectTokens: vi.fn(),
 }));
 
-vi.mock('../../observability/metrics.js', () => ({
+vi.mock('../../observability/metrics/index.js', () => ({
   metrics: {
     recordToolCall: vi.fn(),
   },
@@ -30,7 +30,7 @@ vi.mock('../../utils/error-suggestions.js', () => ({
 import { getAuthContext } from '../../auth/auth-context.js';
 import { getRequiredScope } from '../../auth/scope-map.js';
 import { estimateTokens, estimateObjectTokens } from '../../utils/tokens.js';
-import { metrics } from '../../observability/metrics.js';
+import { metrics } from '../../observability/metrics/index.js';
 import { findSuggestion, heuristicCategorize } from '../../utils/error-suggestions.js';
 
 describe('createAuditInterceptor', () => {

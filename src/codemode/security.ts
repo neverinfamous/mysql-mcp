@@ -5,7 +5,7 @@
  */
 
 import { logger } from "../utils/logger.js";
-import { metrics } from "../observability/metrics.js";
+import { metrics } from "../observability/metrics/index.js";
 import {
   DEFAULT_SECURITY_CONFIG,
   type SecurityConfig,

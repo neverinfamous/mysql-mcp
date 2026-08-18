@@ -22,7 +22,7 @@ import type { AuditCategory } from "./types.js";
 import { getAuthContext } from "../auth/auth-context.js";
 import { getRequiredScope } from "../auth/scope-map.js";
 import { estimateTokens, estimateObjectTokens } from "../utils/tokens.js";
-import { metrics } from "../observability/metrics.js";
+import { metrics } from "../observability/metrics/index.js";
 import { findSuggestion, heuristicCategorize } from "../utils/error-suggestions.js";
 
 /**

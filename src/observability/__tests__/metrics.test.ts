@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { MetricsRegistry } from "../metrics.js";
+import { MetricsRegistry } from "../metrics/index.js";
 import { logger } from "../../utils/logger.js";
 
 vi.mock("../../utils/logger.js", () => ({
@@ -173,7 +173,7 @@ describe("metrics", () => {
       metrics.setSystemDb(mockSystemDb);
       
       // Call private method directly because fake timers with unref() can be flaky in coverage
-      (metrics as Record<string, unknown>).loadHistorical();
+      (metrics as Record<string, unknown>).runHistoricalLoad();
       
       expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining("SELECT tool"));
       const summary = (metrics.getSummary().tools as Record<string, unknown>)["historical_tool"];
@@ -192,7 +192,7 @@ describe("metrics", () => {
       });
       
       metrics.setSystemDb(mockSystemDb);
-      (metrics as Record<string, unknown>).loadHistorical();
+      (metrics as Record<string, unknown>).runHistoricalLoad();
       
       expect(logger.warn).toHaveBeenCalledWith("Failed to load historical metrics from SQLite", expect.any(Object));
       expect(logger.warn).toHaveBeenCalledWith("Failed to load historical percentiles/cache metrics", expect.any(Object));

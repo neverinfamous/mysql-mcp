@@ -26,7 +26,7 @@ import {
   handleRootInfo,
   handleProtectedResourceMetadata,
 } from "../handlers.js";
-import { metrics } from "../../../observability/metrics.js";
+import { metrics } from "../../../observability/metrics/index.js";
 
 import { handleStreamableRequest, handleStatelessRequest } from "./streamable.js";
 
