@@ -121,7 +121,7 @@
             "query": {
               "data_source": "logs_stream",
               "indexes": [],
-              "query_string": "source:mysql_mcp status:error OR @log_type:agent_issues",
+              "query_string": "source:mysql_mcp status:error OR log_type:agent_issues",
               "sort": {
                 "column": "timestamp",
                 "order": "desc"
@@ -174,7 +174,7 @@
             "query": {
               "data_source": "logs_stream",
               "indexes": [],
-              "query_string": "source:mysql_mcp @log_type:mcp_audit",
+              "query_string": "source:mysql_mcp log_type:mcp_audit",
               "sort": {
                 "column": "timestamp",
                 "order": "desc"
