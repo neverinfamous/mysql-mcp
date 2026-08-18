@@ -106,7 +106,6 @@ function createMockResponse(): ServerResponse {
     headersSent: false,
     on: vi.fn(),
     write: vi.fn(),
-    on: vi.fn(),
   } as unknown as ServerResponse;
   (res as any)._endSpy = vi.fn();
   (res as any).end = (res as any)._endSpy;

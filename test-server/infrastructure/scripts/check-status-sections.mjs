@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { CONFIG, splitLines, MYSQL_PWD_ENV, MYSQL_USER_FLAG } from './core-config.mjs';
 
 export function runMcpMetricsSection(ctx) {
@@ -393,7 +392,7 @@ export function runDatadogIntegrationSection(ctx) {
                 if (errorInstances.length > 0) {
                     console.log(`❌ Datadog Agent        : ${errorInstances.length} integration ERROR(s)`);
                     errorInstances.forEach(line => {
-                        const match = line.match(/Instance ID:s*(.+?)s*[ERROR]/);
+                        const match = line.match(/Instance ID:\s*(.+?)\s*\[ERROR\]/);
                         console.log(`   ❌ ${match ? match[1].trim() : line.trim()}`);
                     });
                     up = false;
@@ -401,7 +400,7 @@ export function runDatadogIntegrationSection(ctx) {
                 if (warningInstances.length > 0) {
                     console.log(`⚠️  Datadog Agent        : ${warningInstances.length} integration WARNING(s)`);
                     warningInstances.forEach(line => {
-                        const match = line.match(/Instance ID:s*(.+?)s*[WARNING]/);
+                        const match = line.match(/Instance ID:\s*(.+?)\s*\[WARNING\]/);
                         console.log(`   ⚠️  ${match ? match[1].trim() : line.trim()}`);
                     });
                 }
