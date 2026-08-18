@@ -252,6 +252,7 @@ export function registerAuditResource(server: SdkMcpServer, auditLogger: AuditLo
 
       for (const entry of recent) {
         if (entry.tokenEstimate != null) tokenEstimate += entry.tokenEstimate;
+        if (entry.completionTokens != null) tokenEstimate += entry.completionTokens;
         if (!entry.success) errors++;
         
         if (!entry.tool.startsWith("mysql://")) {

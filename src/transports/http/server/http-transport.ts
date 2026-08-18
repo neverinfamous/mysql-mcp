@@ -201,8 +201,6 @@ export class HttpTransport {
   ): Promise<void> {
     // --- Byte Tracking ---
     let rxBytes = parseInt(req.headers["content-length"] ?? "0", 10);
-    console.log(`[HTTP-TRANSPORT] Headers:`, req.headers);
-    console.log(`[HTTP-TRANSPORT] contentLength parsed:`, rxBytes);
     let txBytes = 0;
 
     const originalWrite = res.write.bind(res);
@@ -234,6 +232,7 @@ export class HttpTransport {
 
     res.on("finish", () => {
       metrics.recordHttpTransportBytes(rxBytes, txBytes);
+      req.resume(); // Ensure unconsumed body is drained for Keep-Alive connections
     });
 
     // Set security headers for all responses
