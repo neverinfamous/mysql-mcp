@@ -35,7 +35,7 @@
                 "aggregator": "last",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "min:mysql_mcp.shell.status{*}.rollup(min)"
+                "query": "max:mysql_mcp.shell.status{*}.fill(last).rollup(max)"
               }
             ],
             "response_format": "scalar"
