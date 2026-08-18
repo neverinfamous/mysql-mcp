@@ -427,8 +427,8 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      // calls[0] is table existence check, calls[1] is ANALYZE TABLE
-      const calls = mockAdapter.executeQuery.mock.calls.map(
+      // calls[0] is table existence check (executeQuery), executeWriteQuery is called for ANALYZE TABLE
+      const calls = mockAdapter.executeWriteQuery.mock.calls.map(
         (c) => c[0],
       );
       expect(calls.some((c) => c.includes("ANALYZE TABLE"))).toBe(true);
@@ -447,7 +447,7 @@ describe("Handler Execution", () => {
       )) as { data: { warning?: string } };
 
       // Verify ANALYZE TABLE used clamped value
-      const calls = mockAdapter.executeQuery.mock.calls.map(
+      const calls = mockAdapter.executeWriteQuery.mock.calls.map(
         (c) => c[0],
       );
       const analyzeCall = calls.find((c) => c.includes("ANALYZE TABLE"));
