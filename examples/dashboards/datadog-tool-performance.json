@@ -184,6 +184,44 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "bars",
+            "formulas": [
+              {
+                "formula": "top(query1, 10, 'sum', 'desc')"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_http_errors.count{*} by {status_code}.as_count().rollup(sum)"
+              }
+            ],
+            "response_format": "timeseries"
+          }
+        ],
+        "show_legend": true,
+        "title": "Transport Errors (HTTP)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries"
+      },
+      "id": 203565609753301,
+      "layout": {
+        "height": 2,
+        "width": 2,
+        "x": 8,
+        "y": 2
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -222,81 +260,6 @@
         "type": "timeseries"
       },
       "id": 5194067084974108,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 8,
-        "y": 2
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with theÃ‚Â `--audit-reads`Ã‚Â flag.",
-        "legend_layout": "auto",
-        "markers": [
-          {
-            "display_type": "ok dashed",
-            "label": "Zero baseline",
-            "value": "y = 0"
-          }
-        ],
-        "requests": [
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "alias": "Total Calls",
-                "formula": "default_zero(calls) + default_zero(old_calls)"
-              },
-              {
-                "alias": "Total Errors",
-                "formula": "default_zero(errors) + default_zero(old_errors)"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "calls",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count().rollup(sum)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "errors",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count().rollup(sum)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "old_calls",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count().rollup(sum)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "old_errors",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count().rollup(sum)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "Calls Vs Errors",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "timeseries",
-        "yaxis": {
-          "include_zero": true,
-          "scale": "linear"
-        }
-      },
-      "id": 6126676673229792,
       "layout": {
         "height": 2,
         "width": 2,
@@ -781,10 +744,16 @@
                 "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{!error_type:historical} by {error_type}.as_count().rollup(sum)"
               }
             ],
-            "response_format": "timeseries"
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Agent Quality (Error Classification)",
         "title_align": "left",
         "title_size": "16",
@@ -850,32 +819,69 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
+        "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with theÃ‚Â `--audit-reads`Ã‚Â flag.",
         "legend_layout": "auto",
+        "markers": [
+          {
+            "display_type": "ok dashed",
+            "label": "Zero baseline",
+            "value": "y = 0"
+          }
+        ],
         "requests": [
           {
-            "display_type": "bars",
+            "display_type": "line",
             "formulas": [
               {
-                "formula": "top(query1, 10, 'sum', 'desc')"
+                "alias": "Total Calls",
+                "formula": "default_zero(calls) + default_zero(old_calls)"
+              },
+              {
+                "alias": "Total Errors",
+                "formula": "default_zero(errors) + default_zero(old_errors)"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_http_errors.count{*} by {status_code}.as_count().rollup(sum)"
+                "name": "calls",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count().rollup(sum)"
+              },
+              {
+                "data_source": "metrics",
+                "name": "errors",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count().rollup(sum)"
+              },
+              {
+                "data_source": "metrics",
+                "name": "old_calls",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count().rollup(sum)"
+              },
+              {
+                "data_source": "metrics",
+                "name": "old_errors",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count().rollup(sum)"
               }
             ],
-            "response_format": "timeseries"
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
           }
         ],
         "show_legend": true,
-        "title": "Transport Errors (HTTP)",
+        "title": "Calls Vs Errors",
         "title_align": "left",
         "title_size": "16",
-        "type": "timeseries"
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "scale": "linear"
+        }
       },
-      "id": 203565609753301,
+      "id": 6126676673229792,
       "layout": {
         "height": 2,
         "width": 2,
@@ -926,8 +932,8 @@
       "id": 999999999999997,
       "layout": {
         "height": 2,
-        "width": 3,
-        "x": 9,
+        "width": 4,
+        "x": 4,
         "y": 9
       }
     }

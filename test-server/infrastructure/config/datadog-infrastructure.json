@@ -696,6 +696,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -704,6 +707,51 @@
           "sum"
         ],
         "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_http_rx_bytes.count{*}.as_count().rollup(sum)"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "sum:mysql_mcp.mysql_mcp_http_tx_bytes.count{*}.as_count().rollup(sum)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": false,
+        "title": "MCP Server Network I/O",
+        "type": "timeseries"
+      },
+      "id": 999999999999994,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 3,
+        "y": 7
+      }
+    },
+    {
+      "definition": {
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "vertical",
         "requests": [
           {
             "display_type": "area",
@@ -727,17 +775,47 @@
             }
           }
         ],
-        "show_legend": false,
+        "show_legend": true,
         "time": {},
         "title": "MCP Pool Connections",
         "type": "timeseries"
       },
       "id": 999999999999996,
       "layout": {
+        "height": 3,
+        "width": 6,
+        "x": 6,
+        "y": 7
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "max:mysqlrouter.destination.health{*} by {route,address}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": false,
+        "title": "MySQL Router Backend Health",
+        "type": "timeseries"
+      },
+      "id": 410828773085166,
+      "layout": {
         "height": 2,
         "width": 3,
-        "x": 3,
-        "y": 7
+        "x": 0,
+        "y": 8
       }
     },
     {
@@ -784,130 +862,6 @@
       "layout": {
         "height": 2,
         "width": 3,
-        "x": 6,
-        "y": 7
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "max:mysql_mcp.nodejs_active_requests_total{*}.rollup(max)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query2",
-                "query": "max:mysql_mcp.nodejs_active_handles_total{*}.rollup(max)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": false,
-        "title": "Node.js Active Requests/Handles",
-        "type": "timeseries"
-      },
-      "id": 999999999999993,
-      "layout": {
-        "height": 2,
-        "width": 3,
-        "x": 9,
-        "y": 7
-      }
-    },
-    {
-      "definition": {
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "max:mysqlrouter.destination.health{*} by {route,address}"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": false,
-        "title": "MySQL Router Backend Health",
-        "type": "timeseries"
-      },
-      "id": 410828773085166,
-      "layout": {
-        "height": 2,
-        "width": 3,
-        "x": 0,
-        "y": 8
-      }
-    },
-    {
-      "definition": {
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*} by {tool}.rollup(avg)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query2",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p95{*} by {tool}.rollup(avg)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "time": {},
-        "title": "MCP Tool Duration Percentiles",
-        "type": "timeseries"
-      },
-      "id": 999999999999995,
-      "layout": {
-        "height": 5,
-        "width": 6,
         "x": 3,
         "y": 9
       }
@@ -964,6 +918,55 @@
           "value",
           "sum"
         ],
+        "legend_layout": "vertical",
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*} by {tool}.rollup(avg)"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p95{*} by {tool}.rollup(avg)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "time": {},
+        "title": "MCP Tool Duration Percentiles",
+        "type": "timeseries"
+      },
+      "id": 999999999999995,
+      "layout": {
+        "height": 5,
+        "width": 6,
+        "x": 6,
+        "y": 10
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
         "legend_layout": "auto",
         "requests": [
           {
@@ -972,12 +975,12 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_http_rx_bytes.count{*}.as_count().rollup(sum)"
+                "query": "max:mysql_mcp.nodejs_active_requests_total{*}.rollup(max)"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "sum:mysql_mcp.mysql_mcp_http_tx_bytes.count{*}.as_count().rollup(sum)"
+                "query": "max:mysql_mcp.nodejs_active_handles_total{*}.rollup(max)"
               }
             ],
             "response_format": "timeseries",
@@ -989,14 +992,14 @@
           }
         ],
         "show_legend": false,
-        "title": "MCP Server Network I/O",
+        "title": "Node.js Active Requests/Handles",
         "type": "timeseries"
       },
-      "id": 999999999999994,
+      "id": 999999999999993,
       "layout": {
         "height": 2,
         "width": 3,
-        "x": 9,
+        "x": 3,
         "y": 11
       }
     },
