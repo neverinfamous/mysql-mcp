@@ -289,7 +289,7 @@ services:
       com.datadoghq.ad.check_names: '["openmetrics"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": [".*"], "max_returned_metrics": 10000, "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "reported_hostname": "adamic-wsl2", "tags": ["service:mysql_mcp", "env:development"]}]'
-      com.datadoghq.ad.logs: '[{"source":"mysql-mcp-exporter","service":"mysql-mcp-exporter"}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql_mcp","service":"mysql-mcp-exporter"}]'
 
 volumes:
   example-ha-node1-data:
