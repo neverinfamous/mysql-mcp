@@ -378,8 +378,7 @@ services:
     command: >
       --transport http --server-host 0.0.0.0 --tool-filter none --metrics-export
       prometheus --port 3000 --audit-log /var/log/mysql-mcp/exporter-audit.jsonl
-      --audit-reads --mysql
-      mysql://root:${MYSQL_ROOT_PASSWORD:-root}@mysql-router:6446/testdb
+      --audit-reads --mysql mysql://root:${MYSQL_ROOT_PASSWORD:-root}@mysql-router:6446/testdb
     environment:
       - ALLOWED_IO_ROOTS=/var/log/mysql-mcp
       - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY:-adamic123}

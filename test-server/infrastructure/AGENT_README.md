@@ -150,7 +150,7 @@ All containers are configured with `restart: unless-stopped`. This ensures that 
 | Datadog AI Efficiency | `https://app.datadoghq.com/dashboard/q48-mq9-3i7` (Tracks `mysql-mcp` cache, pool metrics, and error rates) |
 | Datadog Custom Dashboard | `https://app.datadoghq.com/dashboard/qwe-2un-us8` (Includes the **MySQL-MCP Audit Log** widget `source:mysql_mcp log_type:mcp_audit`) |
 | Datadog MySQL Overview | `https://app.datadoghq.com/dash/integration/12/mysql---overview` |
-| Datadog Local Backups | `../../../examples/dashboards/datadog-*.json` (e.g. AI Efficiency, Redis, MySQL) |
+| Datadog Local Backups | `../../examples/dashboards/datadog-*.json` (e.g. AI Efficiency, Redis, MySQL) |
 | Datadog Host Map | `https://app.datadoghq.com/infrastructure/map` (look for `adamic-wsl2`) |
 | Datadog Containers | `https://app.datadoghq.com/containers` |
 | Datadog Live Processes | `https://app.datadoghq.com/process` |
@@ -214,4 +214,4 @@ docker exec datadog-unified agent status | grep -A 3 'System Probe'
 - **`--relay-log`**: Each MySQL node sets an explicit relay log filename (`--relay-log=mysql-nodeX-relay-bin`) to prevent replication breakage if the container hostname changes during recovery.
 - **MySQL Router**: Connection sharing for the read-only bootstrap pool is explicitly enabled (`bootstrap_ro.connection_sharing=1`) to prevent connection exhaustion during concurrent MCP testing.
 - **Audit Logging**: The Datadog `MySQL-MCP Audit Log` widget queries `source:mysql_mcp log_type:mcp_audit` (no `@` symbol, as Datadog integration tags are infrastructure tags, not JSON attributes). To log read-scoped tools (like `mysql_read_query`), you must explicitly add `--audit-reads` to the `mysql-mcp` startup arguments.
-- **Exporter Audit Log**: The `mysql-mcp-exporter` container reads the IDE's live audit JSONL via `AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl` (mounted from `../../../mysql-mcp/logs`). This separates the metrics read path from the exporter's own `--audit-log /var/log/mysql-mcp/exporter-audit.jsonl` write path.
+- **Exporter Audit Log**: The `mysql-mcp-exporter` container reads the IDE's live audit JSONL via `AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl` (mounted from `../../logs`). This separates the metrics read path from the exporter's own `--audit-log /var/log/mysql-mcp/exporter-audit.jsonl` write path.
