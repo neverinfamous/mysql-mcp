@@ -3,6 +3,12 @@
 All notable changes to this project are documented in this file.
 This changelog is auto-generated from Git history using [lib-git-history](https://github.com/neverinfamous/adamic).
 
+## [v5.1.1]
+
+### Security
+
+- Resolved CodeQL clear-text password logging vulnerability in reset-database script.
+
 ## [v5.1.0]
 
 ### Added
