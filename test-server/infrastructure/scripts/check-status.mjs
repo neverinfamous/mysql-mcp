@@ -1,6 +1,7 @@
 import { execFileSync, execFile } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { detectDocker } from './utils.mjs';
 
@@ -50,6 +51,7 @@ const CONFIG = {
     workspace: {
         mcpPackageJson: '/workspace/mysql-mcp/package.json',
         scratchDir: '/workspace/scratch',
+        mysqlMcpDist: path.resolve(__dirname, '../../../../mysql-mcp/dist'),
     },
     expectedTables: {
         test_products:     16,
@@ -64,6 +66,13 @@ const CONFIG = {
         test_documents:    10,
         test_partitioned:  26,
         temp_write_test:   5,
+    },
+    metrics: {
+        gracePeriodSec: 60,
+        imageFreshnessHours: 24,
+        requiredFamilies: [
+            'gen_ai_usage_prompt_tokens_per_call',
+        ],
     },
 };
 
@@ -165,6 +174,8 @@ console.log('=== Ecosystem Status Check ===\n');
 let allUp = true;
 // Populated by Section 1, consumed by Section 6
 let runningContainers = {};
+// Populated by Section 6, consumed by Section 7
+let ddStatus = null;
 
 // Removed host-level mysqlsh availability check.
 
@@ -567,7 +578,7 @@ runSection('Datadog Integration Status', () => {
 
     if (ddContainerHealthy) {
         // Get full status to parse per-integration check results
-        const ddStatus = dockerExec(datadogUnifiedNode, ['agent', 'status'], true);
+        ddStatus = dockerExec(datadogUnifiedNode, ['agent', 'status'], true);
         if (ddStatus) {
             // Single-pass categorization — avoids 4 intermediate array allocations
             const { errorInstances, warningInstances, okInstances } = splitLines(ddStatus).reduce(
@@ -623,21 +634,93 @@ runSection('MCP Server Metrics', () => {
     console.log(SEPARATOR);
 
     const mcpMetrics = dockerExec(datadogUnifiedNode, ['curl', '-s', '--connect-timeout', CONFIG.timeouts.curlSec, `http://mysql-mcp-exporter:${CONFIG.ports.mcpExporter}/metrics`], true);
+    
     if (mcpMetrics && mcpMetrics.includes(CONFIG.metricsPrefix)) {
-        // Count unique metric families via regex (avoids full array allocation)
+        // Check 7a: Metric families exist
         const seen = new Set();
         const helpRegex = /^# HELP (\S+)/gm;
         let match;
         while ((match = helpRegex.exec(mcpMetrics)) !== null) {
             seen.add(match[1]);
         }
-        console.log(`✅ MCP Server (port ${CONFIG.ports.mcpExporter}): Exporting ${seen.size} metric families`);
+        console.log(`✅ MCP Exporter         : Responding, exporting ${seen.size} metric families`);
+
+        // Check 7b: Non-zero tool counters
+        const uptimeLine = mcpMetrics.match(/^mysql_mcp_server_uptime_seconds\s+([0-9.]+)/m);
+        const uptime = uptimeLine ? parseFloat(uptimeLine[1]) : 0;
+        const toolLines = mcpMetrics.match(/^mysql_mcp_tool_calls_total\{.+\}\s+\d+/gm) || [];
+        const nonZeroTools = toolLines.filter(l => !l.endsWith(' 0'));
+        if (uptime > CONFIG.metrics.gracePeriodSec && nonZeroTools.length === 0 && toolLines.length > 0) {
+            console.log(`⚠️  MCP Exporter         : All ${toolLines.length} tool counters are zero (uptime: ${Math.round(uptime)}s). JSONL sync might be failing.`);
+            allUp = false;
+        } else if (toolLines.length > 0) {
+            console.log(`✅ MCP Exporter         : Historical sync active (${nonZeroTools.length}/${toolLines.length} tools have non-zero calls)`);
+        } else {
+            console.log(`⚠️  MCP Exporter         : No tool counters found`);
+        }
+
+        // Check 7c: Token metrics exist
+        let missingFamilies = [];
+        for (const fam of CONFIG.metrics.requiredFamilies) {
+            if (!mcpMetrics.includes(fam)) missingFamilies.push(fam);
+        }
+        if (missingFamilies.length === 0) {
+            console.log(`✅ MCP Exporter         : Found required AI token metric families`);
+        } else {
+            console.log(`❌ MCP Exporter         : Missing required metrics: ${missingFamilies.join(', ')}`);
+            allUp = false;
+        }
+        
     } else if (mcpMetrics !== null) {
-        console.log(`❌ MCP Server (port ${CONFIG.ports.mcpExporter}): Responding but no ${CONFIG.metricsPrefix} metrics found`);
+        console.log(`❌ MCP Exporter         : Responding but no ${CONFIG.metricsPrefix} metrics found`);
         allUp = false;
     } else {
-        console.log(`❌ MCP Server (port ${CONFIG.ports.mcpExporter}): Not running`);
+        console.log(`❌ MCP Exporter         : Not running or reachable`);
         allUp = false;
+    }
+
+    // Check 7d: Datadog openmetrics ingestion
+    if (ddStatus) {
+        // Datadog auto-converts hyphens to underscores in instance IDs
+        const openmetricsMatch = ddStatus.match(/Instance ID: openmetrics:mysql_mcp.*?\n[\s\S]*?Metric Samples: Last Run: ([\d,]+)/);
+        const hasOpenmetricsCheck = ddStatus.includes('Instance ID: openmetrics:mysql_mcp');
+        
+        if (openmetricsMatch) {
+            const metricsCount = parseInt(openmetricsMatch[1].replace(/,/g, ''), 10);
+            if (metricsCount > 0) {
+                console.log(`✅ Datadog openmetrics  : Ingesting ${metricsCount} metrics from exporter`);
+            } else {
+                console.log(`⚠️  Datadog openmetrics  : Check is OK but ingesting 0 metrics`);
+                allUp = false;
+            }
+        } else if (hasOpenmetricsCheck) {
+            console.log(`⚠️  Datadog openmetrics  : Check exists but couldn't parse metric counts. Check 'agent status'.`);
+        } else {
+            console.log(`❌ Datadog openmetrics  : Not configured to scrape mysql-mcp-exporter`);
+            allUp = false;
+        }
+    } else {
+        console.log(`⚠️  Datadog openmetrics  : Skipped (Datadog agent is down)`);
+    }
+
+    // Check 7e: Container image freshness
+    const containerCreatedStr = execCommand(dockerCmd, dockerCmd === 'wsl' ? ['docker', 'inspect', '--format', '{{.Created}}', 'mysql-mcp-exporter'] : ['inspect', '--format', '{{.Created}}', 'mysql-mcp-exporter'], true);
+    if (containerCreatedStr && !containerCreatedStr.includes('No such object')) {
+        const containerTime = Date.parse(containerCreatedStr.trim());
+        try {
+            const stat = fs.statSync(CONFIG.workspace.mysqlMcpDist);
+            const buildTime = stat.mtimeMs;
+            const hoursDiff = (buildTime - containerTime) / (1000 * 60 * 60);
+            
+            if (hoursDiff > CONFIG.metrics.imageFreshnessHours) {
+                console.log(`⚠️  MCP Exporter Image   : Container is ${Math.round(hoursDiff)} hours OLDER than dist/ build artifacts. Stale image? Rebuild requested.`);
+                // We don't fail allUp for this, but log a loud warning
+            } else {
+                console.log(`✅ MCP Exporter Image   : Fresh (built within ${CONFIG.metrics.imageFreshnessHours}h of latest changes)`);
+            }
+        } catch (e) {
+            console.log(`⚠️  MCP Exporter Image   : Could not read dist/ directory to verify freshness: ${e.message}`);
+        }
     }
 });
 
