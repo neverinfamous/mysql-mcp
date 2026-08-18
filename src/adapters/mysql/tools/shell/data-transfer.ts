@@ -93,7 +93,7 @@ export function createShellExportTableTool(
         const options: string[] = [];
         if (format === "csv") {
           options.push('fieldsTerminatedBy: ","');
-          options.push('fieldsEnclosedBy: "\\""');
+          options.push('fieldsEnclosedBy: \'"\'');
         }
         // TSV is the default for util.exportTable(), no special options needed
         if (where) {

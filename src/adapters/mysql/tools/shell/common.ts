@@ -253,7 +253,7 @@ export async function execShellJS(
     "} catch (e) {",
     "  print(JSON.stringify({ success: false, error: e.message }));",
     "}"
-  ].join("\\n");
+  ].join("\n");
 
   const args = ["--uri", config.connectionUri, "--js"];
   let result;
