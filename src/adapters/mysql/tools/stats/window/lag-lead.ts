@@ -71,7 +71,7 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
 
         const escapedColumn = escapeQualifiedTable(parsed.column);
         const windowExpr = `${fnName}(${escapedColumn}, ${String(parsed.offset)}${defaultArg}) OVER(${partition} ORDER BY ${parsed.orderBy})`;
-        const alias = `${parsed.direction}_value`;
+        const alias = parsed.asColumn || `${parsed.direction}_value`;
 
         const sql = `
           SELECT ${selectList(parsed.selectColumns, windowExpr, alias)}
