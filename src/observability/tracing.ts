@@ -13,7 +13,7 @@ import { metrics as otelMetrics } from "@opentelemetry/api";
 import type { Meter } from "@opentelemetry/api";
 
 const INSTRUMENTATION_SCOPE = "mysql-mcp";
-const INSTRUMENTATION_VERSION = "5.0.0";
+const INSTRUMENTATION_VERSION = "5.1.0";
 
 let _meter: Meter | null = null;
 
