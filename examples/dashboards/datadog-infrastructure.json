@@ -914,54 +914,6 @@
     },
     {
       "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_cache_hits.count{*}.as_count().rollup(sum)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query2",
-                "query": "sum:mysql_mcp.mysql_mcp_cache_misses.count{*}.as_count().rollup(sum)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": false,
-        "title": "MCP Cache Performance",
-        "type": "timeseries"
-      },
-      "id": 999999999999997,
-      "layout": {
-        "height": 2,
-        "width": 3,
-        "x": 9,
-        "y": 9
-      }
-    },
-    {
-      "definition": {
         "legend_columns": [
           "avg",
           "min",
