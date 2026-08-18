@@ -225,13 +225,28 @@ export function formatPrometheus(
 
   // --- Node.js Runtime Health ---
   const memUsage = process.memoryUsage();
-  lines.push("# HELP nodejs_heap_size_bytes Node.js heap memory usage");
-  lines.push("# TYPE nodejs_heap_size_bytes gauge");
-  lines.push(`nodejs_heap_size_bytes ${memUsage.heapUsed}`);
+  lines.push("# HELP nodejs_heap_size_used_bytes Node.js heap used memory");
+  lines.push("# TYPE nodejs_heap_size_used_bytes gauge");
+  lines.push(`nodejs_heap_size_used_bytes ${memUsage.heapUsed}`);
+
+  lines.push("# HELP nodejs_heap_size_total_bytes Node.js heap total memory");
+  lines.push("# TYPE nodejs_heap_size_total_bytes gauge");
+  lines.push(`nodejs_heap_size_total_bytes ${memUsage.heapTotal}`);
 
   lines.push("# HELP nodejs_rss_bytes Node.js RSS memory usage");
   lines.push("# TYPE nodejs_rss_bytes gauge");
   lines.push(`nodejs_rss_bytes ${memUsage.rss}`);
+
+  const activeRequests = typeof (process as any)._getActiveRequests === "function" ? (process as any)._getActiveRequests().length : 0;
+  const activeHandles = typeof (process as any)._getActiveHandles === "function" ? (process as any)._getActiveHandles().length : 0;
+
+  lines.push("# HELP nodejs_active_requests_total Node.js active requests");
+  lines.push("# TYPE nodejs_active_requests_total gauge");
+  lines.push(`nodejs_active_requests_total ${activeRequests}`);
+
+  lines.push("# HELP nodejs_active_handles_total Node.js active handles");
+  lines.push("# TYPE nodejs_active_handles_total gauge");
+  lines.push(`nodejs_active_handles_total ${activeHandles}`);
 
   // --- Server uptime ---
   lines.push("# HELP mysql_mcp_uptime_seconds Server uptime in seconds");
