@@ -24,7 +24,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
     group: "stats",
     inputSchema: HistogramSchemaBase,
     outputSchema: HistogramOutputSchema,
-    requiredScopes: ["read"], // read for view, admin for update
+    requiredScopes: ["admin"], // Requires admin for ANALYZE TABLE DDL
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
