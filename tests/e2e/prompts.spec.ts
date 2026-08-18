@@ -50,13 +50,14 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     "mysql_setup_cluster",
     "mysql_setup_docstore",
     "mysql_mcp_heal",
+    "mysql_setup_observability",
   ];
 
-  test("should list all 20 prompts", async () => {
+  test("should list all 21 prompts", async () => {
     const listResponse = await client.listPrompts();
 
     expect(listResponse.prompts).toBeDefined();
-    expect(listResponse.prompts.length).toBe(20);
+    expect(listResponse.prompts.length).toBe(21);
 
     const names = listResponse.prompts.map((p) => p.name);
     for (const expected of EXPECTED_PROMPTS) {
@@ -284,5 +285,16 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     expect(response.messages).toBeDefined();
     const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("lib-agent-exec");
+  });
+
+  test("should get mysql_setup_observability prompt", async () => {
+    const response = await client.getPrompt({
+      name: "mysql_setup_observability",
+      arguments: {},
+    });
+
+    expect(response.messages).toBeDefined();
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
+    expect(text).toContain("observability");
   });
 });
