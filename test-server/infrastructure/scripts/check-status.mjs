@@ -9,102 +9,25 @@ const execFileAsync = promisify(execFile);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// Resolves to docs/unified-database-ecosystem/ (the infra root, not the repo root)
-const ECOSYSTEM_ROOT = path.resolve(__dirname, '..');
-
-// ============================================================
-// Configuration — all magic values centralized here
-// ============================================================
-const CONFIG = {
-    credentials: {
-        mysql: { user: 'root', password: process.env.MYSQL_ROOT_PASSWORD || 'root' },
-        proxyAdmin: { user: 'radmin', password: 'radmin' },
-        proxyData: { user: 'cluster_admin', password: 'cluster_admin' },
-        routerApi: { user: 'rest_api', password: 'router_api' },
-    },
-    cluster: { name: 'mcpCluster' },
-    database: 'testdb',
-    routerApiPath: '/api/20190715/router/status',
-    routerApiResponseKey: 'processId',
-    metricsPrefix: 'mysql_mcp_',
-    ports: {
-        routerRW: '6446',
-        routerRO: '6447',
-        routerAPI: '8443',
-        proxySQLAdmin: '6032',
-        proxySQLData: '6033',
-        mcpExporter: '3000',
-        prometheus: '9090',
-        grafana: '3000',
-        loki: '3100',
-        alloy: '12345',
-    },
-    timeouts: {
-        curlSec: '5',
-        routerHttpCheckSec: '2',
-    },
-    redis: {
-        healthKey: 'healthcheck:test',
-        healthValue: 'ok',
-        healthTtlSec: '10',
-    },
-    workspace: {
-        mcpPackageJson: '/workspace/mysql-mcp/package.json',
-        scratchDir: '/workspace/scratch',
-        mysqlMcpDist: path.resolve(__dirname, '../../../../mysql-mcp/dist'),
-    },
-    expectedTables: {
-        test_products:     16,
-        test_orders:       20,
-        test_json_docs:    8,
-        test_articles:     10,
-        test_users:        10,
-        test_measurements: 200,
-        test_locations:    15,
-        test_categories:   17,
-        test_events:       100,
-        test_documents:    10,
-        test_partitioned:  26,
-        temp_write_test:   5,
-    },
-    metrics: {
-        gracePeriodSec: 60,
-        imageFreshnessHours: 24,
-        requiredFamilies: [
-            'gen_ai_usage_prompt_tokens_per_call',
-        ],
-    },
-};
-
-const MYSQL_PWD_ENV = `MYSQL_PWD=${CONFIG.credentials.mysql.password}`;
-const MYSQL_USER_FLAG = `-u${CONFIG.credentials.mysql.user}`;
-
-// ============================================================
-// Helpers
-// ============================================================
-
-/** Split string by newlines, handling both LF and CRLF (WSL boundary safety) */
-const splitLines = (str) => str.split(/\r?\n/);
-
-/** Safely parse JSON, returning { ok, data } instead of throwing */
-const safeParse = (raw) => {
-    try { return { ok: true, data: JSON.parse(raw) }; }
-    catch { return { ok: false, data: null }; }
-};
-
-/** Strip leading MySQL warning lines, returning the last meaningful line */
-const stripMysqlWarning = (val) => {
-    if (!val) return null;
-    const trimmed = val.trim();
-    if (!trimmed.includes('mysql: [Warning]')) return trimmed;
-    return splitLines(trimmed).filter(l => !l.startsWith('mysql: [Warning]')).pop()?.trim() ?? trimmed;
-};
-
-/** Extract the value from a settled Promise.allSettled result, or null if rejected */
-const settled = (result) => result.status === 'fulfilled' ? result.value : null;
-
-// Cached env object — avoids re-spreading process.env (100+ keys) on every subprocess call
-const EXEC_ENV = Object.freeze({ ...process.env, LC_ALL: 'C', LANG: 'C' });
+import {
+    ECOSYSTEM_ROOT,
+    CONFIG,
+    MYSQL_PWD_ENV,
+    MYSQL_USER_FLAG,
+    splitLines,
+    safeParse,
+    stripMysqlWarning,
+    settled,
+    EXEC_ENV
+} from './core-config.mjs';
+import {
+    runRoutingValidationSection,
+    runObservabilityStackSection,
+    runDatadogIntegrationSection,
+    runMcpMetricsSection,
+    runDatabaseIntegritySection,
+    runFilesystemBoundariesSection
+} from './check-status-sections.mjs';
 
 /** Synchronous command execution with optional error suppression */
 const execCommand = (cmd, args, ignoreError = false) => {
@@ -355,474 +278,61 @@ await runSectionAsync('MySQL Shell Metadata Verification', async () => {
 // Section 4: Routing & Proxy Data-Plane Validation (Parallel)
 // ============================================================
 await runSectionAsync('Routing & Proxy Validation', async () => {
-    console.log('\n4. Routing & Proxy Validation:');
-    console.log(SEPARATOR);
-
-    const { routerRW, routerRO, routerAPI, proxySQLAdmin, proxySQLData } = CONFIG.ports;
-    const { proxyAdmin, proxyData, routerApi } = CONFIG.credentials;
-    const { routerHttpCheckSec } = CONFIG.timeouts;
-
-    if (!firstMysqlNode) throw new Error('No MySQL nodes found');
-    const proxySqlNode = containers.find(c => c.includes('proxysql')) || 'proxysql';
-    const redisNode = containers.find(c => c.includes('redis')) || 'redis-server';
-
-    // Fire all independent checks in parallel
-    const [routerRWResult, routerROResult, routerAPIHTTPResult, routerAPIHTTPSResult, proxyBackendsResult, proxyDataResult, redisResult] = await Promise.allSettled([
-        // MySQL Router R/W (port 6446)
-        dockerExecEnvAsync(firstMysqlNode, [MYSQL_PWD_ENV], ['mysql', '-h', mysqlRouterNode, '-P', routerRW, MYSQL_USER_FLAG, '-N', '-s', '-e', 'SELECT @@hostname;']),
-        // MySQL Router R/O (port 6447)
-        dockerExecEnvAsync(firstMysqlNode, [MYSQL_PWD_ENV], ['mysql', '-h', mysqlRouterNode, '-P', routerRO, MYSQL_USER_FLAG, '-N', '-s', '-e', 'SELECT @@hostname;']),
-        // Router REST API — HTTP (should fail = HTTPS enforced)
-        dockerExecAsync(datadogUnifiedNode, ['curl', '-s', '-m', routerHttpCheckSec, `http://${mysqlRouterNode}:${routerAPI}${CONFIG.routerApiPath}`]),
-        // Router REST API — HTTPS
-        dockerExecAsync(datadogUnifiedNode, ['curl', '-sk', '-u', `${routerApi.user}:${routerApi.password}`, `https://${mysqlRouterNode}:${routerAPI}${CONFIG.routerApiPath}`]),
-        // ProxySQL backend status
-        dockerExecEnvAsync(proxySqlNode, [`MYSQL_PWD=${proxyAdmin.password}`], ['mysql', '-h', '127.0.0.1', '-P', proxySQLAdmin, `-u${proxyAdmin.user}`, '-N', '-s', '-e', 'SELECT hostgroup_id, hostname, status FROM runtime_mysql_servers ORDER BY hostgroup_id, hostname;']),
-        // ProxySQL data port (6033)
-        dockerExecEnvAsync(firstMysqlNode, [`MYSQL_PWD=${proxyData.password}`], ['mysql', '-h', 'proxysql', '-P', proxySQLData, `-u${proxyData.user}`, '-N', '-s', '-e', 'SELECT 1;']),
-        // Redis PING + SET/GET cycle
-        dockerExecAsync(redisNode, ['redis-cli', 'PING']),
-    ]);
-
-    // Router R/W
-    const routerRW_val = settled(routerRWResult);
-    if (routerRW_val && routerRW_val.trim().length > 0) {
-        console.log(`✅ Router R/W (${routerRW})    : Routed to ${routerRW_val.trim()}`);
-    } else {
-        console.log(`❌ Router R/W (${routerRW})    : Cannot route queries`);
-        allUp = false;
-    }
-
-    // Router R/O
-    const routerRO_val = settled(routerROResult);
-    if (routerRO_val && routerRO_val.trim().length > 0) {
-        console.log(`✅ Router R/O (${routerRO})    : Routed to ${routerRO_val.trim()}`);
-    } else {
-        console.log(`❌ Router R/O (${routerRO})    : Cannot route queries`);
-        allUp = false;
-    }
-
-    // Router REST API — verify HTTPS enforcement
-    const routerAPIHTTP_val = settled(routerAPIHTTPResult);
-    const routerAPIHTTPS_val = settled(routerAPIHTTPSResult);
-
-    if (routerAPIHTTPS_val && routerAPIHTTPS_val.includes(CONFIG.routerApiResponseKey)) {
-        if (routerAPIHTTP_val === null || routerAPIHTTP_val.trim() === '') {
-            console.log('✅ Router REST API      : Responding securely (HTTPS enforced, HTTP rejected)');
-        } else {
-            console.log('⚠️ Router REST API      : Responding to HTTPS, but HTTP unexpectedly did not fail');
-            allUp = false;
-        }
-    } else {
-        console.log('❌ Router REST API      : Not responding to HTTPS');
-        allUp = false;
-    }
-
-    // ProxySQL backends
-    const proxyBackends_val = settled(proxyBackendsResult);
-    if (proxyBackends_val) {
-        const lines = splitLines(proxyBackends_val.trim()).filter(Boolean);
-        const offlineBackends = lines.filter(l => !l.includes('ONLINE'));
-        if (offlineBackends.length === 0 && lines.length > 0) {
-            console.log(`✅ ProxySQL backends    : ${lines.length} backends, all ONLINE`);
-        } else if (lines.length > 0) {
-            console.log(`⚠️ ProxySQL backends    : ${offlineBackends.length}/${lines.length} backends NOT ONLINE`);
-            for (const line of offlineBackends) {
-                console.log(`   ${line}`);
-            }
-            allUp = false;
-        } else {
-            console.log('❌ ProxySQL backends    : No backends configured');
-            allUp = false;
-        }
-    } else {
-        console.log(`❌ ProxySQL admin       : Cannot connect to admin interface (${proxySQLAdmin})`);
-        allUp = false;
-    }
-
-    // ProxySQL data port
-    const proxyData_val = settled(proxyDataResult);
-    if (proxyData_val && proxyData_val.trim() === '1') {
-        console.log(`✅ ProxySQL data (${proxySQLData}) : Routing queries successfully`);
-    } else {
-        console.log(`❌ ProxySQL data (${proxySQLData}) : Cannot route queries`);
-        allUp = false;
-    }
-
-    // Redis — PING first, then SET/GET cycle if needed
-    const redisPing_val = settled(redisResult);
-    if (redisPing_val && redisPing_val.trim() === 'PONG') {
-        // Test write + read cycle (sequential since GET depends on SET)
-        const redisSet = await dockerExecAsync(redisNode, ['redis-cli', 'SET', CONFIG.redis.healthKey, CONFIG.redis.healthValue, 'EX', CONFIG.redis.healthTtlSec]);
-        const redisGet = await dockerExecAsync(redisNode, ['redis-cli', 'GET', CONFIG.redis.healthKey]);
-        if (redisSet && redisSet.trim() === 'OK' && redisGet && redisGet.trim() === CONFIG.redis.healthValue) {
-            console.log('✅ Redis                : PING + SET/GET cycle passed');
-        } else {
-            console.log('⚠️ Redis                : PING ok but SET/GET failed');
-            allUp = false;
-        }
-    } else {
-        console.log('❌ Redis                : Not responding to PING');
-        allUp = false;
-    }
+    const up = await runRoutingValidationSection({
+        firstMysqlNode, containers, mysqlRouterNode, dockerExecEnvAsync, dockerExecAsync, settled
+    });
+    if (!up) allUp = false;
 });
 
 // ============================================================
 // Section 5: Observability Stack (Parallel)
 // ============================================================
 await runSectionAsync('Observability Stack', async () => {
-    console.log('\n5. Observability Stack:');
-    console.log(SEPARATOR);
-
-    const { curlSec } = CONFIG.timeouts;
-
-    // Fire all independent observability checks in parallel
-    const [promHealthResult, grafanaHealthResult, lokiReadyResult, alloyReadyResult] = await Promise.allSettled([
-        dockerExecAsync(prometheusNode, ['wget', '-qO-', 'http://localhost:9090/-/healthy']),
-        dockerExecAsync(datadogUnifiedNode, ['curl', '-s', '--connect-timeout', curlSec, `http://grafana:${CONFIG.ports.grafana}/api/health`]),
-        dockerExecAsync(datadogUnifiedNode, ['curl', '-s', '--connect-timeout', curlSec, `http://loki:${CONFIG.ports.loki}/ready`]),
-        dockerExecAsync(datadogUnifiedNode, ['curl', '-s', '--connect-timeout', curlSec, `http://alloy:${CONFIG.ports.alloy}/-/ready`]),
-    ]);
-
-    // Prometheus health
-    const promHealth = settled(promHealthResult);
-    if (promHealth && promHealth.includes('Healthy')) {
-        // Scrape targets check (sequential since it depends on health)
-        const promTargets = await dockerExecAsync(prometheusNode, ['wget', '-qO-', `http://localhost:${CONFIG.ports.prometheus}/api/v1/targets?state=active`]);
-        if (promTargets) {
-            const parsed = safeParse(promTargets);
-            if (parsed.ok) {
-                const activeTargets = parsed.data?.data?.activeTargets || [];
-                const downTargets = activeTargets.filter(t => t.health !== 'up');
-                if (downTargets.length === 0 && activeTargets.length > 0) {
-                    console.log(`✅ Prometheus           : Healthy, ${activeTargets.length} target(s) all UP`);
-                } else if (activeTargets.length === 0) {
-                    console.log('⚠️ Prometheus           : Healthy but no active scrape targets');
-                    allUp = false;
-                } else {
-                    console.log(`⚠️ Prometheus           : ${downTargets.length}/${activeTargets.length} target(s) DOWN`);
-                    for (const t of downTargets) {
-                        console.log(`   ❌ ${t.labels?.job || 'unknown'}/${t.labels?.instance || 'unknown'}: ${t.lastError || 'unknown error'}`);
-                    }
-                    allUp = false;
-                }
-            } else {
-                console.log('✅ Prometheus           : Healthy (targets API parse failed, non-critical)');
-            }
-        } else {
-            console.log('✅ Prometheus           : Healthy (targets check skipped)');
-        }
-    } else {
-        console.log('❌ Prometheus           : Not healthy');
-        allUp = false;
-    }
-
-    // Grafana health
-    const grafanaHealth = settled(grafanaHealthResult);
-    if (grafanaHealth) {
-        const parsed = safeParse(grafanaHealth);
-        if (parsed.ok && parsed.data) {
-            if (parsed.data.database === 'ok') {
-                console.log('✅ Grafana              : Healthy (database: ok)');
-            } else {
-                console.log(`⚠️ Grafana              : Responding but database: ${parsed.data.database || 'unknown'}`);
-                allUp = false;
-            }
-        } else {
-            console.log('✅ Grafana              : Responding');
-        }
-    } else {
-        console.log('❌ Grafana              : Not responding');
-        allUp = false;
-    }
-
-    // Loki ready — also query labels API to confirm Alloy→Loki pipeline is shipping data
-    const lokiReady = settled(lokiReadyResult);
-    if (lokiReady && lokiReady.toLowerCase().includes('ready')) {
-        const lokiLabels = await dockerExecAsync(datadogUnifiedNode, ['curl', '-s', '--connect-timeout', curlSec, `http://loki:${CONFIG.ports.loki}/loki/api/v1/labels`]);
-        let labelCount = 0;
-        if (lokiLabels) {
-            const parsed = safeParse(lokiLabels);
-            if (parsed.ok) { labelCount = parsed.data?.data?.length || 0; }
-        }
-        if (labelCount > 0) {
-            console.log(`✅ Loki                 : Ready (${labelCount} label(s) indexed — Alloy pipeline active)`);
-        } else {
-            console.log('✅ Loki                 : Ready (no labels yet — normal on fresh start)');
-        }
-    } else {
-        console.log('❌ Loki                 : Not ready');
-        allUp = false;
-    }
-
-    // Alloy ready
-    const alloyReady = settled(alloyReadyResult);
-    if (alloyReady && alloyReady.toLowerCase().includes('ready')) {
-        console.log('✅ Alloy                : Ready');
-    } else {
-        console.log('❌ Alloy                : Not ready');
-        allUp = false;
-    }
+    const up = await runObservabilityStackSection({
+        datadogUnifiedNode, prometheusNode, dockerExecAsync, settled, safeParse
+    });
+    if (!up) allUp = false;
 });
 
 // ============================================================
 // Section 6: Datadog Integration Status
 // ============================================================
 runSection('Datadog Integration Status', () => {
-    console.log('\n6. Datadog Integration Status:');
-    console.log(SEPARATOR);
-
-    // Primary indicator: Docker-level health (already collected in Section 1 — immune to transient agent health exec failures)
-    const ddDockerStatus = runningContainers[datadogUnifiedNode]?.status ?? '';
-    const ddContainerHealthy = ddDockerStatus.includes('healthy') && !ddDockerStatus.includes('unhealthy');
-
-    if (ddContainerHealthy) {
-        // Get full status to parse per-integration check results
-        ddStatus = dockerExec(datadogUnifiedNode, ['agent', 'status'], true);
-        if (ddStatus) {
-            // Single-pass categorization — avoids 4 intermediate array allocations
-            const { errorInstances, warningInstances, okInstances } = splitLines(ddStatus).reduce(
-                (acc, l) => {
-                    if (!l.includes('Instance ID:')) return acc;
-                    if (l.includes('[ERROR]'))        acc.errorInstances.push(l);
-                    else if (l.includes('[WARNING]')) acc.warningInstances.push(l);
-                    else if (l.includes('[OK]'))      acc.okInstances.push(l);
-                    return acc;
-                },
-                { errorInstances: [], warningInstances: [], okInstances: [] }
-            );
-
-            if (errorInstances.length === 0 && warningInstances.length === 0 && okInstances.length > 0) {
-                console.log(`✅ Datadog Agent        : Healthy, ${okInstances.length} integration checks all OK`);
-            } else if (okInstances.length === 0 && errorInstances.length === 0) {
-                console.log(`✅ Datadog Agent        : Healthy (integration checks still initializing)`);
-            } else {
-                if (errorInstances.length > 0) {
-                    console.log(`❌ Datadog Agent        : ${errorInstances.length} integration ERROR(s)`);
-                    for (const line of errorInstances) {
-                        const match = line.match(/Instance ID:\s*(.+?)\s*\[ERROR\]/);
-                        console.log(`   ❌ ${match ? match[1].trim() : line.trim()}`);
-                    }
-                    allUp = false;
-                }
-                if (warningInstances.length > 0) {
-                    console.log(`⚠️  Datadog Agent        : ${warningInstances.length} integration WARNING(s)`);
-                    for (const line of warningInstances) {
-                        const match = line.match(/Instance ID:\s*(.+?)\s*\[WARNING\]/);
-                        console.log(`   ⚠️  ${match ? match[1].trim() : line.trim()}`);
-                    }
-                }
-                if (okInstances.length > 0) {
-                    console.log(`   ✅ ${okInstances.length} other checks OK`);
-                }
-            }
-        } else {
-            // agent status exec failed but Docker health is green — non-critical
-            console.log(`✅ Datadog Agent        : Docker-healthy (integration status temporarily unavailable)`);
-        }
-    } else {
-        console.log('❌ Datadog Agent        : Not healthy');
-        allUp = false;
-    }
+    const result = runDatadogIntegrationSection({
+        runningContainers, datadogUnifiedNode, dockerExec
+    });
+    if (!result.up) allUp = false;
+    ddStatus = result.ddStatusOut;
 });
 
 // ============================================================
 // Section 7: MCP Server Metrics
 // ============================================================
 runSection('MCP Server Metrics', () => {
-    console.log('\n7. MCP Server Metrics:');
-    console.log(SEPARATOR);
-
-    const mcpMetrics = dockerExec(datadogUnifiedNode, ['curl', '-s', '--connect-timeout', CONFIG.timeouts.curlSec, `http://mysql-mcp-exporter:${CONFIG.ports.mcpExporter}/metrics`], true);
-    
-    if (mcpMetrics && mcpMetrics.includes(CONFIG.metricsPrefix)) {
-        // Check 7a: Metric families exist
-        const seen = new Set();
-        const helpRegex = /^# HELP (\S+)/gm;
-        let match;
-        while ((match = helpRegex.exec(mcpMetrics)) !== null) {
-            seen.add(match[1]);
-        }
-        console.log(`✅ MCP Exporter         : Responding, exporting ${seen.size} metric families`);
-
-        // Check 7b: Non-zero tool counters
-        const uptimeLine = mcpMetrics.match(/^mysql_mcp_server_uptime_seconds\s+([0-9.]+)/m);
-        const uptime = uptimeLine ? parseFloat(uptimeLine[1]) : 0;
-        const toolLines = mcpMetrics.match(/^mysql_mcp_tool_calls_total\{.+\}\s+\d+/gm) || [];
-        const nonZeroTools = toolLines.filter(l => !l.endsWith(' 0'));
-        if (uptime > CONFIG.metrics.gracePeriodSec && nonZeroTools.length === 0 && toolLines.length > 0) {
-            console.log(`⚠️  MCP Exporter         : All ${toolLines.length} tool counters are zero (uptime: ${Math.round(uptime)}s). JSONL sync might be failing.`);
-            allUp = false;
-        } else if (toolLines.length > 0) {
-            console.log(`✅ MCP Exporter         : Historical sync active (${nonZeroTools.length}/${toolLines.length} tools have non-zero calls)`);
-        } else {
-            console.log(`⚠️  MCP Exporter         : No tool counters found`);
-        }
-
-        // Check 7c: Token metrics exist
-        let missingFamilies = [];
-        for (const fam of CONFIG.metrics.requiredFamilies) {
-            if (!mcpMetrics.includes(fam)) missingFamilies.push(fam);
-        }
-        if (missingFamilies.length === 0) {
-            console.log(`✅ MCP Exporter         : Found required AI token metric families`);
-        } else {
-            console.log(`❌ MCP Exporter         : Missing required metrics: ${missingFamilies.join(', ')}`);
-            allUp = false;
-        }
-        
-    } else if (mcpMetrics !== null) {
-        console.log(`❌ MCP Exporter         : Responding but no ${CONFIG.metricsPrefix} metrics found`);
-        allUp = false;
-    } else {
-        console.log(`❌ MCP Exporter         : Not running or reachable`);
-        allUp = false;
-    }
-
-    // Check 7d: Datadog openmetrics ingestion
-    if (ddStatus) {
-        // Datadog auto-converts hyphens to underscores in instance IDs
-        const openmetricsMatch = ddStatus.match(/Instance ID: openmetrics:mysql_mcp.*?\n[\s\S]*?Metric Samples: Last Run: ([\d,]+)/);
-        const hasOpenmetricsCheck = ddStatus.includes('Instance ID: openmetrics:mysql_mcp');
-        
-        if (openmetricsMatch) {
-            const metricsCount = parseInt(openmetricsMatch[1].replace(/,/g, ''), 10);
-            if (metricsCount > 0) {
-                console.log(`✅ Datadog openmetrics  : Ingesting ${metricsCount} metrics from exporter`);
-            } else {
-                console.log(`⚠️  Datadog openmetrics  : Check is OK but ingesting 0 metrics`);
-                allUp = false;
-            }
-        } else if (hasOpenmetricsCheck) {
-            console.log(`⚠️  Datadog openmetrics  : Check exists but couldn't parse metric counts. Check 'agent status'.`);
-        } else {
-            console.log(`❌ Datadog openmetrics  : Not configured to scrape mysql-mcp-exporter`);
-            allUp = false;
-        }
-    } else {
-        console.log(`⚠️  Datadog openmetrics  : Skipped (Datadog agent is down)`);
-    }
-
-    // Check 7e: Container image freshness
-    const containerCreatedStr = execCommand(dockerCmd, dockerCmd === 'wsl' ? ['docker', 'inspect', '--format', '{{.Created}}', 'mysql-mcp-exporter'] : ['inspect', '--format', '{{.Created}}', 'mysql-mcp-exporter'], true);
-    if (containerCreatedStr && !containerCreatedStr.includes('No such object')) {
-        const containerTime = Date.parse(containerCreatedStr.trim());
-        try {
-            const stat = fs.statSync(CONFIG.workspace.mysqlMcpDist);
-            const buildTime = stat.mtimeMs;
-            const hoursDiff = (buildTime - containerTime) / (1000 * 60 * 60);
-            
-            if (hoursDiff > CONFIG.metrics.imageFreshnessHours) {
-                console.log(`⚠️  MCP Exporter Image   : Container is ${Math.round(hoursDiff)} hours OLDER than dist/ build artifacts. Stale image? Rebuild requested.`);
-                // We don't fail allUp for this, but log a loud warning
-            } else {
-                console.log(`✅ MCP Exporter Image   : Fresh (built within ${CONFIG.metrics.imageFreshnessHours}h of latest changes)`);
-            }
-        } catch (e) {
-            console.log(`⚠️  MCP Exporter Image   : Could not read dist/ directory to verify freshness: ${e.message}`);
-        }
-    }
+    const up = runMcpMetricsSection({
+        dockerExec, datadogUnifiedNode, execCommand, dockerCmd, statSync: fs.statSync, ddStatus
+    });
+    if (!up) allUp = false;
 });
 
 // ============================================================
 // Section 8: Test Database Integrity (N+1 fix — single SQL query)
 // ============================================================
 runSection('Test Database Integrity', () => {
-    console.log('\n8. Test Database Integrity:');
-    console.log(SEPARATOR);
-
-    const tableNames = Object.keys(CONFIG.expectedTables);
-
-    // Single UNION ALL query replaces 12 individual docker exec calls
-    const unionParts = tableNames.map(t => `SELECT '${t}' AS t, COUNT(*) AS c FROM ${CONFIG.database}.${t}`);
-    const batchQuery = unionParts.join(' UNION ALL ');
-    if (!firstMysqlNode) throw new Error('No MySQL nodes found');
-
-    const batchOut = dockerExecEnv(firstMysqlNode, [MYSQL_PWD_ENV],
-        ['mysql', '-h', mysqlRouterNode, '-P', CONFIG.ports.routerRW, MYSQL_USER_FLAG, CONFIG.database, '-N', '-s', '-e', `${batchQuery};`], true);
-
-    let dbIntegrityOk = true;
-    const tableFailures = [];
-
-    if (!batchOut) {
-        // Batch query failed — likely all tables missing or connection issue
-        for (const table of tableNames) {
-            tableFailures.push(`${table}: missing or inaccessible`);
-        }
-        dbIntegrityOk = false;
-    } else {
-        // Parse tab-separated results: "table_name\tcount" per line
-        const foundTables = new Map();
-        for (const line of splitLines(batchOut.trim()).filter(Boolean)) {
-            const parts = line.split('\t');
-            const rowCount = parseInt(parts[1], 10);
-            if (parts.length >= 2 && !isNaN(rowCount)) {
-                foundTables.set(parts[0], rowCount);
-            }
-        }
-
-        for (const [table, minRows] of Object.entries(CONFIG.expectedTables)) {
-            if (!foundTables.has(table)) {
-                tableFailures.push(`${table}: missing or inaccessible`);
-                dbIntegrityOk = false;
-            } else {
-                const count = foundTables.get(table);
-                if (count < minRows) {
-                    tableFailures.push(`${table}: ${count} rows (expected ${minRows}+)`);
-                    dbIntegrityOk = false;
-                }
-            }
-        }
-    }
-
-    if (dbIntegrityOk) {
-        console.log(`✅ ${CONFIG.database}               : All ${tableNames.length} tables present with expected row counts`);
-    } else {
-        console.log(`❌ ${CONFIG.database}               : ${tableFailures.length} table(s) have issues:`);
-        for (const f of tableFailures) console.log(`   ❌ ${f}`);
-        console.log(`   Run 'node scripts/reset-database.mjs' to reseed.`);
-        allUp = false;
-    }
+    const up = runDatabaseIntegritySection({
+        dockerExecEnv, firstMysqlNode, mysqlRouterNode
+    });
+    if (!up) allUp = false;
 });
-
-
 
 // ============================================================
 // Section 9: Filesystem Boundaries
 // ============================================================
 await runSectionAsync('Filesystem Boundaries', async () => {
-    console.log('\n9. Filesystem Boundaries:');
-    console.log(SEPARATOR);
-    
-    // Check if the volumes are mounted correctly in mysql-node1 (only check if node1 is up)
-    if (runningContainers[firstMysqlNode] && runningContainers[firstMysqlNode].state === 'running') {
-        // Two independent ls calls — fire in parallel
-        const [workspaceResult, scratchResult] = await Promise.all([
-            dockerExecAsync(firstMysqlNode, ['ls', CONFIG.workspace.mcpPackageJson]),
-            dockerExecAsync(firstMysqlNode, ['ls', '-d', CONFIG.workspace.scratchDir]),
-        ]);
-        const workspaceCheck = workspaceResult;
-        const scratchCheck = scratchResult;
-
-        let fsOk = true;
-        if (workspaceCheck && !workspaceCheck.includes('No such file')) {
-            console.log('✅ /workspace/mysql-mcp : Mounted successfully');
-        } else {
-            console.log('❌ /workspace/mysql-mcp : Missing or unreadable');
-            fsOk = false;
-        }
-
-        if (scratchCheck && !scratchCheck.includes('No such file')) {
-            console.log('✅ /workspace/scratch   : Mounted successfully');
-        } else {
-            console.log('❌ /workspace/scratch   : Missing or unreadable');
-            fsOk = false;
-        }
-
-        if (!fsOk) allUp = false;
-    } else {
-        console.log('⚠️ Filesystem Boundaries: Skipped (mysql-node1 is not running)');
-    }
+    const up = await runFilesystemBoundariesSection({
+        runningContainers, firstMysqlNode, dockerExecAsync
+    });
+    if (!up) allUp = false;
 });
 
 
