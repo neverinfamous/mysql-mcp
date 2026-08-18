@@ -23,6 +23,8 @@ import {
 // Configuration
 // =============================================================================
 
+export const ANSI_ESCAPE_REGEX = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, "gi");
+
 export function getWorkspaceRoot(): string {
   let dir = fileURLToPath(import.meta.url);
   // Traverse up to find package.json to identify the true workspace root reliably,
@@ -288,7 +290,7 @@ export async function execShellJS(
 
   // Check for critical errors in stderr (excluding common warnings)
   const stderrClean = result.stderr
-    .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+    .replace(ANSI_ESCAPE_REGEX, "")
     .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "") // Strip locale warning
     .replace(
       /WARNING: Using a password on the command line interface can be insecure\.\s*/gi,

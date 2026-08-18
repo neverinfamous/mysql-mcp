@@ -596,8 +596,7 @@ export class CodeModeSandbox {
         promise: true,
         copy: true,
       });
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      scriptPromise.catch(() => {});
+      scriptPromise.catch(() => undefined);
 
       let isolateRes: { __isIsolateSuccess?: boolean; data?: unknown; message?: string } | undefined;
       try {

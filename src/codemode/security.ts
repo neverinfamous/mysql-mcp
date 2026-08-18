@@ -294,8 +294,7 @@ return current
       this.intervalHandle = undefined;
     }
     if (this.redisClient?.isOpen) {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      void this.redisClient.disconnect();
+      void this.redisClient.quit();
     }
   }
 }
