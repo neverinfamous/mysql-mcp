@@ -45,7 +45,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "Total Tokens",
         "title_align": "left",
         "title_size": "16",
@@ -133,6 +132,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -161,6 +163,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Avg Tokens / Call",
         "title_align": "left",
         "title_size": "16",
