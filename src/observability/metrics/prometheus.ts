@@ -237,8 +237,12 @@ export function formatPrometheus(
   lines.push("# TYPE nodejs_rss_bytes gauge");
   lines.push(`nodejs_rss_bytes ${memUsage.rss}`);
 
-  const activeRequests = typeof (process as any)._getActiveRequests === "function" ? (process as any)._getActiveRequests().length : 0;
-  const activeHandles = typeof (process as any)._getActiveHandles === "function" ? (process as any)._getActiveHandles().length : 0;
+  const proc = process as NodeJS.Process & {
+    _getActiveRequests?: () => unknown[];
+    _getActiveHandles?: () => unknown[];
+  };
+  const activeRequests = typeof proc._getActiveRequests === "function" ? proc._getActiveRequests().length : 0;
+  const activeHandles = typeof proc._getActiveHandles === "function" ? proc._getActiveHandles().length : 0;
 
   lines.push("# HELP nodejs_active_requests_total Node.js active requests");
   lines.push("# TYPE nodejs_active_requests_total gauge");

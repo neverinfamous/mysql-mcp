@@ -57,7 +57,7 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
         const windowExpr = `NTILE(${String(buckets)}) OVER(${partition} ORDER BY ${parsed.orderBy})`;
 
         const sql = `
-          SELECT ${selectList(parsed.selectColumns, windowExpr, "ntile")}
+          SELECT ${selectList(parsed.selectColumns, windowExpr, parsed.asColumn)}
           FROM ${fullTableName}
           ${whereClause(parsed.where)}
           ORDER BY ${parsed.orderBy}

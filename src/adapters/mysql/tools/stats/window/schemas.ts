@@ -463,6 +463,9 @@ export const StatsNtileSchemaBase = z.object({
     .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Number of rows to skip (default: 0)"),
+  asColumn: z.string().optional().describe("Alias for the output column"),
+  as_column: z.string().optional().describe("Alias for asColumn"),
+  alias: z.string().optional().describe("Alias for asColumn"),
 });
 
 export const StatsNtileSchema = z.preprocess(
@@ -486,6 +489,7 @@ export const StatsNtileSchema = z.preprocess(
       partitionBy: pb,
       selectColumns: sc,
       buckets: v["buckets"] ?? v["quantiles"] ?? v["n"],
+      asColumn: v["asColumn"] ?? v["as_column"] ?? v["alias"],
     };
   },
   z.object({
@@ -498,5 +502,6 @@ export const StatsNtileSchema = z.preprocess(
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }).refine(val => !val?.includes(";"), { message: "Invalid characters in where clause" }),
     limit: z.coerce.number().int().min(1).max(1000).default(10),
     offset: z.coerce.number().int().min(0).default(0),
+    asColumn: z.string().min(1, "asColumn cannot be empty").refine(val => !val.includes(";") && !val.includes("`"), { message: "Invalid characters in asColumn" }).default("ntile"),
   })
 );
