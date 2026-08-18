@@ -104,6 +104,7 @@ describe("HttpTransport", () => {
         _endSpy: vi.fn(),
         setHeader: vi.fn(),
         on: vi.fn(),
+        write: vi.fn(),
       };
       res._endSpy = vi.fn();
       res.end = res._endSpy;
