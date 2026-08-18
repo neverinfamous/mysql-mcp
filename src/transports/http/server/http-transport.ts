@@ -207,18 +207,32 @@ export class HttpTransport {
       rxBytes += chunk.length;
     });
 
-    const originalWrite = res.write;
-    const originalEnd = res.end;
+    const originalWrite = res.write.bind(res);
+    const originalEnd = res.end.bind(res);
 
-    res.write = function (chunk: any, ...args: any[]): boolean {
-      if (chunk) txBytes += Buffer.byteLength(chunk);
-      return originalWrite.apply(res, [chunk, ...args] as any);
-    } as any;
+    res.write = function (
+      this: ServerResponse,
+      chunk: unknown,
+      ...args: unknown[]
+    ): boolean {
+      if (chunk !== undefined && chunk !== null) {
+        txBytes += Buffer.byteLength(chunk as string | Buffer | Uint8Array);
+      }
+      // @ts-expect-error - overriding method signature safely
+      return originalWrite(chunk, ...args);
+    } as typeof res.write;
 
-    res.end = function (chunk?: any, ...args: any[]): any {
-      if (chunk && typeof chunk !== 'function') txBytes += Buffer.byteLength(chunk);
-      return originalEnd.apply(res, [chunk, ...args] as any);
-    } as any;
+    res.end = function (
+      this: ServerResponse,
+      chunk?: unknown,
+      ...args: unknown[]
+    ): ServerResponse {
+      if (chunk !== undefined && chunk !== null && typeof chunk !== "function") {
+        txBytes += Buffer.byteLength(chunk as string | Buffer | Uint8Array);
+      }
+      // @ts-expect-error - overriding method signature safely
+      return originalEnd(chunk, ...args);
+    } as typeof res.end;
 
     res.on("finish", () => {
       metrics.recordHttpTransportBytes(rxBytes, txBytes);

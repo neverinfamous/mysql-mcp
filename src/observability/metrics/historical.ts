@@ -629,7 +629,7 @@ function processResourceEntry(
     return;
   }
 
-  const stat = jsonlState.resourceStats.get(toolName) ?? { reads: 0 };
+  const stat = jsonlState.resourceStats.get(toolName) ?? { reads: 0, readBytes: 0 };
   stat.reads++;
   jsonlState.resourceStats.set(toolName, stat);
 }

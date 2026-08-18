@@ -89,9 +89,7 @@ export function formatPrometheus(
   // --- DB Query Latency ---
   lines.push("# HELP mysql_mcp_db_query_latency_ms_p95 P95 DB Query Latency (ms)");
   lines.push("# TYPE mysql_mcp_db_query_latency_ms_p95 gauge");
-  for (const [name, metric] of tools.entries()) {
-    // Left as future extension for when actual DB query profiling is separated from Tool Latency
-  }
+  // Left as future extension for when we track percentiles properly per-tool
 
 
   // --- Latency percentiles ---
@@ -268,7 +266,9 @@ function appendPoolMetrics(
     idle += poolStats.idle;
     waiting += poolStats.waiting;
     totalQueries += poolStats.totalQueries;
-    connectionErrors += poolStats.connectionErrors || 0;
+    if ("connectionErrors" in poolStats && typeof poolStats.connectionErrors === "number") {
+      connectionErrors += poolStats.connectionErrors;
+    }
   }
 
   for (const stats of jsonlPoolStats.values()) {
@@ -277,7 +277,9 @@ function appendPoolMetrics(
     idle += stats.idle;
     waiting += stats.waiting;
     totalQueries += stats.totalQueries;
-    connectionErrors += stats.connectionErrors || 0;
+    if ("connectionErrors" in stats && typeof stats.connectionErrors === "number") {
+      connectionErrors += stats.connectionErrors;
+    }
   }
 
   if (totalSlots > 0 || totalQueries > 0) {

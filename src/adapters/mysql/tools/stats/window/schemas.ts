@@ -184,7 +184,7 @@ export const StatsLagLeadSchemaBase = z.object({
     .optional()
     .describe("Number of rows to look back/ahead (default: 1)"),
   defaultValue: z
-    .string()
+    .union([z.string(), z.number(), z.boolean()])
     .optional()
     .describe("Default value if no row exists"),
   partitionBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to partition by"),
