@@ -18,18 +18,9 @@ export function createSetupObservabilityPrompt(): PromptDefinition {
   return {
     name: "mysql_setup_observability",
     description: "Guide for configuring enterprise observability (Datadog, Prometheus, Loki, OpenTelemetry)",
-    arguments: [
-      {
-        name: "integration",
-        description: "Specific observability integration to focus on (e.g., datadog, prometheus, loki)",
-        required: false,
-      },
-    ],
-    handler: (args: Record<string, string>, _context: RequestContext) => {
-      let focus = "the complete observability stack (Prometheus, Grafana Alloy, Loki, Datadog)";
-      if (args["integration"]) {
-        focus = `the ${args["integration"]} integration`;
-      }
+    arguments: [],
+    handler: (_args: Record<string, string>, _context: RequestContext) => {
+      const focus = "the complete observability stack (Prometheus, Grafana Alloy, Loki, Datadog)";
 
       return Promise.resolve(`
 You are an expert Reliability Engineer and Database Administrator. 
