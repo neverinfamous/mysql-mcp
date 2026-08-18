@@ -12,7 +12,7 @@
       "prefix": "tool"
     }
   ],
-  "title": "memory-journal-mcp Token \u0026 Tool Metrics",
+  "title": "datadog-infrastructure.json",
   "widgets": [
     {
       "definition": {

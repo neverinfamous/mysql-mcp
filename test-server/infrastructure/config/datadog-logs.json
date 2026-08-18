@@ -5,7 +5,7 @@
   "pause_auto_refresh": null,
   "reflow_type": "fixed",
   "template_variables": [],
-  "title": "memory-journal-mcp AI Efficiency",
+  "title": "datadog-logs.json",
   "widgets": [
     {
       "definition": {
