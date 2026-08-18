@@ -386,10 +386,11 @@ Add a configuration to your IDE's MCP settings file:
         "-y",
         "@neverinfamous/mysql-mcp",
         "--transport",
-        "stdio"
+        "stdio",
+        "--tool-filter",
+        "codemode"
       ],
       "env": {
-        "TOOL_FILTER": "codemode",
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "mcp_user",
@@ -422,10 +423,11 @@ Add a configuration to your IDE's MCP settings file:
         "-y",
         "@neverinfamous/mysql-mcp",
         "--transport",
-        "stdio"
+        "stdio",
+        "--tool-filter",
+        "cluster"
       ],
       "env": {
-        "TOOL_FILTER": "cluster",
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3307",
         "MYSQL_USER": "cluster_admin",
@@ -458,10 +460,11 @@ Add a configuration to your IDE's MCP settings file:
         "-y",
         "@neverinfamous/mysql-mcp",
         "--transport",
-        "stdio"
+        "stdio",
+        "--tool-filter",
+        "ecosystem"
       ],
       "env": {
-        "TOOL_FILTER": "ecosystem",
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3307",
         "MYSQL_XPORT": "6448",
