@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { registerHelpResources, registerAuditResource, registerObservabilityResource } from "../resources.js";
 import type { McpServer } from "../mcp-server.js";
-import { metrics } from "../../../observability/metrics.js";
+import { metrics } from "../../../observability/metrics/index.js";
 import { HELP_CONTENT } from "../../../constants/server-instructions.js";
 
 
-vi.mock("../../../observability/metrics.js", () => ({
+vi.mock("../../../observability/metrics/index.js", () => ({
   metrics: {
     recordResourceRead: vi.fn(),
     getSummary: vi.fn().mockReturnValue({ totalRequests: 5 }),

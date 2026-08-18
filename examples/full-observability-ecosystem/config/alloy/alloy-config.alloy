@@ -6,10 +6,6 @@
 local.file_match "mcp_logs" {
   path_targets = [
     {
-      "__path__" = "/var/log/mysql-mcp/agent-issues.jsonl",
-      "job"      = "mysql_mcp_logs",
-    },
-    {
       "__path__" = "/var/log/mysql-mcp/mcp-audit.jsonl",
       "job"      = "mysql_mcp_logs",
     },
@@ -20,6 +16,22 @@ local.file_match "mcp_logs" {
 loki.source.file "mcp_logs" {
   targets    = local.file_match.mcp_logs.targets
   forward_to = [loki.process.mcp_logs.receiver]
+}
+
+// Route 2: The decoupled Agent Exec Issues Log
+local.file_match "agent_issues" {
+  path_targets = [
+    {
+      "__path__" = "/var/log/mysql-mcp/agent-issues.jsonl",
+      "job"      = "agent_exec_logs",
+      "source"   = "agent-exec",
+    },
+  ]
+}
+
+loki.source.file "agent_issues_logs" {
+  targets    = local.file_match.agent_issues.targets
+  forward_to = [loki.write.loki_server.receiver]
 }
 
 // Parse JSON log entries and promote structured fields as labels

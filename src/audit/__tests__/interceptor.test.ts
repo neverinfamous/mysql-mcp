@@ -16,7 +16,7 @@ vi.mock('../../utils/tokens.js', () => ({
   estimateObjectTokens: vi.fn(),
 }));
 
-vi.mock('../../observability/metrics.js', () => ({
+vi.mock('../../observability/metrics/index.js', () => ({
   metrics: {
     recordToolCall: vi.fn(),
   },
@@ -30,7 +30,7 @@ vi.mock('../../utils/error-suggestions.js', () => ({
 import { getAuthContext } from '../../auth/auth-context.js';
 import { getRequiredScope } from '../../auth/scope-map.js';
 import { estimateTokens, estimateObjectTokens } from '../../utils/tokens.js';
-import { metrics } from '../../observability/metrics.js';
+import { metrics } from '../../observability/metrics/index.js';
 import { findSuggestion, heuristicCategorize } from '../../utils/error-suggestions.js';
 
 describe('createAuditInterceptor', () => {
@@ -87,7 +87,8 @@ describe('createAuditInterceptor', () => {
         'testTool',
         expect.any(Number),
         true,
-        112, // 100 + 12
+        112, // promptTokenEstimate 100 + 12
+        112, // completionTokens 100 + 12
         undefined,
         undefined
       );
@@ -105,8 +106,8 @@ describe('createAuditInterceptor', () => {
         error: undefined,
         args: { arg1: 'value' },
         scopes: ['read', 'write'],
-        backup: undefined,
         tokenEstimate: 112,
+        completionTokens: 112,
       });
     });
 
@@ -141,6 +142,7 @@ describe('createAuditInterceptor', () => {
         status: 'info',
         error: undefined,
         tokenEstimate: 112,
+        completionTokens: 112,
       });
     });
 
@@ -169,7 +171,8 @@ describe('createAuditInterceptor', () => {
         'testTool',
         expect.any(Number),
         false,
-        112, // errorResult is object, 100 + 12
+        112, // promptTokens
+        112, // completionTokens
         'UNKNOWN',
         'unknown'
       );
@@ -195,6 +198,7 @@ describe('createAuditInterceptor', () => {
         expect.any(Number),
         false,
         112,
+        112,
         'VALIDATION_ERROR',
         'validation'
       );
@@ -214,7 +218,8 @@ describe('createAuditInterceptor', () => {
         'testTool',
         expect.any(Number),
         false,
-        112, // result is an object, 100 + 12
+        112,
+        112,
         'UNKNOWN',
         'unknown'
       );
@@ -254,6 +259,7 @@ describe('createAuditInterceptor', () => {
         expect.any(Number),
         false,
         112,
+        112,
         'DB_TIMEOUT',
         'database'
       );
@@ -269,7 +275,8 @@ describe('createAuditInterceptor', () => {
       
       expect(estimateTokens).toHaveBeenCalledWith('just a string', 'text');
       expect(mockAuditLogger.log).toHaveBeenCalledWith(expect.objectContaining({
-        tokenEstimate: 50, // mock return
+        tokenEstimate: 112,
+        completionTokens: 50, // mock return
       }));
     });
 
@@ -281,7 +288,8 @@ describe('createAuditInterceptor', () => {
       
       expect(estimateTokens).toHaveBeenCalledWith('SELECT * FROM table', 'sql');
       expect(mockAuditLogger.log).toHaveBeenCalledWith(expect.objectContaining({
-        tokenEstimate: 50,
+        tokenEstimate: 112,
+        completionTokens: 50,
       }));
     });
 
@@ -294,7 +302,8 @@ describe('createAuditInterceptor', () => {
       
       expect(result).toEqual({ circular: true });
       expect(mockAuditLogger.log).toHaveBeenCalledWith(expect.objectContaining({
-        tokenEstimate: undefined,
+        tokenEstimate: 0,
+        completionTokens: undefined,
       }));
     });
   });

@@ -2,39 +2,27 @@
   "dashboards": [
     {
       "author_handle": "admin@adamic.tech",
-      "created_at": "2026-07-15T19:48:49.250446Z",
-      "deleted_at": null,
-      "description": "AI Efficiency metrics for mysql-mcp server (Opus 4.8 Standard pricing)\n\n*Note: Datadog automatically formats values less than 0.01 in scientific notation. During low-traffic periods, micro-costs may appear in scientific format (e.g., 5e-5 $) until the accumulated cost exceeds $0.01.*",
-      "id": "q48-mq9-3i7",
-      "is_read_only": false,
-      "layout_type": "ordered",
-      "modified_at": "2026-07-28T22:01:44.735659Z",
-      "title": "MySQL-MCP AI Efficiency",
-      "url": "/dashboard/q48-mq9-3i7/mysql-mcp-ai-efficiency"
-    },
-    {
-      "author_handle": "admin@adamic.tech",
       "created_at": "2026-07-14T16:18:07.496573Z",
       "deleted_at": null,
-      "description": "Real-time observability for mysql-mcp MCP server: token usage, tool latency, error rates, and resource reads.",
+      "description": "Deep dive into tool latencies, bottlenecks, and error classification.",
       "id": "qwe-2un-us8",
       "is_read_only": false,
       "layout_type": "ordered",
-      "modified_at": "2026-07-28T20:49:21.237500Z",
-      "title": "MySQL-MCP Token \u0026 Tool Metrics",
-      "url": "/dashboard/qwe-2un-us8/mysql-mcp-token--tool-metrics"
+      "modified_at": "2026-08-18T04:49:23.360659Z",
+      "title": "datadog-tool-performance",
+      "url": "/dashboard/qwe-2un-us8/datadog-tool-performance"
     },
     {
       "author_handle": "admin@adamic.tech",
-      "created_at": "2026-07-13T00:44:26.446343Z",
+      "created_at": "2026-07-15T19:48:49.250446Z",
       "deleted_at": null,
-      "description": "This dashboard provides a high-level overview of key Redis metrics to help you monitor your Redis primary's performance and manage your Redis instance.\n\nFor more information, see:\n\n- Our [official Redis documentation](https://docs.datadoghq.com/integrations/redisdb/)\n\nOr our 3-part series blog post:\n\n- Part 1: [How to monitor Redis performance metrics](https://www.datadoghq.com/blog/how-to-monitor-redis-performance-metrics/) \n- Part 2: [Collecting Redis metrics](https://www.datadoghq.com/blog/how-to-collect-redis-metrics/)\n- Part 3: [Monitoring Redis with Datadog](https://www.datadoghq.com/blog/monitor-redis-using-datadog/) (cloned) (cloned)",
-      "id": "khx-zry-d49",
+      "description": "Executive overview of agent usage, billing, and high-level efficiency.",
+      "id": "q48-mq9-3i7",
       "is_read_only": false,
       "layout_type": "ordered",
-      "modified_at": "2026-07-26T19:14:05.165358Z",
-      "title": "Redis",
-      "url": "/dashboard/khx-zry-d49/redis"
+      "modified_at": "2026-08-18T04:49:24.519337Z",
+      "title": "datadog-ai-efficiency.json",
+      "url": "/dashboard/q48-mq9-3i7/datadog-ai-efficiencyjson"
     },
     {
       "author_handle": "admin@adamic.tech",
@@ -44,9 +32,69 @@
       "id": "4w2-tdx-wf7",
       "is_read_only": false,
       "layout_type": "ordered",
-      "modified_at": "2026-07-28T16:20:50.065554Z",
+      "modified_at": "2026-08-18T04:49:28.459376Z",
       "title": "MySQL",
       "url": "/dashboard/4w2-tdx-wf7/mysql"
+    },
+    {
+      "author_handle": "admin@adamic.tech",
+      "created_at": "2026-07-13T00:44:26.446343Z",
+      "deleted_at": null,
+      "description": "This dashboard provides a high-level overview of key Redis metrics to help you monitor your Redis primary's performance and manage your Redis instance.\n\nFor more information, see:\n\n- Our [official Redis documentation](https://docs.datadoghq.com/integrations/redisdb/)\n\nOr our 3-part series blog post:\n\n- Part 1: [How to monitor Redis performance metrics](https://www.datadoghq.com/blog/how-to-monitor-redis-performance-metrics/) \n- Part 2: [Collecting Redis metrics](https://www.datadoghq.com/blog/how-to-collect-redis-metrics/)\n- Part 3: [Monitoring Redis with Datadog](https://www.datadoghq.com/blog/monitor-redis-using-datadog/) (cloned) (cloned)",
+      "id": "khx-zry-d49",
+      "is_read_only": false,
+      "layout_type": "ordered",
+      "modified_at": "2026-08-18T04:49:29.960607Z",
+      "title": "Redis",
+      "url": "/dashboard/khx-zry-d49/redis"
+    },
+    {
+      "author_handle": "admin@adamic.tech",
+      "created_at": "2026-08-04T13:21:02.058740Z",
+      "deleted_at": null,
+      "description": "Observability for Antigravity's agent execution wrapper (lib-agent-exec)",
+      "id": "zi7-trq-jia",
+      "is_read_only": false,
+      "layout_type": "ordered",
+      "modified_at": "2026-08-18T04:49:30.937537Z",
+      "title": "lib-agent-exec.json",
+      "url": "/dashboard/zi7-trq-jia/lib-agent-execjson"
+    },
+    {
+      "author_handle": "admin@adamic.tech",
+      "created_at": "2026-08-18T03:45:51.509715Z",
+      "deleted_at": null,
+      "description": "AI Efficiency metrics for memory-journal-mcp server (Opus 4.8 Standard pricing)\n\n*Note: Datadog automatically formats values less than 0.01 in scientific notation. During low-traffic periods, micro-costs may appear in scientific format (e.g., 5e-5 $) until the accumulated cost exceeds $0.01.*",
+      "id": "gjm-gfu-6z7",
+      "is_read_only": false,
+      "layout_type": "ordered",
+      "modified_at": "2026-08-18T03:51:26.003353Z",
+      "title": "datadog-logs.json",
+      "url": "/dashboard/gjm-gfu-6z7/datadog-logsjson"
+    },
+    {
+      "author_handle": "admin@adamic.tech",
+      "created_at": "2026-08-03T19:27:57.027082Z",
+      "deleted_at": null,
+      "description": "AI Efficiency metrics for memory-journal-mcp server (Opus 4.8 Standard pricing)\n\n*Note: Datadog automatically formats values less than 0.01 in scientific notation. During low-traffic periods, micro-costs may appear in scientific format (e.g., 5e-5 $) until the accumulated cost exceeds $0.01.*",
+      "id": "j8f-g47-xtc",
+      "is_read_only": false,
+      "layout_type": "ordered",
+      "modified_at": "2026-08-18T03:42:15.307170Z",
+      "title": "memory-journal-mcp AI Efficiency",
+      "url": "/dashboard/j8f-g47-xtc/memory-journal-mcp-ai-efficiency"
+    },
+    {
+      "author_handle": "admin@adamic.tech",
+      "created_at": "2026-08-03T19:27:56.129204Z",
+      "deleted_at": null,
+      "description": "Real-time observability for memory-journal-mcp MCP server: token usage, tool latency, error rates, and resource reads.",
+      "id": "h74-9g7-8bv",
+      "is_read_only": false,
+      "layout_type": "ordered",
+      "modified_at": "2026-08-18T03:42:13.839919Z",
+      "title": "memory-journal-mcp Token \u0026 Tool Metrics",
+      "url": "/dashboard/h74-9g7-8bv/memory-journal-mcp-token--tool-metrics"
     },
     {
       "author_handle": "admin@adamic.tech",
@@ -74,6 +122,54 @@
     },
     {
       "author_handle": "admin@adamic.tech",
+      "created_at": "2026-08-18T03:58:40.990042Z",
+      "deleted_at": null,
+      "description": "Isolated log streams and diagnostics. Consumes high memory by design.",
+      "id": "h3a-dp2-4re",
+      "is_read_only": false,
+      "layout_type": "ordered",
+      "modified_at": "2026-08-18T04:49:27.063281Z",
+      "title": "datadog-logs.json",
+      "url": "/dashboard/h3a-dp2-4re/datadog-logsjson"
+    },
+    {
+      "author_handle": "admin@adamic.tech",
+      "created_at": "2026-08-18T03:58:46.347648Z",
+      "deleted_at": null,
+      "description": "Connection pooling, proxy health, cache performance, and network I/O.",
+      "id": "hb6-7ex-vq7",
+      "is_read_only": false,
+      "layout_type": "ordered",
+      "modified_at": "2026-08-18T04:49:25.815750Z",
+      "title": "datadog-infrastructure.json",
+      "url": "/dashboard/hb6-7ex-vq7/datadog-infrastructurejson"
+    },
+    {
+      "author_handle": "admin@adamic.tech",
+      "created_at": "2026-07-19T06:34:19.260689Z",
+      "deleted_at": null,
+      "description": "Real-time observability for memory-journal-mcp MCP server: token usage, tool latency, error rates, and resource reads.",
+      "id": "fjd-a79-8nh",
+      "is_read_only": false,
+      "layout_type": "ordered",
+      "modified_at": "2026-07-19T06:55:51.751711Z",
+      "title": "memory-journal-mcp Token \u0026 Tool Metrics",
+      "url": "/dashboard/fjd-a79-8nh/memory-journal-mcp-token--tool-metrics"
+    },
+    {
+      "author_handle": "admin@adamic.tech",
+      "created_at": "2026-07-19T06:49:45.898879Z",
+      "deleted_at": null,
+      "description": "Real-time observability for memory-journal-mcp MCP server: token usage, tool latency, error rates, and resource reads.",
+      "id": "e7x-mir-3dh",
+      "is_read_only": false,
+      "layout_type": "ordered",
+      "modified_at": "2026-07-19T06:55:50.163814Z",
+      "title": "memory-journal-mcp Token \u0026 Tool Metrics",
+      "url": "/dashboard/e7x-mir-3dh/memory-journal-mcp-token--tool-metrics"
+    },
+    {
+      "author_handle": "admin@adamic.tech",
       "created_at": "2026-07-18T04:23:56.343692Z",
       "deleted_at": null,
       "description": "This dashboard provides a high-level view of your ProxySQL environment, with in-depth performance indicators regarding the query cache or the latency.\n\n- [How to monitor ProxySQL with Datadog](https://docs.datadoghq.com/integrations/proxysql/) \n\nClone this template dashboard to make changes and add your own graph widgets. (cloned)",
@@ -83,18 +179,6 @@
       "modified_at": "2026-07-18T04:23:56.343692Z",
       "title": "ProxySQL - Laptop",
       "url": "/dashboard/xij-4r3-br8/proxysql---laptop"
-    },
-    {
-      "author_handle": "admin@adamic.tech",
-      "created_at": "2026-08-04T13:21:02.058740Z",
-      "deleted_at": null,
-      "description": "Observability for Antigravity's agent execution wrapper (lib-agent-exec)",
-      "id": "zi7-trq-jia",
-      "is_read_only": false,
-      "layout_type": "ordered",
-      "modified_at": "2026-08-04T13:36:07.406229Z",
-      "title": "Agent Execution Telemetry (lib-agent-exec)",
-      "url": "/dashboard/zi7-trq-jia/agent-execution-telemetry-lib-agent-exec"
     }
   ]
 }

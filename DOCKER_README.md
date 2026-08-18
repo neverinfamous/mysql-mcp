@@ -1,7 +1,7 @@
 # MySQL MCP Server (mysql-mcp)
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) ![Coverage](https://img.shields.io/badge/Coverage-84.4%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-310%20passing%20%C2%B7%200%20skipped-blue.svg)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) ![Coverage](https://img.shields.io/badge/Coverage-84.3%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-311%20passing%20%C2%B7%200%20skipped-blue.svg)
 
 > **Note:** Docker Hub limits descriptions to 25k characters. Some documentation may be truncated. View the **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** or the [GitHub README](https://github.com/neverinfamous/mysql-mcp) for complete details.
 
@@ -24,6 +24,7 @@ mysql-mcp provides specialized tools for CRUD, JSON, spatial data, and clusters.
 | `mysql_tool_index` | Complete tool index with categories |
 | `mysql_quick_query` | Quick query execution shortcut |
 | `mysql_quick_schema` | Quick schema exploration |
+| `mysql_setup_observability` | Complete observability stack setup guide (Datadog, etc.) |
 
 > **Note**: This is a subset of available prompts. Use `mysql_tool_index` to discover the full list of guided workflows.
 
@@ -62,7 +63,7 @@ docker run -i --rm -v ./data:/app/data -v ./logs:/var/log/mysql-mcp writenotenow
 Launch the full observability stack (Datadog + OpenTelemetry + Prometheus + Grafana) using the included template. This spins up the MCP server, MySQL database, Redis, and observability sidecars. See the **[Observability Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Observability)** for deep-dive metrics configuration:
 
 ```bash
-cd examples/full-observability-ecosystem
+cd examples/basic-mysql-datadog
 cp .env.example .env
 docker compose up -d
 ```
@@ -218,7 +219,6 @@ Add a configuration to your IDE's MCP settings file.
         "run",
         "-i",
         "--rm",
-        "-e", "TOOL_FILTER",
         "-e", "MYSQL_HOST",
         "-e", "MYSQL_PORT",
         "-e", "MYSQL_USER",
@@ -226,10 +226,11 @@ Add a configuration to your IDE's MCP settings file.
         "-e", "MYSQL_DATABASE",
         "writenotenow/mysql-mcp:latest",
         "--transport",
-        "stdio"
+        "stdio",
+        "--tool-filter",
+        "codemode"
       ],
       "env": {
-        "TOOL_FILTER": "codemode",
         "MYSQL_HOST": "host.docker.internal",
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "mcp_user",
@@ -262,7 +263,6 @@ Add a configuration to your IDE's MCP settings file.
         "run",
         "-i",
         "--rm",
-        "-e", "TOOL_FILTER",
         "-e", "MYSQL_HOST",
         "-e", "MYSQL_PORT",
         "-e", "MYSQL_USER",
@@ -270,10 +270,11 @@ Add a configuration to your IDE's MCP settings file.
         "-e", "MYSQL_DATABASE",
         "writenotenow/mysql-mcp:latest",
         "--transport",
-        "stdio"
+        "stdio",
+        "--tool-filter",
+        "cluster"
       ],
       "env": {
-        "TOOL_FILTER": "cluster",
         "MYSQL_HOST": "host.docker.internal",
         "MYSQL_PORT": "3307",
         "MYSQL_USER": "cluster_admin",
@@ -306,7 +307,6 @@ Add a configuration to your IDE's MCP settings file.
         "run",
         "-i",
         "--rm",
-        "-e", "TOOL_FILTER",
         "-e", "MYSQL_HOST",
         "-e", "MYSQL_PORT",
         "-e", "MYSQL_USER",
@@ -324,10 +324,11 @@ Add a configuration to your IDE's MCP settings file.
         "-e", "MYSQLSH_PATH",
         "writenotenow/mysql-mcp:latest",
         "--transport",
-        "stdio"
+        "stdio",
+        "--tool-filter",
+        "ecosystem"
       ],
       "env": {
-        "TOOL_FILTER": "ecosystem",
         "MYSQL_HOST": "host.docker.internal",
         "MYSQL_PORT": "3307",
         "MYSQL_USER": "cluster_admin",

@@ -504,10 +504,14 @@ export const ProxySQLLimitInputSchema = z.preprocess(
 
     const limit = result["limit"];
     if (limit !== undefined) {
-      if (typeof limit === "string" && limit.trim() !== "") {
-        const parsed = Number(limit);
-        if (!isNaN(parsed)) {
-          result["limit"] = Math.floor(parsed);
+      if (typeof limit === "string") {
+        if (limit.trim() !== "") {
+          const parsed = Number(limit);
+          if (!isNaN(parsed)) {
+            result["limit"] = Math.floor(parsed);
+          }
+        } else {
+          delete result["limit"];
         }
       } else if (typeof limit === "number") {
         result["limit"] = Math.floor(limit);

@@ -5,7 +5,7 @@
  */
 
 import { logger } from "../utils/logger.js";
-import { metrics } from "../observability/metrics.js";
+import { metrics } from "../observability/metrics/index.js";
 import {
   DEFAULT_SECURITY_CONFIG,
   type SecurityConfig,
@@ -294,8 +294,7 @@ return current
       this.intervalHandle = undefined;
     }
     if (this.redisClient?.isOpen) {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      void this.redisClient.disconnect();
+      void this.redisClient.quit();
     }
   }
 }

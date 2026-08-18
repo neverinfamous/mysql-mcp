@@ -3,7 +3,30 @@
 All notable changes to this project are documented in this file.
 This changelog is auto-generated from Git history using [lib-git-history](https://github.com/neverinfamous/adamic).
 
-## [Unreleased]
+## [v5.1.0]
+
+### Added
+
+- add observability setup prompt and fix alloy config by **Chris** ([7dbcd35](https://github.com/neverinfamous/mysql-mcp/commit/7dbcd35f1922b3b474d3b0fe9306500cbaa2d822))
+
+### Fixed
+
+- update mysql://audit to sum completion tokens in addition to prompt tokens by **Chris** ([b2d1db6](https://github.com/neverinfamous/mysql-mcp/commit/b2d1db6a4d6c6771f309352c55cf371203a1b580))
+- align Node.js runtime metrics with Datadog dashboard expectations by **Chris** ([c9b342e](https://github.com/neverinfamous/mysql-mcp/commit/c9b342e099c441363373a97545a78097be526e65))
+- resolve datadog metrics config and image tags by **Chris** ([cd28b6f](https://github.com/neverinfamous/mysql-mcp/commit/cd28b6f266987ad9b39cb8ad686444e6a55ade80))
+- enforce strict mcp-audit routing, align compose command, and remove stale dashboards by **Chris** ([0d06612](https://github.com/neverinfamous/mysql-mcp/commit/0d06612eabbc62d4ed73cce2e86d3ca7ce2b3e95))
+- add asColumn parameter alias to mysql_stats_lag_lead tool by **Chris** ([7191263](https://github.com/neverinfamous/mysql-mcp/commit/7191263c4ee3d5b6a6fb23f1d01aac15347babc0))
+- update histogram requiredScopes to admin to allow DDL operations by **Chris** ([e025135](https://github.com/neverinfamous/mysql-mcp/commit/e025135df6cfedd8f8b6777873fc41ad110a1a68))
+- restore shell status and lag to infrastructure dashboard by **Chris** ([1a61278](https://github.com/neverinfamous/mysql-mcp/commit/1a61278bd4cc7b52818578fef05695f84014a859))
+- restore router telemetry widgets to infrastructure dashboard by **Chris** ([1778cb1](https://github.com/neverinfamous/mysql-mcp/commit/1778cb120ce6641f289b4f7441fc50a3cd1752d8))
+- sync shell status and lag to infrastructure dashboard by **Chris** ([3850adf](https://github.com/neverinfamous/mysql-mcp/commit/3850adf9cc05c71ef93831166a835e8cbf38215a))
+- map correct Datadog IDs for logs and infrastructure dashboards by **Chris** ([b420d3e](https://github.com/neverinfamous/mysql-mcp/commit/b420d3e9d58c41a3bb49aaf9a32d2e651692a1d1))
+- resolve execShellJS payload formatting and data transfer mapping by **Chris** ([ff181b9](https://github.com/neverinfamous/mysql-mcp/commit/ff181b9b03906574a427153432f9644cae1f2c4f))
+- align datadog container source labels in examples by **Chris** ([921a755](https://github.com/neverinfamous/mysql-mcp/commit/921a7557d04ee9d5fdbbab03c6dc9c33af6e9030))
+- enable clean builds to prevent stale chunk accumulation by **Chris** ([3b556ff](https://github.com/neverinfamous/mysql-mcp/commit/3b556ff36e99324de992e0e8257eaf9f2cf36558))
+- remove zod-to-json-schema incompatible with Zod 4, use native ~standard protocol (#223) by **Chris** ([9a06068](https://github.com/neverinfamous/mysql-mcp/commit/9a060680dd97080da045080d365a5114aceae05c))
+
+## [v5.0.0]
 
 ### Reverts
 
@@ -46,6 +69,59 @@ This changelog is auto-generated from Git history using [lib-git-history](https:
 
 ### Changed
 
+- ---
+product: "MySQL MCP"
+version: "5.0.0"
+date: "2026-08-15"
+slug: "mysql-mcp-v5-0-0"
+npm_package: "@neverinfamous/mysql-mcp"
+docker_image: "writenotenow/mysql-mcp"
+github_repo: "neverinfamous/mysql-mcp"
+description: "MySQL MCP v5.0.0 delivers MCP v2 stateless transport, secure isolated-vm sandboxing, vector search, and comprehensive security hardening."
+---
+
+# MySQL MCP v5.0.0
+
+## Highlights
+
+- **Stateless Architecture**: Migrated to MCP v2 stateless transport to improve reliability and reduce connection overhead.
+- **Code Execution Sandbox**: Integrated `isolated-vm` for secure, deterministic server-side code execution in isolated environments.
+- **Vector Search**: Enabled advanced AI capabilities with a dedicated vector and hybrid search tool group.
+- **Metrics Persistence**: Implemented SystemDb layer with automated SQLite sync and pruning for durable observability.
+- **Security Hardening**: Prevented SQL and DDL injections with robust identifier escaping and filesystem boundary enforcement.
+
+## Added
+
+- **observability**: Added comprehensive Datadog and Prometheus metrics for connection pools and transport errors.
+- **telemetry**: Added a standalone HTTP server to export Prometheus metrics over stdio transport.
+- **schema**: Added `mysql_create_trigger` and `mysql_drop_trigger` tools to expand database management capabilities.
+
+## Changed
+
+- **adapter**: Implemented lazy connection initialization and native Windows WSL fallback to improve operational resilience.
+- **observability**: Synchronized continuous SQLite metrics aggregation to safely persist ephemeral process telemetry.
+- **infrastructure**: Synchronized hardened Docker ecosystem settings to enhance deployment stability and consistency.
+
+## Fixed
+
+- **spatial**: Fixed spatial column stripping and explicit axis-order injection for bounding box queries.
+- **codemode**: Enforced absolute isolate teardown on timeout to prevent memory leaks and sandbox deadlocks.
+- **observability**: Created JSONL fallback logging when SystemDb fails to prevent telemetry data loss.
+- **cluster**: Stabilized cluster initialization and reboot workflows with persistent volumes to eliminate race conditions.
+- **performance**: Resolved N+1 queries and allocation overhead in audit interceptors to improve execution speed.
+
+## Security
+
+- **injection**: Remediated SQL, DDL, and XPIM injection vectors with robust identifier escaping and input validation.
+
+## Install
+
+```bash
+npm install -g @neverinfamous/mysql-mcp@5.0.0
+docker pull writenotenow/mysql-mcp:v5.0.0
+```
+
+[Full Changelog](https://github.com/neverinfamous/mysql-mcp/compare/v4.0.0...v5.0.0) by **Chris** ([90a7e22](https://github.com/neverinfamous/mysql-mcp/commit/90a7e224af46b5eed80d442e63786b521e9f15c9))
 - optimize security and boundary tests by **Chris** ([74d5a0c](https://github.com/neverinfamous/mysql-mcp/commit/74d5a0cc6d31d4e66ee1907c40b6d6021983fda9))
 - optimize oauth tests for parallel execution by **Chris** ([a3a4618](https://github.com/neverinfamous/mysql-mcp/commit/a3a461804c744447e1a2daa0e1b67be68f11f7a8))
 - optimize vitest performance via threads pool by **Chris** ([39b8402](https://github.com/neverinfamous/mysql-mcp/commit/39b84022d6ce151036f227fb82491dcdb6d80b2a))
@@ -73,6 +149,17 @@ This changelog is auto-generated from Git history using [lib-git-history](https:
 
 ### Fixed
 
+- grant issues write permission to trivy workflow caller (#217) by **Chris LeRoux** ([8501837](https://github.com/neverinfamous/mysql-mcp/commit/8501837701be36f7e41ed7f0f735cb855e0c926d))
+- grant issues write permission to trivy workflow caller by **Chris** ([c624332](https://github.com/neverinfamous/mysql-mcp/commit/c62433275ffad42d251a19d352b2666a3fb7fe9a))
+- bypass self-signed cert validation for telemetry script and sync infra by **Chris** ([14d570c](https://github.com/neverinfamous/mysql-mcp/commit/14d570c6e8759c284a5b75b72c3f8a6bf69a7ef9))
+- prevent process.exit on stdin close in vitest environment by **Chris** ([6281c7e](https://github.com/neverinfamous/mysql-mcp/commit/6281c7e1b73b69de86005dff466339ea1e43f7e1))
+- separate badge updates to prevent race conditions deleting e2e badges during coverage step by **Chris** ([fc24cb8](https://github.com/neverinfamous/mysql-mcp/commit/fc24cb80c05b3c279217418c8afa2e9fb6a85709))
+- make shell payload extraction platform-agnostic in tests by **Chris** ([0c98d95](https://github.com/neverinfamous/mysql-mcp/commit/0c98d95cc93c802f85f359c302bab1a72e2af9a5))
+- mock child_process for wsl native fallback to resolve test timeouts by **Chris** ([a525d37](https://github.com/neverinfamous/mysql-mcp/commit/a525d37aed1e3769c05846387059951120e122ef))
+- revert VECTOR to BLOB for mysql community compatibility by **Chris** ([c40f6b1](https://github.com/neverinfamous/mysql-mcp/commit/c40f6b1525ec94dc6458c853b04c53f88ba7cb18))
+- resolve inconvertible types warning and prevent shell injection by **Chris** ([355a75c](https://github.com/neverinfamous/mysql-mcp/commit/355a75cdcc2d998ec26e455230ea8c6ce60f7e8c))
+- remediate CodeQL static analysis findings by **Chris** ([5835b63](https://github.com/neverinfamous/mysql-mcp/commit/5835b6330035a5f34874641e1d007182dab49741))
+- resolve isolated-vm worker thread segfault and isolate reference leaks by **Chris** ([510fa9d](https://github.com/neverinfamous/mysql-mcp/commit/510fa9d3932c89f79b8ceeefae37050914ea8cc0))
 - append service tag to router http_check by **Chris** ([28f7858](https://github.com/neverinfamous/mysql-mcp/commit/28f785879dc5e96ab5001ccbc5110586a52197c8))
 - sync datadog dashboard fixes and volume mounts by **Chris** ([7b668bd](https://github.com/neverinfamous/mysql-mcp/commit/7b668bda62512e051c32fe3ad48b52d1288dbf2a))
 - update metrics workflow and sync infrastructure from adamic by **Chris** ([3eb2e56](https://github.com/neverinfamous/mysql-mcp/commit/3eb2e56b730a04769766a76a2b4a1deb30c4d701))

@@ -2,7 +2,7 @@
  * MySQL MCP Prompts
  *
  * AI-powered prompts for query building, schema design, and optimization.
- * 20 prompts total.
+ * 21 prompts total.
  */
 import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type {
@@ -30,9 +30,10 @@ import { createSetupSpatialPrompt } from "./spatial-setup.js";
 import { createSetupClusterPrompt } from "./cluster-setup.js";
 import { createSetupDocstorePrompt } from "./docstore-setup.js";
 import { createMcpHealPrompt } from "./mcp-heal.js";
+import { createSetupObservabilityPrompt } from "./observability-setup.js";
 
 /**
- * Get all MySQL prompts (20 total)
+ * Get all MySQL prompts (21 total)
  *
  * Core (7):
  * - mysql_tool_index - Lazy hydration tool index
@@ -52,7 +53,8 @@ import { createMcpHealPrompt } from "./mcp-heal.js";
  * - mysql_setup_replication - Replication setup guide
  * - mysql_setup_shell - MySQL Shell usage guide
  *
- * New (6):
+ * New (7):
+ * - mysql_setup_observability - Observability stack configuration
  * - mysql_setup_events - Event Scheduler setup guide
  * - mysql_sys_schema_guide - sys schema usage and diagnostics
  * - mysql_setup_spatial - Spatial/GIS data setup guide
@@ -82,7 +84,8 @@ export function getMySQLPrompts(adapter: MySQLAdapter): PromptDefinition[] {
     createSetupProxysqlPrompt(),
     createSetupReplicationPrompt(),
     createSetupMysqlshPrompt(),
-    // New prompts (6)
+    // New prompts (7)
+    createSetupObservabilityPrompt(),
     createSetupEventsPrompt(),
     createSysSchemaGuidePrompt(),
     createSetupSpatialPrompt(),

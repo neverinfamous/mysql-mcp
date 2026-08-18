@@ -39,6 +39,7 @@ import {
   execMySQLShell,
   mapHostPathToContainer,
   getWorkspaceRoot,
+  ANSI_ESCAPE_REGEX,
 } from "./common.js";
 
 /**
@@ -93,7 +94,7 @@ export function createShellExportTableTool(
         const options: string[] = [];
         if (format === "csv") {
           options.push('fieldsTerminatedBy: ","');
-          options.push('fieldsEnclosedBy: "\\""');
+          options.push('fieldsEnclosedBy: \'"\'');
         }
         // TSV is the default for util.exportTable(), no special options needed
         if (where) {
@@ -176,8 +177,7 @@ export function createShellExportTableTool(
         }
         if (errorMessage.includes("1064") || errorMessage.includes("syntax error")) {
           const match = /MySQL Error \d+ \(\d+\): (.*)/i.exec(errorMessage) ?? /syntax error[^:]*:?(.*)/i.exec(errorMessage);
-          // eslint-disable-next-line no-control-regex
-          const msg = match?.[1] ? match[1].trim() : errorMessage.replace(/\u001b\[\d+m/g, "").substring(0, 200);
+          const msg = match?.[1] ? match[1].trim() : errorMessage.replace(ANSI_ESCAPE_REGEX, "").substring(0, 200);
           return formatHandlerErrorResponse(
             new MySQLMcpError(`SQL syntax error: ${msg}`, "QUERY_ERROR", ErrorCategory.QUERY, {
               suggestion: "Check your SQL syntax.",
@@ -383,8 +383,7 @@ export function createShellImportTableTool(
         }
         if (errorMessage.includes("1064") || errorMessage.includes("syntax error")) {
           const match = /MySQL Error \d+ \(\d+\): (.*)/i.exec(errorMessage) ?? /syntax error[^:]*:?(.*)/i.exec(errorMessage);
-          // eslint-disable-next-line no-control-regex
-          const msg = match?.[1] ? match[1].trim() : errorMessage.replace(/\u001b\[\d+m/g, "").substring(0, 200);
+          const msg = match?.[1] ? match[1].trim() : errorMessage.replace(ANSI_ESCAPE_REGEX, "").substring(0, 200);
           return formatHandlerErrorResponse(
             new MySQLMcpError(`SQL syntax error: ${msg}`, "QUERY_ERROR", ErrorCategory.QUERY, {
               suggestion: "Check your SQL syntax.",
@@ -590,7 +589,7 @@ export function createShellImportJSONTool(
 
         if (result.exitCode !== 0) {
           const stderrText = (result.stderr || result.stdout || "MySQL Shell import failed")
-            .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+            .replace(ANSI_ESCAPE_REGEX, "")
             .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "")
             .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
             .trim() || "MySQL Shell import failed";

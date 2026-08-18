@@ -30,7 +30,7 @@ import {
   ShellLoadDumpOutputSchema,
   ShellRunScriptOutputSchema,
 } from "../../schemas/shell/index.js";
-import { getShellConfig, execShellJS, execMySQLShell, escapeForJS, mapHostPathToContainer, getWorkspaceRoot } from "./common.js";
+import { getShellConfig, execShellJS, execMySQLShell, escapeForJS, mapHostPathToContainer, getWorkspaceRoot, ANSI_ESCAPE_REGEX } from "./common.js";
 
 /**
  * Load dump to instance
@@ -158,7 +158,7 @@ export function createShellLoadDumpTool(
           );
 
           const stderrClean = rawResult.stderr
-            .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+            .replace(ANSI_ESCAPE_REGEX, "")
             .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "")
             .replace(
               /WARNING: Using a password on the command line interface can be insecure\.\s*/gi,
@@ -401,7 +401,7 @@ export function createShellRunScriptTool(
         if (result.exitCode !== 0) {
           const cleanStderr = result.stderr
             ? result.stderr
-                .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+                .replace(ANSI_ESCAPE_REGEX, "")
                 .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "")
                 .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
                 .trim()
@@ -421,7 +421,7 @@ export function createShellRunScriptTool(
 
         const finalStderr = result.stderr
           ? result.stderr
-              .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+              .replace(ANSI_ESCAPE_REGEX, "")
               .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "")
               .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
               .trim()

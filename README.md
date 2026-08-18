@@ -3,7 +3,7 @@
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) ![Coverage](https://img.shields.io/badge/Coverage-84.4%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-310%20passing%20%C2%B7%200%20skipped-blue.svg)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) ![Coverage](https://img.shields.io/badge/Coverage-84.3%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-311%20passing%20%C2%B7%200%20skipped-blue.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -43,6 +43,7 @@ This server includes **intelligent prompts** for guided workflows:
 | `mysql_tool_index`            | Complete tool index with categories                    |
 | `mysql_quick_query`           | Quick query execution shortcut                         |
 | `mysql_quick_schema`          | Quick schema exploration                               |
+| `mysql_setup_observability`   | Complete observability stack setup guide (Datadog, etc.) |
 
 > **Note**: This is a subset of available prompts. Use `mysql_tool_index` to discover the full list of guided workflows.
 
@@ -127,7 +128,7 @@ docker run -i --rm -v ./data:/app/data -v ./logs:/var/log/mysql-mcp writenotenow
 Launch the full observability stack using the included template. This includes Datadog, OpenTelemetry, Prometheus, and Grafana. This spins up the MCP server, MySQL database, Redis, and observability sidecars:
 
 ```bash
-cd examples/full-observability-ecosystem
+cd examples/basic-mysql-datadog
 cp .env.example .env
 docker compose up -d
 ```
@@ -386,10 +387,11 @@ Add a configuration to your IDE's MCP settings file:
         "-y",
         "@neverinfamous/mysql-mcp",
         "--transport",
-        "stdio"
+        "stdio",
+        "--tool-filter",
+        "codemode"
       ],
       "env": {
-        "TOOL_FILTER": "codemode",
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "mcp_user",
@@ -422,10 +424,11 @@ Add a configuration to your IDE's MCP settings file:
         "-y",
         "@neverinfamous/mysql-mcp",
         "--transport",
-        "stdio"
+        "stdio",
+        "--tool-filter",
+        "cluster"
       ],
       "env": {
-        "TOOL_FILTER": "cluster",
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3307",
         "MYSQL_USER": "cluster_admin",
@@ -458,10 +461,11 @@ Add a configuration to your IDE's MCP settings file:
         "-y",
         "@neverinfamous/mysql-mcp",
         "--transport",
-        "stdio"
+        "stdio",
+        "--tool-filter",
+        "ecosystem"
       ],
       "env": {
-        "TOOL_FILTER": "ecosystem",
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3307",
         "MYSQL_XPORT": "6448",
@@ -694,18 +698,18 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 The server handles millions of ops/sec across core execution paths. This ensures minimal latency and maximum throughput. Every component is tuned for enterprise-scale workloads. Enjoy sub-millisecond sandbox cold starts and optimized reverse lookups.
 
 **Benchmark Baselines:**
-- parseToolFilter: ~16,000-27,000 ops/sec
-- CodeModeSandbox.create cold start: ~1.38M ops/sec
-- Sandbox dispose: ~1.69M ops/sec
-- SandboxPool init: ~71k ops/sec
-- Set.has tool check: ~2.8M ops/sec
-- Map.get reverse lookup: ~2.5M ops/sec
-- Map.get URI match: ~2.3M-3.0M ops/sec
-- validateCode safe short: ~81k ops/sec
-- validateCode blocked: ~251k ops/sec
-- checkRateLimit: ~1.0M ops/sec
-- sanitizeResult small payload: ~660k ops/sec
-- prompt schema parse: ~600k ops/sec
+- parseToolFilter: ~32,000-62,000 ops/sec
+- CodeModeSandbox.create cold start: ~2.78M ops/sec
+- Sandbox dispose: ~2.37M ops/sec
+- SandboxPool init: ~109k ops/sec
+- Set.has tool check: ~4.4M ops/sec
+- Map.get reverse lookup: ~4.5M ops/sec
+- Map.get URI match: ~5.1M ops/sec
+- validateCode safe short: ~173k ops/sec
+- validateCode blocked: ~298k ops/sec
+- checkRateLimit: ~205k ops/sec
+- sanitizeResult small payload: ~1.49M ops/sec
+- prompt schema parse: ~1.3M ops/sec
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`). Increase it for production with stable schemas (e.g., `300000` = 5 min).
 
@@ -792,7 +796,10 @@ See [Enforce OAuth Scopes](#enforce-oauth-scopes).
 See **[Build From Source](#build-from-source)** above for setup. After cloning:
 
 ```bash
-pnpm run lint && pnpm run typecheck && pnpm test && pnpm run test:e2e  # Run individually to avoid timeouts
+pnpm run lint
+pnpm run typecheck
+pnpm test
+pnpm run test:e2e  # Run individually to avoid timeouts
 ```
 
 ### Debug with MCP Inspector

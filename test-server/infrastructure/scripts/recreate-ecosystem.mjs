@@ -266,7 +266,7 @@ async function main() {
             const envPath = join(REPO_ROOT, '.env');
             let envContent = '';
             try { envContent = await fs.readFile(envPath, 'utf-8'); } catch { /* file may not exist */ }
-            const filteredLines = envContent.split('\n').filter(l => !l.startsWith('WINDOWS_HOST_IP=') && !l.startsWith('MYSQL_ROOT_PASSWORD='));
+            const filteredLines = envContent.split(/\r?\n/).filter(l => !l.startsWith('WINDOWS_HOST_IP=') && !l.startsWith('MYSQL_ROOT_PASSWORD='));
             filteredLines.push(`WINDOWS_HOST_IP=${wslGateway}`);
             filteredLines.push(`MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}`);
             await fs.writeFile(envPath, filteredLines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n');

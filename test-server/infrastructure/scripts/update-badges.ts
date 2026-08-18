@@ -38,7 +38,7 @@ if (isReleaseBranch) {
   process.exit(0);
 }
 
-const isStrict = Boolean(process.env.CI) || process.argv.includes("--strict");
+const isStrict = Boolean(process.env.GITHUB_ACTIONS) || process.argv.includes("--strict");
 
 function getBadgeColor(percentage: number): string {
   if (percentage >= 95) return "brightgreen";

@@ -197,6 +197,7 @@ AI-Powered Prompts across specialized workflow files:
 | `mysql_setup_cluster` | Complete MySQL InnoDB Cluster and Group Replication setup guide |
 | `mysql_setup_docstore` | Complete MySQL Document Store and X DevAPI setup guide |
 | `mysql_setup_events` | Complete MySQL Event Scheduler setup and configuration guide |
+| `mysql_setup_observability` | Complete observability stack setup guide (Datadog, Prometheus, Loki) |
 | `mysql_database_health_check` | Comprehensive database health assessment workflow |
 | `mysql_index_tuning` | Analyze and optimize database indexes |
 | `mysql_setup_shell` | MySQL Shell setup and usage guide |

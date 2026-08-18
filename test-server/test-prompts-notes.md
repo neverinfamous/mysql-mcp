@@ -32,7 +32,7 @@ The seeding script creates several tables prefixed with `prompt_*` to support sp
 | **Events** | `prompt_events` *(1K rows)*, `prompt_daily_reports`, `prompt_weekly_metrics` | `mysql_setup_events` |
 | **Spatial** | `prompt_locations` *(POINT geometry, SRID 4326)* | `mysql_setup_spatial` |
 | **Docstore** | `prompt_documents` *(JSON + `_id`)* | `mysql_setup_docstore` |
-| **Infra** | *(Uses existing server state)* | `mysql_setup_router`, `mysql_setup_proxysql`, `mysql_setup_replication`, `mysql_setup_shell`, `mysql_setup_cluster`, `mysql_sys_schema_guide` |
+| **Infra** | *(Uses existing server state)* | `mysql_setup_router`, `mysql_setup_proxysql`, `mysql_setup_replication`, `mysql_setup_shell`, `mysql_setup_cluster`, `mysql_sys_schema_guide`, `mysql_setup_observability` |
 
 ---
 
@@ -52,6 +52,7 @@ These prompts do not require any input and should immediately return comprehensi
 - `/mysql_setup_cluster`
 - `/mysql_setup_docstore`
 - `/mysql_mcp_heal`
+- `/mysql_setup_observability`
 
 ### 2.2 Optional-Argument Prompts
 Test these prompts both with and without arguments to verify dynamic context generation.

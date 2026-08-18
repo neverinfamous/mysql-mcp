@@ -54,7 +54,67 @@ mcp.stdout.on("data", (data) => {
     if (responseLine) {
       const parsed = JSON.parse(responseLine);
       tools = parsed.result?.tools || [];
-      console.log(`Found ${tools.length} tools. Generating boundary tests...`);
+      console.log(`Found ${tools.length} tools. Running schema integrity checks...`);
+
+      // ── Phase 0: Schema Integrity Pre-Check ────────────────────────────
+      // Catches silent schema conversion failures (e.g., zod-to-json-schema
+      // incompatibility with Zod 4 returning {} — see issue #223).
+      let schemaFailures = 0;
+      for (const tool of tools) {
+        const schema = tool.inputSchema;
+
+        // Every tool MUST have an inputSchema
+        if (!schema) {
+          console.log(`\n❌ [SCHEMA INTEGRITY] ${tool.name}: missing inputSchema entirely`);
+          schemaFailures++;
+          continue;
+        }
+
+        // Every inputSchema MUST have type: "object"
+        if (schema.type !== "object") {
+          console.log(`\n❌ [SCHEMA INTEGRITY] ${tool.name}: inputSchema.type is "${schema.type}" (expected "object")`);
+          schemaFailures++;
+          continue;
+        }
+
+        // Every inputSchema MUST have a `properties` field (even if empty for no-param tools)
+        if (!schema.properties || typeof schema.properties !== "object") {
+          console.log(`\n❌ [SCHEMA INTEGRITY] ${tool.name}: inputSchema.properties is missing or invalid`);
+          console.log(`   Schema received: ${JSON.stringify(schema)}`);
+          schemaFailures++;
+          continue;
+        }
+
+        // Tools with properties MUST have at least one described property
+        // (empty properties: {} is suspicious for tools that accept parameters)
+        const propCount = Object.keys(schema.properties).length;
+        if (propCount === 0 && schema.required && schema.required.length > 0) {
+          console.log(`\n❌ [SCHEMA INTEGRITY] ${tool.name}: has required fields but empty properties: {}`);
+          schemaFailures++;
+          continue;
+        }
+
+        // Validate that property schemas have type information
+        for (const [propName, propSchema] of Object.entries(schema.properties)) {
+          if (!propSchema || typeof propSchema !== "object") {
+            console.log(`\n❌ [SCHEMA INTEGRITY] ${tool.name}.${propName}: property schema is empty or invalid`);
+            schemaFailures++;
+          }
+        }
+
+        process.stdout.write(`✅ [SCHEMA] ${tool.name} (${propCount} properties)\n`);
+      }
+
+      if (schemaFailures > 0) {
+        console.log(`\n❌ SCHEMA INTEGRITY CHECK FAILED: ${schemaFailures} tool(s) have broken schemas.`);
+        console.log(`This typically means the JSON Schema conversion is broken (e.g., zod-to-json-schema incompatibility with Zod 4).`);
+        mcp.kill();
+        process.exit(1);
+      }
+
+      console.log(`\n✅ All ${tools.length} tools passed schema integrity checks.`);
+      console.log(`\nGenerating Zod boundary tests...`);
+      // ── End Phase 0 ────────────────────────────────────────────────────
 
       for (const tool of tools) {
         const schema = tool.inputSchema;

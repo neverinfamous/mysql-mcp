@@ -4,7 +4,7 @@ import type { McpServer } from "./mcp-server.js";
 import { HELP_CONTENT } from "../../constants/server-instructions.js";
 import { TOOL_GROUPS } from "../../filtering/tool-constants.js";
 import { getEnabledGroups, getToolGroup } from "../../filtering/tool-filter.js";
-import { metrics } from "../../observability/metrics.js";
+import { metrics } from "../../observability/metrics/index.js";
 import { logger } from "../../utils/logger.js";
 import type { ToolGroup } from "../../types/index.js";
 import type { AuditLogger } from "../../audit/logger.js";
@@ -252,6 +252,7 @@ export function registerAuditResource(server: SdkMcpServer, auditLogger: AuditLo
 
       for (const entry of recent) {
         if (entry.tokenEstimate != null) tokenEstimate += entry.tokenEstimate;
+        if (entry.completionTokens != null) tokenEstimate += entry.completionTokens;
         if (!entry.success) errors++;
         
         if (!entry.tool.startsWith("mysql://")) {

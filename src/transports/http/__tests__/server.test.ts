@@ -34,7 +34,7 @@ function createMockReqRes(
 
   const res = new ServerResponse(req);
   res.writeHead = vi.fn().mockReturnThis();
-  res.end = vi.fn();
+  res._endSpy = vi.fn(); res.end = res._endSpy;
 
   return { req, res };
 }
@@ -63,7 +63,7 @@ describe("HttpTransport", () => {
       const { req, res } = createMockReqRes("GET", "/unknown");
       await (transport as Record<string, unknown>).handleRequest(req, res);
       expect(res.writeHead).toHaveBeenCalledWith(404);
-      expect(res.end).toHaveBeenCalled();
+      expect((res as any)._endSpy).toHaveBeenCalled();
     });
 
     it("should handle preflight OPTIONS request", async () => {

@@ -279,7 +279,7 @@ services:
       retries: 10
 
   redis-server:
-    image: redis:8.x
+    image: redis:7.4
     container_name: redis-server
     restart: unless-stopped
     ports:
@@ -354,7 +354,7 @@ services:
       tags.datadoghq.com/version: 1.0.0
       com.datadoghq.ad.check_names: '["openmetrics"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": [".*"], "max_returned_metrics": 10000, "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "reported_hostname": "adamic-wsl2", "tags": ["service:mysql_mcp", "env:development"]}]'
+      com.datadoghq.ad.instances: '[{"openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": ["mysql_mcp*", "gen_ai*"], "max_returned_metrics": 10000, "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "reported_hostname": "adamic-wsl2", "tags": ["service:mysql_mcp", "env:development"]}]'
       com.datadoghq.ad.logs: '[{"source":"mysql_mcp","service":"mysql-mcp-exporter"}]'
 
   mysql-router-telemetry:
@@ -393,7 +393,7 @@ services:
       com.datadoghq.ad.logs: '[{"source":"bun","service":"mysql-router-telemetry"}]'
 
   dozzle:
-    image: amir20/dozzle:v10.7.1
+    image: amir20/dozzle:v10.7.2
     container_name: dozzle
     restart: unless-stopped
     ports:

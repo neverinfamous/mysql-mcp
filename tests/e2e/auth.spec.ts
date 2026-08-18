@@ -101,6 +101,7 @@ test.describe("Bearer Token Authentication", () => {
       }),
     });
 
+    console.log(await response.text());
     expect(response.status).toBe(200);
   });
 

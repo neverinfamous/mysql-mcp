@@ -98,11 +98,14 @@ export const CorrelationOutputSchema = BaseOutputSchema.extend({
 
 export const RegressionOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    columnX: z.string().optional(),
-    columnY: z.string().optional(),
+    xColumn: z.string().optional(),
+    yColumn: z.string().optional(),
+    sampleSize: z.number().optional(),
     slope: z.number().nullish(),
     intercept: z.number().nullish(),
     rSquared: z.number().nullish(),
+    equation: z.string().nullish(),
+    interpretation: z.string().optional(),
   }).loose().optional(),
 });
 

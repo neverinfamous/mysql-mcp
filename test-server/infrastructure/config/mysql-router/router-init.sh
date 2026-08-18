@@ -19,7 +19,6 @@ if [ ! -f "$CONF_FILE" ]; then
             --conf-set-option rest_connection_pool.require_realm=default_auth_realm \
             --conf-set-option routing:bootstrap_rw.connection_sharing=1 \
             --conf-set-option routing:bootstrap_ro.connection_sharing=1 \
-            --conf-set-option logger.level=ERROR \
             --conf-use-gr-notifications=1 2>/dev/null; then
             BOOTSTRAP_SUCCESS=true
             break
@@ -44,8 +43,7 @@ if [ ! -f "$CONF_FILE" ]; then
         # Make router log to stdout/stderr so we can see what it's doing
         sed -i -e 's/logging_folder=.*$/logging_folder=/' "$CONF_FILE"
         
-        # Force log level to ERROR and enable GR notifications (bootstrap ignores conf-set-option for these)
-        sed -i 's/level=info/level=ERROR/g' "$CONF_FILE"
+        # Enable GR notifications (bootstrap ignores conf-set-option for these)
         sed -i 's/use_gr_notifications=0/use_gr_notifications=1/g' "$CONF_FILE"
     fi
 

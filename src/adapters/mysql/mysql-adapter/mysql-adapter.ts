@@ -24,7 +24,7 @@ import type {
 import { ConnectionError } from "../../../types/index.js";
 import { logger } from "../../../utils/logger.js";
 import { VERSION } from "../../../version.js";
-import { metrics } from "../../../observability/metrics.js";
+import { metrics } from "../../../observability/metrics/index.js";
 import { execSync } from "node:child_process";
 
 import { SchemaManager } from "../schema-manager.js";
@@ -86,7 +86,7 @@ export class MySQLAdapter extends DatabaseAdapter {
       ssl: config.options?.ssl as boolean | undefined,
       charset: config.options?.charset ?? "utf8mb4",
       timezone: config.options?.timezone ?? "local",
-      dateStrings: config.options?.dateStrings ?? false,
+      dateStrings: config.options?.dateStrings ?? true,
       connectTimeout: config.options?.connectTimeout ?? 30000,
     };
 

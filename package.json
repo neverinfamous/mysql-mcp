@@ -1,6 +1,6 @@
 {
   "name": "@neverinfamous/mysql-mcp",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "Enterprise-grade MySQL MCP Server with OAuth 2.1 authentication, connection pooling & tool filtering",
   "type": "module",
   "main": "dist/index.js",
@@ -61,6 +61,7 @@
     "@modelcontextprotocol/core": "^2.0.0",
     "@modelcontextprotocol/node": "^2.0.0",
     "@modelcontextprotocol/server": "^2.0.0",
+    "@opentelemetry/api": "^1.9.1",
     "acorn": "^8.18.0",
     "better-sqlite3": "npm:better-sqlite3-multiple-ciphers@^13.0.3",
     "isolated-vm": "7.0.1",
@@ -69,8 +70,7 @@
     "picocolors": "^1.1.1",
     "redis": "^6.2.1",
     "yaml": "^2.9.0",
-    "zod": "^4.4.3",
-    "zod-to-json-schema": "^3.25.2"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -78,7 +78,7 @@
     "@playwright/test": "1.62.1",
     "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^26.2.0",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.11",
     "dotenv": "^17.4.2",
     "esbuild": "^0.28.2",
     "eslint": "^10.8.1",
@@ -91,7 +91,7 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.67.0",
     "unist-util-visit": "^5.1.0",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "resolutions": {
     "@hono/node-server": "^2.0.5",

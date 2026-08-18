@@ -14,7 +14,8 @@ describe("Comparative Stats Tools", () => {
   beforeEach(() => {
     mockAdapter = {
       executeQuery: vi.fn(),
-    };
+      executeWriteQuery: vi.fn(),
+    } as unknown as MySQLAdapter;
     correlationTool = createCorrelationTool(mockAdapter as MySQLAdapter);
     regressionTool = createRegressionTool(mockAdapter as MySQLAdapter);
     histogramTool = createHistogramTool(mockAdapter as MySQLAdapter);
@@ -202,11 +203,10 @@ describe("Comparative Stats Tools", () => {
 
   describe("mysql_stats_histogram", () => {
     it("should handle update", async () => {
-      // First call: table/column check, second: ANALYZE TABLE, third: histogram query
       mockAdapter.executeQuery
         .mockResolvedValueOnce({ rows: [] }) // table/column check
-        .mockResolvedValueOnce({}) // analyze table
         .mockResolvedValueOnce({ rows: [{ histogramType: "SINGLETON" }] }); // select info
+      mockAdapter.executeWriteQuery.mockResolvedValueOnce({}); // analyze table
 
       const result = await histogramTool.handler(
         {
@@ -217,7 +217,7 @@ describe("Comparative Stats Tools", () => {
         {},
       );
 
-      const calls = mockAdapter.executeQuery.mock.calls.map(
+      const calls = mockAdapter.executeWriteQuery.mock.calls.map(
         (c: unknown[]) => c[0],
       );
       expect(calls.some((c: string) => c.includes("ANALYZE TABLE"))).toBe(true);

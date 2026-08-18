@@ -16,14 +16,14 @@ rm -f "$HEALTH_FILE"
 
 run_sql() {
     local host="$1" query="$2"
-    mysql -uroot -proot -h "$host" -N -s -e "$query" 2>/dev/null
+    mysql -uroot -p"${MYSQL_ROOT_PASSWORD:-root}" -h "$host" -N -s -e "$query" 2>/dev/null
 }
 
 wait_for_nodes() {
     echo "[Healer] Waiting for MySQL nodes to be reachable..."
     for node in ${MYSQL_NODES_LIST:-mysql-node1 mysql-node2 mysql-node3}; do
         for i in $(seq 1 60); do
-            if mysqladmin ping -h "$node" -uroot -proot --silent 2>/dev/null; then
+            if mysqladmin ping -h "$node" -uroot -p"${MYSQL_ROOT_PASSWORD:-root}" --silent 2>/dev/null; then
                 echo "[Healer] $node is reachable."
                 break
             fi
@@ -48,14 +48,14 @@ try {
 }
 EOF
 
-    mysqlsh --js --user=root --password=root --host=mysql-node1 -f /tmp/reboot.js
+    mysqlsh --js --user=root --password="${MYSQL_ROOT_PASSWORD:-root}" --host=mysql-node1 -f /tmp/reboot.js
     
     sleep 5
     local final_count
     final_count=$(run_sql mysql-node1 "SELECT COUNT(*) FROM performance_schema.replication_group_members WHERE member_state='ONLINE';" || echo "0")
     
     echo "[Healer] Unshunning ProxySQL backends..."
-    mysql -uadmin -padmin -h proxysql -P 6032 -e "LOAD MYSQL SERVERS TO RUNTIME;" 2>/dev/null || true
+    mysql -uadmin -p"${PROXYSQL_ADMIN_PASSWORD:-admin}" -h proxysql -P 6032 -e "LOAD MYSQL SERVERS TO RUNTIME;" 2>/dev/null || true
 
     echo "[Healer] Cluster reboot complete. $final_count/3 members ONLINE."
 }

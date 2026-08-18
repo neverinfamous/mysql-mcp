@@ -26,7 +26,7 @@ import {
   handleRootInfo,
   handleProtectedResourceMetadata,
 } from "../handlers.js";
-import { metrics } from "../../../observability/metrics.js";
+import { metrics } from "../../../observability/metrics/index.js";
 
 import { handleStreamableRequest, handleStatelessRequest } from "./streamable.js";
 
@@ -199,6 +199,42 @@ export class HttpTransport {
     req: IncomingMessage,
     res: ServerResponse,
   ): Promise<void> {
+    // --- Byte Tracking ---
+    const rxBytes = parseInt(req.headers["content-length"] ?? "0", 10);
+    let txBytes = 0;
+
+    const originalWrite = res.write.bind(res);
+    const originalEnd = res.end.bind(res);
+
+    res.write = function (
+      this: ServerResponse,
+      chunk: unknown,
+      ...args: unknown[]
+    ): boolean {
+      if (chunk !== undefined && chunk !== null) {
+        txBytes += Buffer.byteLength(chunk as string | Buffer | Uint8Array);
+      }
+      // @ts-expect-error - overriding method signature safely
+      return originalWrite(chunk, ...args);
+    } as typeof res.write;
+
+    res.end = function (
+      this: ServerResponse,
+      chunk?: unknown,
+      ...args: unknown[]
+    ): ServerResponse {
+      if (chunk !== undefined && chunk !== null && typeof chunk !== "function") {
+        txBytes += Buffer.byteLength(chunk as string | Buffer | Uint8Array);
+      }
+      // @ts-expect-error - overriding method signature safely
+      return originalEnd(chunk, ...args);
+    } as typeof res.end;
+
+    res.on("finish", () => {
+      metrics.recordHttpTransportBytes(rxBytes, txBytes);
+      req.resume(); // Ensure unconsumed body is drained for Keep-Alive connections
+    });
+
     // Set security headers for all responses
     setSecurityHeaders(res, this.config);
 

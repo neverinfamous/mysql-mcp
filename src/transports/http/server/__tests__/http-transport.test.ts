@@ -101,8 +101,13 @@ describe("HttpTransport", () => {
       res = {
         writeHead: vi.fn(),
         end: vi.fn(),
+        _endSpy: vi.fn(),
         setHeader: vi.fn(),
+        on: vi.fn(),
+        write: vi.fn(),
       };
+      res._endSpy = vi.fn();
+      res.end = res._endSpy;
     });
 
     it("should handle request routing", async () => {
@@ -113,7 +118,7 @@ describe("HttpTransport", () => {
       await requestHandler(req, res);
       
       expect(res.writeHead).toHaveBeenCalledWith(200, expect.any(Object));
-      expect(res.end).toHaveBeenCalledWith(expect.stringContaining("status"));
+      expect((res as any)._endSpy).toHaveBeenCalledWith(expect.stringContaining("status"));
     });
 
     it("should handle preflight OPTIONS requests", async () => {
@@ -124,7 +129,7 @@ describe("HttpTransport", () => {
       await requestHandler(req, res);
       
       expect(res.writeHead).toHaveBeenCalledWith(204);
-      expect(res.end).toHaveBeenCalled();
+      expect((res as any)._endSpy).toHaveBeenCalled();
     });
 
     it("should handle /.well-known/oauth-protected-resource", async () => {
@@ -146,7 +151,7 @@ describe("HttpTransport", () => {
       await requestHandler(req, res);
       
       expect(res.writeHead).toHaveBeenCalledWith(200, expect.any(Object));
-      expect(res.end).toHaveBeenCalledWith(expect.stringContaining(""));
+      expect((res as any)._endSpy).toHaveBeenCalledWith(expect.stringContaining(""));
       await metricsTransport.stop();
     });
 
@@ -181,7 +186,7 @@ describe("HttpTransport", () => {
       await requestHandler(req, res);
       
       expect(res.writeHead).toHaveBeenCalledWith(404);
-      expect(res.end).toHaveBeenCalledWith(expect.stringContaining("Not found"));
+      expect((res as any)._endSpy).toHaveBeenCalledWith(expect.stringContaining("Not found"));
     });
 
     it("should handle payload too large", async () => {
@@ -213,7 +218,7 @@ describe("HttpTransport", () => {
         await requestHandler(req, res);
         
         expect(res.writeHead).toHaveBeenCalledWith(401, expect.any(Object));
-        expect(res.end).toHaveBeenCalledWith(expect.stringContaining("Bearer token required"));
+        expect((res as any)._endSpy).toHaveBeenCalledWith(expect.stringContaining("Bearer token required"));
       });
 
       it("should reject if token is invalid", async () => {
@@ -225,7 +230,7 @@ describe("HttpTransport", () => {
         await requestHandler(req, res);
         
         expect(res.writeHead).toHaveBeenCalledWith(401, expect.any(Object));
-        expect(res.end).toHaveBeenCalledWith(expect.stringContaining("Invalid bearer token"));
+        expect((res as any)._endSpy).toHaveBeenCalledWith(expect.stringContaining("Invalid bearer token"));
       });
 
       it("should accept valid token", async () => {

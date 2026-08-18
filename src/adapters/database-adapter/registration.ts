@@ -1,54 +1,70 @@
 import type { McpServer, CallToolResult } from "@modelcontextprotocol/server";
 import { logger } from "../../utils/logger.js";
 import { z } from "zod";
-import { zodToJsonSchema } from "zod-to-json-schema";
 import type {
   ToolDefinition,
   ResourceDefinition,
   PromptDefinition,
 } from "../../types/index.js";
 import type { DatabaseAdapter } from "./database-adapter.js";
-import { metrics } from "../../observability/metrics.js";
+import { metrics } from "../../observability/metrics/index.js";
 
 /**
- * Wraps a Zod schema to enforce JSON Schema 2020-12 dialect via the ~standard interface,
- * while patching additionalProperties to allow MCP SDK meta-injections during validation.
+ * Patches a Zod schema's ~standard JSON Schema output to remove
+ * `additionalProperties: false` that would block MCP SDK _meta injection.
+ *
+ * Zod 4 natively emits JSON Schema 2020-12 via ~standard — no external
+ * library needed. The deprecated `zod-to-json-schema` v3.x is incompatible
+ * with Zod 4 and silently returns `{}`, which is why it was removed.
  */
-function with2020_12JSONSchema<T extends z.ZodType>(schema: T): T {
-  // @ts-expect-error Zod version typing mismatch between local zod and zod-to-json-schema
-  const jsonSchema = zodToJsonSchema(schema, { target: "jsonSchema2020-12" });
-  
-  function patchAdditionalProperties(obj: unknown): void {
-    if (typeof obj !== 'object' || obj === null) return;
-    const schemaObj = obj as Record<string, unknown>;
-    
-    if (schemaObj["type"] === 'object' && schemaObj["additionalProperties"] === false) {
-      delete schemaObj["additionalProperties"];
+function patchSchemaForMcp<T extends z.ZodType>(schema: T): T {
+  // Extract Zod 4's native ~standard interface
+  interface StandardLike { jsonSchema: { input: () => Record<string, unknown>; output?: () => Record<string, unknown> } }
+  const std = (schema as unknown as { "~standard": StandardLike | undefined })["~standard"];
+  if (std?.jsonSchema?.input === undefined) return schema;
+  const original = std;
+
+  // Cache the patched schema to avoid repeated cloning
+  let cached: Record<string, unknown> | null = null;
+
+  function getPatchedSchema(): Record<string, unknown> {
+    if (!cached) {
+      cached = JSON.parse(JSON.stringify(original.jsonSchema.input())) as Record<string, unknown>;
+      stripAdditionalProperties(cached);
     }
-    
-    for (const key of Object.keys(schemaObj)) {
-      patchAdditionalProperties(schemaObj[key]);
-    }
+    return cached;
   }
-  
-  patchAdditionalProperties(jsonSchema);
 
   return new Proxy(schema, {
     get(target, prop, receiver): unknown {
       if (prop === "~standard") {
-        const existing = Reflect.get(target, prop, receiver);
-        const standard = existing ?? { vendor: "zod", version: 1 };
+        const existing = Reflect.get(target, prop, receiver) as object;
         return {
-          ...(standard as object),
+          ...existing,
           jsonSchema: {
-            input: () => jsonSchema,
-            output: () => jsonSchema
+            input: () => getPatchedSchema(),
+            output: () => getPatchedSchema()
           }
         };
       }
       return Reflect.get(target, prop, receiver);
+    },
+    has(target, prop) {
+      if (prop === "~standard") return true;
+      return Reflect.has(target, prop);
     }
   });
+}
+
+function stripAdditionalProperties(obj: unknown): void {
+  if (typeof obj !== 'object' || obj === null) return;
+  const rec = obj as Record<string, unknown>;
+  if (rec["type"] === 'object' && rec["additionalProperties"] === false) {
+    delete rec["additionalProperties"];
+  }
+  for (const key of Object.keys(rec)) {
+    stripAdditionalProperties(rec[key]);
+  }
 }
 
 /**
@@ -94,11 +110,11 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
     const schema = tool.inputSchema instanceof z.ZodType 
       ? tool.inputSchema 
       : z.object(tool.inputSchema);
-    toolOptions["inputSchema"] = with2020_12JSONSchema(schema);
+    toolOptions["inputSchema"] = patchSchemaForMcp(schema);
   }
 
   if (tool.outputSchema !== undefined) {
-    toolOptions["outputSchema"] = with2020_12JSONSchema(tool.outputSchema);
+    toolOptions["outputSchema"] = patchSchemaForMcp(tool.outputSchema);
   }
 
   const hasOutputSchema = Boolean(tool.outputSchema);
@@ -183,15 +199,23 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
         // Auditing is disabled, but we still need to record metrics
         const startTime = Date.now();
         let success = false;
-        let tokens = 0;
+        let tokens = 0; // promptTokens
+        let completionTokens = 0;
         let errorType: string | undefined;
         let errorCategory: string | undefined;
+
+        try {
+          const paramsStr = JSON.stringify(params ?? {});
+          tokens = Math.ceil(Buffer.byteLength(paramsStr, "utf8") / 4) + 12;
+        } catch {
+          // ignore
+        }
 
         try {
           const result = await execFn();
           success = !result.isError;
           if (success) {
-            tokens = result.content?.[0]?.type === "text" 
+            completionTokens = result.content?.[0]?.type === "text" 
               ? Math.ceil(Buffer.byteLength(result.content[0].text, "utf8") / 4) 
               : 0;
           }
@@ -202,7 +226,7 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
           throw error; // Let the outer catch block format the error
         } finally {
           const durationMs = Date.now() - startTime;
-          metrics.recordToolCall(tool.name, durationMs, success, tokens, errorType, errorCategory);
+          metrics.recordToolCall(tool.name, durationMs, success, tokens, completionTokens, errorType, errorCategory);
         }
       } catch (error: unknown) {
         const errorMessage =

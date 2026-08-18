@@ -41,7 +41,7 @@ concurrency: ci-health-monitor
 
 # CI Health Monitor Instructions
 
-Audit the mysql-mcp CI/CD infrastructure to guarantee peak reliability. Proactively identify deprecations, outdated actions, and pipeline bottlenecks.
+Audit the mysql-mcp CI/CD infrastructure to guarantee peak reliability. Proactively identify deprecations, outdated actions, and pipeline bottlenecks. Continuous observability ensures high-performance, fault-tolerant AI deployments.
 
 ## Audit Instructions
 

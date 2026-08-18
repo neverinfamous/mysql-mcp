@@ -89,6 +89,7 @@ function createMockRequest(
     url: "/",
     headers: { host: "localhost:3000" },
     socket: { remoteAddress: "127.0.0.1" },
+    on: vi.fn(),
     ...overrides,
   } as unknown as IncomingMessage;
 }
@@ -97,13 +98,18 @@ function createMockRequest(
  * Helper to create a mock ServerResponse
  */
 function createMockResponse(): ServerResponse {
-  return {
+  const res = {
     writeHead: vi.fn(),
     end: vi.fn(),
+    _endSpy: vi.fn(),
     setHeader: vi.fn(),
     headersSent: false,
     on: vi.fn(),
+    write: vi.fn(),
   } as unknown as ServerResponse;
+  (res as any)._endSpy = vi.fn();
+  (res as any).end = (res as any)._endSpy;
+  return res;
 }
 
 // =============================================================================
@@ -448,7 +454,7 @@ describe("handleHealthCheck()", () => {
       "Content-Type": "application/json",
     });
 
-    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    const endCall = ((mockRes as any)._endSpy as ReturnType<typeof vi.fn>).mock.calls[0][0];
     const response = JSON.parse(endCall as string);
     expect(response).toHaveProperty("status", "healthy");
     expect(response).toHaveProperty("timestamp");
@@ -459,7 +465,7 @@ describe("handleHealthCheck()", () => {
     const config: HttpTransportConfig = { port: 3000 };
     handleHealthCheck(mockRes, config);
 
-    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    const endCall = ((mockRes as any)._endSpy as ReturnType<typeof vi.fn>).mock.calls[0][0];
     const response = JSON.parse(endCall as string);
     expect(() => new Date(response.timestamp as string)).not.toThrow();
   });
@@ -472,7 +478,7 @@ describe("handleProtectedResourceMetadata()", () => {
     handleProtectedResourceMetadata(mockRes, config);
 
     expect(mockRes.writeHead).toHaveBeenCalledWith(404);
-    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    const endCall = ((mockRes as any)._endSpy as ReturnType<typeof vi.fn>).mock.calls[0][0];
     const response = JSON.parse(endCall as string);
     expect(response).toHaveProperty("error");
   });
@@ -497,7 +503,7 @@ describe("handleProtectedResourceMetadata()", () => {
       "Content-Type": "application/json",
     });
 
-    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    const endCall = ((mockRes as any)._endSpy as ReturnType<typeof vi.fn>).mock.calls[0][0];
     const response = JSON.parse(endCall as string);
     expect(response).toHaveProperty("resource");
     expect(response).toHaveProperty("authorization_servers");
@@ -629,7 +635,7 @@ describe("handleRequest()", () => {
     ).handleRequest(mockReq, mockRes);
 
     expect(mockRes.writeHead).toHaveBeenCalledWith(204);
-    expect(mockRes.end).toHaveBeenCalled();
+    expect((mockRes as any)._endSpy).toHaveBeenCalled();
   });
 
   it("should route to health check endpoint", async () => {
@@ -648,7 +654,7 @@ describe("handleRequest()", () => {
     expect(mockRes.writeHead).toHaveBeenCalledWith(200, {
       "Content-Type": "application/json",
     });
-    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    const endCall = ((mockRes as any)._endSpy as ReturnType<typeof vi.fn>).mock.calls[0][0];
     expect(JSON.parse(endCall as string)).toHaveProperty("status", "healthy");
   });
 
@@ -673,7 +679,7 @@ describe("handleRequest()", () => {
     expect(mockRes.writeHead).toHaveBeenCalledWith(200, {
       "Content-Type": "text/plain",
     });
-    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    const endCall = ((mockRes as any)._endSpy as ReturnType<typeof vi.fn>).mock.calls[0][0];
     expect(typeof endCall).toBe("string");
   });
 
@@ -731,7 +737,7 @@ describe("handleRequest()", () => {
     ).handleRequest(mockReq, mockRes);
 
     expect(mockRes.writeHead).toHaveBeenCalledWith(404);
-    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    const endCall = ((mockRes as any)._endSpy as ReturnType<typeof vi.fn>).mock.calls[0][0];
     expect(JSON.parse(endCall as string)).toHaveProperty("error", "Not found");
   });
 
