@@ -623,7 +623,7 @@ services:
       # Process monitoring
       - DD_PROCESS_CONFIG_CONTAINER_COLLECTION_ENABLED=true
       - DD_PROCESS_CONFIG_PROCESS_COLLECTION_ENABLED=true
-      - DD_CONTAINER_EXCLUDE=name:datadog-unified
+
       # System probe (eBPF network performance monitoring)
       - DD_SYSTEM_PROBE_ENABLED=true
       # APM tracing
