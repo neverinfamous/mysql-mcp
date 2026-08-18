@@ -85,7 +85,7 @@ describe("Shell Data Transfer Tools", () => {
       const jsArg = mockSpawn.mock.calls[0][1][4] === "/dev/stdin" ? mockSpawn.mock.results[0].value.stdin.write.mock.calls[0][0] : mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('util.exportTable("test.users"');
       expect(jsArg).toContain('fieldsTerminatedBy: ","');
-      expect(jsArg).toContain('fieldsEnclosedBy: "\\""');
+      expect(jsArg).toContain('fieldsEnclosedBy: \'"\'');
     });
 
     it("should export table with TSV format (default behavior)", async () => {
