@@ -12,7 +12,7 @@
       "prefix": "tool"
     }
   ],
-  "title": "MySQL-MCP Diagnostics \u0026 Logs",
+  "title": "datadog-logs.json",
   "widgets": [
     {
       "definition": {
