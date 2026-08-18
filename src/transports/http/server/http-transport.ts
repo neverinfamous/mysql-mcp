@@ -200,12 +200,10 @@ export class HttpTransport {
     res: ServerResponse,
   ): Promise<void> {
     // --- Byte Tracking ---
-    let rxBytes = 0;
+    let rxBytes = parseInt(req.headers["content-length"] ?? "0", 10);
+    console.log(`[HTTP-TRANSPORT] Headers:`, req.headers);
+    console.log(`[HTTP-TRANSPORT] contentLength parsed:`, rxBytes);
     let txBytes = 0;
-
-    req.on("data", (chunk: Buffer) => {
-      rxBytes += chunk.length;
-    });
 
     const originalWrite = res.write.bind(res);
     const originalEnd = res.end.bind(res);
