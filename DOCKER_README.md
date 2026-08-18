@@ -24,6 +24,7 @@ mysql-mcp provides specialized tools for CRUD, JSON, spatial data, and clusters.
 | `mysql_tool_index` | Complete tool index with categories |
 | `mysql_quick_query` | Quick query execution shortcut |
 | `mysql_quick_schema` | Quick schema exploration |
+| `mysql_setup_observability` | Complete observability stack setup guide (Datadog, etc.) |
 
 > **Note**: This is a subset of available prompts. Use `mysql_tool_index` to discover the full list of guided workflows.
 
