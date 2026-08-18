@@ -122,7 +122,7 @@ try {
     console.log(`\nTroubleshooting:`);
     console.log(`  1. Ensure ${containerName} container is running: docker ps | grep ${containerName}`);
     console.log(`  2. Or ensure MySQL is running locally on port ${mysqlPort}`);
-    console.log(`  3. Check credentials: ${mysqlUser} / ${mysqlPassword}`);
+    console.log(`  3. Check credentials for user: ${mysqlUser} (password omitted)`);
     process.exit(1);
 }
 
