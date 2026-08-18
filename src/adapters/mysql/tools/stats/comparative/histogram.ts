@@ -44,7 +44,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           if (buckets > 1024) {
             warning = `Requested ${buckets} buckets; clamped to max 1024`;
           }
-          const updateResult = await adapter.executeQuery(
+          const updateResult = await adapter.executeWriteQuery(
             `ANALYZE TABLE ${escapeQualifiedTable(table)} UPDATE HISTOGRAM ON \`${column}\` WITH ${String(numBuckets)} BUCKETS`,
           );
           if (updateResult.rows && updateResult.rows.length > 0) {
