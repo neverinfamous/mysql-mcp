@@ -12,8 +12,8 @@ const mysqlMcpRoot = join(adamicRoot, '..', 'mysql-mcp');
 const dashboards = [
     { id: "qwe-2un-us8", file: "datadog-tool-performance.json" },
     { id: "q48-mq9-3i7", file: "datadog-ai-efficiency.json" },
-    { id: "my6-q9k-682", file: "datadog-infrastructure.json" },
-    { id: "79q-b3r-jhu", file: "datadog-logs.json" },
+    { id: "hb6-7ex-vq7", file: "datadog-infrastructure.json" },
+    { id: "h3a-dp2-4re", file: "datadog-logs.json" },
     { id: "4w2-tdx-wf7", file: "datadog-mysql.json" },
     { id: "khx-zry-d49", file: "datadog-redis.json" },
     { id: "zi7-trq-jia", file: "lib-agent-exec.json" },
