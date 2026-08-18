@@ -21,8 +21,8 @@ describe("getMySQLPrompts", () => {
     prompts = getMySQLPrompts(mockAdapter);
   });
 
-  it("should return 20 prompts", () => {
-    expect(prompts).toHaveLength(20);
+  it("should return 21 prompts", () => {
+    expect(prompts).toHaveLength(21);
   });
 
   it("should have handler functions for all prompts", () => {

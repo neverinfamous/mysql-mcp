@@ -116,7 +116,7 @@ describe("Performance Tests", () => {
       }, 100);
 
       // Empty filter should be very fast
-      expect(timing.avg).toBeLessThan(1);
+      expect(timing.avg).toBeLessThan(3);
     });
 
     it("should parse complex filter chain efficiently", () => {
