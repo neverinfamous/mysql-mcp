@@ -17,12 +17,12 @@
                 "comparator": "=",
                 "custom_bg_color": "#841001",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               },
               {
                 "comparator": "=",
                 "palette": "white_on_green",
-                "value": 1.0
+                "value": 1
               }
             ],
             "formulas": [
@@ -653,12 +653,12 @@
                 "comparator": "=",
                 "custom_bg_color": "#841001",
                 "palette": "custom_bg",
-                "value": 1.0
+                "value": 1
               },
               {
                 "comparator": "=",
                 "palette": "white_on_green",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
