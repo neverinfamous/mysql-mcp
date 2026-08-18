@@ -200,7 +200,7 @@ export class HttpTransport {
     res: ServerResponse,
   ): Promise<void> {
     // --- Byte Tracking ---
-    let rxBytes = parseInt(req.headers["content-length"] ?? "0", 10);
+    const rxBytes = parseInt(req.headers["content-length"] ?? "0", 10);
     let txBytes = 0;
 
     const originalWrite = res.write.bind(res);
