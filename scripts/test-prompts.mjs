@@ -90,6 +90,12 @@ async function main() {
     // No-argument prompts
     { name: "mysql_tool_index", args: {}, expect: "core" },
     { name: "mysql_quick_schema", args: {}, expect: "mysql_list_tables" },
+    // Extended/Infra Prompts
+    {
+      name: "mysql_setup_observability",
+      args: { integration: "datadog" },
+      expect: "Datadog",
+    },
     { name: "mysql_database_health_check", args: {}, expect: "health" },
     { name: "mysql_index_tuning", args: {}, expect: "index" },
     { name: "mysql_setup_spatial", args: {}, expect: "spatial" },
