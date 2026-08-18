@@ -9,6 +9,109 @@
   "widgets": [
     {
       "definition": {
+        "precision": 0,
+        "requests": [
+          {
+            "conditional_formats": [
+              {
+                "comparator": "=",
+                "custom_bg_color": "#841001",
+                "palette": "custom_bg",
+                "value": 0
+              },
+              {
+                "comparator": "=",
+                "palette": "white_on_green",
+                "value": 1
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "last",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "min:mysql_mcp.shell.status{*}.rollup(min)"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "time": {
+          "live_span": "5m"
+        },
+        "title": "MySQL Shell Status",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 1111111111111111,
+      "layout": {
+        "height": 1,
+        "width": 2,
+        "x": 0,
+        "y": 4
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "line",
+            "formulas": [
+              {
+                "alias": "Local Queue",
+                "formula": "query1"
+              },
+              {
+                "alias": "Applier Queue",
+                "formula": "query2"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:mysql.group_replication.transactions_in_queue{*} by {host}.rollup(avg)"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "avg:mysql.group_replication.transactions_remote_in_applier_queue{*} by {host}.rollup(avg)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "MySQL Shell Group Replication Lag",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries"
+      },
+      "id": 2222222222222222,
+      "layout": {
+        "height": 2,
+        "width": 6,
+        "x": 2,
+        "y": 4
+      }
+    },
+    {
+      "definition": {
         "check": "proxysql.can_connect",
         "group": "proxysql_port:6032,proxysql_server:localhost,host:adamic-wsl2",
         "group_by": [
