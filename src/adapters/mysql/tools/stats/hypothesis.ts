@@ -17,6 +17,7 @@ import {
 import { calculateTTestPValue, calculateZTestPValue } from "./math-utils.js";
 import { TTestOutputSchema } from "../../schemas/stats.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { validateWhereClause } from "../../../../utils/validators.js";
 
 // =============================================================================
 // Schemas
@@ -178,6 +179,7 @@ export function createStatsHypothesisTool(
           return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid groupColumn name" });
         }
 
+        validateWhereClause(where);
         const whereClause = where ? `WHERE (${where})` : "";
 
         const formatInterpretation = (pValueRounded: number): string => {

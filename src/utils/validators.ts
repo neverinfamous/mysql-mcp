@@ -33,24 +33,27 @@ const QUALIFIED_IDENTIFIER_PATTERN =
 
 /**
  * Dangerous patterns in WHERE clauses that indicate SQL injection attempts
+ * (evaluated after replacing string literals with placeholders)
  */
 const DANGEROUS_WHERE_PATTERNS = [
-  // Stacked queries - semicolon followed by SQL keyword
-  /;\s*(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|TRUNCATE|EXEC|EXECUTE)\b/i,
-  // SQL comments that could hide malicious code
-  /--\s*$/m,
-  /\/\*[\s\S]*?\*\//,
+  // Stacked queries - any semicolon outside string literals
+  /;/,
+  // SQL comments that could hide malicious code (-- , #, /* */ or unclosed /*)
+  /--(?:\s|$)/m,
+  /#/,
+  /\/\*/,
   // Query manipulation keywords (usually not in WHERE)
-  /\bUNION\s+(ALL\s+)?SELECT\b/i,
-  /\bEXCEPT\s+SELECT\b/i,
-  /\bINTERSECT\s+SELECT\b/i,
-  // Subquery injection - SELECT inside WHERE (data exfiltration)
-  /\(\s*SELECT\b/i,
+  /\bUNION\s+(?:ALL\s+)?(?:SELECT|TABLE|VALUES)\b/i,
+  /\bEXCEPT\s+(?:ALL\s+)?(?:SELECT|TABLE|VALUES)\b/i,
+  /\bINTERSECT\s+(?:ALL\s+)?(?:SELECT|TABLE|VALUES)\b/i,
+  // Subquery injection - SELECT/WITH/TABLE/VALUES inside WHERE (data exfiltration)
+  /\(\s*(?:SELECT|WITH|TABLE|VALUES)\b/i,
   // Dangerous functions
-  /\bINTO\s+(OUTFILE|DUMPFILE)\b/i,
+  /\bINTO\s+(?:OUTFILE|DUMPFILE)\b/i,
   /\bLOAD_FILE\s*\(/i,
-  // Information schema probing (common in attacks)
-  /\bINFORMATION_SCHEMA\b.*\bTABLES\b/i,
+  // System schema probing (common in attacks)
+  /\bINFORMATION_SCHEMA\b/i,
+  /\bMYSQL\s*\.\s*USER\b/i,
   // Benchmark/sleep (timing attacks)
   /\bBENCHMARK\s*\(/i,
   /\bSLEEP\s*\(/i,
@@ -194,20 +197,11 @@ export function validateWhereClause(where: string | undefined): void {
     return;
   }
 
-  for (const pattern of DANGEROUS_WHERE_PATTERNS) {
-    if (pattern.test(trimmed)) {
-      throw new ValidationError(
-        "WHERE clause contains potentially dangerous SQL patterns",
-        "where",
-      );
-    }
-  }
-
   // Check for unbalanced quotes (sign of injection attempt)
   // Note: escaped quotes ('') count as 2, so we check odd counts
   // after removing escaped quotes
-  const unescapedSingles = trimmed.replace(/''/g, "").match(/'/g);
-  const unescapedDoubles = trimmed.replace(/""/g, "").match(/"/g);
+  const unescapedSingles = trimmed.replace(/''|\\'/g, "").match(/'/g);
+  const unescapedDoubles = trimmed.replace(/""|\\"/g, "").match(/"/g);
 
   if ((unescapedSingles?.length ?? 0) % 2 !== 0) {
     throw new ValidationError(
@@ -221,6 +215,21 @@ export function validateWhereClause(where: string | undefined): void {
       "WHERE clause contains unbalanced double quotes",
       "where",
     );
+  }
+
+  // Replace string literals with neutral placeholders before pattern matching
+  const withoutLiterals = trimmed.replace(
+    /'(?:''|\\'|[^'])*'|"(?:""|\\"|[^"])*"/g,
+    "'__STR__'",
+  );
+
+  for (const pattern of DANGEROUS_WHERE_PATTERNS) {
+    if (pattern.test(withoutLiterals)) {
+      throw new ValidationError(
+        "WHERE clause contains potentially dangerous SQL patterns",
+        "where",
+      );
+    }
   }
 }
 

@@ -22,6 +22,7 @@ import {
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { validateWhereClause } from "../../../../utils/validators.js";
 
 // =============================================================================
 // Constants
@@ -264,6 +265,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsTopNSchema.parse(params);
 
         const { database, table, column, n, direction, selectColumns, where } = parsed;
+        validateWhereClause(where);
         const whereClause = where ? `WHERE (${where})` : "";
 
         if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
@@ -395,6 +397,7 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsDistinctSchema.parse(params);
 
         const { database, table, column, limit, where } = parsed;
+        validateWhereClause(where);
         const whereClause = where ? `WHERE (${where})` : "";
 
         if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
@@ -476,6 +479,7 @@ export function createStatsFrequencyTool(
         const parsed = StatsFrequencySchema.parse(params);
 
         const { database, table, column, limit, where } = parsed;
+        validateWhereClause(where);
         const whereClause = where ? `WHERE (${where})` : "";
 
         if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
@@ -562,6 +566,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsSummarySchema.parse(params);
 
         const { database, table, where } = parsed;
+        validateWhereClause(where);
         const whereClause = where ? `WHERE (${where})` : "";
 
         if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
