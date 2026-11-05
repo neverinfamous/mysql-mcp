@@ -217,11 +217,37 @@ export function validateWhereClause(where: string | undefined): void {
     );
   }
 
-  // Replace string literals with neutral placeholders before pattern matching
-  const withoutLiterals = trimmed.replace(
-    /'(?:''|\\'|[^'])*'|"(?:""|\\"|[^"])*"/g,
-    "'__STR__'",
-  );
+  // Replace string literals with neutral placeholders in linear time
+  let withoutLiterals = "";
+  let i = 0;
+  const len = trimmed.length;
+  while (i < len) {
+    const ch = trimmed[i];
+    if (ch === "'" || ch === '"') {
+      const quote = ch;
+      i++;
+      while (i < len) {
+        const c = trimmed[i];
+        if (c === "\\") {
+          i += 2;
+          continue;
+        }
+        if (c === quote) {
+          if (trimmed[i + 1] === quote) {
+            i += 2;
+            continue;
+          }
+          i++;
+          break;
+        }
+        i++;
+      }
+      withoutLiterals += "'__STR__'";
+      continue;
+    }
+    withoutLiterals += ch;
+    i++;
+  }
 
   for (const pattern of DANGEROUS_WHERE_PATTERNS) {
     if (pattern.test(withoutLiterals)) {

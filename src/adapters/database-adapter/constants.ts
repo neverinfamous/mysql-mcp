@@ -2,9 +2,9 @@
  * Dangerous SQL patterns for query validation (hoisted for performance)
  */
 export const DANGEROUS_QUERY_PATTERNS: RegExp[] = [
-  /;\s*(?:\/\*[\s\S]*?\*\/\s*)*(?:DROP|DELETE|TRUNCATE|INSERT|UPDATE|CREATE|ALTER|GRANT|REVOKE|REPLACE|RENAME|CALL|LOAD)\s+/i,
+  /;\s*(?:DROP|DELETE|TRUNCATE|INSERT|UPDATE|CREATE|ALTER|GRANT|REVOKE|REPLACE|RENAME|CALL|LOAD)\s+/i,
   /--\s*$/m, // SQL comment at end of line
-  /\bINTO\s+(?:\/\*[\s\S]*?\*\/\s*)*(?:OUTFILE|DUMPFILE)\b/i,
+  /\bINTO\s+(?:OUTFILE|DUMPFILE)\b/i,
 ];
 
 /**

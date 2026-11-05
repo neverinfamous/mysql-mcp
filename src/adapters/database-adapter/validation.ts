@@ -41,23 +41,85 @@ const TOP_LEVEL_WRITE_KEYWORDS: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * Check whether `sql` starts a MySQL (`/*!`) or MariaDB (`/*M!`) executable
+ * comment at `idx` (where `sql.slice(idx, idx + 2) === "/*"`), returning the
+ * index immediately after the `!` or `-1` if it is a normal block comment.
+ */
+function getExecutableCommentBangAfterIndex(sql: string, idx: number): number {
+  const c2 = sql[idx + 2];
+  if (c2 === "!") {
+    return idx + 3;
+  }
+  if ((c2 === "M" || c2 === "m") && sql[idx + 3] === "!") {
+    return idx + 4;
+  }
+  return -1;
+}
+
+/**
  * Unwrap MySQL (`/*! ... *\/`, `/*!50000 ... *\/`) and MariaDB (`/*M! ... *\/`)
- * executable comments so inner SQL tokens cannot bypass validation.
+ * executable comments in linear time so inner SQL tokens cannot bypass validation.
  */
 function unwrapExecutableComments(sql: string): string {
   let current = sql;
-  let iterations = 0;
-  const execCommentPattern = /\/\*M?![0-9]*([\s\S]*?)\*\//gi;
 
-  while (execCommentPattern.test(current) && iterations < 10) {
-    current = current.replace(execCommentPattern, " $1 ");
-    execCommentPattern.lastIndex = 0;
-    iterations++;
+  for (let iteration = 0; iteration < 10; iteration++) {
+    let out = "";
+    let pos = 0;
+    let changed = false;
+
+    while (pos < current.length) {
+      const openIdx = current.indexOf("/*", pos);
+      if (openIdx === -1) {
+        out += current.slice(pos);
+        break;
+      }
+
+      const afterBangIdx = getExecutableCommentBangAfterIndex(current, openIdx);
+      if (afterBangIdx === -1) {
+        out += current.slice(pos, openIdx + 2);
+        pos = openIdx + 2;
+        continue;
+      }
+
+      const closeIdx = current.indexOf("*/", afterBangIdx);
+      if (closeIdx === -1) {
+        throw new ValidationError(
+          "Query contains potentially dangerous patterns",
+        );
+      }
+
+      let bodyStart = afterBangIdx;
+      while (bodyStart < closeIdx) {
+        const code = current.charCodeAt(bodyStart);
+        if (code < 48 || code > 57) break;
+        bodyStart++;
+      }
+
+      out +=
+        current.slice(pos, openIdx) +
+        " " +
+        current.slice(bodyStart, closeIdx) +
+        " ";
+      pos = closeIdx + 2;
+      changed = true;
+    }
+
+    current = out;
+    if (!changed) break;
   }
 
-  // Reject unclosed or deeply nested executable comments
-  if (/\/\*M?!/i.test(current)) {
-    throw new ValidationError("Query contains potentially dangerous patterns");
+  // Reject deeply nested executable comments remaining after max iterations
+  let scanPos = 0;
+  while (scanPos < current.length) {
+    const openIdx = current.indexOf("/*", scanPos);
+    if (openIdx === -1) break;
+    if (getExecutableCommentBangAfterIndex(current, openIdx) !== -1) {
+      throw new ValidationError(
+        "Query contains potentially dangerous patterns",
+      );
+    }
+    scanPos = openIdx + 2;
   }
 
   return current;
@@ -68,40 +130,57 @@ function unwrapExecutableComments(sql: string): string {
  * after unwrapping MySQL/MariaDB executable comments.
  */
 export function stripLeadingSqlComments(sql: string): string {
-  let remaining = unwrapExecutableComments(sql);
+  const unwrapped = unwrapExecutableComments(sql);
+  let i = 0;
+  const len = unwrapped.length;
 
-  while (remaining.length > 0) {
-    const trimmed = remaining.replace(/^\s+/, "");
-    if (trimmed !== remaining) {
-      remaining = trimmed;
+  while (i < len) {
+    const ch = unwrapped[i];
+    const next = unwrapped[i + 1];
+
+    if (
+      ch === " " ||
+      ch === "\t" ||
+      ch === "\n" ||
+      ch === "\r" ||
+      ch === "\f" ||
+      ch === "\v"
+    ) {
+      i++;
       continue;
     }
 
-    if (remaining.startsWith("--")) {
-      remaining = remaining.replace(/^--[^\r\n]*(?:\r?\n|$)/, "");
+    if (ch === "-" && next === "-") {
+      i += 2;
+      while (i < len && unwrapped[i] !== "\n" && unwrapped[i] !== "\r") {
+        i++;
+      }
       continue;
     }
 
-    if (remaining.startsWith("#")) {
-      remaining = remaining.replace(/^#[^\r\n]*(?:\r?\n|$)/, "");
+    if (ch === "#") {
+      i++;
+      while (i < len && unwrapped[i] !== "\n" && unwrapped[i] !== "\r") {
+        i++;
+      }
       continue;
     }
 
-    if (remaining.startsWith("/*")) {
-      const closeIdx = remaining.indexOf("*/", 2);
+    if (ch === "/" && next === "*") {
+      const closeIdx = unwrapped.indexOf("*/", i + 2);
       if (closeIdx === -1) {
         throw new ValidationError(
           "Query contains potentially dangerous patterns",
         );
       }
-      remaining = remaining.slice(closeIdx + 2);
+      i = closeIdx + 2;
       continue;
     }
 
     break;
   }
 
-  return remaining;
+  return unwrapped.slice(i);
 }
 
 /**

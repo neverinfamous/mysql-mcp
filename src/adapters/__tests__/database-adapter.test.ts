@@ -434,6 +434,21 @@ describe("DatabaseAdapter", () => {
       expect(() =>
         adapter.validateQuery("SELECT * FROM users FOR UPDATE", true),
       ).toThrow("Read-only mode: locking or file export clauses are not allowed");
+      expect(() =>
+        adapter.validateQuery("SELECT 1; /* comment */ DROP TABLE users", false),
+      ).toThrow();
+      expect(() =>
+        adapter.validateQuery(
+          "SELECT * FROM users INTO /* comment */ OUTFILE '/tmp/x'",
+          false,
+        ),
+      ).toThrow();
+      expect(() =>
+        adapter.validateQuery(`/*!${"0".repeat(10000)}`, true),
+      ).toThrow();
+      expect(() =>
+        adapter.validateQuery(`SELECT 1; ${"/**/".repeat(2000)}`, true),
+      ).not.toThrow();
     });
   });
 
