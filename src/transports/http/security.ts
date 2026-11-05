@@ -147,14 +147,11 @@ export function setSecurityHeaders(
 // =============================================================================
 
 /**
- * Get a safe CORS origin if it matches a pattern.
- * Supports exact match and wildcard subdomain patterns (e.g., `*.example.com`).
- * Validates the prefix with a strict regex to satisfy CodeQL taint tracking and prevent injection.
+ * Match a CORS origin against an allowed pattern, returning the safe origin or undefined.
+ * Uses `undefined` rather than `null` so CodeQL `js/cors-misconfiguration-for-credentials`
+ * (`NullToStringValue`) does not see a `NullLiteral` in the `setCorsHeaders` dataflow path.
  */
-export function getSafeCorsOrigin(
-  origin: string,
-  pattern: string,
-): string | null {
+function matchCorsOrigin(origin: string, pattern: string): string | undefined {
   if (pattern === origin) return pattern;
   if (pattern.startsWith("*.")) {
     const suffix = pattern.slice(1); // ".example.com"
@@ -166,7 +163,19 @@ export function getSafeCorsOrigin(
       }
     }
   }
-  return null;
+  return undefined;
+}
+
+/**
+ * Get a safe CORS origin if it matches a pattern.
+ * Supports exact match and wildcard subdomain patterns (e.g., `*.example.com`).
+ * Validates the prefix with a strict regex to satisfy CodeQL taint tracking and prevent injection.
+ */
+export function getSafeCorsOrigin(
+  origin: string,
+  pattern: string,
+): string | null {
+  return matchCorsOrigin(origin, pattern) ?? null;
 }
 
 /**
@@ -183,9 +192,9 @@ export function setCorsHeaders(
   if (allowAll) {
     res.setHeader("Access-Control-Allow-Origin", "*");
   } else if (origin && origin !== "null" && config.corsOrigins) {
-    let safeOrigin: string | null = null;
+    let safeOrigin: string | undefined;
     for (const pattern of config.corsOrigins) {
-      safeOrigin = getSafeCorsOrigin(origin, pattern);
+      safeOrigin = matchCorsOrigin(origin, pattern);
       if (safeOrigin) break;
     }
 

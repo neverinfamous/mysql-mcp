@@ -71,23 +71,7 @@ tests/
 __tests__/
 *.test.ts
 *.spec.ts
-coverage/
-test-results.json
-scripts/
-
-# Keycloak (development server)
-keycloak-*/
-keycloak/
-
-# MCP Registry tokens
-.mcpregistry_github_token
-.mcpregistry_registry_token
-
-# Test files & configs
-tests/
-__tests__/
-*.test.ts
-*.spec.ts
+*.bench.ts
 coverage/
 test-results.json
 .test-output/

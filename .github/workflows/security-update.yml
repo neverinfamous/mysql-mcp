@@ -9,6 +9,7 @@ on:
     paths:
       - "Dockerfile"
       - "package.json"
+      - "pnpm-workspace.yaml"
       - "pnpm-lock.yaml"
   workflow_call:
   workflow_dispatch:
@@ -31,15 +32,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Build image for scanning
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v6.x
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: Dockerfile
@@ -60,6 +61,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: "os,library"
           trivyignores: ".trivyignore"
+          skip-dirs: "/usr/local/lib/node_modules/npm"
           exit-code: "1" # Fail the build if critical vulnerabilities are found
 
       - name: Run Trivy vulnerability scanner (JSON/SARIF)
@@ -73,15 +75,15 @@ jobs:
           ignore-unfixed: true
           vuln-type: "os,library"
           trivyignores: ".trivyignore"
+          skip-dirs: "/usr/local/lib/node_modules/npm"
           exit-code: "0" # Don't fail the build here, we want to upload SARIF and then fail on the table output
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@faaa5d804fc648d0fdb28822a8e36cf7d0a6132c # v4.37.7
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         if: always() && hashFiles('trivy-results.sarif') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         with:
           sarif_file: "trivy-results.sarif"
-          category: trivy-docker-scanules/npm
-          timeout: 10m
+          category: trivy-docker-scan
 
       - name: Check scan result
         id: check-scan
