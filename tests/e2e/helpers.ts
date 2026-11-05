@@ -258,8 +258,11 @@ export async function startServer(
     },
   );
 
+  let stderrLog = "";
   proc.stderr?.on("data", (data) => {
-    console.error(`[${label}:${port}] STDERR: ${String(data)}`);
+    const chunk = String(data);
+    stderrLog += chunk;
+    console.error(`[${label}:${port}] STDERR: ${chunk}`);
   });
   proc.stdout?.on("data", (data) => {
     console.log(`[${label}:${port}] STDOUT: ${String(data)}`);
@@ -270,8 +273,16 @@ export async function startServer(
   // Wait for server readiness
   const maxAttempts = 120;
   for (let i = 0; i < maxAttempts; i++) {
+    if (proc.exitCode !== null) {
+      serverProcesses.delete(port);
+      throw new Error(
+        `[${label}] Server on port ${port} exited prematurely with code ${proc.exitCode}: ${stderrLog.trim()}`,
+      );
+    }
     try {
-      const res = await fetch(`http://127.0.0.1:${port}/health`);
+      const res = await fetch(`http://127.0.0.1:${port}/health`, {
+        signal: AbortSignal.timeout(1000),
+      });
       if (res.ok) return;
     } catch {
       // Not ready yet

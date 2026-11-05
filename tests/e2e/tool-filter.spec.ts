@@ -13,7 +13,8 @@ import { startServer, stopServer, createClient } from "./helpers.js";
 // Force sequential execution to prevent parallel workers from colliding on manual ports/files
 test.describe.configure({ mode: "serial" });
 
-const FILTER_PORT_BASE = 3110;
+// Start at 3111 to avoid Windows netsh portproxy on 127.0.0.1:3110 (Loki)
+const FILTER_PORT_BASE = 3111;
 
 test.describe("Tool Filter Runtime Behavior", () => {
   test("--tool-filter core exposes only core + codemode tools", async () => {
@@ -46,7 +47,7 @@ test.describe("Tool Filter Runtime Behavior", () => {
   });
 
   test("--tool-filter core,-codemode excludes mysql_execute_code", async () => {
-    const port = FILTER_PORT_BASE + 2;
+    const port = FILTER_PORT_BASE + 1;
     await startServer(
       port,
       ["--tool-filter", "core,-codemode"],
@@ -70,7 +71,7 @@ test.describe("Tool Filter Runtime Behavior", () => {
   });
 
   test("--tool-filter with individual tools exposes exact whitelist", async () => {
-    const port = FILTER_PORT_BASE + 3;
+    const port = FILTER_PORT_BASE + 2;
     await startServer(
       port,
       ["--tool-filter", "mysql_read_query,mysql_list_tables"],
