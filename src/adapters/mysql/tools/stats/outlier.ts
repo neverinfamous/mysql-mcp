@@ -17,6 +17,7 @@ import {
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { validateWhereClause } from "../../../../utils/validators.js";
 
 // =============================================================================
 // Schemas
@@ -113,6 +114,8 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
 
         const { database, table, column, method, limit, maxOutliers, where } = parsed;
 
+        validateWhereClause(where);
+
         if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
@@ -170,7 +173,8 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Validate minimum rows to perform outlier detection
-        const countQuery = `SELECT COUNT(\`${column}\`) AS cnt FROM ${fullTableName} ${where ? `WHERE ${where}` : ""}`;
+        const whereClause = where ? `WHERE (${where})` : "";
+        const countQuery = `SELECT COUNT(\`${column}\`) AS cnt FROM ${fullTableName} ${whereClause}`;
         const countRes = await adapter.executeQuery(countQuery);
         const totalRows = Number(countRes.rows?.[0]?.["cnt"] ?? 0);
         if (totalRows < 3) {
@@ -182,8 +186,6 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
             error: "Insufficient data to calculate outliers (minimum 3 rows required)",
           });
         }
-
-        const whereClause = where ? `WHERE (${where})` : "";
 
         if (method === "zscore") {
           return withTokenEstimate(

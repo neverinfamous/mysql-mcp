@@ -183,6 +183,27 @@ describe("validators", () => {
     it("should accept escaped quotes", () => {
       expect(() => validateWhereClause("name = 'O''Brien'")).not.toThrow();
     });
+
+    it("should reject MySQL hash comments, inline -- comments, and MySQL 8.0+ TABLE/WITH subqueries", () => {
+      expect(() => validateWhereClause("id = 1 # comment")).toThrow(
+        ValidationError,
+      );
+      expect(() => validateWhereClause("id = 1 -- inline comment\nAND 1=1")).toThrow(
+        ValidationError,
+      );
+      expect(() => validateWhereClause("id = 1 /* unclosed")).toThrow(
+        ValidationError,
+      );
+      expect(() => validateWhereClause("id = (TABLE secrets LIMIT 1)")).toThrow(
+        ValidationError,
+      );
+      expect(() =>
+        validateWhereClause("id = (WITH c AS (SELECT 1) SELECT * FROM c)"),
+      ).toThrow(ValidationError);
+      expect(() =>
+        validateWhereClause("1=1 AND EXISTS(SELECT 1 FROM information_schema.columns)"),
+      ).toThrow(ValidationError);
+    });
   });
 
   describe("validateMySQLPrivilege", () => {

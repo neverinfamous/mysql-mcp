@@ -10,7 +10,7 @@
 # -----------------
 FROM node:26-alpine AS builder
 
-ARG PNPM_VERSION=9.15.4
+ARG PNPM_VERSION=11.9.0
 
 WORKDIR /app
 
@@ -24,11 +24,11 @@ RUN apk add --no-cache \
     g++
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install ALL dependencies (including devDependencies for build)
 RUN npm install -g pnpm@${PNPM_VERSION} && \
-    pnpm install --frozen-lockfile > /dev/null 2>&1
+    pnpm install --frozen-lockfile
 
 # Copy source code
 COPY tsconfig*.json tsup.config.ts ./
@@ -42,7 +42,7 @@ RUN pnpm run build
 # -----------------
 FROM node:26-alpine AS runtime
 
-ARG PNPM_VERSION=9.15.4
+ARG PNPM_VERSION=11.9.0
 
 # MCP Registry label for package validation
 LABEL io.modelcontextprotocol.server.name="io.github.neverinfamous/mysql-mcp"
@@ -55,37 +55,15 @@ ENV NPM_CONFIG_UPDATE_NOTIFIER=false
 # Upgrade Alpine base packages to fix CVEs
 RUN apk upgrade --no-cache
 
-# Upgrade npm to fix CVEs in bundled dependencies:
-# - CVE-2024-21538: cross-spawn < 7.0.5
-# - CVE-2025-64756: glob < 10.5.0
-# - CVE-2025-5889: brace-expansion <= 2.0.1
-# - CVE-2026-26960: tar < 7.5.8 (patch npm's bundled copy with 7.5.22)
-# - CVE-2026-27904: minimatch < 10.2.3 (patch npm's bundled copy with 10.2.6)
-# - CVE-2026-69152: brace-expansion < 5.0.9 (patch npm's bundled copy with 5.0.9)
-# - CVE-2026-69192: ip-address <= 10.3.0 (patch npm's bundled copy with 10.5.0)
-# - CVE-2026-16729: undici < 6.28.0 (patch npm's bundled copy with 8.10.0)
-RUN npm install -g npm@latest && \
-    npm install -g tar@7.5.22 && \
-    rm -rf /usr/local/lib/node_modules/npm/node_modules/tar && \
-    cp -r /usr/local/lib/node_modules/tar /usr/local/lib/node_modules/npm/node_modules/tar && \
-    npm uninstall -g tar && \
-    npm install -g minimatch@10.2.6 && \
-    rm -rf /usr/local/lib/node_modules/npm/node_modules/minimatch && \
-    cp -r /usr/local/lib/node_modules/minimatch /usr/local/lib/node_modules/npm/node_modules/minimatch && \
-    npm uninstall -g minimatch && \
-    npm install -g brace-expansion@5.0.9 && \
-    rm -rf /usr/local/lib/node_modules/npm/node_modules/brace-expansion && \
-    cp -r /usr/local/lib/node_modules/brace-expansion /usr/local/lib/node_modules/npm/node_modules/brace-expansion && \
-    npm uninstall -g brace-expansion && \
-    npm install -g ip-address@10.5.0 && \
-    rm -rf /usr/local/lib/node_modules/npm/node_modules/ip-address && \
-    cp -r /usr/local/lib/node_modules/ip-address /usr/local/lib/node_modules/npm/node_modules/ip-address && \
-    npm uninstall -g ip-address && \
-    npm install -g undici@8.10.0 && \
-    rm -rf /usr/local/lib/node_modules/npm/node_modules/undici && \
-    cp -r /usr/local/lib/node_modules/undici /usr/local/lib/node_modules/npm/node_modules/undici && \
-    npm uninstall -g undici && \
-    npm cache clean --force
+# Security Notes:
+# - Last Docker Scout scan: 2026-11-05 on node:26-alpine (Node v26.13.0, Alpine 3.24), 0 critical / 0 high / 0 medium / 0 low / 0 unspecified (0 vulnerabilities across 60 packages).
+# - Alpine OS packages are upgraded via `apk upgrade --no-cache` plus `musl`/`musl-utils >=1.2.6-r6` from Alpine edge (fixes CVE-2026-107891).
+# - Runtime vs bundled: production dependencies are installed via `pnpm install --prod --frozen-lockfile`,
+#   and both `pnpm` and `npm`/`npx` are completely removed from the runtime image after installation
+#   to eliminate bundled npm CVEs (undici, brace-expansion, ip-address, minimatch, glob, tar).
+# - Transitive runtime and build-time packages are pinned via `pnpm-workspace.yaml` / `package.json`
+#   `overrides` and `resolutions` (`@hono/node-server`, `hono`, `esbuild`, `brace-expansion`, `ip-address`,
+#   `undici`, `postcss`, `fast-uri`, `minimatch`, `glob`, `tar`, `vite`).
 
 # Create non-root user for security
 RUN addgroup -g 1001 app && \
@@ -95,15 +73,20 @@ RUN addgroup -g 1001 app && \
 ENV MCP_HOST=0.0.0.0
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install production dependencies only (needs build tools for better-sqlite3)
+# Then remove pnpm, npm, and npx to reduce runtime attack surface
 RUN apk add --no-cache python3 make g++ && \
     npm install -g pnpm@${PNPM_VERSION} && \
-    pnpm install --prod --frozen-lockfile > /dev/null 2>&1 && \
+    pnpm install --prod --frozen-lockfile && \
     pnpm store prune && \
     npm uninstall -g pnpm && \
+    rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx /root/.npm && \
     apk del python3 make g++
+
+# Upgrade musl and musl-utils from Alpine edge after build tools (musl-dev) are removed (fixes CVE-2026-107891)
+RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main 'musl>=1.2.6-r6' 'musl-utils>=1.2.6-r6'
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist

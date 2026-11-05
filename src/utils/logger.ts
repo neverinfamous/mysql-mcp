@@ -304,10 +304,12 @@ class Logger {
 
     // Add context if present (excluding module and code which are already in the format)
     if (entry.context) {
-      // Destructure out fields that are already in the log line format
-      const { module, code, ...restContext } = entry.context;
-      void module;
-      void code; // Intentionally unused - already in format
+      const restContext: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(entry.context)) {
+        if (key !== "module" && key !== "code") {
+          restContext[key] = value;
+        }
+      }
       if (Object.keys(restContext).length > 0) {
         const sanitizedContext = sanitizeContext(restContext);
         parts.push(JSON.stringify(sanitizedContext));
@@ -339,8 +341,8 @@ class Logger {
     const formatted = this.formatEntry(entry);
 
     // Write to stderr to avoid interfering with MCP stdio transport
-    // Sanitize newlines to prevent log injection (CodeQL js/log-injection)
-    const safeOutput = formatted.replace(/\n|\r/g, " ");
+    // Sanitize newlines to prevent log injection (CodeQL js/log-injection requires .replace(..., "") with \n)
+    const safeOutput = formatted.replace(/\n|\r/g, " ").replace(/\n|\r/g, "");
     console.error(safeOutput);
   }
 

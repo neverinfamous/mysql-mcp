@@ -8,7 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
-import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable } from "../../../../../utils/validators.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable, validateWhereClause } from "../../../../../utils/validators.js";
 import { DistributionOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { DistributionSchemaBase, DistributionSchema } from "./schemas.js";
@@ -34,6 +34,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
+        validateWhereClause(where);
         if (buckets < 1) {
           throw new ValidationError("buckets must be at least 1");
         }

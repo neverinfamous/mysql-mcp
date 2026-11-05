@@ -1,0 +1,23 @@
+packages:
+  - '.'
+
+allowBuilds:
+  better-sqlite3: true
+  better-sqlite3-multiple-ciphers: true
+  esbuild: true
+  isolated-vm: true
+trustLockfile: true
+
+overrides:
+  "@hono/node-server": "2.1.6"
+  hono: "4.13.16"
+  esbuild: "0.28.2"
+  brace-expansion: "5.0.12"
+  ip-address: "10.7.6"
+  undici: "8.12.4"
+  postcss: "8.5.32"
+  fast-uri: "4.2.3"
+  minimatch: "11.0.4"
+  glob: "14.0.3"
+  tar: "7.5.22"
+  vite: "8.3.6"

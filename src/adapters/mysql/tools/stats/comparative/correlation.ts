@@ -8,7 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
-import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable } from "../../../../../utils/validators.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable, validateWhereClause } from "../../../../../utils/validators.js";
 import { CorrelationOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { CorrelationSchemaBase, CorrelationSchema } from "./schemas.js";
@@ -35,6 +35,7 @@ export function createCorrelationTool(adapter: MySQLAdapter): ToolDefinition {
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column1, "column");
         validateIdentifier(column2, "column");
+        validateWhereClause(where);
 
         const whereClause = where ? `WHERE (${where}) AND \`${column1}\` IS NOT NULL AND \`${column2}\` IS NOT NULL` : `WHERE \`${column1}\` IS NOT NULL AND \`${column2}\` IS NOT NULL`;
 

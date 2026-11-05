@@ -1124,4 +1124,45 @@ describe("Stats Zod Validation Guards", () => {
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
   });
+
+  it("rejects dangerous WHERE clauses across all stats tools (GHSA-48f7-q6mc-23mp)", async () => {
+    const maliciousWhere = "1=1 AND (SELECT password FROM mysql.user LIMIT 1) IS NOT NULL";
+    const cases: Array<{ name: string; params: Record<string, unknown> }> = [
+      { name: "mysql_stats_descriptive", params: { table: "orders", column: "total", where: maliciousWhere } },
+      { name: "mysql_stats_percentiles", params: { table: "orders", column: "total", where: maliciousWhere } },
+      { name: "mysql_stats_correlation", params: { table: "orders", column1: "total", column2: "tax", where: maliciousWhere } },
+      { name: "mysql_stats_distribution", params: { table: "orders", column: "total", where: maliciousWhere } },
+      { name: "mysql_stats_outliers", params: { table: "orders", column: "total", where: maliciousWhere } },
+      { name: "mysql_stats_top_n", params: { table: "orders", column: "total", where: maliciousWhere } },
+      { name: "mysql_stats_distinct", params: { table: "orders", column: "total", where: maliciousWhere } },
+      { name: "mysql_stats_frequency", params: { table: "orders", column: "total", where: maliciousWhere } },
+      { name: "mysql_stats_summary", params: { table: "orders", where: maliciousWhere } },
+      { name: "mysql_stats_hypothesis", params: { table: "orders", column: "total", where: maliciousWhere } },
+      { name: "mysql_stats_rank", params: { table: "orders", orderBy: "total", where: maliciousWhere } },
+      { name: "mysql_stats_row_number", params: { table: "orders", orderBy: "total", where: maliciousWhere } },
+    ];
+
+    mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+      if (query.includes("information_schema.TABLES")) {
+        return createMockQueryResult([{ "1": 1 }]);
+      }
+      if (query.includes("information_schema.COLUMNS")) {
+        return createMockQueryResult([{ DATA_TYPE: "int", COLUMN_NAME: "total" }]);
+      }
+      return createMockQueryResult([]);
+    });
+
+    for (const { name, params } of cases) {
+      const tool = tools.find((t) => t.name === name);
+      expect(tool, `Expected tool ${name} to exist`).toBeDefined();
+      const result = (await tool!.handler(params, mockContext)) as {
+        success: boolean;
+        code?: string;
+        error?: string;
+      };
+      expect(result.success, `Expected ${name} to reject malicious where`).toBe(false);
+      expect(result.code).toBe("VALIDATION_ERROR");
+      expect(result.error).toContain("dangerous SQL patterns");
+    }
+  });
 });

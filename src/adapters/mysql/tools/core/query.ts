@@ -15,6 +15,7 @@ import type { ToolDefinition, RequestContext } from "../../../../types/index.js"
 import { ValidationError } from "../../../../types/index.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 import { streamResultRows } from "../../../../utils/stream-utils.js";
+import { stripLeadingSqlComments } from "../../../database-adapter/validation.js";
 
 export function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -61,7 +62,7 @@ export function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
-        const cleanQueryForPrefix = finalQuery.replace(/^(\s*(?:--[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/))*\s*/i, "").toUpperCase();
+        const cleanQueryForPrefix = stripLeadingSqlComments(finalQuery).toUpperCase();
         const isLimitable =
           cleanQueryForPrefix.startsWith("SELECT") ||
           cleanQueryForPrefix.startsWith("WITH") ||
@@ -73,7 +74,8 @@ export function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
           .replace(/"[^"]*"/g, "")
           .replace(/`[^`]*`/g, "")
           .replace(/\/\*[\s\S]*?\*\//g, "")
-          .replace(/--[^\n]*/g, "");
+          .replace(/--[^\n]*/g, "")
+          .replace(/#[^\n]*/g, "");
         const hasLimit = /\bLIMIT\b/i.test(strippedForLimitCheck);
         
         if (isLimitable && !hasLimit && !stream) {
@@ -165,12 +167,13 @@ export function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
           transactionId,
         } = WriteQuerySchema.parse(params);
 
-        const cleanQueryValidation = query.replace(/^(\s*(?:--[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/))*\s*/i, "").toUpperCase();
+        const cleanQueryValidation = stripLeadingSqlComments(query).toUpperCase();
         if (
           cleanQueryValidation.startsWith("SELECT") ||
           cleanQueryValidation.startsWith("WITH") ||
           cleanQueryValidation.startsWith("SHOW") ||
           cleanQueryValidation.startsWith("DESCRIBE") ||
+          cleanQueryValidation.startsWith("DESC ") ||
           cleanQueryValidation.startsWith("EXPLAIN") ||
           cleanQueryValidation.startsWith("(")
         ) {
@@ -186,7 +189,7 @@ export function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
           transactionId,
         );
 
-        const cleanQueryCache = query.replace(/^(\s*(?:--[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/))*\s*/i, "").toUpperCase();
+        const cleanQueryCache = stripLeadingSqlComments(query).toUpperCase();
         if (
           cleanQueryCache.startsWith("CREATE") ||
           cleanQueryCache.startsWith("DROP") ||

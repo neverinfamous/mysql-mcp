@@ -3,6 +3,7 @@ import {
   preprocessTableParams,
   preprocessQueryOnlyParams,
 } from "./preprocess-utils.js";
+import { validateSqlSafety } from "../../database-adapter/validation.js";
 
 // =============================================================================
 // Performance Schemas
@@ -118,7 +119,13 @@ export const ExplainAnalyzeSchema = z
   })
   .refine((data) => {
     if (!data.query) return true;
-    return /^\s*(SELECT|WITH)\b/i.test(data.query);
+    if (!/^\s*(SELECT|WITH)\b/i.test(data.query)) return false;
+    try {
+      validateSqlSafety(data.query, true);
+      return true;
+    } catch {
+      return false;
+    }
   }, {
     message: "Anti-Hallucination Hint: EXPLAIN ANALYZE actually executes the query and can mutate data. Only SELECT or WITH queries are permitted.",
   });

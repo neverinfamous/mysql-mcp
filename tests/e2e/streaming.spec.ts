@@ -4,9 +4,10 @@
  * Validates raw SSE event stream behavior for both Streamable HTTP
  * (GET /mcp) and Legacy SSE (GET /mcp) transports.
  *
- * Uses a dedicated server on port 3130 to avoid disrupting SDK-based
+ * Uses a dedicated server on port 3135 to avoid disrupting SDK-based
  * tests on the shared port (raw SSE connections interfere with
- * McpServer.connect() single-transport state).
+ * McpServer.connect() single-transport state) and to avoid port 3130
+ * (used by db-mcp Prometheus metrics exporter).
  *
  * Ported from db-mcp/tests/e2e/streaming.spec.ts — adapted for mysql-mcp.
  */
@@ -17,7 +18,7 @@ import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 // Force sequential execution to prevent parallel workers from colliding on manual ports/files
 test.describe.configure({ mode: "serial" });
 
-const STREAM_PORT = 3130 + Number(process.env.TEST_WORKER_INDEX || 0);
+const STREAM_PORT = 3135 + Number(process.env.TEST_WORKER_INDEX || 0);
 const STREAM_BASE = `http://127.0.0.1:${STREAM_PORT}`;
 
 test.describe("HTTP/SSE Streaming", () => {

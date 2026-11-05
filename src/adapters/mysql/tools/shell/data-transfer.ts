@@ -20,6 +20,7 @@ import {
   type RequestContext,
 } from "../../../../types/index.js";
 import { assertSafeIoPath } from "../../../../utils/security-utils.js";
+import { validateWhereClause } from "../../../../utils/validators.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   ShellExportTableInputSchema,
@@ -98,6 +99,7 @@ export function createShellExportTableTool(
         }
         // TSV is the default for util.exportTable(), no special options needed
         if (where) {
+          validateWhereClause(where);
           options.push(`where: "${escapeForJS(where)}"`);
         }
 

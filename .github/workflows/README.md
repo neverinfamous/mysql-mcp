@@ -39,10 +39,6 @@ flowchart LR
         NPM["publish-npm"]
     end
 
-    subgraph Agentic["Agentic Workflows (Copilot)"]
-        CHM["ci-health-monitor"]
-    end
-
     PR --> LT
     PR --> CQL
     PR --> SS
@@ -64,12 +60,10 @@ flowchart LR
     Manual --> NPM
     Manual --> DP
     Manual --> CQL
-    Manual --> CHM
     Manual --> SU
     Manual --> DPD
 
     Sched --> CQL
-    Sched --> CHM
     Sched --> SU
     Sched --> DPD
 ```
@@ -100,14 +94,6 @@ flowchart LR
 | ------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [docker-publish.yml](docker-publish.yml)   | `workflow_call` from gatekeeper (on tag) / manual   | Builds multi-arch images, scans, and pushes to Docker Hub. Manual runs require emergency bypass. |
 | [publish-npm.yml](publish-npm.yml)         | `workflow_call` from gatekeeper (on tag) / manual            | Publishes to npm with SLSA L3 provenance. Manual runs require an explicit emergency bypass. |
-
-### Automate with Agentic Workflows
-
-These are AI-powered workflows using [GitHub Copilot Coding Agent](https://docs.github.com/en/copilot/using-github-copilot/using-copilot-coding-agent-to-work-on-tasks/about-assigning-tasks-to-copilot). Each `.md` file contains the agent prompt. The corresponding `.lock.yml` is the auto-generated compiled workflow (**do not edit `.lock.yml` files**).
-
-| Prompt                                           | Lock File                                                    | Schedule               | Purpose                                                                                 |
-| ------------------------------------------------ | ------------------------------------------------------------ | ---------------------- | --------------------------------------------------------------------------------------- |
-| [ci-health-monitor.md](ci-health-monitor.md)     | [ci-health-monitor.lock.yml](ci-health-monitor.lock.yml)     | Wed 14:00 UTC / manual | Audits workflows for deprecated actions, Node.js issues, and stale Dependabot configurations. |
 
 ---
 
@@ -145,10 +131,7 @@ The `lint-and-test`, `codeql`, `secrets-scanning`, and `security-update (Trivy)`
 
 | Secret            | Used By                    | Purpose                     |
 | ----------------- | -------------------------- | --------------------------- |
-| `GITHUB_TOKEN`    | codeql, secrets-scanning, security-update, ci-health-monitor | Git operations and agent authorization |
-| `GH_AW_GITHUB_MCP_SERVER_TOKEN`| ci-health-monitor | Agent authorization            |
-| `GH_AW_GITHUB_TOKEN` | ci-health-monitor         | Agent authorization            |
-| `COPILOT_GITHUB_TOKEN`| ci-health-monitor        | gh copilot engine authorization for agentic workflows |
+| `GITHUB_TOKEN`    | codeql, secrets-scanning, security-update | Git operations and workflow authorization |
 | `NPM_TOKEN`       | publish-npm                | npm registry authentication  |
 | `DOCKER_USERNAME` | docker-publish             | Docker Hub login             |
 | `DOCKER_PASSWORD` | docker-publish             | Docker Hub login             |
@@ -158,5 +141,3 @@ The `lint-and-test`, `codeql`, `secrets-scanning`, and `security-update (Trivy)`
 ## Follow Editing Guidelines
 
 - **YAML workflows** — edit directly, commit to `main` or via PR
-- **Agentic .md prompts** — edit the .md file. Use the provided agent script to regenerate `.lock.yml` files.
-- **`.lock.yml` files** — **never edit manually**; always regenerate via the provided agent script

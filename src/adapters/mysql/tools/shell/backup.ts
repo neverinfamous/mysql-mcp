@@ -18,6 +18,7 @@ import {
   type RequestContext,
 } from "../../../../types/index.js";
 import { assertSafeIoPath } from "../../../../utils/security-utils.js";
+import { validateWhereClause } from "../../../../utils/validators.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   ShellDumpInstanceInputSchema,
@@ -433,6 +434,9 @@ export function createShellDumpTablesTool(
           options.push("dryRun: true");
         }
         if (where !== undefined && Object.keys(where).length > 0) {
+          for (const cond of Object.values(where)) {
+            validateWhereClause(cond);
+          }
           const whereEntries = Object.entries(where)
             .map(([tbl, cond]) => {
               const fullTblName = tbl.includes(".") ? tbl : `${schema}.${tbl}`;

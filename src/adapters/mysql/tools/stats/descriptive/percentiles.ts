@@ -8,7 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
-import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable } from "../../../../../utils/validators.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable, validateWhereClause } from "../../../../../utils/validators.js";
 import { PercentilesOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { PercentilesSchemaBase, PercentilesSchema } from "./schemas.js";
@@ -33,6 +33,7 @@ export function createPercentilesTool(adapter: MySQLAdapter): ToolDefinition {
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
+        validateWhereClause(where);
 
         const baseWhere = where ? `(${where}) AND ` : "";
         const whereClause = `WHERE ${baseWhere}\`${column}\` IS NOT NULL`;

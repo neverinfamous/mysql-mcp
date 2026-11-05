@@ -9,6 +9,7 @@ import {
 } from "../../core/error-helpers.js";
 import { WindowFunctionOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
+import { validateWhereClause } from "../../../../../utils/validators.js";
 import { StatsRankSchemaBase, StatsRankSchema } from "./schemas.js";
 import { selectList, partitionClause, whereClause } from "./helpers.js";
 
@@ -46,6 +47,10 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
         const fullTableName = parsed.database 
           ? `\`${parsed.database}\`.${escapeQualifiedTable(parsed.table)}` 
           : escapeQualifiedTable(parsed.table);
+
+        validateWhereClause(parsed.where);
+        validateWhereClause(parsed.orderBy);
+        validateWhereClause(parsed.partitionBy);
 
         const rankType = parsed.method;
         const partition = partitionClause(parsed.partitionBy);

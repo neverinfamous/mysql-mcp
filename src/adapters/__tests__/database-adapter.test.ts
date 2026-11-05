@@ -357,6 +357,99 @@ describe("DatabaseAdapter", () => {
         adapter.validateQuery("SELECT 1; UPDATE users SET x=1", false),
       ).toThrow();
     });
+
+    it("should reject write statements preceded by leading comments in read-only mode (GHSA-48f7-q6mc-23mp)", () => {
+      expect(() =>
+        adapter.validateQuery("/**/INSERT INTO users VALUES (1)", true),
+      ).toThrow("Read-only mode: INSERT statements are not allowed");
+      expect(() =>
+        adapter.validateQuery("/* x */UPDATE users SET name = 'test'", true),
+      ).toThrow("Read-only mode: UPDATE statements are not allowed");
+      expect(() =>
+        adapter.validateQuery("-- c\nINSERT INTO users VALUES (1)", true),
+      ).toThrow("Read-only mode: INSERT statements are not allowed");
+      expect(() =>
+        adapter.validateQuery("# c\nDELETE FROM users", true),
+      ).toThrow("Read-only mode: DELETE statements are not allowed");
+      expect(() =>
+        adapter.validateQuery("/*c*/DROP TABLE demo", true),
+      ).toThrow("Read-only mode: DROP statements are not allowed");
+      expect(() =>
+        adapter.validateQuery(
+          "/**/CREATE TABLE proof_ro_bypass_ni(id INT)",
+          true,
+        ),
+      ).toThrow("Read-only mode: CREATE statements are not allowed");
+    });
+
+    it("should reject MySQL/MariaDB executable comments containing writes in read-only mode", () => {
+      expect(() =>
+        adapter.validateQuery(
+          "/*!50000 CREATE TABLE proof_ro_bypass(id INT) */",
+          true,
+        ),
+      ).toThrow("Read-only mode: CREATE statements are not allowed");
+      expect(() =>
+        adapter.validateQuery("/*M!100000 DROP TABLE demo */", true),
+      ).toThrow("Read-only mode: DROP statements are not allowed");
+      expect(() =>
+        adapter.validateQuery("/* unclosed comment INSERT INTO users", true),
+      ).toThrow();
+    });
+
+    it("should reject CTE write queries and EXPLAIN ANALYZE write queries in read-only mode", () => {
+      expect(() =>
+        adapter.validateQuery("WITH cte AS (SELECT 1) DELETE FROM users", true),
+      ).toThrow("Read-only mode: DELETE statements are not allowed");
+      expect(() =>
+        adapter.validateQuery(
+          "WITH cte AS (SELECT 1) UPDATE users SET name = 'x'",
+          true,
+        ),
+      ).toThrow("Read-only mode: UPDATE statements are not allowed");
+      expect(() =>
+        adapter.validateQuery("EXPLAIN ANALYZE DELETE FROM users", true),
+      ).toThrow("Read-only mode: DELETE statements are not allowed");
+      expect(() =>
+        adapter.validateQuery(
+          "WITH cte AS (SELECT 1) SELECT * FROM cte",
+          true,
+        ),
+      ).not.toThrow();
+    });
+
+    it("should reject non-allowlisted statements and locking/outfile clauses in read-only mode", () => {
+      expect(() => adapter.validateQuery("CALL some_proc()", true)).toThrow(
+        "Read-only mode: CALL statements are not allowed",
+      );
+      expect(() => adapter.validateQuery("RENAME TABLE a TO b", true)).toThrow(
+        "Read-only mode: RENAME statements are not allowed",
+      );
+      expect(() =>
+        adapter.validateQuery("SET GLOBAL max_connections = 1000", true),
+      ).toThrow("Read-only mode: SET statements are not allowed");
+      expect(() =>
+        adapter.validateQuery("SELECT * FROM users INTO OUTFILE '/tmp/x'", true),
+      ).toThrow();
+      expect(() =>
+        adapter.validateQuery("SELECT * FROM users FOR UPDATE", true),
+      ).toThrow("Read-only mode: locking or file export clauses are not allowed");
+      expect(() =>
+        adapter.validateQuery("SELECT 1; /* comment */ DROP TABLE users", false),
+      ).toThrow();
+      expect(() =>
+        adapter.validateQuery(
+          "SELECT * FROM users INTO /* comment */ OUTFILE '/tmp/x'",
+          false,
+        ),
+      ).toThrow();
+      expect(() =>
+        adapter.validateQuery(`/*!${"0".repeat(10000)}`, true),
+      ).toThrow();
+      expect(() =>
+        adapter.validateQuery(`SELECT 1; ${"/**/".repeat(2000)}`, true),
+      ).not.toThrow();
+    });
   });
 
   describe("MCP registration", () => {
